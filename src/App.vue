@@ -18,30 +18,7 @@ export default {
     return {
       jobs: [],
       time: new Date(),
-      runs: [],
-      fields: [
-        {
-          key: 'run_id',
-          sortable: false
-        },
-        {
-          key: 'progress',
-          sortable: false
-        },
-        {
-          key: 'current_step',
-          sortable: false
-        },
-        {
-          key: 'status',
-          sortable: true
-        },
-        {
-          key: 'time',
-          sortable: false
-        }
-      ],
-      counter: 0
+      runs: []
     }
   },
   mounted () {
@@ -66,11 +43,10 @@ export default {
         const runIterator = async () => {
           for (const project of data.items) {
             await this.getRuns(project.run_id)
-        }
-
+          }
         }
         runIterator().then(() => {
-          this.jobs.sort((a,b) => {
+          this.jobs.sort((a, b) => {
             if (a.status === b.status) {
               return 0
             } else if (a.status === 'Waiting') {
@@ -82,16 +58,9 @@ export default {
             } else return -1
           })
         })
-  
-
-        
-        console.log('sorting')
-        
-        
       } catch (error) {
         console.error(error)
       }
-      
     },
     /**
      * Builds a run object
@@ -178,7 +147,7 @@ export default {
             start: new Date(item.started_date),
             end: new Date(item.finished_date),
             completeJob: item.step
-          }) 
+          })
         })
         completeJobList.sort()
         console.log(completeJobList)
@@ -215,33 +184,24 @@ export default {
         this.jobs.push(
           this.runBuilder(runID, progress, runID, status, jobName, timeDiffrence)
         )
-        
       } catch (error) {
         console.error(error)
       }
-
       return 0
     },
 
-    secondsToHMS(secs) {
-    function z(n){return (n<10?'0':'') + n;}
-    var sign = secs < 0? '-':'';
-    secs = Math.abs(secs);
-    return sign + z(secs/3600 |0) + ':' + z((secs%3600) / 60 |0) + ':' + Math.round(z(secs%60));
-  },
-    statusComparator (a, b) {
-
-      if (a.status === b.status) {
-        return 0
-      } else if (a.status === 'Running') {
-        return 1
-      } else {
-        return -1
+    secondsToHMS (seconds) {
+      function z (n) {
+        return (n < 10 ? '0' : '') + n
       }
+      var sign = secs < 0 ? '-' : ''
+      secs = Math.abs(seconds)
+      return sign + z(seconds / 3600 | 0) + ':' + z((seconds % 3600) / 60 | 0) + ':' + Math.round(z(seconds % 60))
     }
   }
 }
 </script>
 
 <style>
+
 </style>
