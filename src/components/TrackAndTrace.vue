@@ -1,10 +1,10 @@
 <template>
   <div id="track-and-trace">
-    <b-table-simple hover small>
+    <b-table-simple hover borderless>
       <colgroup><col><col></colgroup>
       <colgroup><col><col></colgroup>
       <colgroup><col><col></colgroup>
-      <b-thead>
+      <b-thead head-variant="light">
         <b-tr>
           <b-th colspan="2">Run Information</b-th>
           <b-th colspan="3">Progress</b-th>
@@ -15,13 +15,13 @@
           <b-th>Pipeline</b-th>
           <b-th>Complete</b-th>
           <b-th>Current Step</b-th>
-          <b-th>Status</b-th>
+          <b-th>Status</b-th >
           <b-th>Runtime</b-th>
           <b-th>ETA</b-th>
         </b-tr>
       </b-thead>
-      <b-tbody v-for="project in projects" :key="project.run_id">
-          <run-item :run="project"></run-item>
+      <b-tbody v-for="run in runs" :key="run.run_id">
+          <run-item :run="run" ></run-item>
       </b-tbody>
   
     </b-table-simple>
@@ -43,10 +43,29 @@ export default {
     return {
       loading: false,
       jobs: [],
-      projects: []
+      projects: [],
     }
   },
   computed: {
+    runs: function () {
+      let runs = []
+      this.projects.forEach((project) => {
+        let runJobs = this.jobs
+        .filter(function (x) {return x.project === project.run_id})
+        .sort(function (x) {return x.job})
+
+        let run = {
+          run_id: project.run_id,
+          pipeline: project.pipeline,
+          jobs: runJobs
+        }
+
+        runs.push(run)
+      
+      })
+
+      return runs
+    }
   },
   methods: {
     /**
@@ -219,7 +238,6 @@ export default {
       }
       return 0
     },
-
     secondsToHMS (seconds) {
       function z (n) {
         return (n < 10 ? '0' : '') + n
@@ -227,16 +245,13 @@ export default {
       var sign = seconds < 0 ? '-' : ''
       seconds = Math.abs(seconds)
       return sign + z(seconds / 3600 | 0) + ':' + z((seconds % 3600) / 60 | 0) + ':' + Math.round(z(seconds % 60))
-    },
-
-    
+    },   
   },
 
   mounted () {
     this.getProjects()
   }
 }
-  
 
 </script>
 
