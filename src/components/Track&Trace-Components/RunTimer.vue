@@ -15,9 +15,17 @@ export default Vue.extend({
         countdown: Boolean
     },
     computed: {
+        /**
+         * calculates timediffrence
+         * @returns Number (milliseconds)
+         */
         time: function () {
             return this.finishTime - this.startTime
         },
+        /**
+         * Calculates the seconds counter
+         * @returns Number OR String
+         */
         seconds: function () {
             const seconds = Math.sqrt(Math.pow(Math.round(((this.time/1000) % 3600) % 60), 2))
             if (seconds < 10) {
@@ -25,6 +33,10 @@ export default Vue.extend({
             } 
             return seconds
         },
+        /**
+         * Calculates the minutes counter
+         * @returns Number OR String
+         */
         minutes: function() {
             const minutes = Math.sqrt(Math.pow(Math.round(((this.time/1000) / 3600) % 60), 2))
             if (minutes < 10){
@@ -32,6 +44,10 @@ export default Vue.extend({
             }
             return minutes
         },
+        /**
+         * Calculates hour counter
+         * @returns Number OR String
+         */
         hours: function () {
             const hours = Math.round((this.time/1000) / 3600)
             if (hours < 0){
@@ -43,16 +59,15 @@ export default Vue.extend({
             }
             return hours
         },
+        /**
+         * Checks if project is on hold
+         * @returns Boolean
+         */
         waiting: function () {
             return (!started )
         }
         
-    },
-    methods: {
-    },
-    mounted () {
-    }
-    
+    }  
 })
 </script>
 

@@ -40,9 +40,17 @@ export default Vue.extend({
         }
     },
     computed: {
+        /**
+         * Converts average hours to milliseconds for timer
+         * @returns Number
+         */
         avgMs: function () {
             return this.avgHours * 3600 * 1000
         },
+        /**
+         * Filters jobs that are not completed sorted by start date
+         * @returns Array
+         */
         remainingJobs: function () {
             return this.jobs.filter(function (x) {return x.status !== 'finished'}).sort((a, b) => {
                 const Astarted = a.started_date
@@ -67,12 +75,24 @@ export default Vue.extend({
                 
             })
         },
+        /**
+         * calculates finished step count
+         * @returns Number
+         */
         steps: function () {
             return this.jobs.filter(function (x) {return x.status === 'finished'}).length
         },
+        /**
+         * Calculates total step count for completion
+         * @returns Number
+         */
         totalSteps: function () {
             return this.jobs.length
         },
+        /**
+         * Finds status of project and sets variant
+         * @returns String
+         */
         status: function () {
         if (this.finished) {
             this.variant = 'success'
@@ -88,7 +108,10 @@ export default Vue.extend({
             return 'Waiting'
         }
         },
-
+        /**
+         * Checks if project has been started
+         * @returns Boolean
+         */
         started: function() {
             const startedJobs = this.jobs.filter(function (x) {return x.status === 'started' }).length
             
@@ -99,9 +122,17 @@ export default Vue.extend({
             }
             return false
         },
+        /**
+         * Checks if all steps are completed
+         * @returns Boolean
+         */
         finished: function () {
             return this.steps/this.totalSteps === 1
         },
+        /**
+         * Gets finished time, if not finished returns now()
+         * @returns Number (milliseconds)
+         */
         finishTime: function() {
             let finished_date = 0
             if (this.finished) {
@@ -116,6 +147,10 @@ export default Vue.extend({
                 return this.time
             }
         },
+        /**
+         * Gets started time
+         * @returns Number (milliseconds)
+         */
         startTime: function() {
             let started_date = Infinity
             this.jobs.forEach((job) => {
@@ -129,39 +164,21 @@ export default Vue.extend({
 
     },
     methods: {
-        compareFinishedDate(a,b) {
-            const DateA = new Date(a.finished_date).getTime()
-            const DateB = new Date(b.finished_date).getTime()
-            if (DateA < DateB) {
-                return 1
-            }
-            if (DateA > DateB) {
-                return -1
-            }
-            return 0
-        },
-        compareStartedDate(a,b) {
-            
-            const DateB = new Date(b.started_date).getTime()
-            if (DateA > DateB) {
-                return 1
-            }
-            if (DateA < DateB) {
-                return -1
-            }
-            return 0
-        },
+        /**
+         * emits finished
+         */
         projectFinished() {
             this.$emit('finished')
         },
+        /**
+         * checks if expected time has been breached
+         */
         hoursNegative() {
             if (!this.finished) {
                 this.variant = 'warning'
                 this.noWarning = false
             }
         }
-    },
-    mounted () {
     }
 })
         

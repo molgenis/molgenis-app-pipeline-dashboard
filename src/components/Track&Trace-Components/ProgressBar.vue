@@ -17,6 +17,10 @@ export default Vue.extend({
         error: Boolean
     },
     computed: {
+        /**
+         * checks if all steps are complete and emits finished
+         * @returns Boolean
+         */
         finished: function () {
             if (this.step/this.totalSteps === 1) {
                 this.$emit('finished')
@@ -25,6 +29,10 @@ export default Vue.extend({
                 return false
             }
         },
+        /**
+         * Finds correct variant for progress bar
+         * @returns String
+         */
         variant: function () {
             if (!this.noWarning) {
                 return 'warning'

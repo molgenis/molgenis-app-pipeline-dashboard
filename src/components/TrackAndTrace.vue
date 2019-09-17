@@ -36,6 +36,10 @@ export default {
     }
   },
   computed: {
+    /**
+     * Combines all data into one object
+     * @returns Object
+     */
     runData: function () {
       let data = []
       this.runs.forEach((run) => {
@@ -59,7 +63,6 @@ export default {
         }
         Projects.push(project)
         })
-        console.log(Projects)
         let len = Projects.length
         data.push({
           run_id: run.run_id,
@@ -71,18 +74,23 @@ export default {
     }
   },
   methods: {
+    /**
+     * increases timer by 1 second
+     */
     timeUp() {
       this.time = this.time + 1000
     },
+    /**
+     * primes the timer for counting runtimes
+     */
     setTimer() {
       this.time = new Date().getTime()
       setInterval(this.timeUp, 1000)
     },
     /**
-     * Get the available projects in statßus data.
+     * Get the available projects in status data.
      */
     async getData () {
-      console.log()
       try {
         let runs =  await this.fetchData(this.url + 'status_overview?num=10000')
         let projects = await this.fetchData(this.url + 'status_projects?num=10000')
@@ -101,8 +109,12 @@ export default {
       } catch (error) {
         console.error(error)
       }
-      console.log('done')
     },
+    /**
+     * fetches data from specified location
+     * @param ref fetch location url
+     * @returns Array of items
+     */
     async fetchData (ref, items = []) {
       const response = await fetch(ref, {headers: new Headers({'x-molgenis-token':'admin-test-token'})})
       const data = await response.json()
@@ -111,13 +123,7 @@ export default {
         totalItems = await this.fetchData(data.nextHref, totalItems)  
       } else {
         return totalItems}
-      },
-      async runUpdater() {
-
-        const updateUrl = this.url + 'status_projects?q=' + this.runUrl
-        const update = await this.fetchData(updateUrl)
-        console.log(update)
-      }
+    }
   },
   async mounted () {
     await this.getData()
