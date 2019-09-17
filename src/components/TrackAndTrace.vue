@@ -32,7 +32,7 @@ export default {
       runs: [],
       projects: [],
       runUrl: '',
-      time: 0
+      time: 0,
     }
   },
   computed: {
@@ -82,10 +82,22 @@ export default {
      * Get the available projects in statßus data.
      */
     async getData () {
+      console.log()
       try {
-        this.runs = await this.fetchData(this.url + 'status_overview?num=10000')
-        this.projects = await this.fetchData(this.url + 'status_projects?num=10000')
-        this.jobs = await this.fetchData(this.url + 'status_jobs?num=10000')
+        let runs =  await this.fetchData(this.url + 'status_overview?num=10000')
+        let projects = await this.fetchData(this.url + 'status_projects?num=10000')
+        let jobs = await this.fetchData(this.url + 'status_jobs?num=10000')
+
+        if (jobs !== this.jobs) {
+          this.jobs = jobs
+        }
+        if (projects !== this.projects) {
+          this.projects = projects
+        }
+        if (runs !== this.runs) {
+          this.runs = runs
+        }
+
       } catch (error) {
         console.error(error)
       }
@@ -110,6 +122,7 @@ export default {
   async mounted () {
     await this.getData()
     this.setTimer()
+    setInterval(this.getData, 10000)
   }
 }
 
