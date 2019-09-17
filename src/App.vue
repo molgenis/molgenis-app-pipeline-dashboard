@@ -1,13 +1,11 @@
 <template>
   <div id="app">
-    <track-and-trace :headers="headers" />
+    <track-and-trace :headers="headers" :url="rootUrl"/>
   </div>
 </template>
 
 <script>
 import TrackAndTrace from './components/TrackAndTrace.vue'
-
-console.log(new Date().getTime())
 
 export default {
   name: 'app',
@@ -17,8 +15,10 @@ export default {
   data () {
     return {
       time: new Date(),
-      headers: new Headers({'x-molgenis-token' : 'admin-test-token'})
-        }
+      headers: new Headers({'x-molgenis-token' : 'admin-test-token'}),
+      rootUrl: 'http://localhost:8081/api/v2/'
+      }
+      
     }
 }
 
