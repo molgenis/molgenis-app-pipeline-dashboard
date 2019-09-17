@@ -43,6 +43,30 @@ export default Vue.extend({
         avgMs: function () {
             return this.avgHours * 3600 * 1000
         },
+        remainingJobs: function () {
+            return this.jobs.filter(function (x) {return x.status !== 'finished'}).sort((a, b) => {
+                const Astarted = a.started_date
+                const Bstarted = b.started_date
+
+                if (Astarted === '' && Bstarted === '') {
+                    return 0
+                } else if (Astarted !== '' && Bstarted === '') {
+                    return 1
+                } else if (Bstarted !== '' && Astarted === '') {
+                    return -1
+                }
+
+                const DateA = new Date(Astarted).getTime()
+                const DateB = new Date(Bstarted).getTime()
+
+                if (DateA > DateB) {
+                    return 1
+                } else if (DateA < DateB) {
+                    return -1
+                } else return 0
+                
+            })
+        },
         steps: function () {
             return this.jobs.filter(function (x) {return x.status === 'finished'}).length
         },
@@ -53,17 +77,27 @@ export default Vue.extend({
         if (this.finished) {
             this.variant = 'success'
             return 'Finished'
-        } else if (!this.started) {
-            this.variant = 'secondary'
-            return 'Waiting'
-        } else if (this.steps !== this.totalSteps) {
+        }  else if (this.remainingJobs.filter(function (x) {return x.status === 'error'}).length >= 1) {
+            this.variant = 'danger'
+            return 'Error encountered!'
+        } else if (this.remainingJobs.filter(function (x) {return x.status === 'started'}).length >= 1) {
             this.variant = 'primary'
             return 'Running'
+        } else {
+            this.variant = 'light'
+            return 'Waiting'
         }
         },
 
         started: function() {
-            return this.steps !== 0
+            const startedJobs = this.jobs.filter(function (x) {return x.status === 'started' }).length
+            
+            if (this.steps > 0) {
+                return true
+            } else if (startedJobs > 0) {
+                return true
+            }
+            return false
         },
         finished: function () {
             return this.steps/this.totalSteps === 1
