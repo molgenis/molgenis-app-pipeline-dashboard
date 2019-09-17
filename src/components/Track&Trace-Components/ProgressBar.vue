@@ -12,8 +12,19 @@ export default Vue.extend({
     name: 'progress-bar',
     props: {
         step: Number,
-        totalSteps: Number,
-        finished: Boolean
+        totalSteps: Number
+    },
+    computed: {
+        finished: function () {
+            if (this.step/this.totalSteps === 1) {
+                this.$emit('finished')
+                return true
+            } else {
+                return false
+            }
+        }
+    },
+    methods: {
     }
 })
 </script>
