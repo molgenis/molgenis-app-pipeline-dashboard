@@ -1,24 +1,9 @@
 <template>
   <div id="track-and-trace">
-    <b-table-simple fixed small>
+    <b-table-simple borderless fixed>
       <colgroup><col><col></colgroup>
       <colgroup><col><col></colgroup>
       <colgroup><col><col></colgroup>
-      <b-thead head-variant="light">
-        <b-tr>
-          <b-th colspan="2">Run Information</b-th>
-          <b-th colspan="2">Timing</b-th>
-          <b-th colspan="2">Progress</b-th>
-        </b-tr>
-        <b-tr>
-          <b-th>Run ID</b-th>
-          <b-th>Projects</b-th>
-          <b-th>Run Time</b-th>
-          <b-th>ETA</b-th >
-          <b-th>Steps Complete</b-th>
-          <b-th>Pipeline status</b-th>
-        </b-tr>
-      </b-thead>
       <b-tbody v-for="run in runData" :key="run.run_id">
         <template v-for="(project, index) in run.projects">
           <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="index === 0" :runID="run.run_id" :projectCount="run.len" :time="time"></project-row>

@@ -1,5 +1,5 @@
 <template>
-    <b-progress :variant="!finished ? 'primary' : 'success'" :max="totalSteps" show-progress animated>
+    <b-progress :variant="variant" :max="totalSteps" show-progress animated>
           <b-progress-bar :value="step">
             <strong>{{ step }} / {{ totalSteps }}</strong>
           </b-progress-bar>
@@ -12,7 +12,9 @@ export default Vue.extend({
     name: 'progress-bar',
     props: {
         step: Number,
-        totalSteps: Number
+        totalSteps: Number,
+        noWarning: Boolean,
+        error: Boolean
     },
     computed: {
         finished: function () {
@@ -22,6 +24,16 @@ export default Vue.extend({
             } else {
                 return false
             }
+        },
+        variant: function () {
+            if (!this.noWarning) {
+                return 'warning'
+            } else if (this.finished) {
+                return 'success'
+            } else if (this.error){
+                return 'danger'
+            } 
+            return 'primary'
         }
     },
     methods: {

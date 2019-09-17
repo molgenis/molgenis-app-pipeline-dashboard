@@ -1,11 +1,13 @@
 <template>
-    <b-tr >
+    <b-tr>
         <b-th v-if="header" class="align-middle" :rowspan="projectCount">{{runID}}</b-th>
         <b-td :variant="variant" class="align-middle">{{project}}</b-td>
-        <b-td :variant="variant" class="align-middle"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime"></run-timer></b-td>
-        <b-td :variant="variant" class="align-middle">--:--:--</b-td>
-        <b-td :variant="variant" class="align-middle"><progress-bar :step="steps" :totalSteps="totalSteps"></progress-bar></b-td>
-        <b-td :variant="variant" class="align-middle">{{status}}</b-td>
+        <b-td :variant="variant" class="align-middle"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-td>
+        <b-td v-if="finished" :variant="variant" class="align-middle">00:00:00</b-td>
+        <b-td v-else :variant="variant" class="align-middle"><run-timer :startTime="finishTime" :finishTime="startTime + avgMs" :countdown="true" :started="started" v-on:negative-hours="hoursNegative"></run-timer></b-td>
+        <b-td :variant="variant" class="align-middle"><progress-bar v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar></b-td>
+        <b-td v-if="noWarning" :variant="variant" class="align-middle">{{status}}</b-td>
+        <b-td v-else :variant="variant" class="align-middle">Warning: Runtime longer than expexted</b-td>
     </b-tr>
 </template>
 
@@ -31,10 +33,16 @@ export default Vue.extend({
     },
     data () {
         return {
-            variant: 'warning'
+            variant: 'warning',
+            avgHours: 4,
+            noWarning: true
+            
         }
     },
     computed: {
+        avgMs: function () {
+            return this.avgHours * 3600 * 1000
+        },
         steps: function () {
             return this.jobs.filter(function (x) {return x.status === 'finished'}).length
         },
@@ -109,8 +117,14 @@ export default Vue.extend({
             }
             return 0
         },
-        getStartTime() {
-            this.startTime = new Date(this.jobs.sort(this.compareStartedDate)[0].started_date).getTime()
+        projectFinished() {
+            this.$emit('finished')
+        },
+        hoursNegative() {
+            if (!this.finished) {
+                this.variant = 'warning'
+                this.noWarning = false
+            }
         }
     },
     mounted () {
