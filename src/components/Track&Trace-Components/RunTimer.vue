@@ -1,7 +1,7 @@
 <template>
-    <p v-if="started">{{hours}}:{{minutes}}:{{seconds}}</p>
-    <p v-else-if="!started && countdown">--:--:--</p>
-    <p v-else>Not Started</p>
+    <span v-if="started" class="align-middle">{{hours}}:{{minutes}}:{{seconds}}</span>
+    <span v-else-if="!started && countdown" class="align-middle">--:--:--</span>
+    <span v-else class="align-middle">Not Started</span>
 </template>
 
 <script>

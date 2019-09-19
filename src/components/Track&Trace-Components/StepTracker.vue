@@ -7,7 +7,7 @@
                 </span>
                     <b-spinner v-if="StepRunning(step) && !error" variant="primary" small/> 
                     <font-awesome-icon v-else-if="StepRunning(step) && error" icon="exclamation-circle"/> 
-                    <font-awesome-icon v-else-if="StepComplete(step)" icon="check-circle"/>
+                    <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
             </li>
         </ul>
     </div>
@@ -39,7 +39,11 @@ export default {
                     return 'error'}
             } else {
                 if (this.StepComplete(step)) {
-                    return 'complete'
+                    if (this.error) {
+                        return 'error'
+                    } else {
+                        return 'complete'
+                    }
                 } else {
                     return ''
                 }
@@ -51,7 +55,7 @@ export default {
 
         StepComplete(step) {
             let index = this.steps.indexOf(step)
-            return ((index < this.currentStep) && (!this.error))
+            return ((index < this.currentStep))
         }
     }
 }

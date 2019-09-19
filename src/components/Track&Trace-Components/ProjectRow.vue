@@ -1,13 +1,14 @@
 <template>
     <b-tr>
-        <b-th v-if="header" class="align-middle" :rowspan="projectCount">{{runID}}</b-th>
-        <b-td :variant="variant" class="align-middle">{{project}}</b-td>
-        <b-td :variant="variant" class="align-middle"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-td>
-        <b-td v-if="finished" :variant="variant" class="align-middle">00:00:00</b-td>
-        <b-td v-else :variant="variant" class="align-middle"><run-timer :startTime="finishTime" :finishTime="startTime + avgMs" :countdown="true" :started="started" v-on:negative-hours="hoursNegative"></run-timer></b-td>
-        <b-td :variant="variant" class="align-middle"><progress-bar v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar></b-td>
-        <b-td v-if="noWarning" :variant="variant" class="align-middle">{{status}}</b-td>
-        <b-td v-else :variant="variant" class="align-middle">Warning: Runtime longer than expexted</b-td>
+        <b-th v-if="header" class="align-middle text-center" :rowspan="projectCount">{{runID}}</b-th>
+        <b-td :variant="variant" class="align-middle text-center">{{project}}</b-td>
+        <b-td :variant="variant" class="align-middle text-center"><status-icon :status="status" /></b-td>
+        <b-td :variant="variant" class="align-middle text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-td>
+        <b-td v-if="finished" :variant="variant" class="align-middle text-center">00:00:00</b-td>
+        <b-td v-else :variant="variant" class="align-middle text-center"><run-timer :startTime="finishTime" :finishTime="startTime + avgMs" :countdown="true" :started="started" v-on:negative-hours="hoursNegative"></run-timer></b-td>
+        <b-td :variant="variant" class="align-middle text-center">
+            <progress-bar v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
+        </b-td>
     </b-tr>
 </template>
 
@@ -15,6 +16,7 @@
 import Vue from 'vue'
 import progressBar from './ProgressBar.vue'
 import runTimer from './RunTimer.vue'
+import StatusIcon from './StatusIcon.vue'
 
 export default Vue.extend({
     name: 'project-row',
@@ -28,7 +30,8 @@ export default Vue.extend({
     },
     components: {
         progressBar,
-        runTimer
+        runTimer,
+        StatusIcon
     },
     data () {
         return {
@@ -93,18 +96,21 @@ export default Vue.extend({
          * @returns String
          */
         status: function () {
-        if (this.finished) {
+            if (!this.noWarning) {
+                this.variant = 'warning'
+                return 'warning'
+        } else if (this.finished) {
             this.variant = 'success'
-            return 'Finished'
+            return 'finished'
         }  else if (this.remainingJobs.filter(function (x) {return x.status === 'error'}).length >= 1) {
             this.variant = 'danger'
-            return 'Error encountered!'
+            return 'error'
         } else if (this.remainingJobs.filter(function (x) {return x.status === 'started'}).length >= 1) {
             this.variant = 'primary'
-            return 'Running'
+            return 'running'
         } else {
             this.variant = 'secondary'
-            return 'Waiting'
+            return 'waiting'
         }
         },
         /**

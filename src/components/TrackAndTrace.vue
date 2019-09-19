@@ -5,7 +5,7 @@
         <b-table-simple v-if="showRun === run.run_id" borderless fixed small :key="run.run_id">
           <colgroup><col></colgroup>
           <colgroup><col><col></colgroup>
-          <colgroup><col><col></colgroup>
+          <colgroup><col></colgroup>
         <b-tbody>
         <b-tr>
           <b-th colspan="5" class="text-center align-middle">

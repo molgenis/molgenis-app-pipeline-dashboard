@@ -4,10 +4,15 @@ import App from './App.vue'
 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons' 
+import { 
+  faCheckCircle, 
+  faExclamationCircle, 
+  faArrowAltCircleRight, 
+  faHourglassStart, 
+  faExclamationTriangle} from '@fortawesome/free-solid-svg-icons' 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faCheckCircle, faExclamationCircle)
+library.add(faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
