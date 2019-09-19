@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <ul class="progressbar" v-for="step in steps" :key="step">
-            <li :class="getStepStatus(step)" class="text-center">
+            <li :class="getStepStatus(step)" >
                 <span class="progress-text"> 
                     {{step}}
                 </span>

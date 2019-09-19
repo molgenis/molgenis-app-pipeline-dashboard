@@ -6,15 +6,15 @@
         </b-progress>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-export default Vue.extend({
+<script>
+export default {
     name: 'progress-bar',
     props: {
         step: Number,
         totalSteps: Number,
         noWarning: Boolean,
-        error: Boolean
+        error: Boolean,
+        variant: String
     },
     computed: {
         /**
@@ -28,25 +28,12 @@ export default Vue.extend({
             } else {
                 return false
             }
-        },
-        /**
-         * Finds correct variant for progress bar
-         * @returns String
-         */
-        variant: function () {
-            if (!this.noWarning) {
-                return 'warning'
-            } else if (this.finished) {
-                return 'success'
-            } else if (this.error){
-                return 'danger'
-            } 
-            return 'primary'
         }
     },
     methods: {
     }
-})
+}
+
 </script>
 
 <style>

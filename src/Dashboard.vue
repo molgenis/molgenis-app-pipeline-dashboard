@@ -1,7 +1,9 @@
 <template>
-  <div id="app" class="b-container">
-    <track-and-trace :headers="headers" :url="rootUrl"/>
-  </div>
+  <b-row id="dashboard" no-gutters>
+    <b-col align-v="center">
+      <track-and-trace :headers="headers" :url="rootUrl"/>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
@@ -24,6 +26,11 @@ export default {
 
 </script>
 
-<style>
+<style lang="scss" scoped>
 
+.outlined {
+  border: 2px solid black;
+}
 </style>
+
+

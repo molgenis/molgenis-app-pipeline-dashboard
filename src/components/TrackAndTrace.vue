@@ -8,12 +8,12 @@
           <colgroup><col></colgroup>
         <b-tbody>
         <b-tr>
-          <b-th colspan="5" class="text-center align-middle">
+          <b-th colspan="4" class="text-center align-middle run_id">
             {{run.run_id}}
           </b-th>
         </b-tr>
         <b-tr>
-          <b-td colspan="5">
+          <b-td colspan="4">
             <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="run.demultiplexing !== 'finished' ? 0 : 1" :error="run.containsError"></step-tracker>
           </b-td>
         </b-tr>
@@ -52,7 +52,7 @@ export default {
       projects: [],
       runUrl: '',
       time: 0,
-      showRun: '170612_M01785_0041_000000000-B5P3V_QXTR_11'
+      showRun: ''
     }
   },
   computed: {
@@ -174,17 +174,24 @@ export default {
     await this.getData()
     this.setTimer()
     setInterval(this.getData, 10000)
+    this.cycle()
     setInterval(this.cycle, 10000)
   }
 }
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '../../node_modules/bootstrap/scss/bootstrap';
+@import '../../node_modules/bootstrap-vue/src/index.scss';
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+.run_id {
+  border: 2px solid $secondary;
 }
 </style>

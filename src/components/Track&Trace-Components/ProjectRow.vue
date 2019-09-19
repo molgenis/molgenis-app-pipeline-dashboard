@@ -4,10 +4,8 @@
         <b-td :variant="variant" class="align-middle text-center">{{project}}</b-td>
         <b-td :variant="variant" class="align-middle text-center"><status-icon :status="status" /></b-td>
         <b-td :variant="variant" class="align-middle text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-td>
-        <b-td v-if="finished" :variant="variant" class="align-middle text-center">00:00:00</b-td>
-        <b-td v-else :variant="variant" class="align-middle text-center"><run-timer :startTime="finishTime" :finishTime="startTime + avgMs" :countdown="true" :started="started" v-on:negative-hours="hoursNegative"></run-timer></b-td>
         <b-td :variant="variant" class="align-middle text-center">
-            <progress-bar v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
+            <progress-bar :variant="variant" v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
         </b-td>
     </b-tr>
 </template>
