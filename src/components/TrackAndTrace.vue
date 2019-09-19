@@ -1,25 +1,44 @@
 <template>
   <div id="track-and-trace">
-    <b-table-simple borderless fixed>
-      <colgroup><col><col></colgroup>
-      <colgroup><col><col></colgroup>
-      <colgroup><col><col></colgroup>
-      <b-tbody v-for="run in runData" :key="run.run_id">
+    <transition name="fade" mode="out-in">
+      <template v-for="run in runData" >
+        <b-table-simple v-if="showRun === run.run_id" borderless fixed small :key="run.run_id">
+          <colgroup><col></colgroup>
+          <colgroup><col><col></colgroup>
+          <colgroup><col><col></colgroup>
+        <b-tbody>
+        <b-tr>
+          <b-th colspan="5" class="text-center align-middle">
+            {{run.run_id}}
+          </b-th>
+        </b-tr>
+        <b-tr>
+          <b-td colspan="5">
+            <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="run.demultiplexing !== 'finished' ? 0 : 1" :error="run.containsError"></step-tracker>
+          </b-td>
+        </b-tr>
         <template v-for="(project, index) in run.projects">
-          <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="index === 0" :runID="run.run_id" :projectCount="run.len" :time="time"></project-row>
+          <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="false" :runID="run.run_id" :projectCount="run.len + 1" :time="time"></project-row>
         </template>
-      </b-tbody>
+        </b-tbody>
     </b-table-simple>
+      </template>
+    </transition>
+    
   </div>
 </template>
 
 <script>
 import ProjectRow from './Track&Trace-Components/ProjectRow'
+import ProgressBar from './Track&Trace-Components/ProgressBar.vue'
+import StepTracker from './Track&Trace-Components/StepTracker.vue'
 
 export default {
   name: 'track-and-trace',
   components: {
-    ProjectRow
+    ProjectRow,
+    ProgressBar,
+    StepTracker
   },
   props: {
     headers: Headers,
@@ -33,6 +52,7 @@ export default {
       projects: [],
       runUrl: '',
       time: 0,
+      showRun: '170612_M01785_0041_000000000-B5P3V_QXTR_11'
     }
   },
   computed: {
@@ -46,7 +66,7 @@ export default {
         let Projects = []
         let runProjects = this.projects
         .filter(function (x) {return x.run_id === run.run_id})
-
+        let errors = 0
         runProjects.forEach((RunProject) => {
           let ProjectJobs = this.jobs
           .filter(function (x) {return x.project === RunProject.project})
@@ -55,22 +75,37 @@ export default {
         let totalSteps = ProjectJobs.length
         let completedSteps = ProjectJobs.filter(function (x) {return x.status === 'finished'}).length
 
+        let error = ProjectJobs.filter(function (x) {
+          return x.status === 'error'
+        })
+
         let project = {
           project: RunProject.project,
           jobs: ProjectJobs,
           pipeline: RunProject.pipeline,
-          resultCopyStatus: RunProject.copy_results_prm
+          resultCopyStatus: RunProject.copy_results_prm,
         }
         Projects.push(project)
+        errors += error.length
         })
+        
         let len = Projects.length
         data.push({
           run_id: run.run_id,
           projects: Projects,
-          len: len
+          demultiplexing: run.demultiplexing,
+          len: len,
+          containsError: errors >= 1
         })
       })
       return data
+    },
+    runIds: function () {
+      let runIds = []
+      this.runs.forEach((run) => {
+        runIds.push(run.run_id)
+      })
+      return runIds
     }
   },
   methods: {
@@ -123,16 +158,33 @@ export default {
         totalItems = await this.fetchData(data.nextHref, totalItems)  
       } else {
         return totalItems}
+    },
+    cycle () {
+      let currentIndex = this.runIds.indexOf(this.showRun)
+      console.log('currentIndex:', currentIndex)
+      if (currentIndex === (this.runIds.length - 1)) {
+        currentIndex = 0
+      } else {
+        currentIndex += 1
+      }
+      this.showRun = this.runIds[currentIndex]
     }
   },
   async mounted () {
     await this.getData()
     this.setTimer()
     setInterval(this.getData, 10000)
+    setInterval(this.cycle, 10000)
   }
 }
 
 </script>
 
 <style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>

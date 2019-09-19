@@ -13,7 +13,6 @@
 
 <script>
 import Vue from 'vue'
-import runItem from './RunItem.vue'
 import progressBar from './ProgressBar.vue'
 import runTimer from './RunTimer.vue'
 
@@ -104,7 +103,7 @@ export default Vue.extend({
             this.variant = 'primary'
             return 'Running'
         } else {
-            this.variant = 'light'
+            this.variant = 'secondary'
             return 'Waiting'
         }
         },
@@ -128,6 +127,16 @@ export default Vue.extend({
          */
         finished: function () {
             return this.steps/this.totalSteps === 1
+        },
+        runtime: function() {
+            let sortedJobs = this.jobs.sort(function (x) {return x.job})
+            let runtime = 0
+            sortedJobs.forEach((job) => {
+                if (job.started_date && job.finished_date) {
+                    runtime += (new Date(job.finished_date) - new Date(job.started_date))
+                }
+            })
+            return runtime
         },
         /**
          * Gets finished time, if not finished returns now()
@@ -168,7 +177,7 @@ export default Vue.extend({
          * emits finished
          */
         projectFinished() {
-            this.$emit('finished')
+            this.$emit('finished', this.runtime)
         },
         /**
          * checks if expected time has been breached
