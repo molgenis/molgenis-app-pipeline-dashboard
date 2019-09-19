@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="b-container">
     <track-and-trace :headers="headers" :url="rootUrl"/>
   </div>
 </template>
