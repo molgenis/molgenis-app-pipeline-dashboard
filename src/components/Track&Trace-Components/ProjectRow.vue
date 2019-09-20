@@ -1,13 +1,13 @@
 <template>
 <b-container>
-        <b-row :class="variant">
-            <b-col class="text-center">{{project}}</b-col>
-            <b-col class="text-center"><status-icon :status="status" /></b-col>
-            <b-col class="text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-col>
-            <b-col class="text-center align-middle" >
-                    <progress-bar class="" :variant="variant" v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
-            </b-col>
-        </b-row>
+    <b-row :class="variant">
+        <b-col class="text-center">{{project}}</b-col>
+        <b-col class="text-center"><status-icon :status="status" /></b-col>
+        <b-col class="text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-col>
+        <b-col class="text-center align-middle" >
+            <progress-bar class="" :variant="variant" v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
+        </b-col>
+    </b-row>
 </b-container>
 </template>
 
@@ -195,8 +195,9 @@ export default Vue.extend({
         }
     }
 })
-        
+
 </script>
 
 <style scoped>
+
 </style>

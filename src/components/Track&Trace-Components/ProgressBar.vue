@@ -38,6 +38,7 @@ export default {
 
 <style scoped>
 .progress-middle {
-    align-self: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 </style>
