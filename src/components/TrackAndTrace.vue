@@ -2,7 +2,7 @@
   <div id="track-and-trace">
     <transition name="fade" mode="out-in">
       <template v-for="run in runData" >
-        <b-table-simple v-if="showRun === run.run_id" borderless fixed small :key="run.run_id">
+        <b-table-simple v-if="showRun === run.run_id" fixed borderless small :key="run.run_id">
           <colgroup><col></colgroup>
           <colgroup><col><col></colgroup>
           <colgroup><col></colgroup>
@@ -14,7 +14,7 @@
         </b-tr>
         <b-tr>
           <b-td colspan="4">
-            <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="run.demultiplexing !== 'finished' ? 0 : 1" :error="run.containsError"></step-tracker>
+            <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="runStep(run)" :error="run.containsError"></step-tracker>
           </b-td>
         </b-tr>
         <template v-for="(project, index) in run.projects">
@@ -95,7 +95,8 @@ export default {
           projects: Projects,
           demultiplexing: run.demultiplexing,
           len: len,
-          containsError: errors >= 1
+          containsError: errors >= 1,
+          copyState: Projects.filter(function (x) {return x.resultCopyStatus === 'finished'}).length
         })
       })
       return data
@@ -159,15 +160,30 @@ export default {
       } else {
         return totalItems}
     },
+    /**
+     * Cycles the display index by 1
+     * 
+     */
     cycle () {
       let currentIndex = this.runIds.indexOf(this.showRun)
-      console.log('currentIndex:', currentIndex)
       if (currentIndex === (this.runIds.length - 1)) {
         currentIndex = 0
       } else {
         currentIndex += 1
       }
       this.showRun = this.runIds[currentIndex]
+    },
+    runStep(run) {
+      if (run.demultiplexing !== 'finished') {
+        return 0
+      } else if (run.copyState === (run.len)) {
+        return 3
+        // run copying check
+      } else if (false) {
+        return 2
+      } else {
+        return 1
+      }
     }
   },
   async mounted () {

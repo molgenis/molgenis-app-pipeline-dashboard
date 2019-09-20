@@ -1,11 +1,12 @@
 <template>
     <div class="container">
         <ul class="progressbar" v-for="step in steps" :key="step">
-            <li :class="getStepStatus(step)" >
+            <li :class="getStepStatus(step)" class="text-center">
                 <span class="progress-text"> 
                     {{step}}
                 </span>
-                    <b-spinner v-if="StepRunning(step) && !error" variant="primary" small/> 
+                    <font-awesome-icon v-if="isFinalStep(step) && StepRunning(step) && !error" icon="check-circle"/>
+                    <b-spinner v-else-if="StepRunning(step) && !error" variant="primary" small/> 
                     <font-awesome-icon v-else-if="StepRunning(step) && error" icon="exclamation-circle"/> 
                     <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
             </li>
@@ -32,7 +33,9 @@ export default {
     },
     methods: {
         getStepStatus(step) {
-            if (this.steps[this.currentStep] === step) {
+            if (this.isFinalStep(step) && this.StepRunning(step)) {
+                return 'complete'
+            } else if (this.steps[this.currentStep] === step) {
                 if (!this.error) { 
                     return 'running'}
                 else { 
@@ -55,7 +58,13 @@ export default {
 
         StepComplete(step) {
             let index = this.steps.indexOf(step)
+            
             return ((index < this.currentStep))
+        },
+
+        isFinalStep(step) {
+            let index = this.steps.indexOf(step)
+            return (step === this.steps.slice(-1)[0])
         }
     }
 }
