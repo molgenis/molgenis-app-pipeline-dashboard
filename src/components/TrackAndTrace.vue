@@ -2,26 +2,7 @@
   <b-container id="track-and-trace">
     <transition name="fade" mode="out-in">
       <template v-for="run in runData" >
-        <b-table-simple v-if="showRun === run.run_id" fixed borderless small :key="run.run_id">
-          <colgroup><col></colgroup>
-          <colgroup><col><col></colgroup>
-          <colgroup><col></colgroup>
-        <b-tbody>
-        <b-tr>
-          <b-th colspan="4" class="text-center align-middle run_id">
-            {{run.run_id}}
-          </b-th>
-        </b-tr>
-        <b-tr>
-          <b-td colspan="4">
-            <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="runStep(run)" :error="run.containsError"></step-tracker>
-          </b-td>
-        </b-tr>
-        <template v-for="(project, index) in run.projects">
-          <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="false" :runID="run.run_id" :projectCount="run.len + 1" :time="time"></project-row>
-        </template>
-        </b-tbody>
-    </b-table-simple>
+        <run-table v-if="showRun === run.run_id" :runID="run.run_id" :showRun="showRun" :projects="run.projects" :projectCount="run.len + 1" :containsError="run.containsError" :currentStep="runStep(run)" :key="run.run_id" :time="time"/>
       </template>
     </transition>
     
@@ -29,16 +10,13 @@
 </template>
 
 <script>
-import ProjectRow from './Track&Trace-Components/ProjectRow'
-import ProgressBar from './Track&Trace-Components/ProgressBar.vue'
-import StepTracker from './Track&Trace-Components/StepTracker.vue'
+
+import RunTable from './Track&Trace-Components/RunTable.vue'
 
 export default {
   name: 'track-and-trace',
   components: {
-    ProjectRow,
-    ProgressBar,
-    StepTracker
+    RunTable
   },
   props: {
     headers: Headers,
@@ -192,6 +170,7 @@ export default {
     setInterval(this.getData, 10000)
     this.cycle()
     setInterval(this.cycle, 10000)
+
   }
 }
 
