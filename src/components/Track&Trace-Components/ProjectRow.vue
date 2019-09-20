@@ -1,13 +1,14 @@
 <template>
-    <b-tr>
-        <b-th v-if="header" class="align-middle text-center" :rowspan="projectCount">{{runID}}</b-th>
-        <b-td :variant="variant" class="align-middle text-center">{{project}}</b-td>
-        <b-td :variant="variant" class="align-middle text-center"><status-icon :status="status" /></b-td>
-        <b-td :variant="variant" class="align-middle text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-td>
-        <b-td :variant="variant" class="align-middle text-center">
-            <progress-bar :variant="variant" v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
-        </b-td>
-    </b-tr>
+<b-container>
+        <b-row :class="variant">
+            <b-col class="text-center">{{project}}</b-col>
+            <b-col class="text-center"><status-icon :status="status" /></b-col>
+            <b-col class="text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-col>
+            <b-col class="text-center align-middle" >
+                    <progress-bar class="" :variant="variant" v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false"></progress-bar>
+            </b-col>
+        </b-row>
+</b-container>
 </template>
 
 <script>
@@ -98,7 +99,7 @@ export default Vue.extend({
                 this.variant = 'warning'
                 return 'warning'
         } else if (this.finished) {
-            this.variant = 'success'
+            this.variant = 'complete'
             return 'finished'
         }  else if (this.remainingJobs.filter(function (x) {return x.status === 'error'}).length >= 1) {
             this.variant = 'danger'
@@ -196,3 +197,6 @@ export default Vue.extend({
 })
         
 </script>
+
+<style scoped>
+</style>

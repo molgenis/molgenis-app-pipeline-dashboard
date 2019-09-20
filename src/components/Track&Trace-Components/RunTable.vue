@@ -1,24 +1,21 @@
 <template>
-    <b-table-simple fixed borderless small>
-          <colgroup><col></colgroup>
-          <colgroup><col><col></colgroup>
-          <colgroup><col></colgroup>
-        <b-tbody>
-        <b-tr>
-          <b-th colspan="4" class="text-center align-middle run_id">
+    <b-container>
+        <b-row>
+          <b-col class="text-center align-middle run_id">
             {{runID}}
-          </b-th>
-        </b-tr>
-        <b-tr>
-          <b-td colspan="4">
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col>
             <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="currentStep" :error="containsError"></step-tracker>
-          </b-td>
-        </b-tr>
-        <template v-for="(project, index) in projects">
-          <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"></project-row>
-        </template>
-        </b-tbody>
-    </b-table-simple>
+          </b-col>
+        </b-row>
+            <template v-for="(project, index) in projects">
+              <b-col :key="project.projects">
+                <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"></project-row>
+              </b-col>
+            </template>
+    </b-container>
 </template>
 
 <script>

@@ -1,5 +1,5 @@
 <template>
-    <b-progress :variant="variant" :max="totalSteps" show-progress animated>
+    <b-progress class="progress-middle" height="75%" :variant="variant" :max="totalSteps" show-progress animated>
           <b-progress-bar :value="step">
             <strong>{{ step }} / {{ totalSteps }}</strong>
           </b-progress-bar>
@@ -36,6 +36,8 @@ export default {
 
 </script>
 
-<style>
-
+<style scoped>
+.progress-middle {
+    align-self: center;
+}
 </style>
