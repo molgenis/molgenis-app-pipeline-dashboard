@@ -1,5 +1,5 @@
 <template>
-  <div id="track-and-trace">
+  <b-container id="track-and-trace">
     <transition name="fade" mode="out-in">
       <template v-for="run in runData" >
         <b-table-simple v-if="showRun === run.run_id" fixed borderless small :key="run.run_id">
@@ -25,7 +25,7 @@
       </template>
     </transition>
     
-  </div>
+  </b-container>
 </template>
 
 <script>

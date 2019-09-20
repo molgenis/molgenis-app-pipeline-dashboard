@@ -1,17 +1,19 @@
 <template>
-    <div class="container">
-        <ul class="progressbar" v-for="step in steps" :key="step">
-            <li :class="getStepStatus(step)" class="text-center">
-                <span class="progress-text"> 
-                    {{step}}
-                </span>
-                    <font-awesome-icon v-if="isFinalStep(step) && StepRunning(step) && !error" icon="check-circle"/>
-                    <b-spinner v-else-if="StepRunning(step) && !error" variant="primary" small/> 
-                    <font-awesome-icon v-else-if="StepRunning(step) && error" icon="exclamation-circle"/> 
-                    <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
-            </li>
-        </ul>
-    </div>
+    <b-container class="container" fluid>
+        <b-row class="progressbar" >
+            <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container">
+                <div class="mx-auto">
+                    <span class="progress-text"> 
+                        {{step}}
+                    </span>
+                        <font-awesome-icon v-if="isFinalStep(step) && StepRunning(step) && !error" icon="check-circle"/>
+                        <b-spinner v-else-if="StepRunning(step) && !error" variant="primary" small/> 
+                        <font-awesome-icon v-else-if="StepRunning(step) && error" icon="exclamation-circle"/> 
+                        <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
+                </div>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
@@ -75,27 +77,23 @@ export default {
 @import '../../../node_modules/bootstrap/scss/bootstrap';
 @import '../../../node_modules/bootstrap-vue/src/index.scss';
 
-.container {
-    width: 100%;
-}
+
 
 .progressbar {
     counter-reset: step;
 
 }
 
-.progressbar li {
+.circle-container {
     list-style-type: none;
-    width: 25%;
     float: left;
-    font-size: 12px;
-    position: relative;
+    font-size: 14px;
     text-align: center;
     text-transform: uppercase;
     color: $secondary;
 }
 
-.progressbar li:before {
+.circle-container:before {
       width: 40px;
       height: 40px;
       content: '';
@@ -103,50 +101,41 @@ export default {
       border: 2px solid $secondary;
       display: block;
       text-align: center;
-      margin: 0 auto 20px auto;
+      margin: 0 auto 5px auto;
       border-radius: 50%;
       background-color: $light;
   }
-  .progressbar li:after {
-      width: 100%;
-      height: 2px;
-      content: '';
-      position: absolute;
-      background-color: $secondary;
-      top: 19px;
-      left: -50%;
-      z-index: -1;
-  }
-  .progressbar li:first-child:after {
+
+  .circle-container:first-child:after {
       content: none;
   }
-  .progressbar li.complete {
+  .circle-container.complete {
       color: $success;
       
   }
-  .progressbar li.complete:before {
+  .circle-container.complete:before {
       border-color: $success;
       background-color: $success;
   }
-  .progressbar li.running {
+  .circle-container.running {
       color: $primary;
   }
-  .progressbar li.running:before {
+  .circle-container.running:before {
       border-color: $primary;
       background-color: $primary;
   }
-  .progressbar li.error {
+  .circle-container.error {
       color: $danger;
   }
-  .progressbar li.error:before {
+  .circle-container.error:before {
       border-color: $danger;
       background-color: $danger;
   }
-  .progressbar li.error:after {
+  .circle-container.error:after {
       border-color: $danger;
   }
 
-  .progressbar li.complete + li:after {
+  .circle-container li.complete + li:after {
       background-color: $success;
   }
 
