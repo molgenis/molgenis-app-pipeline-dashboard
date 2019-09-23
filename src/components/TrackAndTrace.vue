@@ -1,10 +1,23 @@
 <template>
-  <b-container id="track-and-trace" v-on:hover="console.log('mouse here')">
+  <b-container id="track-and-trace" >
     <transition name="fade" mode="out-in">
       <template v-for="run in runData" >
         <run-table v-if="showRun === run.run_id" :runID="run.run_id" :showRun="showRun" :projects="run.projects" :projectCount="run.len + 1" :containsError="run.containsError" :currentStep="runStep(run)" :key="run.run_id" :time="time"/>
       </template>
     </transition>
+    <!--
+    <b-row>
+      <b-container fluid>
+        <b-row class="d-flex flex-nowrap">
+          <b-col v-for="run in runData" :key="run.run_id" cols="3" class="border border-primary rounded m-2">
+            <b-row class="text-truncate pl-1 pr-1">{{run.run_id}}</b-row>
+            <b-row>mh</b-row>
+          </b-col>
+        </b-row>
+      </b-container>
+
+    </b-row>
+    !-->
     
   </b-container>
 </template>

@@ -5,15 +5,9 @@
             {{runID}}
           </b-col>
         </b-row>
-        <b-row>
-          <b-col class="mb-2">
-            <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="currentStep" :error="containsError"></step-tracker>
-          </b-col>
-        </b-row>
+          <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="currentStep" :error="containsError"></step-tracker>
             <template v-for="(project, index) in projects">
-              <b-col :key="project.projects">
                 <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"></project-row>
-              </b-col>
             </template>
     </b-container>
 </template>

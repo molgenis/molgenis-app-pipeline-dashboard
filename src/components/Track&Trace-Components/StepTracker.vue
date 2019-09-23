@@ -1,19 +1,20 @@
 <template>
-    <b-container class="container" fluid>
         <b-row class="progressbar" >
-            <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container text-center align-middle">
-                <div class="mx-auto">
-                    <span class="progress-text"> 
+            <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container ">
+                <div class="container">
+                    <span class=""> 
                         {{step}}
                     </span>
+                    <span>
                         <font-awesome-icon v-if="isFinalStep(step) && StepRunning(step) && !error" icon="check-circle"/>
                         <b-spinner v-else-if="StepRunning(step) && !error" variant="primary" small/> 
                         <font-awesome-icon v-else-if="StepRunning(step) && error" icon="exclamation-circle"/> 
                         <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
+                    </span>
                 </div>
+                
             </b-col>
         </b-row>
-    </b-container>
 </template>
 
 <script>
@@ -96,7 +97,7 @@ export default {
       border: 2px solid $secondary;
       display: block;
       text-align: center;
-      margin: 0 auto 5px auto;
+      margin: 0 auto 10px auto;
       border-radius: 50%;
       background-color: $light;
   }
