@@ -1,12 +1,12 @@
 <template>
     <b-container>
         <b-row>
-          <b-col class="text-center align-middle run_id">
+          <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold">
             {{runID}}
           </b-col>
         </b-row>
         <b-row>
-          <b-col>
+          <b-col class="mb-2">
             <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="currentStep" :error="containsError"></step-tracker>
           </b-col>
         </b-row>
@@ -30,7 +30,7 @@ export default {
         runID: String,
         projects: Array,
         containsError: Boolean,
-        currentStep: String,
+        currentStep: Number,
         projectCount: Number,
         time: Number
 

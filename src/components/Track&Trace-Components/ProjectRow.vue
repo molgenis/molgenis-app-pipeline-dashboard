@@ -1,7 +1,7 @@
 <template>
 <b-container>
     <b-row :class="variant">
-        <b-col class="text-center">{{project}}</b-col>
+        <b-col class="text-center text-truncate">{{project}}</b-col>
         <b-col class="text-center"><status-icon :status="status" /></b-col>
         <b-col class="text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-col>
         <b-col class="text-center align-middle" >
@@ -99,7 +99,7 @@ export default Vue.extend({
                 this.variant = 'warning'
                 return 'warning'
         } else if (this.finished) {
-            this.variant = 'complete'
+            this.variant = 'success'
             return 'finished'
         }  else if (this.remainingJobs.filter(function (x) {return x.status === 'error'}).length >= 1) {
             this.variant = 'danger'

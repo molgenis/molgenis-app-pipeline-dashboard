@@ -1,7 +1,7 @@
 <template>
     <b-container class="container" fluid>
         <b-row class="progressbar" >
-            <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container">
+            <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container text-center align-middle">
                 <div class="mx-auto">
                     <span class="progress-text"> 
                         {{step}}
@@ -29,9 +29,6 @@ export default {
         }
     },
     computed: {
-        stepWidth: function () {
-            return (100 / (this.steps.length)) + '%'
-        }
     },
     methods: {
         getStepStatus(step) {
@@ -77,8 +74,6 @@ export default {
 @import '../../../node_modules/bootstrap/scss/bootstrap';
 @import '../../../node_modules/bootstrap-vue/src/index.scss';
 
-
-
 .progressbar {
     counter-reset: step;
 
@@ -111,7 +106,6 @@ export default {
   }
   .circle-container.complete {
       color: $success;
-      
   }
   .circle-container.complete:before {
       border-color: $success;

@@ -1,5 +1,5 @@
 <template>
-  <b-container id="track-and-trace">
+  <b-container id="track-and-trace" v-on:hover="console.log('mouse here')">
     <transition name="fade" mode="out-in">
       <template v-for="run in runData" >
         <run-table v-if="showRun === run.run_id" :runID="run.run_id" :showRun="showRun" :projects="run.projects" :projectCount="run.len + 1" :containsError="run.containsError" :currentStep="runStep(run)" :key="run.run_id" :time="time"/>
@@ -188,5 +188,9 @@ export default {
 }
 .run_id {
   border: 2px solid $secondary;
+}
+
+#track-and-trace {
+  height: 600px;
 }
 </style>

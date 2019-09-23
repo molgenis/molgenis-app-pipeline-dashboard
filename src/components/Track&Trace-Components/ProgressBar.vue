@@ -17,18 +17,6 @@ export default {
         variant: String
     },
     computed: {
-        /**
-         * checks if all steps are complete and emits finished
-         * @returns Boolean
-         */
-        finished: function () {
-            if (this.step/this.totalSteps === 1) {
-                this.$emit('finished')
-                return true
-            } else {
-                return false
-            }
-        }
     },
     methods: {
     }
