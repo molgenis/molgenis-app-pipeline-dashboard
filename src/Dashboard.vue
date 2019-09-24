@@ -1,24 +1,12 @@
 <template>
-<b-container fluid>
-  <b-row id="dashboard" no-gutters>
-    <b-col cols="4" class="">
-      <b-row class="h-50" no-gutters>
-        <b-col class="border border-primary mb-2 mr-3 ml-3 mt-3 rounded d-flex align-items-center justify-content-center">
-          <h3>Pipeline Statistics</h3>
-        </b-col>
-      </b-row>
-      <b-row class="h-50" no-gutters>
-        <b-col class="border border-primary mt-2 mr-3 mb-3 ml-3 rounded d-flex align-items-center justify-content-center">
-          <h3>Sample statistics</h3>
-        </b-col>
-      </b-row>
-    </b-col>
-    <b-col class="border border-primary rounded m-3">
-      <track-and-trace :headers="headers" :url="rootUrl"/>
+<b-container id="dashboard" fluid>
+  <b-row  no-gutters class="h-75">
+    <b-col class="h-100">
+      <track-and-trace :headers="headers" :url="rootUrl" class="h-100"/>
     </b-col>
   </b-row>
   <b-row no-gutters>
-    <b-col class="border border-primary m-3 rounded height300 d-flex align-items-center justify-content-center">
+    <b-col class="border border-primary m-3 rounded d-flex align-items-center justify-content-center">
       <h3 class="align-middle" >System Usage Information</h3>
     </b-col>
   </b-row>
@@ -27,31 +15,31 @@
 
 <script>
 import TrackAndTrace from './components/TrackAndTrace.vue'
+import StatusIcon from './components/Track&Trace-Components/StatusIcon.vue'
+import ProgressBar from './components/Track&Trace-Components/ProgressBar'
+import RunStepTable from './components/Track&Trace-Components/RunStepTable'
 
 export default {
   name: 'app',
   components: {
-    TrackAndTrace
+    TrackAndTrace,
+    RunStepTable
   },
   data () {
     return {
       time: new Date(),
-      headers: new Headers({'x-molgenis-token' : 'admin-test-token'}),
+      headers: new Headers({
+        'x-molgenis-token': 'admin-test-token'
+      }),
       rootUrl: 'http://localhost:8081/api/v2/'
-      }
-      
     }
+  }
 }
 
 </script>
 
 <style lang="scss" scoped>
-.remainder-height {
-  height: 400px;
-}
-.height300 {
-  height: 300px;
+#dashboard {
+  height: 100vh;
 }
 </style>
-
-

@@ -1,5 +1,5 @@
 <template>
-    <b-progress class="progress-middle" height="75%" :variant="variant" :max="totalSteps" show-progress animated>
+    <b-progress class="progress-middle" :variant="variant" :max="totalSteps" show-progress :animated="animated">
           <b-progress-bar :value="step">
             <strong>{{ step }} / {{ totalSteps }}</strong>
           </b-progress-bar>
@@ -14,7 +14,8 @@ export default {
         totalSteps: Number,
         noWarning: Boolean,
         error: Boolean,
-        variant: String
+        variant: String,
+        animated: Boolean
     },
     computed: {
     },

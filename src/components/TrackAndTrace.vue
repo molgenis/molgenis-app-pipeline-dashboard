@@ -1,35 +1,28 @@
 <template>
-  <b-container id="track-and-trace" >
-    <transition name="fade" mode="out-in">
+    <b-row id="track-and-trace" no-gutters>
+      <b-col cols="4" class="border border-primary m-3 rounded">
+        <run-step-table :runs="runIds" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused"/>
+      </b-col>
+    <b-col class="border border-primary m-3 rounded">
+    <transition name="fade" mode="out-in" class="">
       <template v-for="run in runData" >
         <run-table v-if="showRun === run.run_id" :runID="run.run_id" :showRun="showRun" :projects="run.projects" :projectCount="run.len + 1" :containsError="run.containsError" :currentStep="runStep(run)" :key="run.run_id" :time="time"/>
       </template>
     </transition>
-    <!--
-    <b-row>
-      <b-container fluid>
-        <b-row class="d-flex flex-nowrap">
-          <b-col v-for="run in runData" :key="run.run_id" cols="3" class="border border-primary rounded m-2">
-            <b-row class="text-truncate pl-1 pr-1">{{run.run_id}}</b-row>
-            <b-row>mh</b-row>
-          </b-col>
-        </b-row>
-      </b-container>
-
+    </b-col>
     </b-row>
-    !-->
-    
-  </b-container>
 </template>
 
 <script>
 
 import RunTable from './Track&Trace-Components/RunTable.vue'
+import RunStepTable from '@/components/Track&Trace-Components/RunStepTable.vue'
 
 export default {
   name: 'track-and-trace',
   components: {
-    RunTable
+    RunTable,
+    RunStepTable
   },
   props: {
     headers: Headers,
@@ -43,7 +36,8 @@ export default {
       projects: [],
       runUrl: '',
       time: 0,
-      showRun: ''
+      showRun: '',
+      paused: false
     }
   },
   computed: {
@@ -56,30 +50,38 @@ export default {
       this.runs.forEach((run) => {
         let Projects = []
         let runProjects = this.projects
-        .filter(function (x) {return x.run_id === run.run_id})
+          .filter(function (x) {
+            return x.run_id === run.run_id
+          })
         let errors = 0
         runProjects.forEach((RunProject) => {
           let ProjectJobs = this.jobs
-          .filter(function (x) {return x.project === RunProject.project})
-          .sort(function (x) {return x.job})
+            .filter(function (x) {
+              return x.project === RunProject.project
+            })
+          .sort(function (x) {
+              return x.job
+            })
 
-        let totalSteps = ProjectJobs.length
-        let completedSteps = ProjectJobs.filter(function (x) {return x.status === 'finished'}).length
+          let totalSteps = ProjectJobs.length
+          let completedSteps = ProjectJobs.filter(function (x) {
+            return x.status === 'finished'
+          }).length
 
-        let error = ProjectJobs.filter(function (x) {
-          return x.status === 'error'
+          let error = ProjectJobs.filter(function (x) {
+            return x.status === 'error'
+          })
+
+          let project = {
+            project: RunProject.project,
+            jobs: ProjectJobs,
+            pipeline: RunProject.pipeline,
+            resultCopyStatus: RunProject.copy_results_prm
+          }
+          Projects.push(project)
+          errors += error.length
         })
 
-        let project = {
-          project: RunProject.project,
-          jobs: ProjectJobs,
-          pipeline: RunProject.pipeline,
-          resultCopyStatus: RunProject.copy_results_prm,
-        }
-        Projects.push(project)
-        errors += error.length
-        })
-        
         let len = Projects.length
         data.push({
           run_id: run.run_id,
@@ -87,7 +89,9 @@ export default {
           demultiplexing: run.demultiplexing,
           len: len,
           containsError: errors >= 1,
-          copyState: Projects.filter(function (x) {return x.resultCopyStatus === 'finished'}).length
+          copyState: Projects.filter(function (x) {
+            return x.resultCopyStatus === 'finished'
+          }).length
         })
       })
       return data
@@ -101,16 +105,23 @@ export default {
     }
   },
   methods: {
+    setCurrentIndex (index) {
+      this.showRun = this.runIds[index]
+    },
+    setShowRun (run) {
+      this.paused = true
+      this.showRun = run
+    },
     /**
      * increases timer by 1 second
      */
-    timeUp() {
+    timeUp () {
       this.time = this.time + 1000
     },
     /**
      * primes the timer for counting runtimes
      */
-    setTimer() {
+    setTimer () {
       this.time = new Date().getTime()
       setInterval(this.timeUp, 1000)
     },
@@ -119,7 +130,7 @@ export default {
      */
     async getData () {
       try {
-        let runs =  await this.fetchData(this.url + 'status_overview?num=10000')
+        let runs = await this.fetchData(this.url + 'status_overview?num=10000')
         let projects = await this.fetchData(this.url + 'status_projects?num=10000')
         let jobs = await this.fetchData(this.url + 'status_jobs?num=10000')
 
@@ -132,7 +143,6 @@ export default {
         if (runs !== this.runs) {
           this.runs = runs
         }
-
       } catch (error) {
         console.error(error)
       }
@@ -143,28 +153,37 @@ export default {
      * @returns Array of items
      */
     async fetchData (ref, items = []) {
-      const response = await fetch(ref, {headers: new Headers({'x-molgenis-token':'admin-test-token'})})
+      const response = await fetch(ref, {
+        headers: new Headers({
+          'x-molgenis-token': 'admin-test-token'
+        })
+      })
       const data = await response.json()
       let totalItems = items.concat(data.items)
       if (data.nextHref) {
-        totalItems = await this.fetchData(data.nextHref, totalItems)  
+        totalItems = await this.fetchData(data.nextHref, totalItems)
       } else {
-        return totalItems}
+        return totalItems
+      }
     },
     /**
      * Cycles the display index by 1
-     * 
+     *
      */
     cycle () {
-      let currentIndex = this.runIds.indexOf(this.showRun)
-      if (currentIndex === (this.runIds.length - 1)) {
-        currentIndex = 0
+      if (this.paused) {
+        return 0
       } else {
-        currentIndex += 1
-      }
-      this.showRun = this.runIds[currentIndex]
+        let currentIndex = this.runIds.indexOf(this.showRun)
+        if (currentIndex === (this.runIds.length - 1)) {
+          currentIndex = 0
+        } else {
+          currentIndex += 1
+        }
+        this.showRun = this.runIds[currentIndex]
+        }
     },
-    runStep(run) {
+    runStep (run) {
       if (run.demultiplexing !== 'finished') {
         return 0
       } else if (run.copyState === (run.len)) {
@@ -175,6 +194,9 @@ export default {
       } else {
         return 1
       }
+    },
+    toggleCycle() {
+      this.paused = !this.paused
     }
   },
   async mounted () {
@@ -183,7 +205,6 @@ export default {
     setInterval(this.getData, 10000)
     this.cycle()
     setInterval(this.cycle, 10000)
-
   }
 }
 
@@ -196,14 +217,16 @@ export default {
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
 }
 .run_id {
   border: 2px solid $secondary;
 }
 
+.height60 {
+  height: 100%;
+}
 #track-and-trace {
-  height: 600px;
 }
 </style>
