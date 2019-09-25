@@ -5,7 +5,7 @@
       <track-and-trace :headers="headers" :url="rootUrl" class="h-100"/>
     </b-col>
   </b-row>
-  <b-row no-gutters class="h-40">
+  <b-row no-gutters class="h-40 d-none">
     <b-col class="border border-primary m-3 rounded d-flex h-100 align-items-center justify-content-center">
       <h3 class="align-middle" >Statistics placeholder</h3>
     </b-col>

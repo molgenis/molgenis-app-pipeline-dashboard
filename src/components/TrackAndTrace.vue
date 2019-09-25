@@ -1,7 +1,7 @@
 <template>
     <b-row id="track-and-trace" no-gutters>
-      <b-col cols="4" class="border border-primary m-3 rounded">
-        <run-step-table :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused"/>
+      <b-col sm="auto" md="auto" lg="auto" xl="4" class="border border-primary m-3 rounded">
+        <run-step-table  :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused"/>
       </b-col>
     <b-col class="border border-primary m-3 rounded">
     <transition name="fade" mode="out-in" class="">

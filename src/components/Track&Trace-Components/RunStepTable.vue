@@ -1,12 +1,12 @@
 <template>
-  <b-container fluid>
+  <b-container>
     <b-table-simple small fixed hover>
-      <b-thead>
-        <b-tr>
+      <b-thead class="">
+        <b-tr class="">
           <b-td class="text-center" colspan="2">
             <span><font-awesome-icon v-if="paused" @click="emitPause()" icon="play-circle"/>
             <font-awesome-icon v-else @click="emitPause()" icon="pause-circle"/></span>
-            <span>Run</span>
+            <span> Run</span>
 
           </b-td>
           <b-th class="text-right">De- multiplex</b-th>
