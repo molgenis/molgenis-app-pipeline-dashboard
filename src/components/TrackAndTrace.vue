@@ -1,7 +1,7 @@
 <template>
     <b-row id="track-and-trace" no-gutters>
       <b-col cols="4" class="border border-primary m-3 rounded">
-        <run-step-table :runs="runIds" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused"/>
+        <run-step-table :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused"/>
       </b-col>
     <b-col class="border border-primary m-3 rounded">
     <transition name="fade" mode="out-in" class="">
@@ -94,6 +94,17 @@ export default {
           }).length
         })
       })
+      data = data.sort((run1, run2) => {
+        if (run1.containsError && !run2.containsError) {
+          return -1
+        } else if (run2.containsError) {
+          return 1
+        } else if (this.runStep(run1) > this.runStep(run2)) {
+          return 1
+        } else {
+          return 0
+        }
+      })
       return data
     },
     runIds: function () {
@@ -102,6 +113,23 @@ export default {
         runIds.push(run.run_id)
       })
       return runIds
+    },
+    runSteps: function () {
+      let runSteps = []
+      this.runData.forEach((run) => {
+        runSteps.push(
+          {
+            run: run.run_id,
+            step: this.runStep(run),
+            containsError: run.containsError,
+            len: run.len
+          }
+        )
+      })
+      return runSteps
+    },
+    runStatus: function () {
+      
     }
   },
   methods: {
@@ -215,7 +243,7 @@ export default {
 @import '../../node_modules/bootstrap-vue/src/index.scss';
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .3s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;

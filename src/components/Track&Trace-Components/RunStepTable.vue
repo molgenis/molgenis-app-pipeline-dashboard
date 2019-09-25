@@ -16,9 +16,9 @@
         </b-tr>
       </b-thead>
       <b-tbody>
-        <b-tr class="" v-for="run in runs" :key="run" @click="selectRun(run)" :variant="[selected === run ? 'primary' : 'light']">
-          <b-td colspan="2" class="text-truncate">{{run}}</b-td>
-          <b-td colspan="4" class="text-center"><progress-bar class="mt-1" :step="5" :totalSteps="5" :variant="'success'"/></b-td>
+        <b-tr class="" v-for="run in runs" :key="run.run" @click="selectRun(run.run)" :variant="[selected === run.run ? 'primary' : 'light']">
+          <b-td colspan="2" class="text-truncate">{{run.run}}</b-td>
+          <b-td colspan="4" class="text-center"><progress-bar class="mt-1" :step="run.step + 1" :totalSteps="4" :variant="[run.containsError ? 'danger' : [run.step === 3 ? 'success' : 'primary']]" :animated="run.step !== 3 && !run.containsError"/></b-td>
         </b-tr>
       </b-tbody>
     </b-table-simple>
@@ -36,7 +36,9 @@ export default {
   props: {
     runs: Array,
     selected: String,
-    paused: Boolean
+    paused: Boolean,
+    runSteps: Array,
+    variant: String
   },
   methods: {
     selectRun (run) {
