@@ -1,14 +1,18 @@
 <template>
     <b-row id="track-and-trace" no-gutters>
-      <b-col sm="auto" md="auto" lg="auto" xl="4" class="border border-primary m-3 rounded">
-        <run-step-table  :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused"/>
+      <b-col  class="p-2" lg="4" cols="12">
+        <b-container fluid class="border border-primary rounded h-100 p-0">
+          <run-step-table  :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused" class="w-100"/>
+        </b-container>
       </b-col>
-    <b-col class="border border-primary m-3 rounded">
-    <transition name="fade" mode="out-in" class="">
+    <b-col class="p-2" cols="12" lg="8">
+      <b-container class="border border-primary rounded h-100" fluid>
+      <transition name="fade" mode="out-in">
       <template v-for="run in runData" >
         <run-table v-if="showRun === run.run_id" :runID="run.run_id" :showRun="showRun" :projects="run.projects" :projectCount="run.len + 1" :containsError="run.containsError" :currentStep="runStep(run)" :key="run.run_id" :time="time"/>
       </template>
     </transition>
+      </b-container>
     </b-col>
     </b-row>
 </template>
@@ -49,19 +53,10 @@ export default {
       let data = []
       this.runs.forEach((run) => {
         let Projects = []
-        let runProjects = this.projects
-          .filter(function (x) {
-            return x.run_id === run.run_id
-          })
+        let runProjects = this.getRunProjects(this.projects, run)
         let errors = 0
         runProjects.forEach((RunProject) => {
-          let ProjectJobs = this.jobs
-            .filter(function (x) {
-              return x.project === RunProject.project
-            })
-          .sort(function (x) {
-              return x.job
-            })
+          let ProjectJobs = this.getProjectJobs(this.jobs, RunProject)
 
           let totalSteps = ProjectJobs.length
           let completedSteps = ProjectJobs.filter(function (x) {
@@ -87,6 +82,7 @@ export default {
           run_id: run.run_id,
           projects: Projects,
           demultiplexing: run.demultiplexing,
+          rawCopy: run.copy_raw_prm,
           len: len,
           containsError: errors >= 1,
           copyState: Projects.filter(function (x) {
@@ -107,6 +103,10 @@ export default {
       })
       return data
     },
+    /**
+     * Creates array of runId Strings
+     * @returns Array
+     */
     runIds: function () {
       let runIds = []
       this.runs.forEach((run) => {
@@ -114,6 +114,10 @@ export default {
       })
       return runIds
     },
+    /**
+     * creates an Array of run objects for step tracker
+     * @returns Array
+     */
     runSteps: function () {
       let runSteps = []
       this.runData.forEach((run) => {
@@ -133,9 +137,17 @@ export default {
     }
   },
   methods: {
+    /**
+     * changes detailed view to the given index
+     * @param index Number
+     */
     setCurrentIndex (index) {
       this.showRun = this.runIds[index]
     },
+    /**
+     * pauses the run cycleRun when selecting a run
+     * @param run run to select
+     */
     setShowRun (run) {
       this.paused = true
       this.showRun = run
@@ -182,9 +194,7 @@ export default {
      */
     async fetchData (ref, items = []) {
       const response = await fetch(ref, {
-        headers: new Headers({
-          'x-molgenis-token': 'admin-test-token'
-        })
+        headers: this.headers
       })
       const data = await response.json()
       let totalItems = items.concat(data.items)
@@ -198,7 +208,7 @@ export default {
      * Cycles the display index by 1
      *
      */
-    cycle () {
+    cycleRun () {
       if (this.paused) {
         return 0
       } else {
@@ -214,25 +224,45 @@ export default {
     runStep (run) {
       if (run.demultiplexing !== 'finished') {
         return 0
-      } else if (run.copyState === (run.len)) {
-        return 3
-        // run copying check
-      } else if (false) {
-        return 2
-      } else {
+      } 
+      if (run.rawCopy === 'started'){
         return 1
+      } else if (run.copyState === (run.len)) {
+        return 4
+        // run result copying check
+      } else if (run.copyState > 0 && this.runFinished(run)) {
+        return 3
+      } else {
+        return 2
       }
     },
     toggleCycle() {
       this.paused = !this.paused
+    },
+    getRunProjects (projects, run) {
+      return projects.filter(function (x) {
+        return x.run_id === run.run_id
+      })
+    },
+    getProjectJobs (jobs, project) {
+      return jobs
+      .filter(function (x) {
+        return x.project === project.project
+        })
+        .sort(function (x) {
+              return x.job
+            })
+    },
+    runFinished(run) {
+      return false
     }
   },
   async mounted () {
     await this.getData()
     this.setTimer()
     setInterval(this.getData, 10000)
-    this.cycle()
-    setInterval(this.cycle, 10000)
+    this.cycleRun()
+    setInterval(this.cycleRun, 10000)
   }
 }
 

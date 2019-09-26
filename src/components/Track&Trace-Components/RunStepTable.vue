@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <b-container fluid class="">
     <b-table-simple small fixed hover>
       <b-thead class="">
         <b-tr class="">
@@ -9,16 +9,17 @@
             <span> Run</span>
 
           </b-td>
-          <b-th class="text-right">De- multiplex</b-th>
-          <b-th class="text-right">Running Projects</b-th>
-          <b-th class="text-right">Copying Results</b-th>
-          <b-th class="text-right">Finished</b-th>
+          <b-th class="text-right overflow-hidden">De- multiplex</b-th>
+          <b-th class="text-right overflow-hidden">Raw Copy</b-th>
+          <b-th class="text-right overflow-hidden">Running Projects</b-th>
+          <b-th class="text-right overflow-hidden">Result Copy</b-th>
+          <b-th class="text-right overflow-hidden">Finished</b-th>
         </b-tr>
       </b-thead>
       <b-tbody>
-        <b-tr class="" v-for="run in runs" :key="run.run" @click="selectRun(run.run)" :variant="[selected === run.run ? 'primary' : 'light']">
+        <b-tr class="" v-for="run in runs" :key="run.run" @click="selectRun(run.run)" :variant="selected === run.run ? 'primary' : 'light'">
           <b-td colspan="2" class="text-truncate">{{run.run}}</b-td>
-          <b-td colspan="4" class="text-center"><progress-bar class="mt-1" :step="run.step + 1" :totalSteps="4" :variant="[run.containsError ? 'danger' : [run.step === 3 ? 'success' : 'primary']]" :animated="run.step !== 3 && !run.containsError"/></b-td>
+          <b-td colspan="5" class="text-center"><progress-bar class="mt-1" :step="run.step + 1" :totalSteps="5" :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'" :animated="run.step !== 4 && !run.containsError"/></b-td>
         </b-tr>
       </b-tbody>
     </b-table-simple>

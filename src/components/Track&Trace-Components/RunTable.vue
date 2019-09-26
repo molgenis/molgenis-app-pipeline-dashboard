@@ -5,9 +5,9 @@
             {{runID}}
           </b-col>
         </b-row>
-          <step-tracker :steps="['demultiplexing', 'running', 'copying', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4"></step-tracker>
+          <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4"></step-tracker>
             <template v-for="project in projects">
-                <project-row :key="project.project" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"></project-row>
+                <project-row :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"></project-row>
             </template>
     </b-container>
 </template>
@@ -26,7 +26,8 @@ export default {
         containsError: Boolean,
         currentStep: Number,
         projectCount: Number,
-        time: Number
+        time: Number,
+        
 
     },
     components: {

@@ -2,15 +2,7 @@
 <b-container id="dashboard" fluid>
   <b-row  no-gutters class="h-50">
     <b-col class="h-100">
-      <track-and-trace :headers="headers" :url="rootUrl" class="h-100"/>
-    </b-col>
-  </b-row>
-  <b-row no-gutters class="h-40 d-none">
-    <b-col class="border border-primary m-3 rounded d-flex h-100 align-items-center justify-content-center">
-      <h3 class="align-middle" >Statistics placeholder</h3>
-    </b-col>
-    <b-col class="border border-primary m-3 rounded d-flex h-100 align-items-center justify-content-center">
-      <h3 class="align-middle" >Statistics placeholder</h3>
+      <track-and-trace :headers="headers" :url="rootUrl" class="h-100 mt-1"/>
     </b-col>
   </b-row>
 </b-container>
@@ -30,7 +22,6 @@ export default {
   },
   data () {
     return {
-      time: new Date(),
       headers: new Headers({
         'x-molgenis-token': 'admin-test-token'
       }),

@@ -23,7 +23,8 @@ export default Vue.extend({
         jobs: Array,
         runID: String,
         projectCount: Number,
-        time: Number
+        time: Number,
+        resultCopy: String
     },
     components: {
         progressBar,
@@ -129,7 +130,7 @@ export default Vue.extend({
          * @returns Boolean
          */
         finished: function () {
-            return this.steps/this.totalSteps === 1
+            return this.steps/this.totalSteps === 1 || this.resultCopy === 'finished'
         },
         runtime: function() {
             let sortedJobs = this.jobs.sort(function (x) {return x.job})
