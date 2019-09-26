@@ -2,7 +2,10 @@
 
 # Pipeline Track&Trace
 
-Pipeline tracker for easy fault identification while running.
+Dashboard for following the status of running pipelines. Each run has to go through multiple steps to complete which take a lot of time. When errors occeur you want to know as quickly as possible where the problem lies.
+
+## Prerequisites
+For testing right now you'll need to setup a [MOLGENIS](https://github.com/molgenis/docker) docker running at localhost:8081 and setup a admin token with the name 'admin-test-token'
 
 ## Project setup
 ```
@@ -12,31 +15,6 @@ yarn install
 ### Compiles and hot-reloads for development
 ```
 yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Run your end-to-end tests
-```
-yarn run test:e2e
-```
-
-### Run your unit tests
-```
-yarn run test:unit
 ```
 
 ### Customize configuration
