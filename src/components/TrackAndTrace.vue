@@ -19,8 +19,8 @@
 
 <script>
 
-import RunTable from './Track&Trace-Components/RunTable.vue'
-import RunStepTable from '@/components/Track&Trace-Components/RunStepTable.vue'
+import RunTable from '@/components/Track&Trace-Components/RunTable'
+import RunStepTable from '@/components/Track&Trace-Components/RunStepTable'
 
 export default {
   name: 'track-and-trace',
@@ -51,56 +51,8 @@ export default {
      */
     runData: function () {
       let data = []
-      this.runs.forEach((run) => {
-        let Projects = []
-        let runProjects = this.getRunProjects(this.projects, run)
-        let errors = 0
-        runProjects.forEach((RunProject) => {
-          let ProjectJobs = this.getProjectJobs(this.jobs, RunProject)
-
-          let totalSteps = ProjectJobs.length
-          let completedSteps = ProjectJobs.filter(function (x) {
-            return x.status === 'finished'
-          }).length
-
-          let error = ProjectJobs.filter(function (x) {
-            return x.status === 'error'
-          })
-
-          let project = {
-            project: RunProject.project,
-            jobs: ProjectJobs,
-            pipeline: RunProject.pipeline,
-            resultCopyStatus: RunProject.copy_results_prm
-          }
-          Projects.push(project)
-          errors += error.length
-        })
-
-        let len = Projects.length
-        data.push({
-          run_id: run.run_id,
-          projects: Projects,
-          demultiplexing: run.demultiplexing,
-          rawCopy: run.copy_raw_prm,
-          len: len,
-          containsError: errors >= 1,
-          copyState: Projects.filter(function (x) {
-            return x.resultCopyStatus === 'finished'
-          }).length
-        })
-      })
-      data = data.sort((run1, run2) => {
-        if (run1.containsError && !run2.containsError) {
-          return -1
-        } else if (run2.containsError) {
-          return 1
-        } else if (this.runStep(run1) > this.runStep(run2)) {
-          return 1
-        } else {
-          return 0
-        }
-      })
+      this.runs.forEach((run) => {data.push(this.constructRun(run, this.projects, this.jobs))})
+      data = data.sort(this.sortRuns)
       return data
     },
     /**
@@ -143,6 +95,17 @@ export default {
      */
     setCurrentIndex (index) {
       this.showRun = this.runIds[index]
+    },
+    sortRuns(run1, run2) {
+      if (run1.containsError && !run2.containsError) {
+          return -1
+        } else if (run2.containsError) {
+          return 1
+        } else if (this.runStep(run1) > this.runStep(run2)) {
+          return 1
+        } else {
+          return 0
+        }
     },
     /**
      * pauses the run cycleRun when selecting a run
@@ -190,6 +153,7 @@ export default {
     /**
      * fetches data from specified location
      * @param ref fetch location url
+     * 
      * @returns Array of items
      */
     async fetchData (ref, items = []) {
@@ -206,7 +170,6 @@ export default {
     },
     /**
      * Cycles the display index by 1
-     *
      */
     cycleRun () {
       if (this.paused) {
@@ -221,6 +184,12 @@ export default {
         this.showRun = this.runIds[currentIndex]
         }
     },
+    /**
+     * finds run status step number
+     * @param run run to check
+     * 
+     * @returns step Number
+     */
     runStep (run) {
       if (run.demultiplexing !== 'finished') {
         return 0
@@ -236,14 +205,31 @@ export default {
         return 2
       }
     },
+    /**
+     * turn display cycling on or off
+     */
     toggleCycle() {
       this.paused = !this.paused
     },
+    /**
+     * filters projects that are linked to run
+     * @param projects all projects
+     * @param run run to add data
+     * 
+     * @returns filtered projects
+     */
     getRunProjects (projects, run) {
       return projects.filter(function (x) {
         return x.run_id === run.run_id
       })
     },
+    /**
+     * filters jobs that are linked to project
+     * @param jobs all jobs
+     * @param project project to add data to
+     * 
+     * @returns project jobs
+     */
     getProjectJobs (jobs, project) {
       return jobs
       .filter(function (x) {
@@ -255,6 +241,81 @@ export default {
     },
     runFinished(run) {
       return false
+    },
+    /**
+     * makes run data objects
+     * @param run run information
+     * @param Projects projects connected to run
+     * @param errors error count of jobs
+     * @returns Object
+     */
+    makeRunObject(run, Projects, errors) {
+      let runObject = {}
+      runObject.run_id = run.run_id
+      runObject.projects = Projects
+      runObject.demultiplexing = run.demultiplexing
+      runObject.rawCopy = run.copy_raw_prm
+      runObject.len = Projects.length
+      runObject.containsError = errors >= 1
+      runObject.copyState = this.countProjectFinishedCopying(Projects)
+
+      return runObject
+    },
+    /**
+     * returns number of finished projects
+     * @param projects projects to check
+     * @returns Number
+     */
+    countProjectFinishedCopying(projects) {
+      const finishedProjects = projects.filter(function (x) {
+        return x.resultCopyStatus === 'finished'
+      })
+      return finishedProjects.length
+    },
+    /**
+     * combines all available data into one run
+     * @param run run to add data to
+     * @param projects all projects to filter
+     * @param jobs all jobs to filter
+     * 
+     * @returns runObject
+     */
+    constructRun(run, projects, jobs) {
+      let Projects = []
+          const runProjects = this.getRunProjects(projects, run)
+          let errors = 0
+          runProjects.forEach((RunProject) => {
+            const ProjectJobs = this.getProjectJobs(jobs, RunProject)
+            Projects.push(this.makeProjectObject(RunProject, ProjectJobs))
+            errors += this.countJobStatus(ProjectJobs, 'error')
+          })
+        
+        return this.makeRunObject(run, Projects, errors)
+    },
+    /**
+     * builds project Object
+     * @param project project
+     * @param jobs project jobs
+     * 
+     * @returns project Object
+     */
+    makeProjectObject (project, jobs) {
+      let projectObject = {}
+
+      projectObject.project = project.project
+      projectObject.jobs = jobs
+      projectObject.pipeline = project.pipeline
+      projectObject.resultCopyStatus = project.copy_results_prm
+
+      return projectObject
+    },
+    /**
+     * Coutns status occurence in a job Array
+     * 
+     * @returns status count Number
+     */
+    countJobStatus(jobs, status) {
+      return jobs.filter(function (x) { return x.status === status }).length
     }
   },
   async mounted () {

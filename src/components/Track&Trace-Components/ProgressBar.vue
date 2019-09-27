@@ -16,10 +16,6 @@ export default {
         error: Boolean,
         variant: String,
         animated: Boolean
-    },
-    computed: {
-    },
-    methods: {
     }
 }
 

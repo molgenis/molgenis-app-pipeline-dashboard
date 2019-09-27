@@ -42,9 +42,16 @@ export default {
     variant: String
   },
   methods: {
+    /**
+     * emit selected run
+     * @param run to be selected
+     */
     selectRun (run) {
       this.$emit('select-run', run)
     },
+    /**
+     * emit pause to stop cycling runs
+     */
     emitPause () {
       this.$emit('toggle-cycle')
     }
