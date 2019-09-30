@@ -2,7 +2,7 @@
     <b-row id="track-and-trace" no-gutters>
       <b-col  class="p-2" lg="4" cols="12">
         <b-container fluid class="border border-primary rounded h-100 p-0">
-          <run-step-table  :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused" class="w-100"/>
+          <run-status-table  :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused" class="w-100"/>
         </b-container>
       </b-col>
     <b-col class="p-2" cols="12" lg="8">
@@ -18,31 +18,44 @@
 <script>
 
 import RunTable from '@/components/Track&Trace-Components/RunTable'
-import RunStepTable from '@/components/Track&Trace-Components/RunStepTable'
+import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable'
 
 export default {
   name: 'track-and-trace',
   components: {
     RunTable,
-    RunStepTable
+    RunStatusTable
   },
   props: {
-    headers: Headers,
-    url: String
+    headers: {
+      type: Headers,
+      required: true
+      },
+
+    url: {
+      type: String,
+      required: true
+      }
   },
   data () {
     return {
-      loading: false,
-      jobs: [],
       runs: [],
+      jobs: [],
       projects: [],
+
       runUrl: '',
       time: 0,
+
       showRun: '',
-      paused: false
+      paused: false,
+      loading: false
     }
   },
   computed: {
+    /**
+     * Currently selected run
+     * @returns Object run
+     */
     run: function () {
       const run = this.runData.find(x => x.run_id === this.showRun)
       if (run !== undefined) {
@@ -50,18 +63,38 @@ export default {
       }
       return {}
     },
+    /**
+     * Currently selected run id
+     * @returns String run id
+     */
     runID: function () {
       return this.run.run_id
     },
+    /**
+     * Currently selected run projects
+     * @returns Array of Projects
+     */
     runProjects: function () {
       return this.run.projects
     },
+    /**
+     * Currently selected run project count
+     * @returns Number of projects
+     */
     projectCount: function () {
       return this.run.len + 1
     },
+    /**
+     * Currently selected run error status
+     * @returns Boolean
+     */
     containsError: function () {
       return this.run.containsError
     },
+    /**
+     * Currently selected run step
+     * @returns Number step
+     */
     currentStep: function () {
       return this.runStep(this.run)
     },
@@ -103,9 +136,6 @@ export default {
         )
       })
       return runSteps
-    },
-    runStatus: function () {
-      
     }
   },
   methods: {
@@ -116,6 +146,13 @@ export default {
     setCurrentIndex (index) {
       this.showRun = this.runIds[index]
     },
+    /**
+     * run comparator function
+     * @param run1 run 1 
+     * @param run2 run 2
+     * 
+     * @returns Number
+     */
     sortRuns(run1, run2) {
       if (run1.containsError && !run2.containsError) {
           return -1
@@ -267,6 +304,7 @@ export default {
      * @param run run information
      * @param Projects projects connected to run
      * @param errors error count of jobs
+     * 
      * @returns Object
      */
     makeRunObject(run, Projects, errors) {
@@ -284,6 +322,7 @@ export default {
     /**
      * returns number of finished projects
      * @param projects projects to check
+     * 
      * @returns Number
      */
     countProjectFinishedCopying(projects) {
@@ -317,6 +356,13 @@ export default {
         
         return this.makeRunObject(run, Projects, errors)
     },
+    /**
+     * gets the project status
+     * @param project project
+     * @param jobs project jobs
+     * 
+     * @returns String status
+     */
     getStatus(project, jobs) {
       if (project.copy_results_prm === 'finished') {
         return 'finished'
@@ -349,12 +395,12 @@ export default {
     },
     /**
      * Coutns status occurence in a job Array
-     * 
+     *
      * @returns status count Number
      */
-    countJobStatus(jobs, status) {
+    countJobStatus (jobs, status) {
       return jobs.filter(function (x) { return x.status === status }).length
-    },
+    }
   },
   async mounted () {
     await this.getData()
@@ -383,7 +429,5 @@ export default {
 
 .height60 {
   height: 100%;
-}
-#track-and-trace {
 }
 </style>

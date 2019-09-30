@@ -13,26 +13,30 @@ export default {
         step: {
             type: Number,
             required: true
-            },
+        },
+
         totalSteps: {
             type: Number,
             required: true
-            },
+        },
+
         noWarning: {
             type: Boolean,
             required: false,
             default: false
-            },
+        },
+
         variant: {
             type: String,
             required: false,
             default: 'primary'
-            },
+        },
+
         animated: {
             type: Boolean,
             required: false,
             default: true
-            }
+        }
     }
 }
 

@@ -29,17 +29,36 @@
 <script>
 import ProgressBar from './ProgressBar'
 export default {
-  name: 'run-step-table',
+  name: 'run-status-table',
   components: {
     ProgressBar
 
   },
   props: {
-    runs: Array,
-    selected: String,
-    paused: Boolean,
-    runSteps: Array,
-    variant: String
+    runs: {
+      type: Array,
+      required: true
+    },
+
+    selected: {
+      type: String,
+      required: true
+    },
+
+    paused: {
+      type: Boolean,
+      required: true
+    },
+
+    runSteps: {
+      type: Array,
+      required: true
+    },
+
+    variant: {
+      type: String,
+      required: true
+    }
   },
   methods: {
     /**

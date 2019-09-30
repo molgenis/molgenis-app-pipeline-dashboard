@@ -2,9 +2,9 @@
 <b-row>
         <b-col class="text-center text-truncate">{{project}}</b-col>
         <b-col class="text-center"><status-icon :status="status" /></b-col>
-        <b-col class="text-center"><run-timer :startTime="startTime" :started="started" :finishTime="finishTime" :countdown="false"></run-timer></b-col>
+        <b-col class="text-center"><project-timer :startTime="startTime" :started="started" :finishTime="finishTime"></project-timer></b-col>
         <b-col class="d-flex align-items-center justify-content-center" >
-            <progress-bar class="w-100 mt-1" :variant="variant" v-on:finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false" :animated="true"></progress-bar>
+            <progress-bar class="w-100 mt-1" :variant="variant" @finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false" :animated="true"></progress-bar>
         </b-col>
 </b-row>
 </template>
@@ -12,23 +12,51 @@
 <script>
 import Vue from 'vue'
 import progressBar from './ProgressBar.vue'
-import runTimer from './RunTimer.vue'
+import ProjectTimer from './ProjectTimer.vue'
 import StatusIcon from './StatusIcon.vue'
 
 export default Vue.extend({
-    name: 'project-row',
+    name: 'project',
     props: {
-        header: Boolean,
-        project: String,
-        jobs: Array,
-        runID: String,
-        projectCount: Number,
-        time: Number,
-        resultCopy: String
+        header: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        project: {
+            type: String,
+            required: true
+        },
+
+        jobs: {
+            type: Array,
+            required: true
+        },
+
+        runID: {
+            type: String,
+            required: true
+        },
+
+        projectCount: {
+            type: Number,
+            required: true
+        },
+
+        time: {
+            type: Number,
+            required: true
+        },
+
+        resultCopy: {
+            type: String,
+            required: true
+        }
     },
     components: {
         progressBar,
-        runTimer,
+        ProjectTimer,
         StatusIcon
     },
     data () {
@@ -132,6 +160,10 @@ export default Vue.extend({
         finished: function () {
             return this.steps/this.totalSteps === 1 || this.resultCopy === 'finished'
         },
+        /**
+         * Sums up all job runtimes
+         * @returns total runtime
+         */
         runtime: function() {
             let sortedJobs = this.jobs.sort(function (x) {return x.job})
             let runtime = 0

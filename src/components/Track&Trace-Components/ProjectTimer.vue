@@ -6,13 +6,30 @@
 
 <script>
 import Vue from 'vue'
-export default Vue.extend({
-    name: 'run-timer',
+export default {
+    name: 'project-timer',
     props: {
-        startTime: Number,
-        finishTime: Number,
-        started: Boolean,
-        countdown: Boolean
+        startTime: {
+            type: Number,
+            required: true
+        },
+
+        finishTime: {
+            type: Number,
+            required: true
+        },
+
+        started: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+        
+        countdown: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
     },
     computed: {
         /**
@@ -68,7 +85,7 @@ export default Vue.extend({
         }
         
     }  
-})
+}
 </script>
 
 <style scoped>

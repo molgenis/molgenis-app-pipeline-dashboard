@@ -10,15 +10,11 @@
 
 <script>
 import TrackAndTrace from './components/TrackAndTrace.vue'
-import StatusIcon from './components/Track&Trace-Components/StatusIcon.vue'
-import ProgressBar from './components/Track&Trace-Components/ProgressBar'
-import RunStepTable from './components/Track&Trace-Components/RunStepTable'
 
 export default {
   name: 'app',
   components: {
-    TrackAndTrace,
-    RunStepTable
+    TrackAndTrace
   },
   data () {
     return {

@@ -7,30 +7,53 @@
         </b-row>
           <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4"></step-tracker>
             <template v-for="project in projects">
-                <project-row :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"></project-row>
+                <project :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
             </template>
     </b-container>
 </template>
 
 <script>
-import ProjectRow from './ProjectRow.vue'
+import RunTableProject from './RunTableProject.vue'
 import ProgressBar from './ProgressBar.vue'
-import StepTracker from './StepTracker.vue'
+import StepTracker from './RunTableStepTracker.vue'
 
 export default {
     name: 'run-table',
     props: {
-        showRun: String,
-        runID: String,
-        projects: Array,
-        containsError: Boolean,
-        currentStep: Number,
-        projectCount: Number,
-        time: Number
+        runID: {
+          type: String,
+          required: true
+        },
+
+        projects: {
+          type: Array,
+          required: true
+        },
+
+        containsError: {
+          type: Boolean,
+          required: false,
+          default: false
+        },
+
+        currentStep: {
+          type: Number,
+          required: true
+        },
+
+        projectCount: {
+          type: Number,
+          required: true
+        },
+        
+        time: {
+          type: Number,
+          required: true
+        }
 
     },
     components: {
-        ProjectRow,
+        RunTableProject,
         ProgressBar,
         StepTracker
     }

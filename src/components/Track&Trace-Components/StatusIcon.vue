@@ -10,7 +10,10 @@
 export default {
     name: 'status-icon',
     props: {
-        status: String
+        status: {
+            type: String,
+            required: true
+        }
     }
 }
 </script>

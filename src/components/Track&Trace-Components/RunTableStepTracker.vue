@@ -21,17 +21,29 @@
 export default {
     name: 'step-tracker',
     props: {
-        steps: Array,
-        currentStep: Number,
-        error: Boolean
-    },
-    data () {
-        return {
+        steps: {
+            type: Array,
+            required: false,
+            default: ['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']
+        },
+
+        currentStep: {
+            type: Number,
+            required: false,
+            default: 0
+        },
+
+        error: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
-    computed: {
-    },
     methods: {
+        /**
+         * Finds status of current step
+         * @returns String status
+         */
         getStepStatus(step) {
             if (this.isFinalStep(step) && this.StepRunning(step)) {
                 return 'complete'
@@ -52,16 +64,26 @@ export default {
                 }
             }
         },
+        /**
+         * Checks if step is currently running
+         * @returns Boolean
+         */
         StepRunning(step) {
             return this.steps[this.currentStep] === step
         },
-
+        /**
+         * Checks if step has been completed
+         * @returns Boolean
+         */
         StepComplete(step) {
             let index = this.steps.indexOf(step)
             
             return ((index < this.currentStep))
         },
-
+        /**
+         * Checks if step is final step
+         * @returns Boolean
+         */
         isFinalStep(step) {
             let index = this.steps.indexOf(step)
             return (step === this.steps.slice(-1)[0])
