@@ -26,8 +26,7 @@ export default {
         containsError: Boolean,
         currentStep: Number,
         projectCount: Number,
-        time: Number,
-        
+        time: Number
 
     },
     components: {

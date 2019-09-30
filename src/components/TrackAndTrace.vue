@@ -8,10 +8,8 @@
     <b-col class="p-2" cols="12" lg="8">
       <b-container class="border border-primary rounded h-100" fluid>
       <transition name="fade" mode="out-in">
-      <template v-for="run in runData" >
-        <run-table v-if="showRun === run.run_id" :runID="run.run_id" :showRun="showRun" :projects="run.projects" :projectCount="run.len + 1" :containsError="run.containsError" :currentStep="runStep(run)" :key="run.run_id" :time="time"/>
-      </template>
-    </transition>
+        <run-table :runID="runID" :showRun="showRun" :projects="runProjects" :projectCount="projectCount" :containsError="containsError" :currentStep="currentStep" :time="time"/>
+      </transition>
       </b-container>
     </b-col>
     </b-row>
@@ -45,6 +43,28 @@ export default {
     }
   },
   computed: {
+    run: function () {
+      const run = this.runData.find(x => x.run_id === this.showRun)
+      if (run !== undefined) {
+        return run
+      }
+      return {}
+    },
+    runID: function () {
+      return this.run.run_id
+    },
+    runProjects: function () {
+      return this.run.projects
+    },
+    projectCount: function () {
+      return this.run.len + 1
+    },
+    containsError: function () {
+      return this.run.containsError
+    },
+    currentStep: function () {
+      return this.runStep(this.run)
+    },
     /**
      * Combines all data into one object
      * @returns Object
@@ -240,8 +260,8 @@ export default {
             })
     },
     runFinished(run) {
-      return false
-    },
+      return run.projects.filter((x) => {return x.status === 'finished'}).lenght === run.len
+      },
     /**
      * makes run data objects
      * @param run run information
@@ -286,11 +306,28 @@ export default {
           let errors = 0
           runProjects.forEach((RunProject) => {
             const ProjectJobs = this.getProjectJobs(jobs, RunProject)
-            Projects.push(this.makeProjectObject(RunProject, ProjectJobs))
+            Projects.push(this.makeProjectObject(
+              RunProject, 
+              ProjectJobs, 
+              this.getStatus(RunProject, ProjectJobs)
+              ))
+
             errors += this.countJobStatus(ProjectJobs, 'error')
           })
         
         return this.makeRunObject(run, Projects, errors)
+    },
+    getStatus(project, jobs) {
+      if (project.copy_results_prm === 'finished') {
+        return 'finished'
+      } else if (this.countJobStatus(jobs, 'finished') === jobs.length) {
+        return 'finished'
+      } else if (this.countJobStatus(jobs, 'started') >= 1) {
+        return 'started'
+      } else {
+        return 'Waiting'
+      }
+      
     },
     /**
      * builds project Object
@@ -299,13 +336,14 @@ export default {
      * 
      * @returns project Object
      */
-    makeProjectObject (project, jobs) {
+    makeProjectObject (project, jobs, status) {
       let projectObject = {}
 
       projectObject.project = project.project
       projectObject.jobs = jobs
       projectObject.pipeline = project.pipeline
       projectObject.resultCopyStatus = project.copy_results_prm
+      projectObject.status = status
 
       return projectObject
     },
@@ -316,7 +354,7 @@ export default {
      */
     countJobStatus(jobs, status) {
       return jobs.filter(function (x) { return x.status === status }).length
-    }
+    },
   },
   async mounted () {
     await this.getData()
