@@ -29,6 +29,10 @@ export default {
             }
           },
         },
+        title: {
+          text: 'Runtime by Run',
+          align: 'center'
+        },
         plotOptions: {
           bar: {
             colors: {
@@ -46,7 +50,7 @@ export default {
         },
         yaxis: {
           title: {
-            text: 'Doorlooptijd (uur)'
+            text: 'Runtime (hours)'
           },
           min: 0,
           max: 20
