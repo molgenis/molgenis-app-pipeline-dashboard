@@ -37,6 +37,12 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        started: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
     methods: {
@@ -48,10 +54,13 @@ export default {
             if (this.isFinalStep(step) && this.StepRunning(step)) {
                 return 'complete'
             } else if (this.steps[this.currentStep] === step) {
+                if (!this.started) {
+                    return ''
+                }
                 if (!this.error) { 
-                    return 'running'}
-                else { 
-                    return 'error'}
+                    return 'running'
+                }
+                    return 'error'
             } else {
                 if (this.StepComplete(step)) {
                     if (this.error) {
@@ -66,9 +75,13 @@ export default {
         },
         /**
          * Checks if step is currently running
+         * @param step String 
          * @returns Boolean
          */
         StepRunning(step) {
+            if (!this.started) {
+                return false
+            }
             return this.steps[this.currentStep] === step
         },
         /**
@@ -77,6 +90,9 @@ export default {
          */
         StepComplete(step) {
             let index = this.steps.indexOf(step)
+            if (!this.started) {
+                return false
+            }
             
             return ((index < this.currentStep))
         },

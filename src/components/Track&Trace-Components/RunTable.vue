@@ -5,9 +5,9 @@
             {{runID}}
           </b-col>
         </b-row>
-          <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4"></step-tracker>
+          <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
             <template v-for="project in projects">
-                <project :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
+                <run-table-project :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
             </template>
     </b-container>
 </template>
@@ -45,9 +45,14 @@ export default {
           type: Number,
           required: true
         },
-        
+
         time: {
           type: Number,
+          required: true
+        },
+
+        demultiplexing: {
+          type: Boolean,
           required: true
         }
 
@@ -56,6 +61,14 @@ export default {
         RunTableProject,
         ProgressBar,
         StepTracker
-    }
+    },
+    data: function() {
+      return {
+        runtime: {}
+      }
+    },
+    methods: {
+
+      }
 }
 </script>

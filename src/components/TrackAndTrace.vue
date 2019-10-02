@@ -1,14 +1,22 @@
 <template>
     <b-row id="track-and-trace" no-gutters>
       <b-col  class="p-2" lg="4" cols="12">
-        <b-container fluid class="border border-primary rounded h-100 p-0">
-          <run-status-table  :runs="runSteps" :selected="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :paused="paused" class="w-100"/>
+        <b-container fluid class="border border-primary h-100 p-0">
+          <run-status-table  @run-finished="addRunToStatistics" :total-runs="runSteps" :selected-run="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :cycle-paused="paused" class="w-100"/>
         </b-container>
       </b-col>
     <b-col class="p-2" cols="12" lg="8">
-      <b-container class="border border-primary rounded h-100" fluid>
+      <b-container class="border border-primary h-100" fluid>
       <transition name="fade" mode="out-in">
-        <run-table :runID="runID" :showRun="showRun" :projects="runProjects" :projectCount="projectCount" :containsError="containsError" :currentStep="currentStep" :time="time"/>
+        <run-table 
+        :runID="runID" 
+        :showRun="showRun" 
+        :projects="runProjects" 
+        :projectCount="projectCount" 
+        :containsError="containsError" 
+        :currentStep="currentStep" 
+        :time="time"
+        :demultiplexing="demultiplexing"/>
       </transition>
       </b-container>
     </b-col>
@@ -19,6 +27,7 @@
 
 import RunTable from '@/components/Track&Trace-Components/RunTable'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable'
+import projectComponent from '@/components/Track&Trace-Components/RunTableProject'
 
 export default {
   name: 'track-and-trace',
@@ -61,15 +70,21 @@ export default {
       if (run !== undefined) {
         return run
       }
-      return {}
+      return this.makeRunObject('', [], false)
     },
+    
     /**
      * Currently selected run id
      * @returns String run id
      */
     runID: function () {
+      const runID = this.run.run_id
+      if (typeof(runID) == 'undefined'){
+        return ''
+      }
       return this.run.run_id
     },
+
     /**
      * Currently selected run projects
      * @returns Array of Projects
@@ -77,6 +92,7 @@ export default {
     runProjects: function () {
       return this.run.projects
     },
+
     /**
      * Currently selected run project count
      * @returns Number of projects
@@ -84,12 +100,19 @@ export default {
     projectCount: function () {
       return this.run.len + 1
     },
+
     /**
      * Currently selected run error status
      * @returns Boolean
      */
     containsError: function () {
       return this.run.containsError
+    },
+
+    demultiplexing: function () {
+      const demultiplexing = this.run.demultiplexing
+
+      return demultiplexing === 'started' || demultiplexing === 'finished'
     },
     /**
      * Currently selected run step
@@ -98,6 +121,9 @@ export default {
     currentStep: function () {
       return this.runStep(this.run)
     },
+
+    
+
     /**
      * Combines all data into one object
      * @returns Object
@@ -108,6 +134,7 @@ export default {
       data = data.sort(this.sortRuns)
       return data
     },
+
     /**
      * Creates array of runId Strings
      * @returns Array
@@ -119,6 +146,7 @@ export default {
       })
       return runIds
     },
+
     /**
      * creates an Array of run objects for step tracker
      * @returns Array
@@ -146,6 +174,7 @@ export default {
     setCurrentIndex (index) {
       this.showRun = this.runIds[index]
     },
+
     /**
      * run comparator function
      * @param run1 run 1 
@@ -164,6 +193,7 @@ export default {
           return 0
         }
     },
+
     /**
      * pauses the run cycleRun when selecting a run
      * @param run run to select
@@ -172,12 +202,14 @@ export default {
       this.paused = true
       this.showRun = run
     },
+
     /**
      * increases timer by 1 second
      */
     timeUp () {
       this.time = this.time + 1000
     },
+
     /**
      * primes the timer for counting runtimes
      */
@@ -185,11 +217,13 @@ export default {
       this.time = new Date().getTime()
       setInterval(this.timeUp, 1000)
     },
+
     /**
      * Get the available projects in status data.
      */
     async getData () {
       try {
+
         let runs = await this.fetchData(this.url + 'status_overview?num=10000')
         let projects = await this.fetchData(this.url + 'status_projects?num=10000')
         let jobs = await this.fetchData(this.url + 'status_jobs?num=10000')
@@ -217,6 +251,7 @@ export default {
       const response = await fetch(ref, {
         headers: this.headers
       })
+
       const data = await response.json()
       let totalItems = items.concat(data.items)
       if (data.nextHref) {
@@ -225,6 +260,7 @@ export default {
         return totalItems
       }
     },
+
     /**
      * Cycles the display index by 1
      */
@@ -241,6 +277,7 @@ export default {
         this.showRun = this.runIds[currentIndex]
         }
     },
+
     /**
      * finds run status step number
      * @param run run to check
@@ -262,12 +299,14 @@ export default {
         return 2
       }
     },
+
     /**
-     * turn display cycling on or off
+     * pause or resume cycling of detailed view
      */
     toggleCycle() {
       this.paused = !this.paused
     },
+
     /**
      * filters projects that are linked to run
      * @param projects all projects
@@ -280,6 +319,7 @@ export default {
         return x.run_id === run.run_id
       })
     },
+
     /**
      * filters jobs that are linked to project
      * @param jobs all jobs
@@ -296,9 +336,17 @@ export default {
               return x.job
             })
     },
+
+    /**
+     * Checks if a run is finished with its pipelines
+     * @param run Object
+     * 
+     * @returns Boolean
+     */
     runFinished(run) {
-      return run.projects.filter((x) => {return x.status === 'finished'}).lenght === run.len
+      return run.projects.filter((x) => {return  x.status.toLowerCase() === 'finished'}).lenght === run.len
       },
+
     /**
      * makes run data objects
      * @param run run information
@@ -319,6 +367,7 @@ export default {
 
       return runObject
     },
+
     /**
      * returns number of finished projects
      * @param projects projects to check
@@ -331,6 +380,7 @@ export default {
       })
       return finishedProjects.length
     },
+
     /**
      * combines all available data into one run
      * @param run run to add data to
@@ -356,6 +406,7 @@ export default {
         
         return this.makeRunObject(run, Projects, errors)
     },
+
     /**
      * gets the project status
      * @param project project
@@ -375,6 +426,7 @@ export default {
       }
       
     },
+
     /**
      * builds project Object
      * @param project project
@@ -393,6 +445,7 @@ export default {
 
       return projectObject
     },
+
     /**
      * Coutns status occurence in a job Array
      *
@@ -400,15 +453,52 @@ export default {
      */
     countJobStatus (jobs, status) {
       return jobs.filter(function (x) { return x.status === status }).length
-    }
+    },
+    findLastDateTime(projects) {
+            let finished_date = 0
+            projects.forEach((project) => {
+              project.jobs.forEach((job) => {
+                    let currentjob = new Date(job.finished_date).getTime()
+                    if (finished_date < currentjob && !isNaN(finished_date)) {
+                        finished_date = currentjob
+                  }
+            })
+            })
+            return finished_date
+        },
+        findStartDateTime(projects) {
+            let started_date = Infinity
+            projects.forEach((project) => {
+              project.jobs.forEach((job) => {
+                let currentjob = new Date(job.started_date).getTime()
+                if (started_date > currentjob && !isNaN(started_date)) {
+                    started_date = currentjob
+                }
+            })
+            })
+            
+            return started_date
+        },
+    
+    addRunToStatistics (run) {
+      this.$emit('hello', run)
+      const runStats = this.runData.find((x) => {
+        return x.run_id === run
+      })
+
+      const start = this.findStartDateTime(runStats.projects)
+      const finish = this.findLastDateTime(runStats.projects)
+    this.$emit('add-statistic', run, start, finish)
+  }
   },
+
   async mounted () {
     await this.getData()
     this.setTimer()
     setInterval(this.getData, 10000)
     this.cycleRun()
     setInterval(this.cycleRun, 10000)
-  }
+  },
 }
 
 </script>

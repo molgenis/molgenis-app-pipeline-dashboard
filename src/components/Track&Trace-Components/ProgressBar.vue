@@ -37,7 +37,23 @@ export default {
             required: false,
             default: true
         }
+    },
+    methods: {
+        checkProgress() {
+            if (this.step === this.totalSteps){
+                this.$emit('progress-finish')
+            }
+        }
+    },
+    watch: {
+        step: function () {
+            this.checkProgress()
+            }   
+        },
+    mounted () {
+        this.checkProgress()
     }
+
 }
 
 </script>

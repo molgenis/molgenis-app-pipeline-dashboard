@@ -4,18 +4,17 @@
         <b-col class="text-center"><status-icon :status="status" /></b-col>
         <b-col class="text-center"><project-timer :startTime="startTime" :started="started" :finishTime="finishTime"></project-timer></b-col>
         <b-col class="d-flex align-items-center justify-content-center" >
-            <progress-bar class="w-100 mt-1" :variant="variant" @finished="projectFinished" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false" :animated="true"></progress-bar>
+            <progress-bar class="w-100 mt-1" :variant="variant" :step="steps" :totalSteps="totalSteps" :noWarning="noWarning" :error="false" :animated="true"></progress-bar>
         </b-col>
 </b-row>
 </template>
 
 <script>
-import Vue from 'vue'
 import progressBar from './ProgressBar.vue'
 import ProjectTimer from './ProjectTimer.vue'
 import StatusIcon from './StatusIcon.vue'
 
-export default Vue.extend({
+export default {
     name: 'project',
     props: {
         header: {
@@ -50,7 +49,7 @@ export default Vue.extend({
         },
 
         resultCopy: {
-            type: String,
+            type: String | undefined,
             required: true
         }
     },
@@ -62,7 +61,7 @@ export default Vue.extend({
     data () {
         return {
             variant: 'warning',
-            avgHours: 4,
+            averageHours: 4,
             noWarning: true
             
         }
@@ -72,8 +71,8 @@ export default Vue.extend({
          * Converts average hours to milliseconds for timer
          * @returns Number
          */
-        avgMs: function () {
-            return this.avgHours * 3600 * 1000
+        averageHoursInMs: function () {
+            return this.averageHours * 3600 * 1000
         },
         /**
          * Filters jobs that are not completed sorted by start date
@@ -181,13 +180,7 @@ export default Vue.extend({
         finishTime: function() {
             let finished_date = 0
             if (this.finished) {
-                this.jobs.forEach((job) => {
-                    let currentjob = new Date(job.finished_date).getTime()
-                    if (finished_date < currentjob && !isNaN(finished_date)) {
-                        finished_date = currentjob
-                    }
-                })
-                return finished_date
+                return this.findLastDateTime(this.jobs)
             } else {
                 return this.time
             }
@@ -197,14 +190,7 @@ export default Vue.extend({
          * @returns Number (milliseconds)
          */
         startTime: function() {
-            let started_date = Infinity
-            this.jobs.forEach((job) => {
-                let currentjob = new Date(job.started_date).getTime()
-                if (started_date > currentjob && !isNaN(started_date)) {
-                    started_date = currentjob
-                }
-            })
-            return started_date
+            return this.findStartDateTime(this.jobs)
         }
 
     },
@@ -223,9 +209,30 @@ export default Vue.extend({
                 this.variant = 'warning'
                 this.noWarning = false
             }
+        },
+        findLastDateTime(jobs) {
+            let finished_date = 0
+            jobs.forEach((job) => {
+                    let currentjob = new Date(job.finished_date).getTime()
+                    if (finished_date < currentjob && !isNaN(finished_date)) {
+                        finished_date = currentjob
+                    }
+            })
+
+            return finished_date
+        },
+        findStartDateTime(jobs) {
+            let started_date = Infinity
+            jobs.forEach((job) => {
+                let currentjob = new Date(job.started_date).getTime()
+                if (started_date > currentjob && !isNaN(started_date)) {
+                    started_date = currentjob
+                }
+            })
+            return started_date
         }
     }
-})
+}
 
 </script>
 

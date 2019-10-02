@@ -81,7 +81,7 @@ export default {
          * @returns Boolean
          */
         waiting: function () {
-            return (!started )
+            return (!started)
         }
         
     }  

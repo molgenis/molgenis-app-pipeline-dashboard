@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
+import VueApexCharts from 'vue-apexcharts'
 import Dashboard from './Dashboard.vue'
 
 
@@ -17,6 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('apexchart', VueApexCharts)
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
