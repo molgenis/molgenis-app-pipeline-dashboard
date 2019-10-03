@@ -5,12 +5,16 @@
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
       </b-col>
-      <b-col cols="8" class="m-2"></b-col>
+      <b-col cols="4" class="p-2 h-100">
+        <b-container class="border border-primary p-0" fluid></b-container>
+      </b-col>
+       <b-col cols="4" class="p-2 h-100">
+         <b-container class="border border-primary p-0" fluid></b-container>
+       </b-col>
     </b-row>  
 </template>
 
 <script>
-import { parse } from '@fortawesome/fontawesome-svg-core'
 
 export default {
   name: 'run-time-statistics',
@@ -19,7 +23,49 @@ export default {
   },
   data: function() {
     return {
-      chartOptions: {
+      annotations: {
+          xaxis: [
+            {
+              x: 7.9,
+              x2: 8.1,
+              borderColor: '#a57f01',
+              fillColor: '#e3ae00',
+              opacity: 0.5,
+              label: {
+                borderColor: '#e3ae00',
+                style: {
+                  fontSize: '10px',
+                  color: '#fff',
+                  background: '#e3ae00',
+                },
+                text: '190814_NB501043_0...'
+                }
+              }
+          ],
+          yaxis: [
+            {
+              y: 8.5,
+              strokeDashArray: 0,
+              
+              borderColor: '#775DD0',
+              label: {
+                borderColor: '#775DD0',
+                position: 'right',
+                offsetY: -20,
+                style: {
+                  color: '#fff',
+                  background: '#775DD0'
+                },
+                text: 'Average runtime'
+              }
+            }
+          ]},
+          max: 20
+      }
+  },
+  computed: {
+    chartOptions: function () {
+      return {
         chart: {
           id: 'run-time-graph',
           toolbar: {
@@ -40,18 +86,6 @@ export default {
         markers: {
           size: 6
         },
-        plotOptions: {
-          bar: {
-            colors: {
-              ranges: [{
-                from:-50,
-                to: 0,
-                color: '#F15B46'
-              }]
-            },
-            columnWidth: '100%'
-          }
-        },
         dataLabels: {
           enabled: false,
         },
@@ -60,7 +94,7 @@ export default {
             text: 'Runtime (hours)'
           },
           min: 0,
-          max: 20
+          max: this.max
         },
         xaxis: {
           title: {text: 'Run'},
@@ -72,41 +106,23 @@ export default {
             rotate: -90
           }
         },
-        annotations: {
-          yaxis: [
-            {
-              y: 8.5,
-              strokeDashArray: 0,
-              
-              borderColor: "#775DD0",
-              label: {
-                borderColor: "#775DD0",
-                position: "right",
-                offsetY: -20,
-                style: {
-                  color: "#fff",
-                  background: "#775DD0"
-                },
-                text: "Average runtime"
-              }
-            }
-          ]}
+        annotations: this.annotations
       }
-    }
-  },
-  computed: {
+    },
     series: function () {
-      this.chartOptions.annotations.yaxis[0].y = this.findAverage(this.runTimes)
-      const max = Math.max(...this.runTimes)
+      const numArray = Array.from(this.runTimes, x => Object.values(x)[0])
+      this.annotations.yaxis[0].y = this.findAverage(numArray)
+      const max = Math.max(...numArray)
       if (max > 20) {
-        this.chartOptions.yaxis.max = max + 10
+        this.max = max + 10
       } else {
-        this.chartOptions.yaxis.max = 20
+        this.max = 20
       }
       return [{
         name: 'Runtime',
-        data: this.runTimes
-      }]},
+        data: numArray
+      }]
+    }
   },
   methods: {
     findAverage(numArray) {
@@ -118,11 +134,52 @@ export default {
       const avg = sum / 10
       console.log(avg)
       return avg
+    },
+    test() {
+      this.chartOptions.annotations.xaxis.push(
+        {
+              x: 5.9,
+              x2: 6.1,
+              borderColor: '#a57f01',
+              fillColor: '#e3ae00',
+              opacity: 0.5,
+              label: {
+                borderColor: '#e3ae00',
+                style: {
+                  fontSize: '10px',
+                  color: '#fff',
+                  background: '#e3ae00',
+                },
+                text: '190814_NB501043_...'
+                }
+              }
+      )
+    },
+    CreateXannotation(x, name) {
+      return {
+              x: x - 0.1,
+              x2: x + 0.1,
+              borderColor: '#a57f01',
+              fillColor: '#e3ae00',
+              opacity: 0.5,
+              label: {
+                borderColor: '#e3ae00',
+                style: {
+                  fontSize: '10px',
+                  color: '#fff',
+                  background: '#e3ae00',
+                },
+                text: name
+                }
+              }
     }
   }
 }
 </script>
 
 <style scoped>
+.hey {
+  background-color: #a57f01
+}
 
 </style>
