@@ -23,28 +23,19 @@ export default {
   },
   data: function() {
     return {
-      annotations: {
-          xaxis: [
-            {
-              x: 7.9,
-              x2: 8.1,
-              borderColor: '#a57f01',
-              fillColor: '#e3ae00',
-              opacity: 0.5,
-              label: {
-                borderColor: '#e3ae00',
-                style: {
-                  fontSize: '10px',
-                  color: '#fff',
-                  background: '#e3ae00',
-                },
-                text: '190814_NB501043_0...'
-                }
-              }
-          ],
+      max: 20,
+      average: 8,
+      xAnnotations: [],
+      threshold: 20
+      }
+  },
+  computed: {
+    annotations: function () {
+      return {
+          xaxis: this.xAnnotations,
           yaxis: [
             {
-              y: 8.5,
+              y: this.average,
               strokeDashArray: 0,
               
               borderColor: '#775DD0',
@@ -59,11 +50,8 @@ export default {
                 text: 'Average runtime'
               }
             }
-          ]},
-          max: 20
-      }
-  },
-  computed: {
+          ]}
+        },
     chartOptions: function () {
       return {
         chart: {
@@ -111,7 +99,18 @@ export default {
     },
     series: function () {
       const numArray = Array.from(this.runTimes, x => Object.values(x)[0])
-      this.annotations.yaxis[0].y = this.findAverage(numArray)
+      this.xAnnotations = []
+      for (let i = 0; i < this.runTimes.length; i++) {
+        let obj = this.runTimes[i]
+        let key = Object.keys(obj)[0]
+        let value = Object.values(obj)[0]
+        if (value >= this.threshold) {
+          this.xAnnotations.push(this.CreateXannotation(i + 1, key))
+        }
+      }
+        
+
+      this.average = this.findAverage(numArray)
       const max = Math.max(...numArray)
       if (max > 20) {
         this.max = max + 10
@@ -155,10 +154,10 @@ export default {
               }
       )
     },
-    CreateXannotation(x, name) {
+    CreateXannotation(coordinate, name) {
       return {
-              x: x - 0.1,
-              x2: x + 0.1,
+              x: coordinate - 0.1,
+              x2: coordinate + 0.1,
               borderColor: '#a57f01',
               fillColor: '#e3ae00',
               opacity: 0.5,
