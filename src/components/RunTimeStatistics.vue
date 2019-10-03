@@ -33,6 +33,13 @@ export default {
           text: 'Runtime by Run',
           align: 'center'
         },
+        stroke: {
+          width: 4,
+          style: "smooth"
+        },
+        markers: {
+          size: 6
+        },
         plotOptions: {
           bar: {
             colors: {
@@ -70,9 +77,12 @@ export default {
             {
               y: 8.5,
               strokeDashArray: 0,
+              
               borderColor: "#775DD0",
               label: {
                 borderColor: "#775DD0",
+                position: "right",
+                offsetY: -20,
                 style: {
                   color: "#fff",
                   background: "#775DD0"
@@ -87,8 +97,14 @@ export default {
   computed: {
     series: function () {
       this.chartOptions.annotations.yaxis[0].y = this.findAverage(this.runTimes)
+      const max = Math.max(...this.runTimes)
+      if (max > 20) {
+        this.chartOptions.yaxis.max = max + 10
+      } else {
+        this.chartOptions.yaxis.max = 20
+      }
       return [{
-        name: 'looptijd',
+        name: 'Runtime',
         data: this.runTimes
       }]},
   },
@@ -96,9 +112,7 @@ export default {
     findAverage(numArray) {
       let sum = 0
       numArray.forEach((x) => {
-        
         sum += x
-        console.log(sum)
       })
 
       const avg = sum / 10
