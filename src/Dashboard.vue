@@ -11,12 +11,23 @@
 </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import TrackAndTrace from './components/TrackAndTrace.vue'
-import RunTimeStatistics from '@/components/RunTimeStatistics'
+import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 
 
-export default {
+
+interface responseJSON {
+  token: string
+  username: string
+}
+
+interface Run {
+  runId: string
+  runtime: number
+}
+export default Vue.extend({
   name: 'app',
   components: {
     TrackAndTrace,
@@ -28,37 +39,46 @@ export default {
       password: 'admin',
       token: 'admin-test-token',
       rootUrl: 'http://localhost:8081/api/v2/',
-      runtimes: [8.2,8.4,8.1,7.8,6.9, 8.9, 7.6, 7.4, 8.0, 8.1]
+      runtimes: [{runId: 'test1', runtime: 8.2}, {runId: 'test2', runtime: 8.4}, {runId: 'test3', runtime: 26}, {runId: 'test4', runtime: 6.6}, {runId: 'test5', runtime: 12.3}, {runId: 'test6', runtime: 8.1}, {runId: 'test7', runtime: 30}, {runId: 'test8', runtime: 9.3}, {runId: 'test9', runtime: 7.7}, {runId: 'test10', runtime: 5.5} ]
     }
   },
   computed: {
-    headers: function () {
-      return new Headers({'x-molgenis-token': this.token})
+    headers(): Headers {
+      const token: string = this.token
+      const header = new Headers({'x-molgenis-token': token})
+
+      return header
     }
   },
   methods: {
-    async getToken (username, password) {
-      const response = await fetch('http://localhost:8081/api/v1/login', {"username": username, "password": password})
-      return await response.json().token
+    /**
+     * Gets the new login token
+     */
+    async getToken (username: string, password: string): Promise<string> {
+      const response = await fetch('http://localhost:8081/api/v1/login')
+
+      let json: responseJSON = await response.json()
+
+      const token: string = json.token
+      return token
     },
+
     async setToken() {
       this.token = await this.getToken(this.username, this.password)
     },
-    addStatistics(run, start, finish) {
-      let timeArray = this.runtimes
+    addStatistics(run: string, start: number, finish: number) {
+      let timeArray: Array<Run> = this.runtimes
       if (timeArray.length >= 10) {
         timeArray.shift()
       }
-
       const hours = Math.round((((finish - start)/1000)/3600) * 10) / 10
-      timeArray.push(hours)
+      let currentRun: Run = {runId: run, runtime: hours}
+      timeArray.push(currentRun)
 
       this.runtimes = timeArray
     }
-  },
-  mounted() {
   }
-}
+})
 
 </script>
 
