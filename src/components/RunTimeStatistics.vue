@@ -28,7 +28,6 @@ export default {
   },
   data: function() {
     return {
-      max: 20,
       average: 8,
       xAnnotations: [],
       threshold: 12,
@@ -104,7 +103,7 @@ export default {
             text: 'Runtime (hours)'
           },
           min: 0,
-          max: this.max
+          max: this.maxValue
         },
         xaxis: {
           title: {text: 'Run'},
@@ -119,29 +118,33 @@ export default {
         annotations: this.annotations
       }
     },
+    numbersArray: function () {
+      return Array.from(this.runTimes, x => x.runtime)
+    },
+    maxValue: function () {
+      const max = Math.max(...this.numbersArray)
+      if (max > 20) {
+        return max + 10
+      } else {
+        return 20
+      }
+
+    },
     series: function () {
-      const numArray = Array.from(this.runTimes, x => Object.values(x)[0])
+      const numArray = this.numbersArray
       this.xAnnotations = []
       
       this.average = this.findAverageOfNormalValues(numArray)
       this.threshold = this.getSD(numArray, this.average)
 
       for (let i = 0; i < this.runTimes.length; i++) {
-        let obj = this.runTimes[i]
-        let key = Object.keys(obj)[0]
-        let value = Object.values(obj)[0]
-        if (value >= this.average + this.threshold) {
-          this.xAnnotations.push(this.CreateXannotation(i + 1, key))
-          this.outliers.push([key, i + 1])
+        let run = this.runTimes[i]
+        if (run.runtime >= this.average + this.threshold) {
+          this.xAnnotations.push(this.CreateXannotation(i + 1, run.runId))
+          this.outliers.push([run.runId, i + 1])
         }
       }
-
-      const max = Math.max(...numArray)
-      if (max > 20) {
-        this.max = max + 10
-      } else {
-        this.max = 20
-      }
+      
       return [{
         name: 'Runtime',
         data: numArray
