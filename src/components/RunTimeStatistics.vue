@@ -35,6 +35,11 @@ export default {
       }
   },
   computed: {
+    /**
+     * Computed property that builds the annotations for the graph
+     * 
+     * @returns Object annotations
+     */
     annotations: function () {
       return {
           xaxis: this.xAnnotations,
@@ -73,6 +78,11 @@ export default {
             }
           ]}
         },
+    /**
+     * Computed property that builds chart options
+     * 
+     * @returns Object chartOptions
+     */
     chartOptions: function () {
       return {
         chart: {
@@ -118,9 +128,19 @@ export default {
         annotations: this.annotations
       }
     },
+    /**
+     * Gets all runtimes
+     * 
+     * @returns Array
+     */
     numbersArray: function () {
       return Array.from(this.runTimes, x => x.runtime)
     },
+    /**
+     * Finds max value
+     * 
+     * @returns Number
+     */
     maxValue: function () {
       const max = Math.max(...this.numbersArray)
       if (max > 20) {
@@ -130,6 +150,9 @@ export default {
       }
 
     },
+    /**
+     * builds series array for graph
+     */
     series: function () {
       const numArray = this.numbersArray
       this.xAnnotations = []
@@ -152,6 +175,13 @@ export default {
     }
   },
   methods: {
+    /**
+     * gets standard deviation
+     * @param numArray Array<Number>
+     * @param average Number
+     * 
+     * @returns Number Standard deviation from the average
+     */
     getSD(numArray, average) {
       let sumOfDistance = 0
       numArray.forEach((x) => {
@@ -160,6 +190,12 @@ export default {
 
       return Math.sqrt(sumOfDistance/numArray.length)
     },
+    /**
+     * gets the average of array
+     * @param numArray Array<Number>
+     * 
+     * @returns Number average of array
+     */
     findAverage(numArray) {
       let sum = 0
       numArray.forEach((x) => {
@@ -170,6 +206,12 @@ export default {
 
       return avg
     },
+    /**
+     * returns average without outliers
+     * @param numArray Array<Number>
+     * 
+     * @returns Number average of Array
+     */
     findAverageOfNormalValues(numArray) {
       const average = this.findAverage(numArray)
       const SD = this.getSD(numArray, average)
@@ -180,6 +222,13 @@ export default {
 
       return this.findAverage(filteredArray)
     },
+    /**
+     * Creates xAnnotation Object
+     * @param coordinate coordinate of annotation
+     * @param name name to put in label
+     * 
+     * @returns xAnnotation Object
+     */
     CreateXannotation(coordinate, name) {
       let labelPosition = 'top'
       let position1 = coordinate - 0.1
@@ -211,20 +260,22 @@ export default {
           }
         } 
       },
+      /**
+       * crops given title by the provided lenght
+       * @param title String title to crop
+       * @param lenght Number maxlenght
+       * 
+       * @returns cropped title
+       */
       cropTitle(title, length) {
         if (title.length > length) {
           return title.substring(0, length) + '...'
         }
         return title
-        ret
       }
   }
 }
 </script>
 
 <style scoped>
-.hey {
-  background-color: #a57f01
-}
-
 </style>
