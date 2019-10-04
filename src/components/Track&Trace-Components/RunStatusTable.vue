@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid class="">
+  <b-container fluid class="overflow-auto">
     <b-table-simple small fixed hover>
       <b-thead class="">
         <b-tr class="">
@@ -7,7 +7,6 @@
             <span><font-awesome-icon v-if="cyclePaused" @click="emitPause()" icon="play-circle"/>
             <font-awesome-icon v-else @click="emitPause()" icon="pause-circle"/></span>
             <span> Run</span>
-
           </b-td>
           <b-th class="text-right overflow-hidden">De- multiplex</b-th>
           <b-th class="text-right overflow-hidden">Raw Copy</b-th>

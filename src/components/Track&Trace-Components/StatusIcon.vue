@@ -25,7 +25,6 @@ export default {
 
 .complete {
     color: $success;
-    
 }
 .running {
     color: $primary

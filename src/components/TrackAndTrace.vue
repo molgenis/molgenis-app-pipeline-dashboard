@@ -2,7 +2,15 @@
     <b-row id="track-and-trace" no-gutters>
       <b-col  class="p-2" lg="4" cols="12">
         <b-container fluid class="border border-primary h-100 p-0">
-          <run-status-table  @run-finished="addRunToStatistics" :total-runs="runSteps" :selected-run="showRun" @select-run="setShowRun" @toggle-cycle="toggleCycle" :cycle-paused="paused" class="w-100"/>
+          <run-status-table  
+          @run-finished="addRunToStatistics" 
+          :total-runs="runSteps" 
+          :selected-run="showRun" 
+          @select-run="setShowRun" 
+          @toggle-cycle="toggleCycle" 
+          :cycle-paused="paused" 
+          class="w-100">
+          </run-status-table>
         </b-container>
       </b-col>
     <b-col class="p-2" cols="12" lg="8">

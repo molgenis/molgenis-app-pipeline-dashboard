@@ -24,7 +24,10 @@
 export default {
   name: 'run-time-statistics',
   props: {
-    runTimes: Array
+    runTimes: {
+      type: Array,
+      required: true
+      }
   },
   data: function() {
     return {
