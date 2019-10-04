@@ -140,7 +140,7 @@ export default {
       for (let i = 0; i < this.runTimes.length; i++) {
         let run = this.runTimes[i]
         if (run.runtime >= this.average + this.threshold) {
-          this.xAnnotations.push(this.CreateXannotation(i + 1, run.runId))
+          this.xAnnotations.push(this.CreateXannotation(i + 1, this.cropTitle(run.runId, 20)))
           this.outliers.push([run.runId, i + 1])
         }
       }
@@ -210,6 +210,13 @@ export default {
           text: name
           }
         } 
+      },
+      cropTitle(title, length) {
+        if (title.length > length) {
+          return title.substring(0, length) + '...'
+        }
+        return title
+        ret
       }
   }
 }
