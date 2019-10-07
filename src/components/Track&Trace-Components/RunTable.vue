@@ -12,12 +12,13 @@
     </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import RunTableProject from './RunTableProject.vue'
 import ProgressBar from './ProgressBar.vue'
 import StepTracker from './RunTableStepTracker.vue'
 
-export default {
+export default Vue.extend({
   name: 'run-table',
   props: {
     runID: {
@@ -73,9 +74,9 @@ export default {
     StepTracker
   },
   methods: {
-    setRunWarning (warning) {
+    setRunWarning (warning: boolean): void {
       this.warning = warning
     }
   }
-}
+})
 </script>

@@ -1,6 +1,6 @@
 <template>
   <b-row class="progressbar" >
-    <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container ">
+    <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container">
       <div class="container">
         <span class="">
           {{step}}
@@ -19,14 +19,16 @@
   </b-row>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   name: 'step-tracker',
   props: {
     steps: {
       type: Array,
       required: false,
-      default: function () {
+      default: function (): Array<string> {
         return ['demultiplexing', 'rawcopy', 'running', 'resultcopy', 'finished']
       }
     },
@@ -60,7 +62,7 @@ export default {
      * Finds status of current step
      * @returns String status
      */
-    getStepStatus (step) {
+    getStepStatus (step: string): string {
       if (this.isFinalStep(step) && this.StepRunning(step)) {
         return 'complete'
       } else if (this.steps[this.currentStep] === step) {
@@ -91,7 +93,7 @@ export default {
      * @param step String
      * @returns Boolean
      */
-    StepRunning (step) {
+    StepRunning (step: string): boolean {
       if (!this.started) {
         return false
       }
@@ -101,8 +103,8 @@ export default {
      * Checks if step has been completed
      * @returns Boolean
      */
-    StepComplete (step) {
-      let index = this.steps.indexOf(step)
+    StepComplete (step: string): boolean {
+      let index: number = this.steps.indexOf(step)
       if (!this.started) {
         return false
       }
@@ -112,12 +114,12 @@ export default {
      * Checks if step is final step
      * @returns Boolean
      */
-    isFinalStep (step) {
-      let index = this.steps.indexOf(step)
+    isFinalStep (step: string): boolean {
+      let index: number = this.steps.indexOf(step)
       return (step === this.steps.slice(-1)[0])
     }
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>
