@@ -2,11 +2,11 @@
 <b-container id="dashboard" fluid>
   <b-row  no-gutters class="h-50">
     <b-col class="h-100">
-      <track-and-trace :headers="headers" :url="rootUrl" @add-statistic="addStatistics" @token-expired="setToken" class="h-100 mt-1"/>
+      <track-and-trace :headers="headers" :url="rootUrl" @add-statistic="addStatistics" @token-expired="setToken" :runtime-threshold="threshold" class="h-100 mt-1"/>
     </b-col>
   </b-row>
   <b-row no-gutters class="h-50">
-    <b-col><run-time-statistics :run-times="runtimes"/></b-col>
+    <b-col><run-time-statistics :run-times="runtimes" @new-threshold="setThreshold"/></b-col>
   </b-row>
 </b-container>
 </template>
@@ -48,7 +48,8 @@ export default Vue.extend({
         { runId: 'test8', runtime: 9.3 },
         { runId: 'test9', runtime: 7.7 },
         { runId: 'test10', runtime: 5.5 }
-      ]
+      ],
+      threshold: 20
     }
   },
   computed: {
@@ -94,6 +95,10 @@ export default Vue.extend({
       timeArray.push(currentRun)
 
       this.runtimes = timeArray
+    },
+
+    setThreshold (threshold: number) {
+      this.threshold = threshold
     }
   }
 })
