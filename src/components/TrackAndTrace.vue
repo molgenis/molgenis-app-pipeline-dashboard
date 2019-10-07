@@ -2,13 +2,13 @@
     <b-row id="track-and-trace" no-gutters>
       <b-col  class="p-2" lg="4" cols="12">
         <b-container fluid class="border border-primary h-100 p-0">
-          <run-status-table  
-          @run-finished="addRunToStatistics" 
-          :total-runs="runSteps" 
-          :selected-run="showRun" 
-          @select-run="setShowRun" 
-          @toggle-cycle="toggleCycle" 
-          :cycle-paused="paused" 
+          <run-status-table
+          @run-finished="addRunToStatistics"
+          :total-runs="runSteps"
+          :selected-run="showRun"
+          @select-run="setShowRun"
+          @toggle-cycle="toggleCycle"
+          :cycle-paused="paused"
           class="w-100">
           </run-status-table>
         </b-container>
@@ -16,13 +16,13 @@
     <b-col class="p-2" cols="12" lg="8">
       <b-container class="border border-primary h-100" fluid>
       <transition name="fade" mode="out-in">
-        <run-table 
-        :runID="runID" 
-        :showRun="showRun" 
-        :projects="runProjects" 
-        :projectCount="projectCount" 
-        :containsError="containsError" 
-        :currentStep="currentStep" 
+        <run-table
+        :runID="runID"
+        :showRun="showRun"
+        :projects="runProjects"
+        :projectCount="projectCount"
+        :containsError="containsError"
+        :currentStep="currentStep"
         :time="time"
         :demultiplexing="demultiplexing"/>
       </transition>
@@ -47,12 +47,12 @@ export default {
     headers: {
       type: Headers,
       required: true
-      },
+    },
 
     url: {
       type: String,
       required: true
-      }
+    }
   },
   data () {
     return {
@@ -80,14 +80,14 @@ export default {
       }
       return this.makeRunObject('', [], false)
     },
-    
+
     /**
      * Currently selected run id
      * @returns String run id
      */
     runID: function () {
       const runID = this.run.run_id
-      if (typeof(runID) == 'undefined'){
+      if (typeof (runID) === 'undefined') {
         return ''
       }
       return this.run.run_id
@@ -130,15 +130,13 @@ export default {
       return this.runStep(this.run)
     },
 
-    
-
     /**
      * Combines all data into one object
      * @returns Object
      */
     runData: function () {
       let data = []
-      this.runs.forEach((run) => {data.push(this.constructRun(run, this.projects, this.jobs))})
+      this.runs.forEach((run) => { data.push(this.constructRun(run, this.projects, this.jobs)) })
       data = data.sort(this.sortRuns)
       return data
     },
@@ -185,21 +183,20 @@ export default {
 
     /**
      * run comparator function
-     * @param run1 run 1 
+     * @param run1 run 1
      * @param run2 run 2
-     * 
      * @returns Number
      */
-    sortRuns(run1, run2) {
+    sortRuns (run1, run2) {
       if (run1.containsError && !run2.containsError) {
-          return -1
-        } else if (run2.containsError) {
-          return 1
-        } else if (this.runStep(run1) > this.runStep(run2)) {
-          return 1
-        } else {
-          return 0
-        }
+        return -1
+      } else if (run2.containsError) {
+        return 1
+      } else if (this.runStep(run1) > this.runStep(run2)) {
+        return 1
+      } else {
+        return 0
+      }
     },
 
     /**
@@ -231,7 +228,6 @@ export default {
      */
     async getData () {
       try {
-
         let runs = await this.fetchData(this.url + 'status_overview?num=10000')
         let projects = await this.fetchData(this.url + 'status_projects?num=10000')
         let jobs = await this.fetchData(this.url + 'status_jobs?num=10000')
@@ -252,7 +248,6 @@ export default {
     /**
      * fetches data from specified location
      * @param ref fetch location url
-     * 
      * @returns Array of items
      */
     async fetchData (ref, items = []) {
@@ -283,20 +278,19 @@ export default {
           currentIndex += 1
         }
         this.showRun = this.runIds[currentIndex]
-        }
+      }
     },
 
     /**
      * finds run status step number
      * @param run run to check
-     * 
      * @returns step Number
      */
     runStep (run) {
       if (run.demultiplexing !== 'finished') {
         return 0
-      } 
-      if (run.rawCopy === 'started'){
+      }
+      if (run.rawCopy === 'started') {
         return 1
       } else if (run.copyState === (run.len)) {
         return 4
@@ -311,7 +305,7 @@ export default {
     /**
      * pause or resume cycling of detailed view
      */
-    toggleCycle() {
+    toggleCycle () {
       this.paused = !this.paused
     },
 
@@ -319,7 +313,6 @@ export default {
      * filters projects that are linked to run
      * @param projects all projects
      * @param run run to add data
-     * 
      * @returns filtered projects
      */
     getRunProjects (projects, run) {
@@ -332,38 +325,35 @@ export default {
      * filters jobs that are linked to project
      * @param jobs all jobs
      * @param project project to add data to
-     * 
      * @returns project jobs
      */
     getProjectJobs (jobs, project) {
       return jobs
-      .filter(function (x) {
-        return x.project === project.project
+        .filter(function (x) {
+          return x.project === project.project
         })
         .sort(function (x) {
-              return x.job
-            })
+          return x.job
+        })
     },
 
     /**
      * Checks if a run is finished with its pipelines
      * @param run Object
-     * 
      * @returns Boolean
      */
-    runFinished(run) {
-      return run.projects.filter((x) => {return  x.status.toLowerCase() === 'finished'}).lenght === run.len
-      },
+    runFinished (run) {
+      return run.projects.filter((x) => { return x.status.toLowerCase() === 'finished' }).lenght === run.len
+    },
 
     /**
      * makes run data objects
      * @param run run information
      * @param Projects projects connected to run
      * @param errors error count of jobs
-     * 
      * @returns Object
      */
-    makeRunObject(run, Projects, errors) {
+    makeRunObject (run, Projects, errors) {
       let runObject = {}
       runObject.run_id = run.run_id
       runObject.projects = Projects
@@ -379,10 +369,9 @@ export default {
     /**
      * returns number of finished projects
      * @param projects projects to check
-     * 
      * @returns Number
      */
-    countProjectFinishedCopying(projects) {
+    countProjectFinishedCopying (projects) {
       const finishedProjects = projects.filter(function (x) {
         return x.resultCopyStatus === 'finished'
       })
@@ -394,35 +383,31 @@ export default {
      * @param run run to add data to
      * @param projects all projects to filter
      * @param jobs all jobs to filter
-     * 
      * @returns runObject
      */
-    constructRun(run, projects, jobs) {
+    constructRun (run, projects, jobs) {
       let Projects = []
-          const runProjects = this.getRunProjects(projects, run)
-          let errors = 0
-          runProjects.forEach((RunProject) => {
-            const ProjectJobs = this.getProjectJobs(jobs, RunProject)
-            Projects.push(this.makeProjectObject(
-              RunProject, 
-              ProjectJobs, 
-              this.getStatus(RunProject, ProjectJobs)
-              ))
-
-            errors += this.countJobStatus(ProjectJobs, 'error')
-          })
-        
-        return this.makeRunObject(run, Projects, errors)
+      const runProjects = this.getRunProjects(projects, run)
+      let errors = 0
+      runProjects.forEach((RunProject) => {
+        const ProjectJobs = this.getProjectJobs(jobs, RunProject)
+        Projects.push(this.makeProjectObject(
+          RunProject,
+          ProjectJobs,
+          this.getStatus(RunProject, ProjectJobs)
+        ))
+        errors += this.countJobStatus(ProjectJobs, 'error')
+      })
+      return this.makeRunObject(run, Projects, errors)
     },
 
     /**
      * gets the project status
      * @param project project
      * @param jobs project jobs
-     * 
      * @returns String status
      */
-    getStatus(project, jobs) {
+    getStatus (project, jobs) {
       if (project.copy_results_prm === 'finished') {
         return 'finished'
       } else if (this.countJobStatus(jobs, 'finished') === jobs.length) {
@@ -432,14 +417,12 @@ export default {
       } else {
         return 'Waiting'
       }
-      
     },
 
     /**
      * builds project Object
      * @param project project
      * @param jobs project jobs
-     * 
      * @returns project Object
      */
     makeProjectObject (project, jobs, status) {
@@ -462,32 +445,30 @@ export default {
     countJobStatus (jobs, status) {
       return jobs.filter(function (x) { return x.status === status }).length
     },
-    findLastDateTime(projects) {
-            let finished_date = 0
-            projects.forEach((project) => {
-              project.jobs.forEach((job) => {
-                    let currentjob = new Date(job.finished_date).getTime()
-                    if (finished_date < currentjob && !isNaN(finished_date)) {
-                        finished_date = currentjob
-                  }
-            })
-            })
-            return finished_date
-        },
-        findStartDateTime(projects) {
-            let started_date = Infinity
-            projects.forEach((project) => {
-              project.jobs.forEach((job) => {
-                let currentjob = new Date(job.started_date).getTime()
-                if (started_date > currentjob && !isNaN(started_date)) {
-                    started_date = currentjob
-                }
-            })
-            })
-            
-            return started_date
-        },
-    
+    findLastDateTime (projects) {
+      let FinishedDate = 0
+      projects.forEach((project) => {
+        project.jobs.forEach((job) => {
+          let CurrentJobDate = new Date(job.finished_date).getTime()
+          if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
+            FinishedDate = CurrentJobDate
+          }
+        })
+      })
+      return FinishedDate
+    },
+    findStartDateTime (projects) {
+      let StartedDate = Infinity
+      projects.forEach((project) => {
+        project.jobs.forEach((job) => {
+          let CurrentJobDate = new Date(job.started_date).getTime()
+          if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
+            StartedDate = CurrentJobDate
+          }
+        })
+      })
+      return StartedDate
+    },
     addRunToStatistics (run) {
       this.$emit('hello', run)
       const runStats = this.runData.find((x) => {
@@ -496,8 +477,8 @@ export default {
 
       const start = this.findStartDateTime(runStats.projects)
       const finish = this.findLastDateTime(runStats.projects)
-    this.$emit('add-statistic', run, start, finish)
-  }
+      this.$emit('add-statistic', run, start, finish)
+    }
   },
 
   async mounted () {
@@ -506,7 +487,7 @@ export default {
     setInterval(this.getData, 10000)
     this.cycleRun()
     setInterval(this.cycleRun, 10000)
-  },
+  }
 }
 
 </script>
