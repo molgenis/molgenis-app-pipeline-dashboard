@@ -287,8 +287,13 @@ export default {
      * @returns step Number
      */
     runStep (run) {
-      if (run.demultiplexing !== 'finished') {
-        return 0
+      switch (run.demultiplexing) {
+        case 'started':
+          return 0
+        case 'Waiting':
+          return -1
+      
+        default:
       }
       if (run.rawCopy === 'started') {
         return 1
