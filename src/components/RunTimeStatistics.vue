@@ -144,7 +144,9 @@ export default {
       return this.findAverageOfNormalValues(this.numbersArray)
     },
     threshold: function () {
-      return this.getSD(this.numbersArray, this.average)
+      const threshold = this.getSD(this.numbersArray, this.average)
+      this.$emit('new-threshold', threshold + this.average)
+      return threshold
     },
     /**
      * builds series array for graph
