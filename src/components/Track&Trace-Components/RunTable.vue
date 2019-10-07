@@ -18,57 +18,48 @@ import ProgressBar from './ProgressBar.vue'
 import StepTracker from './RunTableStepTracker.vue'
 
 export default {
-    name: 'run-table',
-    props: {
-        runID: {
-          type: String,
-          required: true
-        },
-
-        projects: {
-          type: Array,
-          required: true
-        },
-
-        containsError: {
-          type: Boolean,
-          required: false,
-          default: false
-        },
-
-        currentStep: {
-          type: Number,
-          required: true
-        },
-
-        projectCount: {
-          type: Number,
-          required: true
-        },
-
-        time: {
-          type: Number,
-          required: true
-        },
-
-        demultiplexing: {
-          type: Boolean,
-          required: true
-        }
-
+  name: 'run-table',
+  props: {
+    runID: {
+      type: String,
+      required: true
     },
-    components: {
-        RunTableProject,
-        ProgressBar,
-        StepTracker
-    },
-    data: function() {
-      return {
-        runtime: {}
-      }
-    },
-    methods: {
 
-      }
+    projects: {
+      type: Array,
+      required: true
+    },
+
+    containsError: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    currentStep: {
+      type: Number,
+      required: true
+    },
+
+    projectCount: {
+      type: Number,
+      required: true
+    },
+
+    time: {
+      type: Number,
+      required: true
+    },
+
+    demultiplexing: {
+      type: Boolean,
+      required: true
+    }
+
+  },
+  components: {
+    RunTableProject,
+    StepTracker
+  }
 }
 </script>
