@@ -81,9 +81,12 @@ export default {
      * Check for long runtime
      */
     HasNoWarning: function () {
-      return this.thresholdToMs > this.finishTime - this.startTime
+      const warning = this.thresholdToMs > this.finishTime - this.startTime
+      if (warning) {
+        this.$emit('project-warning', warning)
+      }
+      return warning
     },
-
     /**
      * Converts average hours to milliseconds for timer
      * @returns Number
@@ -98,8 +101,8 @@ export default {
      */
     remainingJobs: function () {
       return this.jobs
-        .filter(function (x) {
-          return x.status !== 'finished'
+        .filter(function (job) {
+          return job.status !== 'finished'
         })
         .sort(this.SortJobsByTime)
     },
