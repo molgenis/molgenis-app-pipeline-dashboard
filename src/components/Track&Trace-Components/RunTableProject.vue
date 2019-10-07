@@ -64,6 +64,7 @@ export default {
       type: String,
       required: true
     },
+
     threshold: {
       type: Number,
       required: false,
@@ -76,9 +77,13 @@ export default {
     StatusIcon
   },
   computed: {
+    /**
+     * Check for long runtime
+     */
     HasNoWarning: function () {
       return this.thresholdToMs > this.finishTime - this.startTime
     },
+
     /**
      * Converts average hours to milliseconds for timer
      * @returns Number
@@ -86,6 +91,7 @@ export default {
     thresholdToMs: function () {
       return this.threshold * 3600 * 1000
     },
+
     /**
      * Filters jobs that are not completed sorted by start date
      * @returns Array
@@ -95,28 +101,9 @@ export default {
         .filter(function (x) {
           return x.status !== 'finished'
         })
-        .sort((a, b) => {
-          const Astarted = a.StartedDate
-          const Bstarted = b.StartedDate
-
-          if (Astarted === '' && Bstarted === '') {
-            return 0
-          } else if (Astarted !== '' && Bstarted === '') {
-            return 1
-          } else if (Bstarted !== '' && Astarted === '') {
-            return -1
-          }
-
-          const DateA = new Date(Astarted).getTime()
-          const DateB = new Date(Bstarted).getTime()
-
-          if (DateA > DateB) {
-            return 1
-          } else if (DateA < DateB) {
-            return -1
-          } else return 0
-        })
+        .sort(this.SortJobsByTime)
     },
+
     /**
      * calculates finished step count
      * @returns Number
@@ -126,6 +113,7 @@ export default {
         return job.status === 'finished'
       }).length
     },
+
     /**
      * Calculates total step count for completion
      * @returns Number
@@ -133,6 +121,7 @@ export default {
     totalSteps: function () {
       return this.jobs.length
     },
+
     /**
      * Finds status of project and sets variant
      * @returns String
@@ -158,6 +147,7 @@ export default {
         return 'waiting'
       }
     },
+
     variant: function () {
       switch (this.status) {
         case 'finished':
@@ -172,6 +162,7 @@ export default {
           return 'waiting'
       }
     },
+
     /**
      * Checks if project has been started
      * @returns Boolean
@@ -188,6 +179,7 @@ export default {
       }
       return false
     },
+
     /**
      * Checks if all steps are completed
      * @returns Boolean
@@ -197,6 +189,7 @@ export default {
         this.steps / this.totalSteps === 1 || this.resultCopy === 'finished'
       )
     },
+
     /**
      * Sums up all job runtimes
      * @returns total runtime
@@ -210,6 +203,7 @@ export default {
       })
       return runtime
     },
+
     /**
      * Gets finished time, if not finished returns now()
      * @returns Number (milliseconds)
@@ -222,6 +216,7 @@ export default {
         return this.time
       }
     },
+
     /**
      * Gets started time
      * @returns Number (milliseconds)
@@ -232,20 +227,17 @@ export default {
   },
   methods: {
     /**
-     * emits finished
+     * emits finished when called
      */
     projectFinished () {
       this.$emit('finished', this.runtime)
     },
+
     /**
-     * checks if expected time has been breached
+     * Searches data for last or running job date/time
+     * @param jobs jobs of project
+     * @returns Number finished date in ms
      */
-    hoursNegative () {
-      if (!this.finished) {
-        this.variant = 'warning'
-        this.HasNoWarning = false
-      }
-    },
     findLastDateTime (jobs) {
       let FinishedDate = 0
       jobs.forEach(job => {
@@ -257,6 +249,12 @@ export default {
 
       return FinishedDate
     },
+
+    /**
+     * Searches data for first job date/time
+     * @param jobs jobs of project
+     * @returns Number started date in ms
+     */
     findStartDateTime (jobs) {
       let StartedDate = Infinity
       jobs.forEach(job => {
@@ -266,6 +264,34 @@ export default {
         }
       })
       return StartedDate
+    },
+
+    /**
+     * Comperator function for job sorting by time
+     * @param Job1 first job
+     * @param Job2 second job
+     * @returns Number sort order
+     */
+    SortJobsByTime (Job1, Job2) {
+      const Job1StartedDate = Job1.StartedDate
+      const Job2StartedDate = Job2.StartedDate
+
+      if (Job1StartedDate === '' && Job2StartedDate === '') {
+        return 0
+      } else if (Job1StartedDate !== '' && Job2StartedDate === '') {
+        return 1
+      } else if (Job2StartedDate !== '' && Job1StartedDate === '') {
+        return -1
+      }
+
+      const Job1Date = new Date(Job1StartedDate).getTime()
+      const Job2Date = new Date(Job2StartedDate).getTime()
+
+      if (Job1Date > Job2Date) {
+        return 1
+      } else if (Job1Date < Job2Date) {
+        return -1
+      } else return 0
     }
   }
 }
