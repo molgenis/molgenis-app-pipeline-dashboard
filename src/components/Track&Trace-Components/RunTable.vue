@@ -5,9 +5,9 @@
             {{runID}}
           </b-col>
         </b-row>
-          <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
+          <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :warning="warning" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
             <template v-for="project in projects">
-                <run-table-project :threshold="timeThreshold" :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
+                <run-table-project @project-warning="toggleRunWarning" :threshold="timeThreshold" :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
             </template>
     </b-container>
 </template>
@@ -63,9 +63,19 @@ export default {
     }
 
   },
+  data () {
+    return {
+      warning: false
+    }
+  },
   components: {
     RunTableProject,
     StepTracker
+  },
+  methods: {
+    setRunWarning (warning) {
+      this.warning = warning
+    }
   }
 }
 </script>
