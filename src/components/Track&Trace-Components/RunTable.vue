@@ -7,7 +7,7 @@
         </b-row>
           <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
             <template v-for="project in projects">
-                <run-table-project :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
+                <run-table-project :threshold="timeThreshold" :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
             </template>
     </b-container>
 </template>
@@ -54,6 +54,12 @@ export default {
     demultiplexing: {
       type: Boolean,
       required: true
+    },
+
+    timeThreshold: {
+      type: Number,
+      required: false,
+      default: 15
     }
 
   },
