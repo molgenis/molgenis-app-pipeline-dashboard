@@ -35,6 +35,12 @@ export default {
       default: false
     },
 
+    currentWarningStatus: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     project: {
       type: String,
       required: true
@@ -62,7 +68,8 @@ export default {
 
     resultCopy: {
       type: String,
-      required: true
+      required: false,
+      default: 'waiting'
     },
 
     threshold: {
@@ -81,9 +88,9 @@ export default {
      * Check for long runtime
      */
     HasNoWarning: function () {
-      const warning = this.thresholdToMs > this.finishTime - this.startTime
-      if (warning) {
-        this.$emit('project-warning', warning)
+      const warning = (this.thresholdToMs > this.finishTime - this.startTime) || !this.started
+      if (!warning) {
+        this.$emit('project-warning', !warning)
       }
       return warning
     },
