@@ -69,3 +69,105 @@ export interface Step {
   containsError: Boolean
   len: number
 }
+
+export interface graphAnnotation {
+  xaxis: xAnnotation[]
+  yaxis: yAnnotation[]
+}
+
+export interface annotation {
+  borderColor: string
+  label: AnnotationLabel
+}
+
+export interface xAnnotation extends annotation {
+  x: number
+  x2: number
+  fillColor: string
+  opacity: number
+}
+
+export interface yAnnotation extends annotation {
+  y: number
+  strokeDashArray: number
+}
+
+export interface AnnotationLabel {
+  borderColor: string
+  orientation?: string
+  position?: string
+  offsetX?: number
+  offsetY?: number
+  style: LabelStyle
+  text: string
+}
+
+export interface LabelStyle {
+  color: string
+  background: string
+  fontSize?: string
+}
+
+export interface chartOptions {
+  chart: {
+    id: string
+    toolbar: {
+      show: boolean
+      tools: {
+        download: boolean
+      }
+    }
+  }
+  title: {
+    text: string
+    align: string
+  }
+  stroke: {
+    width: number
+    style: string
+  }
+  markers: {
+    size: number
+  }
+  dataLabels: {
+    enabled: boolean
+  }
+  yaxis: {
+    title: {
+      text: string
+    }
+    min: number
+    max: number
+  }
+  xaxis: {
+    title: {
+      text: string
+    }
+    type: string
+    categories: string[]
+    labels: {
+      rotate: number
+    }
+  }
+  annotations: graphAnnotation
+}
+
+export interface serie {
+  name: string
+  data: number[]
+}
+
+export interface responseJSON {
+  token: string
+  username: string
+}
+
+export interface RunTime {
+  runId: string
+  runtime: number
+}
+
+export interface outlier {
+  id: string
+  position: number
+}

@@ -15,16 +15,8 @@
 import Vue from 'vue'
 import TrackAndTrace from './components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
+import {RunTime, responseJSON} from '@/types'
 
-interface responseJSON {
-  token: string
-  username: string
-}
-
-interface Run {
-  runId: string
-  runtime: number
-}
 export default Vue.extend({
   name: 'app',
   components: {
@@ -86,12 +78,12 @@ export default Vue.extend({
      * @param finish Number finish time in ms
      */
     addStatistics (run: string, start: number, finish: number) {
-      let timeArray: Array<Run> = this.runtimes
+      let timeArray: Array<RunTime> = this.runtimes
       if (timeArray.length >= 10) {
         timeArray.shift()
       }
       const hours = Math.round((((finish - start) / 1000) / 3600) * 10) / 10
-      let currentRun: Run = { runId: run, runtime: hours }
+      let currentRun: RunTime = { runId: run, runtime: hours }
       timeArray.push(currentRun)
 
       this.runtimes = timeArray

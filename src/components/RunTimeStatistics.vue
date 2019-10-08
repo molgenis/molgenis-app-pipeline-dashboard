@@ -19,9 +19,11 @@
     </b-row>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
+import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, serie, RunTime, outlier } from '@/types'
 
-export default {
+export default Vue.extend({
   name: 'run-time-statistics',
   props: {
     runTimes: {
@@ -34,12 +36,15 @@ export default {
      * Computed property that builds the annotations for the graph
      * @returns Object annotations
      */
-    annotations: function () {
+    annotations(): graphAnnotation {
+      let thresholdNumber = this.threshold as number
+      let averageNumber = this.average as number
+      let outline = thresholdNumber + averageNumber
       return {
-        xaxis: this.xAnnotations,
+        xaxis: this.xAnnotations as xAnnotation[],
         yaxis: [
           {
-            y: this.average,
+            y: this.average as number,
             strokeDashArray: 0,
             borderColor: '#775DD0',
             label: {
@@ -50,11 +55,11 @@ export default {
                 color: '#fff',
                 background: '#775DD0'
               },
-              text: 'Average runtime: 0'.replace('0', (Math.round(this.average * 10) / 10))
+              text: 'Average runtime: 0'.replace('0', (Math.round(this.average * 10) / 10).toString())
             }
           },
           {
-            y: this.average + this.threshold,
+            y: outline,
             strokeDashArray: 10,
             borderColor: '#a57f01',
             label: {
@@ -65,7 +70,7 @@ export default {
                 color: '#fff',
                 background: '#a57f01'
               },
-              text: 'Threshold: 0'.replace('0', (Math.round((this.average + this.threshold) * 10) / 10))
+              text: 'Threshold: 0'.replace('0', (Math.round((outline) * 10) / 10).toString())
             }
           }
         ]
@@ -75,7 +80,7 @@ export default {
      * Computed property that builds chart options
      * @returns Object chartOptions
      */
-    chartOptions: function () {
+    chartOptions(): chartOptions {
       return {
         chart: {
           id: 'run-time-graph',
@@ -105,34 +110,34 @@ export default {
             text: 'Runtime (hours)'
           },
           min: 0,
-          max: this.maxValue
+          max: this.maxValue as number
         },
         xaxis: {
           title: { text: 'Run' },
           type: 'Number',
-          caegories: [
+          categories: [
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'
           ],
           labels: {
             rotate: -90
           }
         },
-        annotations: this.annotations
+        annotations: this.annotations as graphAnnotation
       }
     },
     /**
      * Gets all runtimes
      * @returns Array
      */
-    numbersArray: function () {
-      return Array.from(this.runTimes, x => x.runtime)
+    numbersArray (): number[] {
+      return Array.from(this.runTimes as RunTime[], x => x.runtime)
     },
     /**
      * Finds max value
      * @returns Number
      */
-    maxValue: function () {
-      const max = Math.max(...this.numbersArray)
+    maxValue(): number {
+      const max = Math.max(...this.numbersArray as number[])
       if (max > 20) {
         return max + 10
       } else {
@@ -140,39 +145,41 @@ export default {
       }
     },
 
-    average: function () {
-      return this.findAverageOfNormalValues(this.numbersArray)
+    average(): number {
+      return this.findAverageOfNormalValues(this.numbersArray as number[])
     },
-    threshold: function () {
-      const threshold = this.getSD(this.numbersArray, this.average)
-      this.$emit('new-threshold', threshold + this.average)
+    threshold(): number {
+      let avg = this.average as number
+      const threshold = this.getSD(this.numbersArray as number[], avg)
+      this.$emit('new-threshold', threshold + avg)
       return threshold
     },
     /**
      * builds series array for graph
      */
-    series: function () {
+    series(): serie[] {
       return [{
         name: 'Runtime',
-        data: this.numbersArray
+        data: this.numbersArray as number[]
       }]
     },
 
-    outliers: function () {
-      let outliers = []
-      for (let i = 0; i < this.runTimes.length; i++) {
-        let run = this.runTimes[i]
+    outliers(): outlier[] {
+      let outliers = [] as outlier[]
+      let runTimeArray = this.runTimes as RunTime[]
+      for (let i = 0; i < runTimeArray.length; i++) {
+        let run = runTimeArray[i]
         if (run.runtime >= this.average + this.threshold) {
-          outliers.push([run.runId, i + 1])
+          outliers.push({id: run.runId, position: i + 1})
         }
       }
       return outliers
     },
 
-    xAnnotations: function () {
-      let annotations = []
+    xAnnotations(): xAnnotation[] {
+      let annotations = [] as xAnnotation[]
       this.outliers.forEach((outlier) => {
-        annotations.push(this.CreateXannotation(outlier[1], this.cropTitle(outlier[0], 20)))
+        annotations.push(this.CreateXannotation(outlier.position, this.cropTitle(outlier.id, 20)))
       })
       return annotations
     }
@@ -185,7 +192,7 @@ export default {
      * @param average Number
      * @returns Number Standard deviation from the average
      */
-    getSD (numArray, average) {
+    getSD (numArray: number[], average: number): number {
       let sumOfDistance = 0
       numArray.forEach((x) => {
         sumOfDistance += Math.pow(x - average, 2)
@@ -198,7 +205,7 @@ export default {
      * @param numArray Array<Number>
      * @returns Number average of array
      */
-    findAverage (numArray) {
+    findAverage (numArray: number[]): number {
       let sum = 0
       numArray.forEach((x) => {
         sum += x
@@ -211,7 +218,7 @@ export default {
      * @param numArray Array<Number>
      * @returns Number average of Array
      */
-    findAverageOfNormalValues (numArray) {
+    findAverageOfNormalValues (numArray: number[]): number {
       const average = this.findAverage(numArray)
       const SD = this.getSD(numArray, average)
       const cutOff = SD
@@ -227,7 +234,7 @@ export default {
      * @param name name to put in label
      * @returns xAnnotation Object
      */
-    CreateXannotation (coordinate, name) {
+    CreateXannotation (coordinate: number, name: string): xAnnotation {
       let labelPosition = 'top'
       let position1 = coordinate - 0.1
       let position2 = coordinate + 0.1
@@ -264,14 +271,14 @@ export default {
      * @param lenght Number maxlenght
      * @returns cropped title
      */
-    cropTitle (title, length) {
+    cropTitle (title: string, length: number): string {
       if (title.length > length) {
         return title.substring(0, length) + '...'
       }
       return title
     }
   }
-}
+})
 </script>
 
 <style scoped>
