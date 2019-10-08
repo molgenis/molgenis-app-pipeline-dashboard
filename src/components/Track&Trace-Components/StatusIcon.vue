@@ -6,8 +6,10 @@
     <font-awesome-icon class="warning" v-else-if="status === 'warning'" icon="exclamation-triangle"></font-awesome-icon>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
     name: 'status-icon',
     props: {
         status: {
@@ -15,7 +17,7 @@ export default {
             required: true
         }
     }
-}
+})
 </script>
 
 <style lang="scss" scoped>

@@ -28,7 +28,7 @@ export default Vue.extend({
     steps: {
       type: Array,
       required: false,
-      default: function (): Array<string> {
+      default: function (): string[] {
         return ['demultiplexing', 'rawcopy', 'running', 'resultcopy', 'finished']
       }
     },
