@@ -1,6 +1,6 @@
 <template>
     <b-row no-gutters>
-      <b-col cols="4" class="h-50 p-2">
+      <b-col cols="5" class="h-50 p-2">
         <b-container class="border border-primary p-0" fluid>
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
@@ -9,11 +9,11 @@
         <b-container class="border border-primary p-0" fluid>
           <b-list-group>
             <b-list-group-item>Outliers</b-list-group-item>
-            <b-list-group-item v-for="outlier in outliers" :key="outlier">Run: {{outlier[1]}}, {{outlier[0]}}</b-list-group-item>
+            <b-list-group-item v-for="outlier in outliers" :key="outlier">Run: {{outlier.position}}, {{outlier.id}}</b-list-group-item>
           </b-list-group>
         </b-container>
       </b-col>
-       <b-col cols="6" class="p-2 h-100">
+       <b-col cols="4" class="p-2 h-100">
          <b-container class="border border-primary p-0" fluid></b-container>
        </b-col>
     </b-row>
