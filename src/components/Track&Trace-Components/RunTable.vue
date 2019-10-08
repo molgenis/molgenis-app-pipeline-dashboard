@@ -5,7 +5,7 @@
             {{runID}}
           </b-col>
         </b-row>
-          <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :warning="warning" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
+          <step-tracker :steps="['demulti', 'rawcopy','running', 'resultcopy', 'finished']" :warning="warning" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
             <template v-for="project in projects">
                 <run-table-project 
                 @project-warning="setRunWarning" 
