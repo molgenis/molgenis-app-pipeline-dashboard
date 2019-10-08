@@ -5,7 +5,11 @@
     <status-icon :status="status" />
   </b-col>
     <b-col class="text-center">
-      <project-timer :startTime="startTime" :started="started" :finishTime="finishTime"></project-timer>
+      <project-timer 
+      :startTime="startTime" 
+      :started="started" 
+      :finishTime="finishTime">
+      </project-timer>
     </b-col>
     <b-col v-if="running" class="d-flex align-items-center justify-content-center">
       <progress-bar
@@ -21,12 +25,14 @@
   </b-row>
 </template>
 
-<script>
-import progressBar from './ProgressBar.vue'
-import ProjectTimer from './ProjectTimer.vue'
-import StatusIcon from './StatusIcon.vue'
+<script lang="ts">
+import Vue from 'vue'
+import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
+import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
+import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
+import {Job} from '@/types'
 
-export default {
+export default Vue.extend({
   name: 'project',
   props: {
     header: {
@@ -93,7 +99,7 @@ export default {
     /**
      * Check for long runtime
      */
-    HasNoWarning: function () {
+    HasNoWarning(): Boolean {
       const warning = (this.thresholdToMs > this.finishTime - this.startTime) || !this.started
       if (!warning) {
         this.$emit('project-warning', !warning)
@@ -104,7 +110,7 @@ export default {
      * Converts average hours to milliseconds for timer
      * @returns Number
      */
-    thresholdToMs: function () {
+    thresholdToMs(): number{
       return this.threshold * 3600 * 1000
     },
 
@@ -112,9 +118,10 @@ export default {
      * Filters jobs that are not completed sorted by start date
      * @returns Array
      */
-    remainingJobs: function () {
-      return this.jobs
-        .filter(function (job) {
+    remainingJobs(): Job[] {
+      let jobArray: Job[] = this.jobs as Job[]
+      return jobArray
+        .filter(function (job: Job) {
           return job.status !== 'finished'
         })
         .sort(this.SortJobsByTime)
@@ -124,8 +131,9 @@ export default {
      * calculates finished step count
      * @returns Number
      */
-    steps: function () {
-      return this.jobs.filter(function (job) {
+    steps(): number {
+      let jobArray = this.jobs as Job[]
+      return jobArray.filter(function (job) {
         return job.status === 'finished'
       }).length
     },
@@ -134,7 +142,7 @@ export default {
      * Calculates total step count for completion
      * @returns Number
      */
-    totalSteps: function () {
+    totalSteps(): number {
       return this.jobs.length
     },
 
@@ -142,7 +150,7 @@ export default {
      * Finds status of project and sets variant
      * @returns String
      */
-    status: function () {
+    status(): string {
       if (this.finished) {
         return 'finished'
       } else if (
@@ -164,7 +172,7 @@ export default {
       }
     },
 
-    variant: function () {
+    variant(): string {
       switch (this.status) {
         case 'finished':
           return 'success'
@@ -183,8 +191,10 @@ export default {
      * Checks if project has been started
      * @returns Boolean
      */
-    started: function () {
-      const startedJobs = this.jobs.filter(function (job) {
+    started(): boolean {
+      let jobArray: Job[] = this.jobs as Job[]
+      const startedJobs = jobArray.filter(
+        (job: Job) => {
         return job.status === 'started'
       }).length
 
@@ -200,7 +210,7 @@ export default {
      * Checks if all steps are completed
      * @returns Boolean
      */
-    finished: function () {
+    finished(): boolean {
       return (
         this.steps / this.totalSteps === 1 || this.resultCopy === 'finished'
       )
@@ -210,11 +220,12 @@ export default {
      * Sums up all job runtimes
      * @returns total runtime
      */
-    runtime: function () {
+    runtime(): number {
       let runtime = 0
-      jobs.forEach(job => {
-        if (job.StartedDate && job.FinishedDate) {
-          runtime += new Date(job.FinishedDate) - new Date(job.StartedDate)
+      let jobArray = this.jobs as Job[]
+      jobArray.forEach(job => {
+        if (job.started_date && job.finished_date) {
+          runtime += new Date(job.started_date!).getTime() - new Date(job.finished_date!).getTime()
         }
       })
       return runtime
@@ -224,10 +235,10 @@ export default {
      * Gets finished time, if not finished returns now()
      * @returns Number (milliseconds)
      */
-    finishTime: function () {
+    finishTime(): number {
       let FinishedDate = 0
       if (this.finished) {
-        return this.findLastDateTime(this.jobs)
+        return this.findLastDateTime(this.jobs as Job[])
       } else {
         return this.time
       }
@@ -237,15 +248,15 @@ export default {
      * Gets started time
      * @returns Number (milliseconds)
      */
-    startTime: function () {
-      return this.findStartDateTime(this.jobs)
+    startTime (): number {
+      return this.findStartDateTime(this.jobs as Job[])
     }
   },
   methods: {
     /**
      * emits finished when called
      */
-    projectFinished () {
+    projectFinished (): void {
       this.$emit('finished', this.runtime)
     },
 
@@ -254,12 +265,14 @@ export default {
      * @param jobs jobs of project
      * @returns Number finished date in ms
      */
-    findLastDateTime (jobs) {
+    findLastDateTime (jobs: Job[]): number {
       let FinishedDate = 0
       jobs.forEach(job => {
-        let CurrentJobDate = new Date(job.finished_date).getTime()
-        if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
-          FinishedDate = CurrentJobDate
+        if (job.finished_date){
+          let CurrentJobDate = new Date(job.finished_date).getTime()
+          if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
+            FinishedDate = CurrentJobDate
+          }
         }
       })
 
@@ -271,12 +284,14 @@ export default {
      * @param jobs jobs of project
      * @returns Number started date in ms
      */
-    findStartDateTime (jobs) {
+    findStartDateTime (jobs: Job[]): number {
       let StartedDate = Infinity
       jobs.forEach(job => {
-        let CurrentJobDate = new Date(job.started_date).getTime()
-        if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
-          StartedDate = CurrentJobDate
+        if (job.started_date){
+          let CurrentJobDate = new Date(job.started_date).getTime()
+          if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
+            StartedDate = CurrentJobDate
+          }
         }
       })
       return StartedDate
@@ -288,20 +303,22 @@ export default {
      * @param Job2 second job
      * @returns Number sort order
      */
-    SortJobsByTime (Job1, Job2) {
-      const Job1StartedDate = Job1.StartedDate
-      const Job2StartedDate = Job2.StartedDate
+    SortJobsByTime (Job1: Job, Job2: Job): number {
+      const Job1StartedDate = Job1.started_date
+      const Job1Type = typeof (Job1StartedDate)
+      const Job2StartedDate = Job2.started_date
+      const Job2Type = typeof (Job2StartedDate)
 
-      if (Job1StartedDate === '' && Job2StartedDate === '') {
+      if ((Job1StartedDate === '' && Job2StartedDate === '') || (Job1Type === undefined && Job2Type === undefined)) {
         return 0
-      } else if (Job1StartedDate !== '' && Job2StartedDate === '') {
+      } else if ((Job1StartedDate !== '' && Job2StartedDate === '') || Job1Type === undefined) {
         return 1
-      } else if (Job2StartedDate !== '' && Job1StartedDate === '') {
+      } else if ((Job2StartedDate !== '' && Job1StartedDate === '') || Job2Type === undefined) {
         return -1
       }
 
-      const Job1Date = new Date(Job1StartedDate).getTime()
-      const Job2Date = new Date(Job2StartedDate).getTime()
+      const Job1Date = new Date(Job1StartedDate!).getTime()
+      const Job2Date = new Date(Job2StartedDate!).getTime()
 
       if (Job1Date > Job2Date) {
         return 1
@@ -310,7 +327,7 @@ export default {
       } else return 0
     }
   }
-}
+})
 </script>
 
 <style scoped>

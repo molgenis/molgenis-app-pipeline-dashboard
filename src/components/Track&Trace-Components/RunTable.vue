@@ -7,7 +7,18 @@
         </b-row>
           <step-tracker :steps="['demultiplexing', 'rawcopy','running', 'resultcopy', 'finished']" :warning="warning" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
             <template v-for="project in projects">
-                <run-table-project @project-warning="setRunWarning" :currentWarningStatus="warning" :running="currentStep >= 2" :threshold="timeThreshold" :key="project.project" :resultCopy="project.resultCopyStatus" :project="project.project" :jobs="project.jobs" :header="false" :runID="runID" :projectCount="projectCount" :time="time"/>
+                <run-table-project 
+                @project-warning="setRunWarning" 
+                :currentWarningStatus="warning" 
+                :running="currentStep >= 2" 
+                :threshold="timeThreshold" 
+                :key="project.project" 
+                :resultCopy="project.resultCopyStatus" 
+                :project="project.project" 
+                :jobs="project.jobs" :header="false" 
+                :runID="runID" 
+                :projectCount="projectCount" 
+                :time="time"/>
             </template>
     </b-container>
 </template>

@@ -1,12 +1,13 @@
 <template>
-    <span v-if="started" class="align-middle">{{hours}}:{{minutes}}:{{seconds}}</span>
+    <span 
+    v-if="started" class="align-middle">{{hours}}:{{minutes}}:{{seconds}}</span>
     <span v-else-if="waiting && countdown" class="align-middle">--:--:--</span>
     <span v-else class="align-middle">Not Started</span>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from 'vue'
-export default {
+export default Vue.extend({
     name: 'project-timer',
     props: {
         startTime: {
@@ -36,56 +37,56 @@ export default {
          * calculates timediffrence
          * @returns Number (milliseconds)
          */
-        time: function () {
+        time(): number {
             return this.finishTime - this.startTime
         },
+
         /**
          * Calculates the seconds counter
-         * @returns Number OR String
+         * @returns String
          */
-        seconds: function () {
-            const seconds = Math.sqrt(Math.pow(Math.round(((this.time/1000) % 3600) % 60), 2))
+        seconds(): string {
+            const seconds = Math.sqrt(Math.pow(Math.round(((this.time / 1000) % 3600) % 60), 2))
             if (seconds < 10) {
                 return '0' + seconds
             } 
-            return seconds
+            return seconds.toString()
         },
+
         /**
          * Calculates the minutes counter
-         * @returns Number OR String
+         * @returns String
          */
-        minutes: function() {
-            const minutes = Math.sqrt(Math.pow(Math.round(((this.time/1000) / 3600) % 60), 2))
+        minutes(): string {
+            const minutes = Math.sqrt(Math.pow(Math.round(((this.time / 1000) / 3600) % 60), 2))
             if (minutes < 10){
                 return '0' + minutes
             }
-            return minutes
+            return minutes.toString()
         },
+
         /**
          * Calculates hour counter
-         * @returns Number OR String
+         * @returns String
          */
-        hours: function () {
-            const hours = Math.round((this.time/1000) / 3600)
-            if (hours < 0){
-                this.$emit('negative-hours')
-                return hours
-            }
-            else if (hours < 10) {
+        hours(): string {
+            const hours = Math.round((this.time / 1000) / 3600)
+            if (hours < 10) {
                 return '0' + hours
             }
-            return hours
+            return hours.toString()
         },
+        
         /**
          * Checks if project is on hold
          * @returns Boolean
          */
-        waiting: function () {
+        waiting(): Boolean {
             return (!this.started)
         }
         
     }  
-}
+})
 </script>
 
 <style scoped>
