@@ -7,7 +7,7 @@
     <b-col class="text-center">
       <project-timer :startTime="startTime" :started="started" :finishTime="finishTime"></project-timer>
     </b-col>
-    <b-col class="d-flex align-items-center justify-content-center">
+    <b-col v-if="running" class="d-flex align-items-center justify-content-center">
       <progress-bar
         class="w-100 mt-1"
         :variant="variant"
@@ -35,6 +35,12 @@ export default {
       default: false
     },
 
+    running: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+    
     currentWarningStatus: {
       type: Boolean,
       required: false,
