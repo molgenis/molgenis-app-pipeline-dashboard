@@ -50,6 +50,35 @@ export class projectObject {
     }
     return matches[0].slice(1)
   }
+  findStartDateTime (): number {
+    let StartedDate = Infinity
+    this.jobs.forEach(job => {
+      if (job.started_date){
+        let CurrentJobDate = new Date(job.started_date).getTime()
+        if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
+          StartedDate = CurrentJobDate
+        }
+      }
+    })
+    return StartedDate
+  }
+  findLastDateTime (): number {
+    let FinishedDate = 0
+    this.jobs.forEach(job => {
+      if (job.finished_date){
+        let CurrentJobDate = new Date(job.finished_date).getTime()
+        if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
+          FinishedDate = CurrentJobDate
+        }
+      }
+    })
+
+    return FinishedDate
+  }
+  getRunTime(): number {
+    return this.findLastDateTime() - this.findStartDateTime()
+  }
+
 }
 
 export interface projectDataObject{
@@ -170,9 +199,13 @@ export interface responseJSON {
   username: string
 }
 
-export interface RunTime {
+export class RunTime {
   runId: string
   runtime: number
+  constructor(id: string, time: number) {
+    this.runId = id
+    this.runtime = Math.round(((time / 1000) / 3600) * 10) / 10
+  }
 }
 
 export interface outlier {
@@ -180,10 +213,34 @@ export interface outlier {
   position: number
 }
 
-export interface RunTimeStatistics {
+export class RunTimeStatistics {
   ONCO?: RunTime
   Exoom?: RunTime
   PCS?: RunTime
   SPV?: RunTime
   other?: RunTime[]
+  constructor(projects: projectObject[], runId: string) {
+    const regONCO = new RegExp('ONCO.*')
+    const regExoom = new RegExp('Exoom.*')
+    const regPCS = new RegExp('PCS.*')
+    const regSPV = new RegExp('ONCO.*')
+    let other = [] as RunTime[]
+    projects.forEach((project: projectObject) => {
+      let runType = project.getRunType()
+      let runTimeObject = new RunTime(runId, project.getRunTime())
+      if (runType.match(regONCO)) {
+        this.ONCO = runTimeObject
+      } else if (runType.match(regExoom)) {
+        this.Exoom = runTimeObject
+      } else if (runType.match(regPCS)) {
+        this.PCS = runTimeObject
+      } else if (runType.match(regSPV)) {
+        this.SPV = runTimeObject
+      } else {
+        other.push(runTimeObject)
+      }
+
+    })
+    this.other = other
+  }
 }
