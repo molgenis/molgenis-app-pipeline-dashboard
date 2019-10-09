@@ -179,3 +179,11 @@ export interface outlier {
   id: string
   position: number
 }
+
+export interface RunTimeStatistics {
+  ONCO?: RunTime
+  Exoom?: RunTime
+  PCS?: RunTime
+  SPV?: RunTime
+  other?: RunTime[]
+}
