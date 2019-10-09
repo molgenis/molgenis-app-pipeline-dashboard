@@ -36,7 +36,7 @@ import Vue from 'vue'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
-import { RawDataObject, Run, RunDataObject, projectObject, projectDataObject, Job, Step } from '@/types'
+import { RawDataObject, Run, RunDataObject, projectObject, projectDataObject, Job, Step, RunTimeStatistics } from '@/types'
 
 
 export default Vue.extend({
@@ -99,7 +99,7 @@ export default Vue.extend({
      * Currently selected run projects
      * @returns Array of Projects
      */
-    runProjects(): Array<projectObject> {
+    runProjects(): projectObject[] {
       return this.run.projects
     },
 
@@ -243,6 +243,7 @@ export default Vue.extend({
         if (runs !== this.runs) {
           this.runs = runs
         }
+        
       } catch (error) {
         console.error(error)
       }
@@ -357,7 +358,6 @@ export default Vue.extend({
     runFinished (run: Run): Boolean {
       return run.projects.filter((x) => { return x.status.toLowerCase() === 'finished' }).length === run.len
     },
-    
     /**
      * returns number of finished projects
      * @param projects projects to check
@@ -396,6 +396,7 @@ export default Vue.extend({
 
         errors += this.countJobStatus(ProjectJobs, 'error')
       })
+      this.logProjects(Projects)
       return new Run(run.run_id, Projects, run.demultiplexing, run.copy_raw_prm, Projects.length, errors >= 1, this.countProjectFinishedCopying(Projects))
     },
 
@@ -454,10 +455,15 @@ export default Vue.extend({
       return StartedDate
     },
     addRunToStatistics (run: string): void {
-      const runStats = this.runData.find((x: Run) => { return x.run_id === run })
-      const start = this.findStartDateTime(runStats!.projects)
-      const finish = this.findLastDateTime(runStats!.projects)
-      this.$emit('add-statistic', run, start, finish)
+      const runObj = this.runData.find((x: Run) => { return x.run_id === run })
+      const runTimeStats = new RunTimeStatistics(runObj.Projects, run)
+      this.$emit('add-statistic', runTimeStats)
+    },
+
+    logProjects(projects: projectObject[]) {
+      projects.forEach((project: projectObject) => {
+        console.log(project.project, project.getRunType())
+      })
     }
   },
 
@@ -467,6 +473,7 @@ export default Vue.extend({
     this.cycleRun()
     setInterval(this.getData, 10000)
     setInterval(this.cycleRun, 10000)
+    
   }
 })
 
