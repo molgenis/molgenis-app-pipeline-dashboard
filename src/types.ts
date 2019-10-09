@@ -31,7 +31,7 @@ export interface RunDataObject {
  
 export class projectObject {
   project: string
-  jobs: Array<Job>
+  jobs: Job[]
   pipeline: string
   resultCopyStatus?: string 
   status: string
@@ -41,6 +41,14 @@ export class projectObject {
     this.pipeline = pipelineType
     this.resultCopyStatus = resultCopyStatusString
     this.status = statusString
+  }
+  getRunType() {
+    const RegEx = new RegExp('-[A-Za-z]+(_[a-z0-9A-Z]+)?')
+    const matches = this.project.match(RegEx)
+    if (!matches) {
+      return 'other'
+    }
+    return matches[0].slice(1)
   }
 }
 
