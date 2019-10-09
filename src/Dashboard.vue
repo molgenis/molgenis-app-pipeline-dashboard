@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import TrackAndTrace from './components/TrackAndTrace.vue'
+import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import {RunTime, responseJSON} from '@/types'
 

@@ -5,29 +5,36 @@
             {{runID}}
           </b-col>
         </b-row>
-          <step-tracker :steps="['demulti', 'rawcopy','running', 'resultcopy', 'finished']" :warning="warning" :currentStep="currentStep" :error="containsError" class="mb-4" :started="demultiplexing"></step-tracker>
-            <template v-for="project in projects">
-                <run-table-project 
-                @project-warning="setRunWarning" 
-                :currentWarningStatus="warning" 
-                :running="currentStep >= 2" 
-                :threshold="timeThreshold" 
-                :key="project.project" 
-                :resultCopy="project.resultCopyStatus" 
-                :project="project.project" 
-                :jobs="project.jobs" :header="false" 
-                :runID="runID" 
-                :projectCount="projectCount" 
-                :time="time"/>
-            </template>
+          <step-tracker 
+          :steps="['demultiplexing', 'raw data copy','running', 'results data copy', 'finished']" 
+          :warning="warning" 
+          :currentStep="currentStep" 
+          :error="containsError" 
+          class="mb-4" 
+          :started="demultiplexing">
+          </step-tracker>
+          <template v-for="project in projects">
+              <run-table-project 
+              @project-warning="setRunWarning" 
+              :currentWarningStatus="warning" 
+              :running="currentStep >= 2" 
+              :threshold="timeThreshold" 
+              :key="project.project" 
+              :resultCopy="project.resultCopyStatus" 
+              :project="project.project" 
+              :jobs="project.jobs" :header="false" 
+              :runID="runID" 
+              :projectCount="projectCount" 
+              :time="time"/>
+          </template>
     </b-container>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import RunTableProject from './RunTableProject.vue'
-import ProgressBar from './ProgressBar.vue'
-import StepTracker from './RunTableStepTracker.vue'
+import RunTableProject from '@/components/Track&Trace-Components/RunTableProject.vue'
+import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
+import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
 
 export default Vue.extend({
   name: 'run-table',
@@ -95,5 +102,5 @@ export default Vue.extend({
     }
   }
   
-})
+}) 
 </script>

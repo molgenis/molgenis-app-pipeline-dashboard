@@ -32,11 +32,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue' 
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
 import { RawDataObject, Run, RunDataObject, projectObject, projectDataObject, Job, Step } from '@/types'
+
 
 export default Vue.extend({
   name: 'track-and-trace',
@@ -148,7 +149,7 @@ export default Vue.extend({
      */
     runIds(): string[] {
       let runIds: string[] = []
-      this.runs.forEach((run: RunDataObject) => {
+      this.runData.forEach((run: Run) => {
         runIds.push(run.run_id)
       })
       return runIds
@@ -270,7 +271,9 @@ export default Vue.extend({
     cycleRun (): void {
       if (!this.paused) {
         let currentIndex = this.runIds.indexOf(this.showRun)
-        if (currentIndex === (this.runIds.length - 1)) {
+        if (!currentIndex) {
+          currentIndex = 0 
+        } else if (currentIndex === (this.runIds.length - 1)) {
           currentIndex = 0
         } else {
           currentIndex += 1
@@ -354,19 +357,7 @@ export default Vue.extend({
     runFinished (run: Run): Boolean {
       return run.projects.filter((x) => { return x.status.toLowerCase() === 'finished' }).length === run.len
     },
-
-    /**
-     * makes run data objects
-     * @param run run information
-     * @param Projects projects connected to run
-     * @param errors error count of jobs
-     * @returns Object
-     */
-    makeRunObject (run: RunDataObject, Projects: projectObject[], errors: number): Run {
-      let runObject = new Run(run.run_id, Projects, run.demultiplexing, run.copy_raw_prm, Projects.length, errors >= 1, this.countProjectFinishedCopying(Projects))
-      return runObject
-    },
-
+    
     /**
      * returns number of finished projects
      * @param projects projects to check
@@ -386,20 +377,26 @@ export default Vue.extend({
      * @param jobs all jobs to filter
      * @returns runObject
      */
-    constructRun (run: RunDataObject, projects: Array<projectDataObject>, jobs: Array<Job>): Run {
+    constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run {
       let Projects: projectObject[] = []
       const runProjects = this.getRunProjects(projects, run.run_id)
       let errors = 0
       runProjects.forEach((RunProject: projectDataObject) => {
         const ProjectJobs = this.getProjectJobs(jobs, RunProject)
-        Projects.push(this.makeProjectObject(
-          RunProject,
-          ProjectJobs,
-          this.getStatus(RunProject, ProjectJobs)
-        ))
+
+        Projects.push(
+          new projectObject(
+            RunProject.project, 
+            ProjectJobs, 
+            RunProject.pipeline, 
+            this.getStatus(RunProject, ProjectJobs), 
+            RunProject.copy_results_prm
+            )
+          )
+
         errors += this.countJobStatus(ProjectJobs, 'error')
       })
-      return this.makeRunObject(run, Projects, errors)
+      return new Run(run.run_id, Projects, run.demultiplexing, run.copy_raw_prm, Projects.length, errors >= 1, this.countProjectFinishedCopying(Projects))
     },
 
     /**
@@ -418,18 +415,6 @@ export default Vue.extend({
       } else {
         return 'Waiting'
       }
-    },
-
-    /**
-     * builds project Object
-     * @param project project
-     * @param jobs project jobs
-     * @returns project Object
-     */
-    makeProjectObject (project: projectDataObject, jobs: Job[], status: string): projectObject {
-      let buildProject = new projectObject(project.project, jobs, project.pipeline, status, project.copy_results_prm)
-
-      return buildProject
     },
 
     /**
@@ -469,21 +454,18 @@ export default Vue.extend({
       return StartedDate
     },
     addRunToStatistics (run: string): void {
-      const runStats = this.runData.find((x: Run) => {
-        return x.run_id === run
-      })
+      const runStats = this.runData.find((x: Run) => { return x.run_id === run })
       const start = this.findStartDateTime(runStats!.projects)
       const finish = this.findLastDateTime(runStats!.projects)
       this.$emit('add-statistic', run, start, finish)
-      
     }
   },
 
   mounted (): void {
     this.getData()
     this.setTimer()
-    setInterval(this.getData, 10000)
     this.cycleRun()
+    setInterval(this.getData, 10000)
     setInterval(this.cycleRun, 10000)
   }
 })
