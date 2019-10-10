@@ -15,7 +15,7 @@
 import Vue from 'vue'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
-import {RunTime, responseJSON} from '@/types'
+import {RunTime, responseJSON, RunTimeStatistics} from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'app',
@@ -30,16 +30,6 @@ export default Vue.extend({
       token: 'admin-test-token',
       rootUrl: 'http://localhost:8081/api/v2/',
       runtimes: [
-        { runId: 'test1', runtime: 8.2 },
-        { runId: 'test2', runtime: 8.4 },
-        { runId: 'test3', runtime: 26 },
-        { runId: 'test4', runtime: 6.6 },
-        { runId: 'test5', runtime: 12.3 },
-        { runId: 'test6', runtime: 8.1 },
-        { runId: 'test7', runtime: 30 },
-        { runId: 'test8', runtime: 9.3 },
-        { runId: 'test9', runtime: 7.7 },
-        { runId: 'test10', runtime: 5.5 }
       ],
       threshold: 20
     }
@@ -77,14 +67,14 @@ export default Vue.extend({
      * @param start Number start time in ms
      * @param finish Number finish time in ms
      */
-    addStatistics (run: string, start: number, finish: number) {
-      let timeArray: Array<RunTime> = this.runtimes
+    addStatistics (run: RunTimeStatistics) {
+      let timeArray: RunTimeStatistics[] = this.runtimes
       if (timeArray.length >= 10) {
         timeArray.shift()
       }
-      const hours = Math.round((((finish - start) / 1000) / 3600) * 10) / 10
-      let currentRun: RunTime = { runId: run, runtime: hours }
-      timeArray.push(currentRun)
+      let currentRun = run
+      timeArray.push(run)
+      
 
       this.runtimes = timeArray
     },
@@ -98,9 +88,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-#dashboard {
-  height: 100vh;
-}
 .h-40 {
 height: 45%;
 }
