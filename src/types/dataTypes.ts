@@ -2,6 +2,9 @@ export interface RawDataObject extends RunDataObject, projectDataObject, Job{
 
 }
 
+/**
+ * Stores available Run information
+ */
 export class Run {
   run_id: string
   projects: projectObject[]
@@ -21,6 +24,9 @@ export class Run {
   }
 }
 
+/**
+ * Stores the Raw data properties of run
+ */
 export interface RunDataObject {
   run_id: string
   group: string
@@ -29,6 +35,13 @@ export interface RunDataObject {
   projects: string[]
 }
  
+/**
+ * Stores available project data
+ * @function getRunType returns runtype
+ * @function findLastDateTime returns last date in ms
+ * @function findStartDateTime returns start time in ms
+ * @function getRunTime returns runtime in ms
+ */
 export class projectObject {
   project: string
   jobs: Job[]
@@ -81,6 +94,9 @@ export class projectObject {
 
 }
 
+/**
+ * Stores Raw project data in an object
+ */
 export interface projectDataObject{
   project: string
   url: string
@@ -89,6 +105,9 @@ export interface projectDataObject{
   copy_results_prm?: string
 }
 
+/**
+ * Stores Job information
+ */
 export interface Job {
   project_job: string
   job: string
@@ -100,6 +119,9 @@ export interface Job {
   finished_date?: string
 }
 
+/**
+ * Stores a step status
+ */
 export interface Step {
   run: string
   step: number
@@ -107,98 +129,11 @@ export interface Step {
   len: number
 }
 
-export interface graphAnnotation {
-  xaxis: xAnnotation[]
-  yaxis: yAnnotation[]
-}
-
-export interface annotation {
-  borderColor: string
-  label: AnnotationLabel
-}
-
-export interface xAnnotation extends annotation {
-  x: number
-  x2: number
-  fillColor: string
-  opacity: number
-}
-
-export interface yAnnotation extends annotation {
-  y: number
-  strokeDashArray: number
-}
-
-export interface AnnotationLabel {
-  borderColor: string
-  orientation?: string
-  position?: string
-  offsetX?: number
-  offsetY?: number
-  style: LabelStyle
-  text: string
-}
-
-export interface LabelStyle {
-  color: string
-  background: string
-  fontSize?: string
-}
-
-export interface chartOptions {
-  chart: {
-    id: string
-    toolbar: {
-      show: boolean
-      tools: {
-        download: boolean
-      }
-    }
-  }
-  title: {
-    text: string
-    align: string
-  }
-  stroke: {
-    width: number
-    style: string
-  }
-  markers: {
-    size: number
-  }
-  dataLabels: {
-    enabled: boolean
-  }
-  yaxis: {
-    title: {
-      text: string
-    }
-    min: number
-    max: number
-  }
-  xaxis: {
-    title: {
-      text: string
-    }
-    type: string
-    categories: string[]
-    labels: {
-      rotate: number
-    }
-  }
-  annotations: graphAnnotation
-}
-
-export interface serie {
-  name: string
-  data: number[]
-}
-
-export interface responseJSON {
-  token: string
-  username: string
-}
-
+/**
+ * run runtime
+ * @property runId run identifier
+ * @property runtime runtime in hours
+ */
 export class RunTime {
   runId: string
   runtime: number
@@ -208,22 +143,22 @@ export class RunTime {
   }
 }
 
-export interface outlier {
-  id: string
-  position: number
-}
-
+/**
+ * A point in the graph for a run
+ * @function getMax gets larges point in data
+ */
 export class RunTimeStatistics {
-  ONCO?: RunTime
-  Exoom?: RunTime
-  PCS?: RunTime
-  SPV?: RunTime
-  other?: RunTime[]
+  ONCO: RunTime
+  Exoom: RunTime
+  PCS: RunTime
+  SPV: RunTime
+  other: RunTime[]
   constructor(projects: projectObject[], runId: string) {
     const regONCO = new RegExp('ONCO.*')
     const regExoom = new RegExp('Exoom.*')
     const regPCS = new RegExp('PCS.*')
-    const regSPV = new RegExp('ONCO.*')
+    const regSPV = new RegExp('SPV.*')
+
     let other = [] as RunTime[]
     projects.forEach((project: projectObject) => {
       let runType = project.getRunType()
@@ -243,4 +178,25 @@ export class RunTimeStatistics {
     })
     this.other = other
   }
+  getMax(): number {
+    let max = this.ONCO.runtime
+    if (max < this.Exoom.runtime) {
+      max = this.Exoom.runtime
+    }
+    if (max < this.PCS.runtime) {
+      max = this.PCS.runtime
+    }
+    if (max < this.SPV.runtime) {
+      max = this.SPV.runtime
+    }
+    return max
+  }
+}
+
+/**
+ * Raw credentials Response
+ */
+export interface responseJSON {
+  token: string
+  username: string
 }
