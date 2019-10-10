@@ -36,7 +36,7 @@ import Vue from 'vue'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
-import { RawDataObject, Run, RunDataObject, projectObject, projectDataObject, Job, Step, RunTimeStatistics } from '@/types'
+import { RawDataObject, Run, RunDataObject, projectObject, projectDataObject, Job, Step, RunTimeStatistics } from '@/types/dataTypes'
 
 
 export default Vue.extend({
@@ -456,7 +456,7 @@ export default Vue.extend({
     },
     addRunToStatistics (run: string): void {
       const runObj = this.runData.find((x: Run) => { return x.run_id === run })
-      const runTimeStats = new RunTimeStatistics(runObj.Projects, run)
+      const runTimeStats = new RunTimeStatistics(runObj.projects, run)
       this.$emit('add-statistic', runTimeStats)
     },
 

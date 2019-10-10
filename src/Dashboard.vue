@@ -15,7 +15,7 @@
 import Vue from 'vue'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
-import {RunTime, responseJSON, RunTimeStatistics} from '@/types'
+import {RunTime, responseJSON, RunTimeStatistics} from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'app',
@@ -30,7 +30,6 @@ export default Vue.extend({
       token: 'admin-test-token',
       rootUrl: 'http://localhost:8081/api/v2/',
       runtimes: [
-        null,null,null,null,null,null,null,null, null, null
       ],
       threshold: 20
     }
@@ -75,6 +74,7 @@ export default Vue.extend({
       }
       let currentRun = run
       timeArray.push(run)
+      
 
       this.runtimes = timeArray
     },
@@ -88,9 +88,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-#dashboard {
-  height: 100vh;
-}
 .h-40 {
 height: 45%;
 }

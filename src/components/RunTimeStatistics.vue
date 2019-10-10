@@ -1,19 +1,19 @@
 <template>
     <b-row no-gutters>
-      <b-col cols="5" class="h-50 p-2">
+      <b-col cols="12" lg="5" class="h-50 p-2">
         <b-container class="border border-primary p-0" fluid>
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
       </b-col>
-      <b-col cols="2" class="p-2 h-100">
+      <b-col cols="6" lg="2" class="p-2 h-100">
         <b-container class="border border-primary p-0" fluid>
           <b-list-group>
             <b-list-group-item>Outliers</b-list-group-item>
-            <b-list-group-item v-for="outlier in outliers" :key="outlier">Run: {{outlier.position}}, {{outlier.id}}</b-list-group-item>
+            <b-list-group-item v-for="outlier in outliers" :key="outlier.id">Run: {{outlier.position}}, {{outlier.id}}</b-list-group-item>
           </b-list-group>
         </b-container>
       </b-col>
-       <b-col cols="4" class="p-2 h-100">
+       <b-col cols="6" lg="4" class="p-2 h-100">
          <b-container class="border border-primary p-0" fluid></b-container>
        </b-col>
     </b-row>
@@ -21,7 +21,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, serie, RunTime, outlier } from '@/types'
+import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, serie, outlier} from '@/types/graphTypes'
+import { RunTime, RunTimeStatistics } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-time-statistics',
@@ -97,10 +98,7 @@ export default Vue.extend({
         },
         stroke: {
           width: 4,
-          style: 'smooth'
-        },
-        markers: {
-          size: 6
+          curve: 'smooth'
         },
         dataLabels: {
           enabled: false
@@ -125,24 +123,27 @@ export default Vue.extend({
         annotations: this.annotations as graphAnnotation
       }
     },
-    /**
-     * Gets all runtimes
-     * @returns Array
-     */
-    numbersArray (): number[] {
-      return Array.from(this.runTimes as RunTime[], x => x.runtime)
+    numbersArray(): number[] {
+      const runTimeArray = this.runTimes as RunTimeStatistics[]
+      let numbers: number[] = []
+      runTimeArray.forEach((RunTimeStatistic: RunTimeStatistics) => {
+        numbers.push(RunTimeStatistic.getMax())
+      })
+
+      return numbers
     },
     /**
      * Finds max value
      * @returns Number
      */
     maxValue(): number {
-      const max = Math.max(...this.numbersArray as number[])
+      const max = Math.max(...this.numbersArray)
+      
       if (max > 20) {
         return max + 10
-      } else {
-        return 20
       }
+      return 20
+      
     },
 
     average(): number {
@@ -158,10 +159,29 @@ export default Vue.extend({
      * builds series array for graph
      */
     series(): serie[] {
-      return [{
-        name: 'Runtime',
-        data: this.numbersArray as number[]
-      }]
+      const runTimeArray = this.runTimes as RunTimeStatistics[]
+      let serieArray: serie[] = []
+      let ONCO: number[] = []
+      let PCS: number[] = []
+      let Exoom: number[] = []
+      let SPV: number[] = []
+      let other: Array<RunTime[]> = []
+
+
+      runTimeArray.forEach((StatisticalPoint: RunTimeStatistics) => {
+        const emptyNumber = null
+        if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(0)}
+        if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(0)}
+        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(0)}
+        if (StatisticalPoint.SPV)   { SPV.push(StatisticalPoint.SPV.runtime) }      else {SPV.push(0)}
+             
+      })
+      serieArray.push(new serie('ONCO', ONCO))
+      serieArray.push(new serie('PCS', PCS))
+      serieArray.push(new serie('Exoom', Exoom))
+      serieArray.push(new serie('SPV', SPV))
+
+      return serieArray
     },
 
     outliers(): outlier[] {

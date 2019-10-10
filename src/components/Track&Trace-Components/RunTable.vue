@@ -1,7 +1,7 @@
 <template>
     <b-container>
         <b-row>
-          <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold">
+          <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold text-truncate">
             {{runID}}
           </b-col>
         </b-row>

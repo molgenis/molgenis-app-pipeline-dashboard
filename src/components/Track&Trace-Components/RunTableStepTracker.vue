@@ -1,10 +1,11 @@
 <template>
   <b-row class="progressbar" >
-    <b-col v-for="step in steps" :key="step" :class="getStepStatus(step)" class="circle-container">
+    <b-col v-for="(step, index) in steps" :key="step" :class="getStepStatus(step)" class="circle-container">
       <div class="container">
-        <span class="">
+        <span class="d-none d-lg-block">
           {{step}}
         </span>
+        <span class="d-lg-none">{{index + 1}}</span>
         <span>
           <template v-if="StepRunning(step)">
             <font-awesome-icon v-if="error" icon="exclamation-circle"/>

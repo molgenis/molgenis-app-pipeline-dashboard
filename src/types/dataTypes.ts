@@ -160,6 +160,10 @@ export class RunTimeStatistics {
     const regSPV = new RegExp('SPV.*')
 
     let other = [] as RunTime[]
+    this.Exoom = new RunTime('no data', 0)
+    this.ONCO = new RunTime('no data', 0)
+    this.SPV = new RunTime('no data', 0)
+    this.PCS = new RunTime('no data', 0)
     projects.forEach((project: projectObject) => {
       let runType = project.getRunType()
       let runTimeObject = new RunTime(runId, project.getRunTime())

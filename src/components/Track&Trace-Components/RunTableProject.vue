@@ -30,7 +30,7 @@ import Vue from 'vue'
 import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
-import {Job} from '@/types'
+import {Job} from '@/types/dataTypes.ts'
 
 export default Vue.extend({
   name: 'project',

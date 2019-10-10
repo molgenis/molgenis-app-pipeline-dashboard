@@ -73,9 +73,9 @@ export interface chartOptions {
   }
   stroke: {
     width: number
-    style: string
+    curve?: string
   }
-  markers: {
+  markers?: {
     size: number
   }
   dataLabels: {
