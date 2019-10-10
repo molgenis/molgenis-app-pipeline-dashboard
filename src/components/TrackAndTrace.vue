@@ -396,7 +396,6 @@ export default Vue.extend({
 
         errors += this.countJobStatus(ProjectJobs, 'error')
       })
-      this.logProjects(Projects)
       return new Run(run.run_id, Projects, run.demultiplexing, run.copy_raw_prm, Projects.length, errors >= 1, this.countProjectFinishedCopying(Projects))
     },
 
@@ -458,17 +457,11 @@ export default Vue.extend({
       const runObj = this.runData.find((x: Run) => { return x.run_id === run })
       const runTimeStats = new RunTimeStatistics(runObj.projects, run)
       this.$emit('add-statistic', runTimeStats)
-    },
-
-    logProjects(projects: projectObject[]) {
-      projects.forEach((project: projectObject) => {
-        console.log(project.project, project.getRunType())
-      })
     }
   },
 
-  mounted (): void {
-    this.getData()
+  async mounted (): Promise<void> {
+    await this.getData()
     this.setTimer()
     this.cycleRun()
     setInterval(this.getData, 10000)

@@ -44,36 +44,7 @@ export default Vue.extend({
       return {
         xaxis: this.xAnnotations as xAnnotation[],
         yaxis: [
-          {
-            y: this.average as number,
-            strokeDashArray: 0,
-            borderColor: '#775DD0',
-            label: {
-              borderColor: '#775DD0',
-              position: 'right',
-              offsetY: -20,
-              style: {
-                color: '#fff',
-                background: '#775DD0'
-              },
-              text: 'Average runtime: 0'.replace('0', (Math.round(this.average * 10) / 10).toString())
-            }
-          },
-          {
-            y: outline,
-            strokeDashArray: 10,
-            borderColor: '#a57f01',
-            label: {
-              borderColor: '#a57f01',
-              position: 'right',
-              offsetY: -20,
-              style: {
-                color: '#fff',
-                background: '#a57f01'
-              },
-              text: 'Threshold: 0'.replace('0', (Math.round((outline) * 10) / 10).toString())
-            }
-          }
+          
         ]
       }
     },
@@ -147,7 +118,7 @@ export default Vue.extend({
     },
 
     average(): number {
-      return this.findAverageOfNormalValues(this.numbersArray as number[])
+      return this.findAverage(this.numbersArray as number[])
     },
     threshold(): number {
       let avg = this.average as number

@@ -28,11 +28,23 @@
         <b-tr class="" 
         v-for="run in totalRuns" 
         :key="run.run" 
-        @click="selectRun(run.run)" 
+        @click="selectRun(run.run)"
+        @mouseenter="showCheckbox()"
+        @mouseleave="hideCheckbox()"
+        v-show="!hidden.includes(run.run)"
         :variant="selectedRun === run.run ? 'primary' : 'light'">
+          <b-td v-show="checkbox">
+            <b-form-checkbox
+              v-model="hidden"
+              :value="run.run"
+              :id="run.run"
+              switch>
+            </b-form-checkbox>
+          </b-td>
           <b-td colspan="2" class="text-truncate">{{run.run}}</b-td>
           <b-td colspan="5" class="text-center"><progress-bar @progress-finish="emitFinish(run.run)" class="mt-1" :step="run.step + 1" :totalSteps="5" :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'" :animated="run.step !== 4 && !run.containsError"/></b-td>
         </b-tr>
+        <b-tr> <b-td @click="hidden.lenght = 0" class="text-center" colspan="7">more...</b-td></b-tr>
       </b-tbody>
     </b-table-simple>
   </b-container>
@@ -48,6 +60,12 @@ export default Vue.extend({
     ProgressBar
 
   },
+  data () {
+    return {
+      checkbox: false,
+      hidden: []
+    }
+  },
   props: {
     totalRuns: {
       type: Array,
@@ -56,7 +74,8 @@ export default Vue.extend({
 
     selectedRun: {
       type: String,
-      required: true
+      required: false,
+      default: ''
     },
 
     cyclePaused: {
@@ -87,6 +106,12 @@ export default Vue.extend({
 
     emitFinish (run: string): void {
       this.$emit('run-finished', run)
+    },
+    showCheckbox(): void {
+      this.checkbox = true
+    },
+    hideCheckbox(): void {
+      this.checkbox = false
     }
   }
 })
