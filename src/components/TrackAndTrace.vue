@@ -17,6 +17,7 @@
       <b-container class="border border-primary h-100" fluid>
       <transition name="fade" mode="out-in">
         <run-table
+        @update-comment="PutNewCommentText"
         :runID="runID"
         :showRun="showRun"
         :projects="runProjects"
@@ -53,6 +54,10 @@ export default Vue.extend({
 
     url: {
       type: String,
+      required: true
+    },
+    APIv1: {
+      type: string,
       required: true
     }
   },
@@ -456,6 +461,11 @@ export default Vue.extend({
       const runObj = this.runData.find((x: Run) => { return x.run_id === run })
       const runTimeStats = new RunTimeStatistic(runObj.projects, run)
       this.$emit('add-statistic', runTimeStats)
+    },
+    async PutNewCommentText(comment): Promise<void> {
+      try {
+        const response = await fetch('')
+      }
     }
   },
 

@@ -54,6 +54,9 @@ export default Vue.extend({
     },
     clearInput (): void {
       this.text = ''
+    },
+    emitCommentUpdate(): void {
+      this.$emit('update-comment', this.text)
     }
   }
 })

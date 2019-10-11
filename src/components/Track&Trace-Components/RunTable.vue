@@ -31,7 +31,9 @@
               </run-table-project>
           </template>
           
-          <comment-modal :Run="selectedProject"></comment-modal>
+          <comment-modal
+          :Run="selectedProject"
+          @comment-update="emitComment"></comment-modal>
     </b-container>
 </template>
 
@@ -107,6 +109,9 @@ export default Vue.extend({
     openModal(project: string) {
       this.selectedProject = project
       this.$bvModal.show('comment-modal')
+    },
+    emitComment(comment) {
+      this.$emit('comment-update', comment)
     }
   },
   watch: {
