@@ -5,24 +5,13 @@
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
       </b-col>
-      <b-col cols="6" lg="2" class="p-2 h-100">
-        <b-container class="border border-primary p-0" fluid>
-          <b-list-group>
-            <b-list-group-item>Outliers</b-list-group-item>
-            <b-list-group-item v-for="outlier in outliers" :key="outlier.id">Run: {{outlier.position}}, {{outlier.id}}</b-list-group-item>
-          </b-list-group>
-        </b-container>
-      </b-col>
-       <b-col cols="6" lg="4" class="p-2 h-100">
-         <b-container class="border border-primary p-0" fluid></b-container>
-       </b-col>
     </b-row>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, serie, outlier} from '@/types/graphTypes'
-import { RunTime, RunTimeStatistics } from '@/types/dataTypes'
+import { RunTime, RunTimeStatistic } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-time-statistics',
@@ -64,7 +53,7 @@ export default Vue.extend({
           }
         },
         title: {
-          text: 'Runtime by Run',
+          text: 'Runtime per Run per Pipeline type',
           align: 'center'
         },
         stroke: {
@@ -95,9 +84,9 @@ export default Vue.extend({
       }
     },
     numbersArray(): number[] {
-      const runTimeArray = this.runTimes as RunTimeStatistics[]
+      const runTimeArray = this.runTimes as RunTimeStatistic[]
       let numbers: number[] = []
-      runTimeArray.forEach((RunTimeStatistic: RunTimeStatistics) => {
+      runTimeArray.forEach((RunTimeStatistic: RunTimeStatistic) => {
         numbers.push(RunTimeStatistic.getMax())
       })
 
@@ -130,7 +119,7 @@ export default Vue.extend({
      * builds series array for graph
      */
     series(): serie[] {
-      const runTimeArray = this.runTimes as RunTimeStatistics[]
+      const runTimeArray = this.runTimes as RunTimeStatistic[]
       let serieArray: serie[] = []
       let ONCO: number[] = []
       let PCS: number[] = []
@@ -139,7 +128,7 @@ export default Vue.extend({
       let other: Array<RunTime[]> = []
 
 
-      runTimeArray.forEach((StatisticalPoint: RunTimeStatistics) => {
+      runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
         const emptyNumber = null
         if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(0)}
         if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(0)}
@@ -273,4 +262,5 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+
 </style>

@@ -1,25 +1,25 @@
 <template>
-<b-row>
+<b-row @click="toggleLogBox">
   <b-col class="text-center text-truncate">{{project}}</b-col>
   <b-col class="text-center">
     <status-icon :status="status" />
   </b-col>
     <b-col class="text-center">
-      <project-timer 
-      :startTime="startTime" 
-      :started="started" 
+      <project-timer
+      :startTime="startTime"
+      :started="started"
       :finishTime="finishTime">
       </project-timer>
     </b-col>
     <b-col v-if="running" class="d-flex align-items-center justify-content-center">
       <progress-bar
-        class="w-100 mt-1"
         :variant="variant"
         :step="steps"
         :totalSteps="totalSteps"
         :HasNoWarning="HasNoWarning"
         :error="false"
         :animated="true"
+        class="w-100 mt-1"
       ></progress-bar>
     </b-col>
   </b-row>
@@ -30,7 +30,7 @@ import Vue from 'vue'
 import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
-import {Job} from '@/types/dataTypes.ts'
+import { Job } from '@/types/dataTypes.ts'
 
 export default Vue.extend({
   name: 'project',
@@ -46,7 +46,7 @@ export default Vue.extend({
       required: false,
       default: true
     },
-    
+
     currentWarningStatus: {
       type: Boolean,
       required: false,
@@ -95,11 +95,16 @@ export default Vue.extend({
     ProjectTimer,
     StatusIcon
   },
+  data () {
+    return {
+      logDisplay: false
+    }
+  },
   computed: {
     /**
      * Check for long runtime
      */
-    HasNoWarning(): Boolean {
+    HasNoWarning (): Boolean {
       const warning = (this.thresholdToMs > this.finishTime - this.startTime) || !this.started
       if (!warning) {
         this.$emit('project-warning', !warning)
@@ -110,7 +115,7 @@ export default Vue.extend({
      * Converts average hours to milliseconds for timer
      * @returns Number
      */
-    thresholdToMs(): number{
+    thresholdToMs (): number {
       return this.threshold * 3600 * 1000
     },
 
@@ -118,7 +123,7 @@ export default Vue.extend({
      * Filters jobs that are not completed sorted by start date
      * @returns Array
      */
-    remainingJobs(): Job[] {
+    remainingJobs (): Job[] {
       let jobArray: Job[] = this.jobs as Job[]
       return jobArray
         .filter(function (job: Job) {
@@ -131,7 +136,7 @@ export default Vue.extend({
      * calculates finished step count
      * @returns Number
      */
-    steps(): number {
+    steps (): number {
       let jobArray = this.jobs as Job[]
       return jobArray.filter(function (job) {
         return job.status === 'finished'
@@ -142,7 +147,7 @@ export default Vue.extend({
      * Calculates total step count for completion
      * @returns Number
      */
-    totalSteps(): number {
+    totalSteps (): number {
       return this.jobs.length
     },
 
@@ -150,7 +155,7 @@ export default Vue.extend({
      * Finds status of project and sets variant
      * @returns String
      */
-    status(): string {
+    status (): string {
       if (this.finished) {
         return 'finished'
       } else if (
@@ -172,7 +177,7 @@ export default Vue.extend({
       }
     },
 
-    variant(): string {
+    variant (): string {
       switch (this.status) {
         case 'finished':
           return 'success'
@@ -191,12 +196,12 @@ export default Vue.extend({
      * Checks if project has been started
      * @returns Boolean
      */
-    started(): boolean {
+    started (): boolean {
       let jobArray: Job[] = this.jobs as Job[]
       const startedJobs = jobArray.filter(
         (job: Job) => {
-        return job.status === 'started'
-      }).length
+          return job.status === 'started'
+        }).length
 
       if (this.steps > 0) {
         return true
@@ -210,7 +215,7 @@ export default Vue.extend({
      * Checks if all steps are completed
      * @returns Boolean
      */
-    finished(): boolean {
+    finished (): boolean {
       return (
         this.steps / this.totalSteps === 1 || this.resultCopy === 'finished'
       )
@@ -220,7 +225,7 @@ export default Vue.extend({
      * Sums up all job runtimes
      * @returns total runtime
      */
-    runtime(): number {
+    runtime (): number {
       let runtime = 0
       let jobArray = this.jobs as Job[]
       jobArray.forEach(job => {
@@ -235,7 +240,7 @@ export default Vue.extend({
      * Gets finished time, if not finished returns now()
      * @returns Number (milliseconds)
      */
-    finishTime(): number {
+    finishTime (): number {
       let FinishedDate = 0
       if (this.finished) {
         return this.findLastDateTime(this.jobs as Job[])
@@ -253,6 +258,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    toggleLogBox (): void {
+      this.logDisplay = !this.logDisplay
+    },
     /**
      * emits finished when called
      */
@@ -268,7 +276,7 @@ export default Vue.extend({
     findLastDateTime (jobs: Job[]): number {
       let FinishedDate = 0
       jobs.forEach(job => {
-        if (job.finished_date){
+        if (job.finished_date) {
           let CurrentJobDate = new Date(job.finished_date).getTime()
           if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
             FinishedDate = CurrentJobDate
@@ -287,7 +295,7 @@ export default Vue.extend({
     findStartDateTime (jobs: Job[]): number {
       let StartedDate = Infinity
       jobs.forEach(job => {
-        if (job.started_date){
+        if (job.started_date) {
           let CurrentJobDate = new Date(job.started_date).getTime()
           if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
             StartedDate = CurrentJobDate

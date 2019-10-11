@@ -1,6 +1,10 @@
 <template>
   <b-row class="progressbar" >
-    <b-col v-for="(step, index) in steps" :key="step" :class="getStepStatus(step)" class="circle-container">
+    <b-col
+    v-for="(step, index) in steps"
+    :key="step"
+    :class="getStepStatus(step)"
+    class="circle-container">
       <div class="container">
         <span class="d-none d-lg-block">
           {{step}}

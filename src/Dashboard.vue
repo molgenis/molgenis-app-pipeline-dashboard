@@ -6,7 +6,7 @@
     </b-col>
   </b-row>
   <b-row no-gutters class="h-50">
-    <b-col><run-time-statistics :run-times="runtimes" @new-threshold="setThreshold"/></b-col>
+    <b-col ><run-time-statistics :run-times="runtimes" @new-threshold="setThreshold" /></b-col>
   </b-row>
 </b-container>
 </template>
@@ -15,7 +15,7 @@
 import Vue from 'vue'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
-import {RunTime, responseJSON, RunTimeStatistics} from '@/types/dataTypes'
+import { RunTime, responseJSON, RunTimeStatistic } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'app',
@@ -67,8 +67,8 @@ export default Vue.extend({
      * @param start Number start time in ms
      * @param finish Number finish time in ms
      */
-    addStatistics (run: RunTimeStatistics) {
-      let timeArray: RunTimeStatistics[] = this.runtimes
+    addStatistics (run: RunTimeStatistic) {
+      let timeArray = this.runtimes as RunTimeStatistic[]
       if (timeArray.length >= 10) {
         timeArray.shift()
       }

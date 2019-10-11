@@ -5,36 +5,43 @@
             {{runID}}
           </b-col>
         </b-row>
-          <step-tracker 
-          :steps="['demultiplexing', 'raw data copy','running', 'results data copy', 'finished']" 
-          :warning="warning" 
-          :currentStep="currentStep" 
-          :error="containsError" 
-          class="mb-4" 
-          :started="demultiplexing">
+          <step-tracker
+          :steps="['demultiplexing', 'raw data copy','running', 'results data copy', 'finished']"
+          :warning="warning"
+          :currentStep="currentStep"
+          :error="containsError"
+          :started="demultiplexing"
+          class="mb-4">
           </step-tracker>
           <template v-for="project in projects">
-              <run-table-project 
-              @project-warning="setRunWarning" 
-              :currentWarningStatus="warning" 
-              :running="currentStep >= 2" 
-              :threshold="timeThreshold" 
-              :key="project.project" 
-              :resultCopy="project.resultCopyStatus" 
-              :project="project.project" 
-              :jobs="project.jobs" :header="false" 
-              :runID="runID" 
-              :projectCount="projectCount" 
-              :time="time"/>
+              <run-table-project
+              @project-warning="setRunWarning"
+              @click="openModal(project.project)"
+              :currentWarningStatus="warning"
+              :running="currentStep >= 2"
+              :threshold="timeThreshold"
+              :key="project.project"
+              :resultCopy="project.resultCopyStatus"
+              :project="project.project"
+              :jobs="project.jobs" :header="false"
+              :runID="runID"
+              :projectCount="projectCount"
+              :time="time"
+              class="project-row">
+              </run-table-project>
           </template>
+          
+          <comment-modal :Run="selectedProject"></comment-modal>
     </b-container>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import RunTableProject from '@/components/Track&Trace-Components/RunTableProject.vue'
+import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
+
 
 export default Vue.extend({
   name: 'run-table',
@@ -84,23 +91,36 @@ export default Vue.extend({
   },
   data () {
     return {
-      warning: false
+      warning: false,
+      selectedProject: ''
     }
   },
   components: {
     RunTableProject,
-    StepTracker
+    StepTracker,
+    CommentModal
   },
   methods: {
     setRunWarning (warning: boolean): void {
       this.warning = warning
+    },
+    openModal(project: string) {
+      this.selectedProject = project
+      this.$bvModal.show('comment-modal')
     }
   },
   watch: {
-    runID(): void {
+    runID (): void {
       this.warning = false
     }
   }
-  
-}) 
+})
 </script>
+
+<style lang="scss" scoped>
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
+.project-row:hover{
+  background-color: $light
+}
+</style>
