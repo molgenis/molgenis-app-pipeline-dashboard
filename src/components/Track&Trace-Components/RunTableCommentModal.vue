@@ -7,9 +7,9 @@
       title="test comment"
       @ok="submitComment"
       >
-    <form ref="form" @submit.stop.prevent="handleSubmit">
+    <form ref="form" @submit.stop.prevent="submitComment" >
       <b-form-group
-        @submit="submitComment"
+       
         :state="nameState"
         :label="Run"
         label-for="name-input"
@@ -54,7 +54,7 @@ export default Vue.extend({
     comments: {
       type: Array,
       required: false,
-      default: [{name: 'jprofijt', comment: 'Vreemde errors en vertraginen, graag uitzoeken!'}, {name: 'Roan', comment: 'Hier wordt aan gewerkt'}]
+      default: [{name: 'jprofijt', comment: 'Vreemde errors en vertraginen, graag uitzoeken!'}, {name: 'IT', comment: 'Hier wordt aan gewerkt'}]
     }
   },
   data () {
@@ -64,11 +64,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    submitComment () {
-      this.comments.push(new Comment(this.name, this.text))
+    submitComment (): void {
+      this.comments.unshift(new Comment(this.name, this.text))
       this.clearInput()
     },
-    clearInput () {
+    clearInput (): void {
       this.text = ''
     }
   }
