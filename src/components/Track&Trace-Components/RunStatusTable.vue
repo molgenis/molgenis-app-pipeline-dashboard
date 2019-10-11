@@ -1,19 +1,21 @@
 <template>
-  <b-container fluid class="overflow-auto">
-    <b-table-simple small fixed hover>
+  <b-container fluid @mouseleave="mouseOn = ''" class="vh-45 overflow-auto">
+    <b-table-simple small fixed hover >
       <b-thead class="">
         <b-tr class="">
           <b-td class="text-center" colspan="2">
             <span>
-              <font-awesome-icon 
-              v-if="cyclePaused" 
-              @click="emitPause()" 
-              icon="play-circle"/>
+              <font-awesome-icon
+              @click="emitPause()"
+              v-if="cyclePaused"
+              icon="play-circle"
+              size="lg"/>
 
-              <font-awesome-icon 
-              v-else 
-              @click="emitPause()" 
-              icon="pause-circle"/>
+              <font-awesome-icon
+              @click="emitPause()"
+              v-else
+              icon="pause-circle"
+              size="lg"/>
             </span>
             <span> Run</span>
           </b-td>
@@ -24,27 +26,44 @@
           <b-th class="text-right overflow-hidden">Finished</b-th>
         </b-tr>
       </b-thead>
-      <b-tbody>
-        <b-tr class="" 
-        v-for="run in totalRuns" 
-        :key="run.run" 
-        @click="selectRun(run.run)"
-        @mouseenter="showCheckbox()"
-        @mouseleave="hideCheckbox()"
-        v-show="!hidden.includes(run.run)"
-        :variant="selectedRun === run.run ? 'primary' : 'light'">
-          <b-td v-show="checkbox">
-            <b-form-checkbox
-              v-model="hidden"
-              :value="run.run"
-              :id="run.run"
-              switch>
-            </b-form-checkbox>
+      <b-tbody class="">
+        <transition
+        v-for="run in totalRuns"
+        :key="run.run" name="slide">
+          <b-tr :id="'runId-' + run.run" class=""
+          @click="selectRun(run.run)"
+          @mouseover="mouseOn = run.run"
+          v-show="!hidden.includes(run.run)"
+          :variant="selectedRun === run.run ? 'primary' : 'light'">
+            <b-td v-show="mouseOn === run.run">
+              <b-form-checkbox
+                v-model="hidden"
+                :value="run.run"
+                :id="run.run"
+                switch>
+              </b-form-checkbox>
+            </b-td>
+            <b-td colspan="2" class="text-truncate">{{run.run}}</b-td>
+            <b-td colspan="5" class="text-center">
+              <progress-bar
+              @progress-finish="emitFinish(run.run)"
+              :totalSteps="5"
+              :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'"
+              :animated="run.step !== 4 && !run.containsError"
+              class="mt-1" :step="run.step + 1">
+              </progress-bar>
+            </b-td>
+          </b-tr>
+        </transition>
+        <b-tr v-show="hidden.length > 0">
+          <b-td
+          @click="hidden = []"
+          class="text-center"
+          colspan="7">
+            <font-awesome-icon icon="angle-down">
+            </font-awesome-icon>
           </b-td>
-          <b-td colspan="2" class="text-truncate">{{run.run}}</b-td>
-          <b-td colspan="5" class="text-center"><progress-bar @progress-finish="emitFinish(run.run)" class="mt-1" :step="run.step + 1" :totalSteps="5" :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'" :animated="run.step !== 4 && !run.containsError"/></b-td>
         </b-tr>
-        <b-tr> <b-td @click="hidden.lenght = 0" class="text-center" colspan="7">more...</b-td></b-tr>
       </b-tbody>
     </b-table-simple>
   </b-container>
@@ -63,7 +82,8 @@ export default Vue.extend({
   data () {
     return {
       checkbox: false,
-      hidden: []
+      hidden: [],
+      mouseOn: ''
     }
   },
   props: {
@@ -107,12 +127,22 @@ export default Vue.extend({
     emitFinish (run: string): void {
       this.$emit('run-finished', run)
     },
-    showCheckbox(): void {
+    showCheckbox (): void {
       this.checkbox = true
     },
-    hideCheckbox(): void {
+    hideCheckbox (): void {
       this.checkbox = false
     }
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.slide-enter, .slide-leave-to{
+  transform: scaleY(0);
+}
+
+.vh-45 {
+  height: 45vh
+}
+</style>
