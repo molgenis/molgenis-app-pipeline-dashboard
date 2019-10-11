@@ -16,7 +16,7 @@
           <template v-for="project in projects">
               <run-table-project
               @project-warning="setRunWarning"
-              @click="openModal(project.project)"
+              @open-modal="openModal"
               :currentWarningStatus="warning"
               :running="currentStep >= 2"
               :threshold="timeThreshold"

@@ -259,7 +259,7 @@ export default Vue.extend({
   },
   methods: {
     toggleLogBox (): void {
-      this.logDisplay = !this.logDisplay
+     this.$emit('open-modal', this.project) 
     },
     /**
      * emits finished when called

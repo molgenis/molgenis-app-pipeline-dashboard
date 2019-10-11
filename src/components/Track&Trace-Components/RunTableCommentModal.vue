@@ -1,27 +1,13 @@
 <template>
 <b-container fluid>
-  <b-button v-b-modal.comment-modal>Launch demo modal</b-button>
   <b-modal
       id="comment-modal"
       ref="modal"
-      title="test comment"
+      :title="Run"
       @ok="submitComment"
       >
     <form ref="form" @submit.stop.prevent="submitComment" >
-      <b-form-group
-       
-        :state="nameState"
-        :label="Run"
-        label-for="name-input"
-        invalid-feedback="Name is required"
-      >
-        <b-form-input
-          id="name-input"
-          v-model="name"
-          :state="nameState"
-          required
-          class="mb-1"
-        ></b-form-input>
+      <b-form-group>
         <b-form-textarea
           id="textarea"
           v-model="text"
@@ -29,12 +15,11 @@
           rows="3"
           max-rows="6"
         ></b-form-textarea>
-        <b-button type="submit" variant="primary">Submit</b-button>
       </b-form-group>
       
     </form>
-    <b-card class="text-left mt-1 mb-1" v-for="comment in comments" :key="comment.name" :sub-title="comment.name"> 
-      <b-card-text>{{comment.comment}}</b-card-text>
+    <b-card class="text-left mt-1 mb-1" v-for="comment in comments" :key="comment.value"> 
+      <b-card-text>{{comment}}</b-card-text>
     </b-card>
   </b-modal>
 </b-container>
@@ -42,7 +27,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Comment } from '@/types/dataTypes.ts'
 
 export default Vue.extend({
   name: 'comment-modal',
@@ -54,18 +38,18 @@ export default Vue.extend({
     comments: {
       type: Array,
       required: false,
-      default: [{name: 'jprofijt', comment: 'Vreemde errors en vertraginen, graag uitzoeken!'}, {name: 'IT', comment: 'Hier wordt aan gewerkt'}]
+      default: []
     }
   },
   data () {
     return {
       name: '',
-      text: ''
+      text: 'dit is test text'
     }
   },
   methods: {
     submitComment (): void {
-      this.comments.unshift(new Comment(this.name, this.text))
+      this.comments.unshift(this.text)
       this.clearInput()
     },
     clearInput (): void {
