@@ -111,9 +111,6 @@ export default Vue.extend({
      */
     HasNoWarning (): Boolean {
       const warning = (this.thresholdToMs > this.finishTime - this.startTime) || !this.started
-      if (!warning) {
-        this.$emit('project-warning', !warning)
-      }
       return warning
     },
     /**
@@ -266,6 +263,11 @@ export default Vue.extend({
     toggleLogBox (): void {
      this.$emit('open-modal', this.project, this.comment) 
     },
+    CheckForWarnings(): void {
+      if (!this.HasNoWarning) {
+        this.$emit('project-warning', !this.HasNoWarning)
+      }
+    },
     /**
      * emits finished when called
      */
@@ -339,6 +341,11 @@ export default Vue.extend({
         return -1
       } else return 0
     }
+  },
+  mounted () {
+    this.CheckForWarnings()
+    setInterval(this.CheckForWarnings, 30000)
+    
   }
 })
 </script>

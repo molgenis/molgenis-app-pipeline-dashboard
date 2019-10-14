@@ -4,7 +4,7 @@
       id="comment-modal"
       ref="modal"
       :title="Run"
-      @ok="PutNewCommentText(Run, placeHolderComment, API, headers)"
+      @ok="PutNewCommentText(Run, placeHolderComment, comment, API, headers)"
       >
     <form ref="form">
       <b-form-group>
@@ -12,8 +12,8 @@
           id="textarea"
           v-model="placeHolderComment"
           placeholder="Comment..."
-          rows="3"
-          max-rows="6"
+          rows="10"
+          max-rows="30"
         ></b-form-textarea>
       </b-form-group>
     </form>
@@ -57,17 +57,18 @@ export default Vue.extend({
     emitCommentUpdate(comment: string): void {
       this.$emit('update-comment', comment)
     },
-    async PutNewCommentText(project: string, comment: string, APIv1: string, headers: Headers): Promise<void> {
-      try {
-        const response = await fetch(APIv1 + 'status_projects/' + project + '/comment', {
-          method: 'PUT',
-          body: JSON.stringify(comment),
-          headers: headers
-        })
-        
-      } catch (error) {
-        console.error(error)
-      }
+    async PutNewCommentText(project: string, vModelComment: string, comment: string, APIv1: string, headers: Headers): Promise<void> {
+      if (comment !== vModelComment)
+        try {
+          const response = await fetch(APIv1 + 'status_projects/' + project + '/comment', {
+            method: 'PUT',
+            body: JSON.stringify(vModelComment),
+            headers: headers
+          })
+          
+        } catch (error) {
+          console.error(error)
+        }
     },
 
   },

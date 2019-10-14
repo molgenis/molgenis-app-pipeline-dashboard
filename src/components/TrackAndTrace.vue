@@ -4,6 +4,7 @@
         <b-container fluid class="border border-primary h-100 p-0">
           <run-status-table
           @run-finished="addRunToStatistics"
+          @cycle-next="cycleRun"
           :total-runs="runSteps"
           :selected-run="showRun"
           @select-run="setShowRun"
@@ -278,9 +279,7 @@ export default Vue.extend({
     cycleRun (): void {
       if (!this.paused) {
         let currentIndex = this.runIds.indexOf(this.showRun)
-        if (!currentIndex) {
-          currentIndex = 0
-        } else if (currentIndex === (this.runIds.length - 1)) {
+        if (currentIndex === (this.runIds.length - 1)) {
           currentIndex = 0
         } else {
           currentIndex += 1
@@ -471,8 +470,8 @@ export default Vue.extend({
     await this.getData()
     this.setTimer()
     this.cycleRun()
+    setInterval(this.cycleRun, 1000)
     setInterval(this.getData, 10000)
-    setInterval(this.cycleRun, 10000)
   }
 })
 

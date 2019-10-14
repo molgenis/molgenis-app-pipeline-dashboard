@@ -131,12 +131,11 @@ export default Vue.extend({
     }
   },
   computed: {
-
   },
   watch: {
-    runID (): void {
+    runID: function (old: any, newID: any): void {
       this.warning = false
-    }
+    } 
   }
 })
 </script>

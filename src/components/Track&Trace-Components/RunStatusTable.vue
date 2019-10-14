@@ -43,8 +43,8 @@
                 switch>
               </b-form-checkbox>
             </b-td>
-            <b-td colspan="2" class="text-truncate">{{run.run}}</b-td>
-            <b-td colspan="5" class="text-center">
+            <b-td :colspan="mouseOn !== run.run ? 2 : 6" class="text-truncate">{{run.run}}</b-td>
+            <b-td colspan="5" v-show="mouseOn !== run.run" class="text-center">
               <progress-bar
               @progress-finish="emitFinish(run.run)"
               :totalSteps="5"
@@ -62,6 +62,11 @@
           colspan="7">
             <font-awesome-icon icon="angle-down">
             </font-awesome-icon>
+          </b-td>
+        </b-tr>
+        <b-tr v-show="hidden === 'shown'">
+          <b-td v-for="hiddenRun in hidden" :key="hiddenRun.value">
+
           </b-td>
         </b-tr>
       </b-tbody>
@@ -132,6 +137,13 @@ export default Vue.extend({
     },
     hideCheckbox (): void {
       this.checkbox = false
+    }
+  },
+  watch: {
+    selectedRun: function (oldRun, newRun) {
+      if (this.hidden.includes(this.selectedRun)){
+        this.$emit('cycle-next')
+      }
     }
   }
 })
