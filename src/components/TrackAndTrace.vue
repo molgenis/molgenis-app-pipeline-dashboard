@@ -17,7 +17,6 @@
       <b-container class="border border-primary h-100" fluid>
       <transition name="fade" mode="out-in">
         <run-table
-        @update-comment="PutNewCommentText"
         :runID="runID"
         :showRun="showRun"
         :projects="runProjects"
@@ -25,7 +24,10 @@
         :containsError="containsError"
         :currentStep="currentStep"
         :time="time"
-        :demultiplexing="demultiplexing"/>
+        :demultiplexing="demultiplexing"
+        :headers="headers"
+        :API="APIvOne">
+        </run-table>
       </transition>
       </b-container>
     </b-col>
@@ -56,8 +58,8 @@ export default Vue.extend({
       type: String,
       required: true
     },
-    APIv1: {
-      type: string,
+    APIvOne: {
+      type: String,
       required: true
     }
   },
@@ -394,7 +396,8 @@ export default Vue.extend({
             ProjectJobs,
             RunProject.pipeline,
             this.getStatus(RunProject, ProjectJobs),
-            RunProject.copy_results_prm
+            RunProject.copy_results_prm,
+            RunProject.comment
           )
         )
 
@@ -461,11 +464,6 @@ export default Vue.extend({
       const runObj = this.runData.find((x: Run) => { return x.run_id === run })
       const runTimeStats = new RunTimeStatistic(runObj.projects, run)
       this.$emit('add-statistic', runTimeStats)
-    },
-    async PutNewCommentText(comment): Promise<void> {
-      try {
-        const response = await fetch('')
-      }
     }
   },
 

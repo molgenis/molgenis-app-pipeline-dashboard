@@ -48,12 +48,14 @@ export class ProjectObject {
   pipeline: string
   resultCopyStatus?: string 
   status: string
-  constructor(projectName: string, jobArray: Job[], pipelineType: string, statusString: string, resultCopyStatusString: string | undefined){
+  Comment?: string
+  constructor(projectName: string, jobArray: Job[], pipelineType: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
     this.project = projectName
     this.jobs = jobArray
     this.pipeline = pipelineType
     this.resultCopyStatus = resultCopyStatusString
     this.status = statusString
+    this.Comment = comment
   }
   getRunType() {
     const RegEx = new RegExp('-[A-Za-z]+(_[a-z0-9A-Z]+)?')
@@ -103,6 +105,7 @@ export interface projectDataObject{
   run_id: string
   pipeline: string
   copy_results_prm?: string
+  comment?: string
 }
 
 /**

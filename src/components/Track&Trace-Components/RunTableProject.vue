@@ -88,6 +88,11 @@ export default Vue.extend({
       type: Number,
       required: false,
       default: 15
+    },
+    comment: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   components: {
@@ -259,7 +264,7 @@ export default Vue.extend({
   },
   methods: {
     toggleLogBox (): void {
-     this.$emit('open-modal', this.project) 
+     this.$emit('open-modal', this.project, this.comment) 
     },
     /**
      * emits finished when called

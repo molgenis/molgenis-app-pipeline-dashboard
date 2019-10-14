@@ -4,23 +4,19 @@
       id="comment-modal"
       ref="modal"
       :title="Run"
-      @ok="submitComment"
+      @ok="PutNewCommentText(Run, placeHolderComment, API, headers)"
       >
-    <form ref="form" @submit.stop.prevent="submitComment" >
+    <form ref="form">
       <b-form-group>
         <b-form-textarea
           id="textarea"
-          v-model="text"
+          v-model="placeHolderComment"
           placeholder="Comment..."
           rows="3"
           max-rows="6"
         ></b-form-textarea>
       </b-form-group>
-      
     </form>
-    <b-card class="text-left mt-1 mb-1" v-for="comment in comments" :key="comment.value"> 
-      <b-card-text>{{comment}}</b-card-text>
-    </b-card>
   </b-modal>
 </b-container>
 </template>
@@ -35,28 +31,49 @@ export default Vue.extend({
       type: String,
       required: true
     },
-    comments: {
-      type: Array,
+    comment: {
+      type: String,
       required: false,
-      default: []
+      default: ''
+    },
+    headers: {
+      type: Headers,
+      required: true
+    },
+    API: {
+      type: String,
+      required: true
     }
   },
   data () {
     return {
       name: '',
-      text: 'dit is test text'
+      placeHolderComment: ''
     }
   },
+  computed: {
+  },
   methods: {
-    submitComment (): void {
-      this.comments.unshift(this.text)
-      this.clearInput()
+    emitCommentUpdate(comment: string): void {
+      this.$emit('update-comment', comment)
     },
-    clearInput (): void {
-      this.text = ''
+    async PutNewCommentText(project: string, comment: string, APIv1: string, headers: Headers): Promise<void> {
+      try {
+        const response = await fetch(APIv1 + 'status_projects/' + project + '/comment', {
+          method: 'PUT',
+          body: JSON.stringify(comment),
+          headers: headers
+        })
+        
+      } catch (error) {
+        console.error(error)
+      }
     },
-    emitCommentUpdate(): void {
-      this.$emit('update-comment', this.text)
+
+  },
+  watch: {
+    comment(): void {
+      this.placeHolderComment = this.comment
     }
   }
 })

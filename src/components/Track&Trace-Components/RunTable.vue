@@ -27,12 +27,16 @@
               :runID="runID"
               :projectCount="projectCount"
               :time="time"
+              :comment="project.Comment"
               class="project-row">
               </run-table-project>
           </template>
           
           <comment-modal
           :Run="selectedProject"
+          :comment="comment"
+          :API="API"
+          :headers="headers"
           @comment-update="emitComment"></comment-modal>
     </b-container>
 </template>
@@ -88,13 +92,24 @@ export default Vue.extend({
       type: Number,
       required: false,
       default: 15
+    },
+
+    headers: {
+      type: Headers,
+      required: true
+    },
+
+    API: {
+      type: String,
+      required: true
     }
 
   },
   data () {
     return {
       warning: false,
-      selectedProject: ''
+      selectedProject: '',
+      comment: ''
     }
   },
   components: {
@@ -106,13 +121,17 @@ export default Vue.extend({
     setRunWarning (warning: boolean): void {
       this.warning = warning
     },
-    openModal(project: string) {
+    openModal(project: string, comment: string) {
       this.selectedProject = project
+      this.comment = comment
       this.$bvModal.show('comment-modal')
     },
-    emitComment(comment) {
-      this.$emit('comment-update', comment)
+    emitComment(project, comment) {
+      this.$emit('comment-update', project, comment)
     }
+  },
+  computed: {
+
   },
   watch: {
     runID (): void {

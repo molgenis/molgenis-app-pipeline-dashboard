@@ -2,7 +2,7 @@
 <b-container id="dashboard" fluid>
   <b-row  no-gutters class="h-50">
     <b-col class="h-100">
-      <track-and-trace :headers="headers" :APIv1="APIv1Url" :url="APIv2Url" @add-statistic="addStatistics" @token-expired="setToken" :runtime-threshold="threshold" class="h-100 mt-1"/>
+      <track-and-trace :headers="headers" :APIvOne="APIv1Url" :url="APIv2Url" @add-statistic="addStatistics" @token-expired="setToken" :runtime-threshold="threshold" class="h-100 mt-1"/>
     </b-col>
   </b-row>
   <b-row no-gutters class="h-50">
@@ -28,7 +28,7 @@ export default Vue.extend({
       username: 'admin',
       password: 'admin',
       token: 'admin-test-token',
-      APIv1Url: 'http://localhost:8081/api/v1/'
+      APIv1Url: 'http://localhost:8081/api/v1/',
       APIv2Url: 'http://localhost:8081/api/v2/',
       runtimes: [
       ],
@@ -38,7 +38,9 @@ export default Vue.extend({
   computed: {
     headers (): Headers {
       const token: string = this.token
-      const header = new Headers({ 'x-molgenis-token': token })
+      const header = new Headers()
+      header.append('x-molgenis-token', token)
+      header.append('Content-Type', 'application/json')
 
       return header
     }
