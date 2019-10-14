@@ -4,7 +4,7 @@
       id="comment-modal"
       ref="modal"
       :title="Run"
-      @ok="PutNewCommentText(Run, placeHolderComment, comment, API, headers)"
+      @ok="PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)"
       >
     <form ref="form">
       <b-form-group>
@@ -14,7 +14,11 @@
           placeholder="Comment..."
           rows="10"
           max-rows="30"
+          :state="validation"
         ></b-form-textarea>
+        <b-form-invalid-feedback :state="validation">
+        Comment is too long. must be smaller than 65535 characters
+      </b-form-invalid-feedback>
       </b-form-group>
     </form>
   </b-modal>
@@ -52,6 +56,10 @@ export default Vue.extend({
     }
   },
   computed: {
+    validation() {
+      const comment: string = this.placeHolderComment
+      return comment.length < 65535
+    }
   },
   methods: {
     /**
@@ -62,8 +70,8 @@ export default Vue.extend({
      * @param APIv1 API url
      * @param headers request headers
      */
-    async PutNewCommentText(project: string, vModelComment: string, comment: string, APIv1: string, headers: Headers): Promise<void> {
-      if (comment !== vModelComment)
+    async PutNewCommentText(project: string, vModelComment: string, comment: string, APIv1: string, headers: Headers, validated: boolean): Promise<void> {
+      if (comment !== vModelComment && validated)
         try {
           const response = await fetch(APIv1 + 'status_projects/' + project + '/comment', {
             method: 'PUT',
