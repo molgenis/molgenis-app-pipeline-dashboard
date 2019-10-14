@@ -54,9 +54,14 @@ export default Vue.extend({
   computed: {
   },
   methods: {
-    emitCommentUpdate(comment: string): void {
-      this.$emit('update-comment', comment)
-    },
+    /**
+     * Updates the comment value in MOLGENIS database
+     * @param project project to update
+     * @param vModelComment new comment content
+     * @param comment old comment
+     * @param APIv1 API url
+     * @param headers request headers
+     */
     async PutNewCommentText(project: string, vModelComment: string, comment: string, APIv1: string, headers: Headers): Promise<void> {
       if (comment !== vModelComment)
         try {
@@ -73,6 +78,9 @@ export default Vue.extend({
 
   },
   watch: {
+    /**
+     * watches for changes in the comment and sets the editable placeHolderComment
+     */
     comment(): void {
       this.placeHolderComment = this.comment
     }

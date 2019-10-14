@@ -1,7 +1,7 @@
 <template>
     <b-row id="track-and-trace" no-gutters>
       <b-col  class="p-2" lg="4" cols="12">
-        <b-container fluid class="border border-primary h-100 p-0">
+        <b-container fluid class="border border-primary p-0">
           <run-status-table
           @run-finished="addRunToStatistics"
           @cycle-next="cycleRun"
@@ -10,7 +10,7 @@
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
           :cycle-paused="paused"
-          class="w-100 vh-50">
+          class="w-100">
           </run-status-table>
         </b-container>
       </b-col>
@@ -127,6 +127,10 @@ export default Vue.extend({
       return this.run.containsError
     },
 
+    /**
+     * checks if run is busy demultiplexing
+     * @returns boolean if it is demultiplexing
+     */
     demultiplexing(): Boolean {
       const demultiplexing = this.run.demultiplexing
 
@@ -250,7 +254,7 @@ export default Vue.extend({
         }
         if (runs !== this.runs) {
           this.runs = runs
-        }  
+        }
       } catch (error) {
         console.error(error)
       }
@@ -470,7 +474,7 @@ export default Vue.extend({
     await this.getData()
     this.setTimer()
     this.cycleRun()
-    setInterval(this.cycleRun, 1000)
+    setInterval(this.cycleRun, 10000)
     setInterval(this.getData, 10000)
   }
 })

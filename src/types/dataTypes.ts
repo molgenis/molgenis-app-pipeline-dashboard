@@ -46,8 +46,8 @@ export class ProjectObject {
   project: string
   jobs: Job[]
   pipeline: string
-  resultCopyStatus?: string 
   status: string
+  resultCopyStatus?: string
   Comment?: string
   constructor(projectName: string, jobArray: Job[], pipelineType: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
     this.project = projectName

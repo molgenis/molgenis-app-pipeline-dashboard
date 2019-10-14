@@ -105,10 +105,17 @@ export default Vue.extend({
       return 20
       
     },
-
+    /**
+     * average runtime
+     * @returns average
+     */
     average(): number {
       return this.findAverage(this.numbersArray as number[])
     },
+    /**
+     * calculates threshold for runtimes
+     * @returns threshold
+     */
     threshold(): number {
       let avg = this.average as number
       const threshold = this.getSD(this.numbersArray as number[], avg)
@@ -143,7 +150,10 @@ export default Vue.extend({
 
       return serieArray
     },
-
+    /**
+     * calculates the outliers in the data
+     * @returns outlier array
+     */
     outliers(): outlier[] {
       let outliers = [] as outlier[]
       let runTimeArray = this.runTimes as RunTime[]
@@ -155,7 +165,10 @@ export default Vue.extend({
       }
       return outliers
     },
-
+    /**
+     * creates xAnnotations for outliers
+     * @returns Annotation objects for outliers
+     */
     xAnnotations(): xAnnotation[] {
       let annotations = [] as xAnnotation[]
       this.outliers.forEach((outlier) => {

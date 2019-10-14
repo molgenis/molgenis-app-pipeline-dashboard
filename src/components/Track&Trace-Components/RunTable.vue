@@ -118,14 +118,28 @@ export default Vue.extend({
     CommentModal
   },
   methods: {
+    /**
+     * sets Warning status for run
+     * @param warning warning status to set
+     */
     setRunWarning (warning: boolean): void {
       this.warning = warning
     },
+    /**
+     * opens the modal for the project
+     * @param project project to comment
+     * @param comment project comment content
+     */
     openModal(project: string, comment: string) {
       this.selectedProject = project
       this.comment = comment
       this.$bvModal.show('comment-modal')
     },
+    /**
+     * emtis a comment update
+     * @param project project to update
+     * @param comment content
+     */
     emitComment(project, comment) {
       this.$emit('comment-update', project, comment)
     }
@@ -133,6 +147,9 @@ export default Vue.extend({
   computed: {
   },
   watch: {
+    /**
+     * resets warning if new run is selected
+     */
     runID: function (old: any, newID: any): void {
       this.warning = false
     } 

@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid @mouseleave="mouseOn = ''" class="vh-45 overflow-auto">
+  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto h-5r">
     <b-table-simple small fixed hover >
       <b-thead class="">
         <b-tr class="">
@@ -154,7 +154,7 @@ export default Vue.extend({
   transform: scaleY(0);
 }
 
-.vh-45 {
-  height: 45vh
+.h-5r {
+  height: 25em
 }
 </style>

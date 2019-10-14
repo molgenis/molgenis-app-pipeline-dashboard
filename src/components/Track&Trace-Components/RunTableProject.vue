@@ -260,9 +260,15 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * emits job to open the modal
+     */
     toggleLogBox (): void {
      this.$emit('open-modal', this.project, this.comment) 
     },
+    /**
+     * Checks if the project contains warnings
+     */
     CheckForWarnings(): void {
       if (!this.HasNoWarning) {
         this.$emit('project-warning', !this.HasNoWarning)
