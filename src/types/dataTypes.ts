@@ -7,13 +7,13 @@ export interface RawDataObject extends RunDataObject, projectDataObject, Job{
  */
 export class Run {
   run_id: string
-  projects: projectObject[]
+  projects: ProjectObject[]
   demultiplexing: string
   rawCopy: string
   len: number
   containsError: Boolean
   copyState: number
-  constructor(runID: string, projectArray: projectObject[], Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number){
+  constructor(runID: string, projectArray: ProjectObject[], Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number){
     this.run_id = runID
     this.projects = projectArray
     this.demultiplexing = Demultiplexing
@@ -42,18 +42,20 @@ export interface RunDataObject {
  * @function findStartDateTime returns start time in ms
  * @function getRunTime returns runtime in ms
  */
-export class projectObject {
+export class ProjectObject {
   project: string
   jobs: Job[]
   pipeline: string
   resultCopyStatus?: string 
   status: string
-  constructor(projectName: string, jobArray: Job[], pipelineType: string, statusString: string, resultCopyStatusString: string | undefined){
+  Comment?: string
+  constructor(projectName: string, jobArray: Job[], pipelineType: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
     this.project = projectName
     this.jobs = jobArray
     this.pipeline = pipelineType
     this.resultCopyStatus = resultCopyStatusString
     this.status = statusString
+    this.Comment = comment
   }
   getRunType() {
     const RegEx = new RegExp('-[A-Za-z]+(_[a-z0-9A-Z]+)?')
@@ -103,6 +105,7 @@ export interface projectDataObject{
   run_id: string
   pipeline: string
   copy_results_prm?: string
+  comment?: string
 }
 
 /**
@@ -147,13 +150,13 @@ export class RunTime {
  * A point in the graph for a run
  * @function getMax gets larges point in data
  */
-export class RunTimeStatistics {
+export class RunTimeStatistic {
   ONCO: RunTime
   Exoom: RunTime
   PCS: RunTime
   SPV: RunTime
   other: RunTime[]
-  constructor(projects: projectObject[], runId: string) {
+  constructor(projects: ProjectObject[], runId: string) {
     const regONCO = new RegExp('ONCO.*')
     const regExoom = new RegExp('Exoom.*')
     const regPCS = new RegExp('PCS.*')
@@ -164,7 +167,7 @@ export class RunTimeStatistics {
     this.ONCO = new RunTime('no data', 0)
     this.SPV = new RunTime('no data', 0)
     this.PCS = new RunTime('no data', 0)
-    projects.forEach((project: projectObject) => {
+    projects.forEach((project: ProjectObject) => {
       let runType = project.getRunType()
       let runTimeObject = new RunTime(runId, project.getRunTime())
       if (runType.match(regONCO)) {
@@ -203,4 +206,13 @@ export class RunTimeStatistics {
 export interface responseJSON {
   token: string
   username: string
+}
+
+export class Comment {
+  name: string
+  comment: string
+  constructor(name: string, text: string) {
+    this.name = name,
+    this.comment = text
+  }
 }

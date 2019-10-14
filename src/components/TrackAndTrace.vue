@@ -9,7 +9,7 @@
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
           :cycle-paused="paused"
-          class="w-100">
+          class="w-100 vh-50">
           </run-status-table>
         </b-container>
       </b-col>
@@ -24,7 +24,10 @@
         :containsError="containsError"
         :currentStep="currentStep"
         :time="time"
-        :demultiplexing="demultiplexing"/>
+        :demultiplexing="demultiplexing"
+        :headers="headers"
+        :API="APIvOne">
+        </run-table>
       </transition>
       </b-container>
     </b-col>
@@ -36,7 +39,7 @@ import Vue from 'vue'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
-import { RawDataObject, Run, RunDataObject, projectObject, projectDataObject, Job, Step, RunTimeStatistics } from '@/types/dataTypes'
+import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic } from '@/types/dataTypes'
 
 
 export default Vue.extend({
@@ -52,6 +55,10 @@ export default Vue.extend({
     },
 
     url: {
+      type: String,
+      required: true
+    },
+    APIvOne: {
       type: String,
       required: true
     }
@@ -99,7 +106,7 @@ export default Vue.extend({
      * Currently selected run projects
      * @returns Array of Projects
      */
-    runProjects(): projectObject[] {
+    runProjects(): ProjectObject[] {
       return this.run.projects
     },
 
@@ -242,8 +249,7 @@ export default Vue.extend({
         }
         if (runs !== this.runs) {
           this.runs = runs
-        }
-        
+        }  
       } catch (error) {
         console.error(error)
       }
@@ -273,7 +279,7 @@ export default Vue.extend({
       if (!this.paused) {
         let currentIndex = this.runIds.indexOf(this.showRun)
         if (!currentIndex) {
-          currentIndex = 0 
+          currentIndex = 0
         } else if (currentIndex === (this.runIds.length - 1)) {
           currentIndex = 0
         } else {
@@ -294,7 +300,7 @@ export default Vue.extend({
           return 0
         case 'Waiting':
           return -1
-      
+
         default:
       }
       if (run.rawCopy === 'started') {
@@ -340,7 +346,7 @@ export default Vue.extend({
           return x.project === project.project
         })
         .sort(function (a: Job, b: Job) {
-          if  (a.job > b.job) {
+          if (a.job > b.job) {
             return 1
           } else if (a.job < b.job) {
             return -1
@@ -363,7 +369,7 @@ export default Vue.extend({
      * @param projects projects to check
      * @returns Number
      */
-    countProjectFinishedCopying (projects: projectObject[]): number {
+    countProjectFinishedCopying (projects: ProjectObject[]): number {
       const finishedProjects = projects.filter(function (x) {
         return x.resultCopyStatus === 'finished'
       })
@@ -378,25 +384,25 @@ export default Vue.extend({
      * @returns runObject
      */
     constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run {
-      let Projects: projectObject[] = []
+      let Projects: ProjectObject[] = []
       const runProjects = this.getRunProjects(projects, run.run_id)
       let errors = 0
       runProjects.forEach((RunProject: projectDataObject) => {
         const ProjectJobs = this.getProjectJobs(jobs, RunProject)
 
         Projects.push(
-          new projectObject(
-            RunProject.project, 
-            ProjectJobs, 
-            RunProject.pipeline, 
-            this.getStatus(RunProject, ProjectJobs), 
-            RunProject.copy_results_prm
-            )
+          new ProjectObject(
+            RunProject.project,
+            ProjectJobs,
+            RunProject.pipeline,
+            this.getStatus(RunProject, ProjectJobs),
+            RunProject.copy_results_prm,
+            RunProject.comment
           )
+        )
 
         errors += this.countJobStatus(ProjectJobs, 'error')
       })
-      this.logProjects(Projects)
       return new Run(run.run_id, Projects, run.demultiplexing, run.copy_raw_prm, Projects.length, errors >= 1, this.countProjectFinishedCopying(Projects))
     },
 
@@ -426,11 +432,11 @@ export default Vue.extend({
     countJobStatus (jobs: Job[], status: string): number {
       return jobs.filter(function (x) { return x.status === status }).length
     },
-    findLastDateTime (projects: projectObject[]): number {
+    findLastDateTime (projects: ProjectObject[]): number {
       let FinishedDate = 0
-      projects.forEach((project: projectObject) => {
+      projects.forEach((project: ProjectObject) => {
         project.jobs.forEach((job: Job) => {
-          if (typeof (job.finished_date) !== undefined) {
+          if (typeof (job.finished_date) !== 'undefined') {
             let CurrentJobDate = new Date(job.finished_date!).getTime()
             if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
               FinishedDate = CurrentJobDate
@@ -440,11 +446,11 @@ export default Vue.extend({
       })
       return FinishedDate
     },
-    findStartDateTime (projects: projectObject[]): number {
+    findStartDateTime (projects: ProjectObject[]): number {
       let StartedDate = Infinity
-      projects.forEach((project: projectObject) => {
+      projects.forEach((project: ProjectObject) => {
         project.jobs.forEach((job: Job) => {
-          if (typeof (job.started_date) !== undefined) {
+          if (typeof (job.started_date) !== 'undefined') {
             let CurrentJobDate = new Date(job.started_date!).getTime()
             if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
               StartedDate = CurrentJobDate
@@ -456,24 +462,17 @@ export default Vue.extend({
     },
     addRunToStatistics (run: string): void {
       const runObj = this.runData.find((x: Run) => { return x.run_id === run })
-      const runTimeStats = new RunTimeStatistics(runObj.projects, run)
+      const runTimeStats = new RunTimeStatistic(runObj.projects, run)
       this.$emit('add-statistic', runTimeStats)
-    },
-
-    logProjects(projects: projectObject[]) {
-      projects.forEach((project: projectObject) => {
-        console.log(project.project, project.getRunType())
-      })
     }
   },
 
-  mounted (): void {
-    this.getData()
+  async mounted (): Promise<void> {
+    await this.getData()
     this.setTimer()
     this.cycleRun()
     setInterval(this.getData, 10000)
     setInterval(this.cycleRun, 10000)
-    
   }
 })
 
@@ -496,4 +495,5 @@ export default Vue.extend({
 .height60 {
   height: 100%;
 }
+
 </style>
