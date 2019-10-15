@@ -139,10 +139,11 @@ export default Vue.extend({
      * @returns Number
      */
     steps (): number {
+      if (this.resultCopy === 'finished') {
+        return this.totalSteps
+      }
       let jobArray = this.jobs as Job[]
-      return jobArray.filter(function (job) {
-        return job.status === 'finished'
-      }).length
+      return jobArray.filter(function (job) { return job.status === 'finished' }).length
     },
 
     /**
@@ -219,7 +220,7 @@ export default Vue.extend({
      */
     finished (): boolean {
       return (
-        this.steps / this.totalSteps === 1 || this.resultCopy === 'finished'
+        this.steps / this.totalSteps === 1
       )
     },
 
