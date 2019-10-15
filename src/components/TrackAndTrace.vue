@@ -42,6 +42,51 @@ import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.v
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
 import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic } from '@/types/dataTypes'
 
+declare module 'vue/types/vue' {
+  interface Vue {
+    runs: RunDataObject[]
+    jobs: Job[]
+    projects: projectDataObject[]
+    runUrl: string
+    time: number
+    showRun: string
+    paused: boolean
+    loading: boolean
+    headers: Headers
+    url: string
+    APIvOne: string
+    run: Run
+    runID: string
+    runProjects: ProjectObject[]
+    projectCount: number
+    containsError: boolean
+    demultiplexing: boolean
+    currentStep: number
+    runData: Run[]
+    runIds: string[]
+    runSteps: Step[]
+    setCurrentIndex(index: number): void
+    sortRuns(run1: Run, run2: Run): number
+    setShowRun(run: string): void 
+    timeUp(): void
+    setTimer(): void
+    getData(): Promise<void>
+    fetchData(ref: string, items?: RawDataObject[]): Promise<RawDataObject[]>
+    cycleRun (): void
+    runStep (run: Run): number
+    toggleCycle (): void
+    getRunProjects (projects: projectDataObject[], run: string): projectDataObject[]
+    getProjectJobs (jobs: Job[], project: projectDataObject): Job[]
+    runFinished (run: Run): Boolean
+    countProjectFinishedCopying (projects: ProjectObject[]): number 
+    constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run
+    getStatus (project: projectDataObject, jobs: Job[]): string
+    countJobStatus (jobs: Job[], status: string): number
+    findLastDateTime (projects: ProjectObject[]): number
+    findStartDateTime (projects: ProjectObject[]): number
+    addRunToStatistics (run: string): void
+  }
+}
 
 export default Vue.extend({
   name: 'track-and-trace',
@@ -264,7 +309,7 @@ export default Vue.extend({
      * @param ref fetch location url
      * @returns Array of items
      */
-    async fetchData (ref: string, items: Array<RawDataObject> = []): Promise<Array<RawDataObject>> {
+    async fetchData (ref: string, items = []): Promise<Array<RawDataObject>> {
       const response = await fetch(ref, {
         headers: this.headers
       })
@@ -465,7 +510,7 @@ export default Vue.extend({
     },
     addRunToStatistics (run: string): void {
       const runObj = this.runData.find((x: Run) => { return x.run_id === run })
-      const runTimeStats = new RunTimeStatistic(runObj.projects, run)
+      const runTimeStats = new RunTimeStatistic(runObj!.projects, run)
       this.$emit('add-statistic', runTimeStats)
     }
   },

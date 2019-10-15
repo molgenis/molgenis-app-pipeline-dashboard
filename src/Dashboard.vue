@@ -17,6 +17,23 @@ import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import { RunTime, responseJSON, RunTimeStatistic } from '@/types/dataTypes'
 
+declare module 'vue/types/vue' {
+  interface Vue {
+    username: string
+    password: string
+    token: string
+    APIv1Url: string
+    APIv2Url: string
+    runtimes: RunTimeStatistic[]
+    threshold: number
+    headers: Headers
+    getToken(username: string, password: string): Promise<string>
+    setToken(): Promise<void>
+    addStatistics(run: RunTimeStatistic): void
+    setThreshold(threshold: number): void
+  }
+}
+
 export default Vue.extend({
   name: 'app',
   components: {
@@ -36,12 +53,10 @@ export default Vue.extend({
     }
   },
   computed: {
-    headers (): Headers {
-      const token: string = this.token
+    headers () {
       const header = new Headers()
-      header.append('x-molgenis-token', token)
+      header.append('x-molgenis-token', this.token)
       header.append('Content-Type', 'application/json')
-
       return header
     }
   },
@@ -49,7 +64,7 @@ export default Vue.extend({
     /**
      * Gets the new login token
      */
-    async getToken (username: string, password: string): Promise<string> {
+    async getToken (username: string, password: string) {
       const response = await fetch('http://localhost:8081/api/v1/login')
 
       let json: responseJSON = await response.json()
@@ -67,11 +82,9 @@ export default Vue.extend({
     /**
      * Adds new runtime statistics to graph
      * @param run String runId
-     * @param start Number start time in ms
-     * @param finish Number finish time in ms
      */
     addStatistics (run: RunTimeStatistic) {
-      let timeArray = this.runtimes as RunTimeStatistic[]
+      let timeArray = this.runtimes
       if (timeArray.length >= 10) {
         timeArray.shift()
       }

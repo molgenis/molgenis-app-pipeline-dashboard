@@ -48,6 +48,14 @@ import CommentModal from '@/components/Track&Trace-Components/RunTableCommentMod
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
 
+declare module 'vue/types/vue' {
+  interface Vue {
+    warning: boolean
+    selectedProject: string
+    comment: string
+  }
+
+}
 
 export default Vue.extend({
   name: 'run-table',

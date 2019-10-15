@@ -78,6 +78,13 @@
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 
+declare module 'vue/types/vue' {
+  interface Vue {
+    hidden: string[]
+
+  }
+}
+
 export default Vue.extend({
   name: 'run-status-table',
   components: {
