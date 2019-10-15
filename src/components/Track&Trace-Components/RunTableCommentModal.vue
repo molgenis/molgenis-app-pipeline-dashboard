@@ -5,6 +5,7 @@
       ref="modal"
       :title="Run"
       @ok="PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)"
+      hide-footer
       >
     <form ref="form">
       <b-form-group>
@@ -14,12 +15,17 @@
           placeholder="Comment..."
           rows="10"
           max-rows="30"
-          :state="validation ? undefined : false"
+          :state="validation || CommentUpdatedState? undefined : false"
         ></b-form-textarea>
         <b-form-invalid-feedback :state="validation">
         Comment is too long. Must be smaller than 65535 characters
       </b-form-invalid-feedback>
+      <b-form-invalid-feedback :state="CommentUpdatedState">
+        Comment Updated by different user, Please try again later...
+      </b-form-invalid-feedback>
       </b-form-group>
+      <b-button class="mt-2" variant="primary" block @click="handleSubmit(Run, placeHolderComment, comment, API, headers, validation)"></b-button>
+       <b-button class="mt-2" variant="danger" block @click="closeModal"></b-button>
     </form>
   </b-modal>
 </b-container>
@@ -27,6 +33,28 @@
 
 <script lang="ts">
 import Vue from 'vue'
+
+interface CommentResponseJson{
+  href: string,
+  comment: string
+}
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    Run: string
+    comment: string
+    headers: Headers
+    API: string
+    CommentUpdatedState: boolean
+    placeHolderComment: string
+    name: string
+    validation(): boolean
+    PutNewCommentText(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void>
+    handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void>
+    CheckCommentUpdate(API: string, Run: string, headers: Headers, comment: string): Promise<boolean>
+    closeModal(): void
+  }
+}
 
 export default Vue.extend({
   name: 'comment-modal',
@@ -52,16 +80,29 @@ export default Vue.extend({
   data () {
     return {
       name: '',
-      placeHolderComment: ''
+      placeHolderComment: '',
+      CommentUpdatedState: true
     }
   },
   computed: {
-    validation() {
+    validation(): boolean {
       const comment: string = this.placeHolderComment
       return comment.length <= 65535
     }
   },
   methods: {
+    async handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void> {
+      const CommentUpdated = await this.CheckCommentUpdate(API, Run, headers, comment)
+      if (CommentUpdated) {
+        this.CommentUpdatedState = false
+      } else {
+      this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
+      this.closeModal()
+      }
+    },
+    closeModal(): void {
+      this.$bvModal.hide('modal')
+    },
     /**
      * Updates the comment value in MOLGENIS database
      * @param project project to update
@@ -70,10 +111,10 @@ export default Vue.extend({
      * @param APIv1 API url
      * @param headers request headers
      */
-    async PutNewCommentText(project: string, vModelComment: string, comment: string, APIv1: string, headers: Headers, validated: boolean): Promise<void> {
-      if (comment !== vModelComment && validated)
+    async PutNewCommentText(project, vModelComment, comment, API, headers, validated) {
+      if (comment !== vModelComment && validated) {
         try {
-          const response = await fetch(APIv1 + 'status_projects/' + project + '/comment', {
+          const response = await fetch(API + 'status_projects/' + project + '/comment', {
             method: 'PUT',
             body: JSON.stringify(vModelComment),
             headers: headers
@@ -82,8 +123,21 @@ export default Vue.extend({
         } catch (error) {
           console.error(error)
         }
+      }
     },
-
+    async CheckCommentUpdate(API: string, project: string, headers: Headers, comment: string): Promise<boolean> {
+      try {
+        const response = await fetch(API + 'status_projects/' + project + '/comment', {
+            method: 'get',
+            headers: headers
+          })
+        const commentJson: CommentResponseJson = await response.json()
+        return commentJson.comment !== comment
+      } catch (error) {
+        console.error(error)
+        return true
+      }
+    }
   },
   watch: {
     /**
@@ -91,6 +145,7 @@ export default Vue.extend({
      */
     comment(): void {
       this.placeHolderComment = this.comment
+      this.CommentUpdatedState = true
     }
   }
 })
