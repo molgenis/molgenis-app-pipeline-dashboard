@@ -126,7 +126,7 @@ export default Vue.extend({
      * @returns Array
      */
     remainingJobs (): Job[] {
-      let jobArray: Job[] = this.jobs as Job[]
+      let jobArray: Job[] = this.jobs
       return jobArray
         .filter(function (job: Job) {
           return job.status !== 'finished'
@@ -200,15 +200,9 @@ export default Vue.extend({
      * @returns Boolean
      */
     started (): boolean {
-      let jobArray: Job[] = this.jobs as Job[]
-      const startedJobs = jobArray.filter(
-        (job: Job) => {
-          return job.status === 'started'
-        }).length
-
       if (this.steps > 0) {
         return true
-      } else if (startedJobs > 0) {
+      } else if (this.jobs.filter((job: Job) => { return job.status === 'started' }).length > 0) {
         return true
       }
       return false
