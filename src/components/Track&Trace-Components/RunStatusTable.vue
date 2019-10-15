@@ -155,6 +155,6 @@ export default Vue.extend({
 }
 
 .h-5r {
-  height: 25em
+  max-height: 45vh
 }
 </style>

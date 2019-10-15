@@ -1,6 +1,6 @@
 <template>
     <b-row no-gutters>
-      <b-col cols="12" lg="5" class="h-50 p-2">
+      <b-col cols="12" md="12" lg="10" xl="6" class="h-50 p-2">
         <b-container class="border border-primary p-0" fluid>
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
@@ -33,7 +33,6 @@ export default Vue.extend({
       return {
         xaxis: this.xAnnotations as xAnnotation[],
         yaxis: [
-          
         ]
       }
     },

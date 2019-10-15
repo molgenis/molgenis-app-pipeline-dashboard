@@ -2,7 +2,7 @@
 <b-row @click="toggleLogBox">
   <b-col class="text-center text-truncate">{{project}}</b-col>
   <b-col class="text-center">
-    <status-icon :status="status" />
+    <status-icon :status="status" :comment="comment.length > 0"/>
   </b-col>
     <b-col class="text-center">
       <project-timer

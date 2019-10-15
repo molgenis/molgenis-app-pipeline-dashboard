@@ -14,10 +14,10 @@
           placeholder="Comment..."
           rows="10"
           max-rows="30"
-          :state="validation"
+          :state="validation ? undefined : false"
         ></b-form-textarea>
         <b-form-invalid-feedback :state="validation">
-        Comment is too long. must be smaller than 65535 characters
+        Comment is too long. Must be smaller than 65535 characters
       </b-form-invalid-feedback>
       </b-form-group>
     </form>
@@ -58,7 +58,7 @@ export default Vue.extend({
   computed: {
     validation() {
       const comment: string = this.placeHolderComment
-      return comment.length < 65535
+      return comment.length <= 65535
     }
   },
   methods: {
