@@ -99,29 +99,29 @@ export default Vue.extend({
      * @returns Boolean
      */
     StepRunning (step: string): boolean {
-      if (!this.started) {
-        return false
-      }
-      return this.steps[this.currentStep] === step
+      return this.started && (this.steps[this.currentStep] === step)
     },
     /**
      * Checks if step has been completed
      * @returns Boolean
      */
     StepComplete (step: string): boolean {
-      let index: number = this.steps.indexOf(step)
-      if (!this.started) {
-        return false
-      }
-      return ((index < this.currentStep))
+      return this.started && (this.getStepIndex(step) < this.currentStep)
     },
     /**
      * Checks if step is final step
      * @returns Boolean
      */
     isFinalStep (step: string): boolean {
-      let index: number = this.steps.indexOf(step)
-      return (step === this.steps.slice(-1)[0])
+      return this.getStepIndex(step) === this.steps.length-1
+    },
+    /**
+     * gets Step index
+     * @param step string to search steps
+     * @returns index
+     */
+    getStepIndex (step: string): number {
+      return this.steps.indexOf(step)
     }
   }
 })
@@ -129,8 +129,8 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 
-@import '../../../node_modules/bootstrap/scss/bootstrap';
-@import '../../../node_modules/bootstrap-vue/src/index.scss';
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
 
 .progressbar {
   counter-reset: step;

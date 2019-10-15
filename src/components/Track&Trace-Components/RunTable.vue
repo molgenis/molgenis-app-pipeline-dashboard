@@ -18,7 +18,7 @@
               @project-warning="setRunWarning"
               @open-modal="openModal"
               :currentWarningStatus="warning"
-              :running="currentStep >= 2"
+              :running="currentStep === 2"
               :threshold="timeThreshold"
               :key="project.project"
               :resultCopy="project.resultCopyStatus"
