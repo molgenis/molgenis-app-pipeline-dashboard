@@ -117,7 +117,7 @@ export default Vue.extend({
 
       runUrl: '',
       time: 0,
-
+      
       showRun: '',
       paused: false,
       loading: false
@@ -126,7 +126,7 @@ export default Vue.extend({
   computed: {
     /**
      * Currently selected run
-     * @returns Object run
+     * @returns Run
      */
     run(): Run {
       const run = this.runData.find((x: Run) => { return x.run_id === this.showRun })

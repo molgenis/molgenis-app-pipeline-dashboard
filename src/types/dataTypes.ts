@@ -154,18 +154,18 @@ export class RunTimeStatistic {
   ONCO: RunTime
   Exoom: RunTime
   PCS: RunTime
-  SPV: RunTime
+  SVP: RunTime
   other: RunTime[]
   constructor(projects: ProjectObject[], runId: string) {
     const regONCO = new RegExp('ONCO.*')
     const regExoom = new RegExp('Exoom.*')
     const regPCS = new RegExp('PCS.*')
-    const regSPV = new RegExp('SPV.*')
+    const regSVP = new RegExp('S[VP]{2}.*')
 
     let other = [] as RunTime[]
     this.Exoom = new RunTime('no data', 0)
     this.ONCO = new RunTime('no data', 0)
-    this.SPV = new RunTime('no data', 0)
+    this.SVP = new RunTime('no data', 0)
     this.PCS = new RunTime('no data', 0)
     projects.forEach((project: ProjectObject) => {
       let runType = project.getRunType()
@@ -176,8 +176,8 @@ export class RunTimeStatistic {
         this.Exoom = runTimeObject
       } else if (runType.match(regPCS)) {
         this.PCS = runTimeObject
-      } else if (runType.match(regSPV)) {
-        this.SPV = runTimeObject
+      } else if (runType.match(regSVP)) {
+        this.SVP = runTimeObject
       } else {
         other.push(runTimeObject)
       }
@@ -193,8 +193,8 @@ export class RunTimeStatistic {
     if (max < this.PCS.runtime) {
       max = this.PCS.runtime
     }
-    if (max < this.SPV.runtime) {
-      max = this.SPV.runtime
+    if (max < this.SVP.runtime) {
+      max = this.SVP.runtime
     }
     return max
   }

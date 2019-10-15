@@ -4,7 +4,6 @@
       id="comment-modal"
       ref="modal"
       :title="Run"
-      @ok="PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)"
       hide-footer
       >
     <form ref="form">
@@ -24,8 +23,8 @@
         Comment Updated by different user, Please try again later...
       </b-form-invalid-feedback>
       </b-form-group>
-      <b-button class="mt-2" variant="primary" block @click="handleSubmit(Run, placeHolderComment, comment, API, headers, validation)"></b-button>
-       <b-button class="mt-2" variant="danger" block @click="closeModal"></b-button>
+      <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(Run, placeHolderComment, comment, API, headers, validation)">Submit</b-button>
+      <b-button class="mt-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
     </form>
   </b-modal>
 </b-container>
@@ -36,7 +35,7 @@ import Vue from 'vue'
 
 interface CommentResponseJson{
   href: string,
-  comment: string
+  comment?: string
 }
 
 declare module 'vue/types/vue' {
@@ -92,16 +91,20 @@ export default Vue.extend({
   },
   methods: {
     async handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void> {
-      const CommentUpdated = await this.CheckCommentUpdate(API, Run, headers, comment)
-      if (CommentUpdated) {
-        this.CommentUpdatedState = false
-      } else {
-      this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
-      this.closeModal()
+      try {
+        const CommentUpdated = await this.CheckCommentUpdate(API, Run, headers, comment)
+        if (CommentUpdated) {
+          this.CommentUpdatedState = false
+        } else {
+        this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
+        this.closeModal()
+        }
+      } catch (error) {
+        console.error(error)
       }
     },
     closeModal(): void {
-      this.$bvModal.hide('modal')
+      this.$bvModal.hide('comment-modal')
     },
     /**
      * Updates the comment value in MOLGENIS database
@@ -132,6 +135,9 @@ export default Vue.extend({
             headers: headers
           })
         const commentJson: CommentResponseJson = await response.json()
+        if (!commentJson.comment) {
+          return false
+        }
         return commentJson.comment !== comment
       } catch (error) {
         console.error(error)
@@ -143,7 +149,7 @@ export default Vue.extend({
     /**
      * watches for changes in the comment and sets the editable placeHolderComment
      */
-    comment(): void {
+    Run(): void {
       this.placeHolderComment = this.comment
       this.CommentUpdatedState = true
     }

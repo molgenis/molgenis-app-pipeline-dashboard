@@ -130,7 +130,7 @@ export default Vue.extend({
       let ONCO: number[] = []
       let PCS: number[] = []
       let Exoom: number[] = []
-      let SPV: number[] = []
+      let SVP: number[] = []
       let other: Array<RunTime[]> = []
 
 
@@ -139,13 +139,13 @@ export default Vue.extend({
         if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(0)}
         if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(0)}
         if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(0)}
-        if (StatisticalPoint.SPV)   { SPV.push(StatisticalPoint.SPV.runtime) }      else {SPV.push(0)}
+        if (StatisticalPoint.SVP)   { SVP.push(StatisticalPoint.SVP.runtime) }      else {SVP.push(0)}
              
       })
       serieArray.push(new serie('ONCO', ONCO))
       serieArray.push(new serie('PCS', PCS))
       serieArray.push(new serie('Exoom', Exoom))
-      serieArray.push(new serie('SPV', SPV))
+      serieArray.push(new serie('SVP', SVP))
 
       return serieArray
     },
