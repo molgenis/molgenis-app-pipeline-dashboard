@@ -54,6 +54,7 @@ declare module 'vue/types/vue' {
     warning: boolean
     selectedProject: string
     comment: string
+    projects: ProjectObject[]
   }
 
 }

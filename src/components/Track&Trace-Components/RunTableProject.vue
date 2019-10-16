@@ -1,17 +1,17 @@
 <template>
 <b-row @click="toggleLogBox">
-  <b-col class="text-center text-truncate">{{project}}</b-col>
-  <b-col class="text-center">
+  <b-col cols="4" class="text-center text-truncate">{{project}}</b-col>
+  <b-col cols="4" class="text-center pt-1">
     <status-icon :status="status" :comment="comment.length > 0"/>
   </b-col>
-    <b-col class="text-center">
+    <b-col :cols="running ? 2 : 4" class="text-center float-left">
       <project-timer
       :startTime="startTime"
       :started="started"
       :finishTime="finishTime">
       </project-timer>
     </b-col>
-    <b-col v-if="running" class="d-flex align-items-center justify-content-center">
+    <b-col cols="2" v-if="running" class="d-flex align-items-center justify-content-center">
       <progress-bar
         :variant="variant"
         :step="steps"

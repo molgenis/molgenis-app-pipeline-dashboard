@@ -14,10 +14,11 @@ import {
   faPlayCircle,
   faPauseCircle,
   faAngleDown, 
-  faComment } from '@fortawesome/free-solid-svg-icons' 
+  faComment,
+  faEnvelopeSquare } from '@fortawesome/free-solid-svg-icons' 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle, faAngleDown, faComment)
+library.add(faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle, faAngleDown, faComment, faEnvelopeSquare)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('apexchart', VueApexCharts)
