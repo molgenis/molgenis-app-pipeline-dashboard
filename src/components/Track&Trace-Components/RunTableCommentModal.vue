@@ -14,13 +14,16 @@
           placeholder="Comment..."
           rows="10"
           max-rows="30"
-          :state="validation || CommentUpdatedState? undefined : false"
+          :state="(!validation || !CommentUpdatedState || !submitStatus) ? false : undefined"
         ></b-form-textarea>
-        <b-form-invalid-feedback :state="validation">
-        Comment is too long. Must be smaller than 65535 characters
-      </b-form-invalid-feedback>
-      <b-form-invalid-feedback :state="CommentUpdatedState">
-        Comment Updated by different user, Please try again later...
+        <b-form-invalid-feedback v-if="!validation">
+          Comment too long. Must be smaller than 65536 characters
+        </b-form-invalid-feedback>
+        <b-form-invalid-feedback v-else-if="!CommentUpdatedState">
+        Comment updated by another user, try again later
+        </b-form-invalid-feedback>
+        <b-form-invalid-feedback v-else-if="!submitStatus">
+        Could not update comment, please try again later
       </b-form-invalid-feedback>
       </b-form-group>
       <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(Run, placeHolderComment, comment, API, headers, validation)">Submit</b-button>
@@ -47,6 +50,7 @@ declare module 'vue/types/vue' {
     CommentUpdatedState: boolean
     placeHolderComment: string
     name: string
+    submitStatus: boolean
     validation(): boolean
     PutNewCommentText(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void>
     handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void>
@@ -80,7 +84,9 @@ export default Vue.extend({
     return {
       name: '',
       placeHolderComment: '',
-      CommentUpdatedState: true
+      CommentUpdatedState: true,
+      submitStatus: true
+
     }
   },
   computed: {
@@ -122,6 +128,13 @@ export default Vue.extend({
             body: JSON.stringify(vModelComment),
             headers: headers
           })
+
+          if (response.ok) {
+            this.$emit('comment-updated', project, vModelComment)
+            this.submitStatus = true
+          } else {
+            this.submitStatus = false
+          }
           
         } catch (error) {
           console.error(error)
@@ -152,6 +165,7 @@ export default Vue.extend({
     Run(): void {
       this.placeHolderComment = this.comment
       this.CommentUpdatedState = true
+      this.submitStatus = true
     }
   }
 })

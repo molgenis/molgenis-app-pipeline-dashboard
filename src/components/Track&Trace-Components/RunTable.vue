@@ -37,7 +37,7 @@
           :comment="comment"
           :API="API"
           :headers="headers"
-          @comment-update="emitComment"></comment-modal>
+          @comment-updated="updateLocalComment"></comment-modal>
     </b-container>
 </template>
 
@@ -47,6 +47,7 @@ import RunTableProject from '@/components/Track&Trace-Components/RunTableProject
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
+import { ProjectObject } from '@/types/dataTypes.ts'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -150,6 +151,15 @@ export default Vue.extend({
      */
     emitComment(project, comment) {
       this.$emit('comment-update', project, comment)
+    },
+    updateLocalComment(project, comment) {
+      console.log('update:', project)
+      for (let i = 0; i < this.projects.length; i++) {
+        if (this.projects[i].project === project){
+          this.projects[i].Comment = comment
+          break
+        }
+      }
     }
   },
   computed: {
