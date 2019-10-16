@@ -28,10 +28,10 @@
         :demultiplexing="demultiplexing"
         :headers="headers"
         :API="APIvOne"
-        :threshold-onco="thresholdOnco"
-        :threshold-pcs="thresholdPcs"
-        :threshold-exoom="thresholdExoom"
-        :threshold-svp="thresholdSvp">
+        :thresholdOnco="thresholdOnco"
+        :thresholdPcs="thresholdPcs"
+        :thresholdExoom="thresholdExoom"
+        :thresholdSvp="thresholdSvp">
         </run-table>
       </transition>
       </b-container>

@@ -142,11 +142,8 @@ export default Vue.extend({
       const PCS = this.getSD(this.series[1].data , avg.PCS)
       const Exoom = this.getSD(this.series[2].data , avg.Exoom)
       const SVP = this.getSD(this.series[3].data , avg.SVP)
-      this.$emit('new-threshold-onco', ONCO + avg.ONCO)
-      this.$emit('new-threshold-pcs', PCS + avg.PCS)
-      this.$emit('new-threshold-exoom', Exoom + avg.Exoom)
-      this.$emit('new-threshold-svp', SVP + avg.SVP)
-      return new averageData(ONCO, PCS, Exoom, SVP)
+
+      return new averageData(ONCO + avg.ONCO, PCS + avg.PCS, Exoom + avg.Exoom, SVP + avg.SVP)
     },
     /**
      * builds series array for graph
@@ -163,10 +160,10 @@ export default Vue.extend({
 
       runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
         const emptyNumber = null
-        if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(null)}
-        if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(null)}
-        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(null)}
-        if (StatisticalPoint.SVP)   { SVP.push(StatisticalPoint.SVP.runtime) }      else {SVP.push(null)}
+        if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(0)}
+        if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(0)}
+        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(0)}
+        if (StatisticalPoint.SVP)   { SVP.push(StatisticalPoint.SVP.runtime) }      else {SVP.push(0)}
              
       })
       serieArray.push(new serie('ONCO', ONCO))
@@ -295,6 +292,14 @@ export default Vue.extend({
         return title.substring(0, length) + '...'
       }
       return title
+    }
+  },
+  watch: {
+    thresholds(): void {
+      this.$emit('new-threshold-onco', this.thresholds.ONCO)
+      this.$emit('new-threshold-pcs', this.thresholds.PCS)
+      this.$emit('new-threshold-exoom', this.thresholds.Exoom)
+      this.$emit('new-threshold-svp', this.thresholds.SVP)
     }
   }
 })

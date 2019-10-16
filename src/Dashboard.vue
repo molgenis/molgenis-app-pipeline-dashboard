@@ -8,10 +8,10 @@
       :url="APIv2Url"
       @add-statistic="addStatistics" 
       @token-expired="setToken" 
-      :threshold-onco="thresholdOnco"
-      :threshold-pcs="thresholdPcs"
-      :threshold-exoom="thresholdExoom"
-      :threshold-svp="thresholdSvp"
+      :thresholdOnco="thresholdOnco"
+      :thresholdPcs="thresholdPcs"
+      :thresholdExoom="thresholdExoom"
+      :thresholdSvp="thresholdSvp"
       class="h-100 mt-1"/>
     </b-col>
   </b-row>
