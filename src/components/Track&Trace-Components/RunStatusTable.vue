@@ -55,18 +55,39 @@
             </b-td>
           </b-tr>
         </transition>
+        <b-tr v-show="hiddenToggled"
+              v-for="run in hiddenRuns"
+              :key="run.run" name="slide"
+              :id="'runId-' + run.run" class=""
+                @click="selectRun(run.run)"
+                @mouseover="mouseOn = run.run"
+                variant="secondary">
+                  <b-td v-show="mouseOn === run.run">
+                    <b-form-checkbox
+                      v-model="hidden"
+                      :value="run.run"
+                      :id="run.run"
+                      switch>
+                    </b-form-checkbox>
+                  </b-td>
+                  <b-td :colspan="mouseOn !== run.run ? 2 : 6" class="text-truncate">{{run.run}}</b-td>
+                  <b-td colspan="5" v-show="mouseOn !== run.run" class="text-center">
+                    <progress-bar
+                    @progress-finish="emitFinish(run.run)"
+                    :totalSteps="5"
+                    :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'"
+                    :animated="run.step !== 4 && !run.containsError"
+                    class="mt-1" :step="run.step + 1">
+                    </progress-bar>
+                  </b-td>
+          </b-tr>
         <b-tr v-show="hidden.length > 0">
           <b-td
-          @click="hidden = []"
+          @click="toggleHidden"
           class="text-center"
           colspan="7">
-            <font-awesome-icon icon="angle-down">
+            <font-awesome-icon :icon="hiddenToggled ? 'angle-up' : 'angle-down'">
             </font-awesome-icon>
-          </b-td>
-        </b-tr>
-        <b-tr v-show="hidden === 'shown'">
-          <b-td v-for="hiddenRun in hidden" :key="hiddenRun.value">
-
           </b-td>
         </b-tr>
       </b-tbody>
@@ -95,7 +116,8 @@ export default Vue.extend({
     return {
       checkbox: false,
       hidden: [],
-      mouseOn: ''
+      mouseOn: '',
+      hiddenToggled: false
     }
   },
   props: {
@@ -122,6 +144,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    toggleHidden() {
+      this.hiddenToggled = !this.hiddenToggled
+    },
     /**
      * emit selected run
      * @param run to be selected
@@ -144,6 +169,18 @@ export default Vue.extend({
     },
     hideCheckbox (): void {
       this.checkbox = false
+    }
+  },
+  computed: {
+    hiddenRuns() {
+      let hiddenRuns = []
+      this.totalRuns.forEach(run => {
+        if (this.hidden.includes(run.run)) {
+          hiddenRuns.push(run)
+        }
+
+      })
+      return hiddenRuns
     }
   },
   watch: {

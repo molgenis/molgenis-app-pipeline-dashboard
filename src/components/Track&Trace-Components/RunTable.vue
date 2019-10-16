@@ -113,7 +113,7 @@ export default Vue.extend({
       type: String,
       required: true
     },
-    
+
     thresholdExoom: {
       type: Number,
       required: false,
@@ -164,7 +164,7 @@ export default Vue.extend({
      * @param project project to comment
      * @param comment project comment content
      */
-    openModal(project: string, comment: string) {
+    openModal(project: string, comment: string): void {
       this.selectedProject = project
       this.comment = comment
       this.$bvModal.show('comment-modal')
@@ -174,10 +174,13 @@ export default Vue.extend({
      * @param project project to update
      * @param comment content
      */
-    emitComment(project, comment) {
+    emitComment(project, comment): void {
       this.$emit('comment-update', project, comment)
     },
-    updateLocalComment(project, comment) {
+    /**
+     * Updates the stored comment to prevent comment update errors
+     */
+    updateLocalComment(project, comment): void {
       console.log('update:', project)
       for (let i = 0; i < this.projects.length; i++) {
         if (this.projects[i].project === project){
@@ -186,6 +189,10 @@ export default Vue.extend({
         }
       }
     },
+    /**
+     * Gets the correct threshold for each pipeline type
+     * @returns threshold number
+     */
     getThreshold(project: ProjectObject): number {
       switch (project.Type) {
         case pipelineType.ONCO:

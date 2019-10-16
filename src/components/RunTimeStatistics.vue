@@ -295,6 +295,9 @@ export default Vue.extend({
     }
   },
   watch: {
+    /**
+     * Emits a threshold update
+     */
     thresholds(): void {
       this.$emit('new-threshold-onco', this.thresholds.ONCO)
       this.$emit('new-threshold-pcs', this.thresholds.PCS)

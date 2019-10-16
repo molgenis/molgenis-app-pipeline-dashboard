@@ -116,20 +116,28 @@ export default Vue.extend({
 
       this.runtimes = timeArray
     },
-
-    setThreshold (threshold: number) {
-      this.threshold = threshold
-    },
-    setOncoMax (threshold: number) {
+    /**
+     * Sets maximum threshold for ONCO pipeline types
+     */
+    setOncoMax (threshold: number): void {
       this.thresholdOnco = threshold
     },
-    setPcsMax (threshold: number) {
+    /**
+     * Sets maximum threshold for PCS pipeline types
+     */
+    setPcsMax (threshold: number): void {
       this.thresholdPcs = threshold
     },
-    setExoomMax (threshold: number) {
+    /**
+     * Sets maximum threshold for Exoom pipeline types
+     */
+    setExoomMax (threshold: number):void {
       this.thresholdExoom = threshold
     },
-    setSvpMax (threshold: number) {
+    /**
+     * Sets maximum threshold for SVP pipeline types
+     */
+    setSvpMax (threshold: number): void {
       this.thresholdSvp = threshold
     }
 

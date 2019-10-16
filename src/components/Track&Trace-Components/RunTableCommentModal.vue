@@ -96,6 +96,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    /** 
+     * Sends the new comment if the user changed the contents
+     */
     async handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void> {
       try {
         const CommentUpdated = await this.CheckCommentUpdate(API, Run, headers, comment)
@@ -109,6 +112,9 @@ export default Vue.extend({
         console.error(error)
       }
     },
+    /**
+     * Closes modal
+     */
     closeModal(): void {
       this.$bvModal.hide('comment-modal')
     },
@@ -141,6 +147,10 @@ export default Vue.extend({
         }
       }
     },
+    /**
+     * Checks database if there were any users that added other comments
+     * @returns true if there was an update or the check failed
+     */
     async CheckCommentUpdate(API: string, project: string, headers: Headers, comment: string): Promise<boolean> {
       try {
         const response = await fetch(API + 'status_projects/' + project + '/comment', {

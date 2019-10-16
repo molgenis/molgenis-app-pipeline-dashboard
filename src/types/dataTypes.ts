@@ -35,6 +35,9 @@ export interface RunDataObject {
   projects: string[]
 }
 
+/**
+ * Standardized pipeline type enum
+ */
 export enum pipelineType {
   ONCO = 'ONCO',
   PCS = 'PCS',
@@ -45,7 +48,6 @@ export enum pipelineType {
  
 /**
  * Stores available project data
- * @function getRunType returns runtype
  * @function findLastDateTime returns last date in ms
  * @function findStartDateTime returns start time in ms
  * @function getRunTime returns runtime in ms
@@ -180,7 +182,7 @@ export class RunTimeStatistic {
     this.PCS = new RunTime('no data', 0)
     projects.forEach((project: ProjectObject) => {
       let runTimeObject = new RunTime(runId, project.getRunTime())
-      
+
       switch (project.type) {
         case pipelineType.ONCO:
           this.ONCO = runTimeObject
@@ -232,6 +234,9 @@ export class Comment {
   }
 }
 
+/**
+ * Stores numbers for the diffrent pipeline types
+ */
 export class averageData {
   ONCO: number
   PCS: number
