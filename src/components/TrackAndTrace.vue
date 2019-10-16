@@ -27,7 +27,11 @@
         :time="time"
         :demultiplexing="demultiplexing"
         :headers="headers"
-        :API="APIvOne">
+        :API="APIvOne"
+        :threshold-onco="thresholdOnco"
+        :threshold-pcs="thresholdPcs"
+        :threshold-exoom="thresholdExoom"
+        :threshold-svp="thresholdSvp">
         </run-table>
       </transition>
       </b-container>
@@ -107,6 +111,22 @@ export default Vue.extend({
     APIvOne: {
       type: String,
       required: true
+    },
+    thresholdOnco: {
+      type: Number,
+      required: true
+    },
+    thresholdPcs: {
+      type: Number,
+      required: true
+    },
+    thresholdExoom: {
+      type: Number,
+      required: true
+    },
+    thresholdSvp: {
+      type: Number,
+      required: true
     }
   },
   data () {
@@ -140,7 +160,7 @@ export default Vue.extend({
      * Currently selected run id
      * @returns String run id
      */
-    runID(): string {
+    runID (): string {
       const runID = this.run.run_id
       if (typeof (runID) === undefined) {
         return ''
@@ -152,7 +172,7 @@ export default Vue.extend({
      * Currently selected run projects
      * @returns Array of Projects
      */
-    runProjects(): ProjectObject[] {
+    runProjects (): ProjectObject[] {
       return this.run.projects
     },
 
@@ -160,7 +180,7 @@ export default Vue.extend({
      * Currently selected run project count
      * @returns Number of projects
      */
-    projectCount(): number {
+    projectCount (): number {
       return this.run.len + 1
     },
 
@@ -176,7 +196,7 @@ export default Vue.extend({
      * checks if run is busy demultiplexing
      * @returns boolean if it is demultiplexing
      */
-    demultiplexing(): Boolean {
+    demultiplexing (): Boolean {
       const demultiplexing = this.run.demultiplexing
 
       return demultiplexing === 'started' || demultiplexing === 'finished'
@@ -185,7 +205,7 @@ export default Vue.extend({
      * Currently selected run step
      * @returns Number step
      */
-    currentStep(): number {
+    currentStep (): number {
       return this.runStep(this.run)
     },
 
@@ -193,7 +213,7 @@ export default Vue.extend({
      * Combines all data into one object
      * @returns Object
      */
-    runData(): Run[] {
+    runData (): Run[] {
       let data: Run[] = []
       this.runs.forEach((run: RunDataObject) => { data.push(this.constructRun(run, this.projects, this.jobs)) })
       data = data.sort(this.sortRuns)
@@ -204,7 +224,7 @@ export default Vue.extend({
      * Creates array of runId Strings
      * @returns Array
      */
-    runIds(): string[] {
+    runIds (): string[] {
       let runIds: string[] = []
       this.runData.forEach((run: Run) => {
         runIds.push(run.run_id)

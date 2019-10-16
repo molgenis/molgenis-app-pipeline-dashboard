@@ -19,7 +19,7 @@
               @open-modal="openModal"
               :currentWarningStatus="warning"
               :running="currentStep === 2"
-              :threshold="timeThreshold"
+              :threshold="getThreshold(project)"
               :key="project.project"
               :resultCopy="project.resultCopyStatus"
               :project="project.project"
@@ -47,7 +47,7 @@ import RunTableProject from '@/components/Track&Trace-Components/RunTableProject
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
-import { ProjectObject } from '@/types/dataTypes.ts'
+import { ProjectObject, pipelineType } from '@/types/dataTypes.ts'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -112,6 +112,30 @@ export default Vue.extend({
     API: {
       type: String,
       required: true
+    },
+    
+    thresholdExoom: {
+      type: Number,
+      required: false,
+      default: 15
+    },
+
+    thresholdPcs: {
+      type: Number,
+      required: false,
+      default: 15
+    },
+
+    thresholdSvp: {
+      type: Number,
+      required: false,
+      default: 15
+    },
+
+    thresholdOnco: {
+      type: Number,
+      required: false,
+      default: 15
     }
 
   },
@@ -160,6 +184,20 @@ export default Vue.extend({
           this.projects[i].Comment = comment
           break
         }
+      }
+    },
+    getThreshold(project: ProjectObject): number {
+      switch (project.Type) {
+        case pipelineType.ONCO:
+          return this.thresholdOnco
+        case pipelineType.Exoom:
+          return this.thresholdExoom
+        case pipelineType.PCS:
+          return this.thresholdPcs
+        case pipelineType.SVP:
+          return this.thresholdSvp
+        default:
+          return 15
       }
     }
   },

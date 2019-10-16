@@ -34,6 +34,14 @@ export interface RunDataObject {
   copy_raw_prm: string
   projects: string[]
 }
+
+export enum pipelineType {
+  ONCO = 'ONCO',
+  PCS = 'PCS',
+  Exoom = 'Exoom',
+  SVP = 'SVP',
+  OTHER = 'OTHER'
+}
  
 /**
  * Stores available project data
@@ -49,21 +57,29 @@ export class ProjectObject {
   status: string
   resultCopyStatus?: string
   Comment?: string
-  constructor(projectName: string, jobArray: Job[], pipelineType: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
+  type: pipelineType
+  constructor(projectName: string, jobArray: Job[], pipeline: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
     this.project = projectName
     this.jobs = jobArray
-    this.pipeline = pipelineType
+    this.pipeline = pipeline
     this.resultCopyStatus = resultCopyStatusString
     this.status = statusString
     this.Comment = comment
-  }
-  getRunType() {
-    const RegEx = new RegExp('-[A-Za-z]+(_[a-z0-9A-Z]+)?')
-    const matches = this.project.match(RegEx)
-    if (!matches) {
-      return 'other'
+    const regONCO = new RegExp('ONCO.*')
+    const regExoom = new RegExp('Exoom.*')
+    const regPCS = new RegExp('PCS.*')
+    const regSVP = new RegExp('S[VP]{2}.*')
+    if (projectName.match(regONCO)) {
+      this.type = pipelineType.ONCO
+    } else if (projectName.match(regExoom)){
+      this.type = pipelineType.Exoom
+    } else if (projectName.match(regPCS)) {
+      this.type = pipelineType.PCS
+    } else if (projectName.match(regSVP)) {
+      this.type = pipelineType.SVP
+    } else {
+      this.type = pipelineType.OTHER
     }
-    return matches[0].slice(1)
   }
   findStartDateTime (): number {
     let StartedDate = Infinity
@@ -157,31 +173,30 @@ export class RunTimeStatistic {
   SVP: RunTime
   other: RunTime[]
   constructor(projects: ProjectObject[], runId: string) {
-    const regONCO = new RegExp('ONCO.*')
-    const regExoom = new RegExp('Exoom.*')
-    const regPCS = new RegExp('PCS.*')
-    const regSVP = new RegExp('S[VP]{2}.*')
-
     let other = [] as RunTime[]
     this.Exoom = new RunTime('no data', 0)
     this.ONCO = new RunTime('no data', 0)
     this.SVP = new RunTime('no data', 0)
     this.PCS = new RunTime('no data', 0)
     projects.forEach((project: ProjectObject) => {
-      let runType = project.getRunType()
       let runTimeObject = new RunTime(runId, project.getRunTime())
-      if (runType.match(regONCO)) {
-        this.ONCO = runTimeObject
-      } else if (runType.match(regExoom)) {
-        this.Exoom = runTimeObject
-      } else if (runType.match(regPCS)) {
-        this.PCS = runTimeObject
-      } else if (runType.match(regSVP)) {
-        this.SVP = runTimeObject
-      } else {
-        other.push(runTimeObject)
+      
+      switch (project.type) {
+        case pipelineType.ONCO:
+          this.ONCO = runTimeObject
+          break
+        case pipelineType.Exoom:
+          this.Exoom = runTimeObject
+          break
+        case pipelineType.PCS:
+          this.PCS = runTimeObject
+          break
+        case pipelineType.SVP:
+          this.SVP = runTimeObject
+          break
+        default:
+          other.push(runTimeObject)
       }
-
     })
     this.other = other
   }
@@ -214,5 +229,18 @@ export class Comment {
   constructor(name: string, text: string) {
     this.name = name,
     this.comment = text
+  }
+}
+
+export class averageData {
+  ONCO: number
+  PCS: number
+  Exoom: number
+  SVP: number
+  constructor(onco: number, pcs: number, exoom: number, svp: number) {
+    this.ONCO = onco
+    this.PCS = pcs
+    this.Exoom = exoom
+    this.SVP = svp
   }
 }

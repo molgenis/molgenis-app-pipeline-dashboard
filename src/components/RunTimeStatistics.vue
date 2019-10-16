@@ -11,7 +11,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, serie, outlier} from '@/types/graphTypes'
-import { RunTime, RunTimeStatistic } from '@/types/dataTypes'
+import { RunTime, RunTimeStatistic, averageData } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-time-statistics',
@@ -108,18 +108,45 @@ export default Vue.extend({
      * average runtime
      * @returns average
      */
-    average(): number {
-      return this.findAverage(this.numbersArray as number[])
+    average(): averageData {
+      let ONCO = 0
+      let PCS = 0
+      let Exoom = 0
+      let SVP = 0
+      this.series.forEach((serie: serie) => {
+        switch (serie.name) {
+          case 'ONCO':
+            ONCO = this.findAverage(serie.data)
+            break
+          case 'PCS':
+            PCS = this.findAverage(serie.data)
+          case 'Exoom':
+            Exoom = this.findAverage(serie.data)
+          case 'SVP':
+            SVP = this.findAverage(serie.data)
+          default:
+            break;
+        }
+      })
+
+      return new averageData(ONCO, PCS, Exoom, SVP)
     },
     /**
      * calculates threshold for runtimes
      * @returns threshold
      */
-    threshold(): number {
-      let avg = this.average as number
-      const threshold = this.getSD(this.numbersArray as number[], avg)
-      this.$emit('new-threshold', threshold + avg)
-      return threshold
+    thresholds(): averageData {
+      let avg = this.average
+
+      const ONCO = this.getSD(this.series[0].data , avg.ONCO)
+      const PCS = this.getSD(this.series[1].data , avg.PCS)
+      const Exoom = this.getSD(this.series[2].data , avg.Exoom)
+      const SVP = this.getSD(this.series[3].data , avg.SVP)
+      this.$emit('new-threshold-onco', ONCO + avg.ONCO)
+      this.$emit('new-threshold-pcs', PCS + avg.PCS)
+      this.$emit('new-threshold-exoom', Exoom + avg.Exoom)
+      this.$emit('new-threshold-svp', SVP + avg.SVP)
+      return new averageData(ONCO, PCS, Exoom, SVP)
     },
     /**
      * builds series array for graph
@@ -136,10 +163,10 @@ export default Vue.extend({
 
       runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
         const emptyNumber = null
-        if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(0)}
-        if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(0)}
-        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(0)}
-        if (StatisticalPoint.SVP)   { SVP.push(StatisticalPoint.SVP.runtime) }      else {SVP.push(0)}
+        if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(null)}
+        if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(null)}
+        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(null)}
+        if (StatisticalPoint.SVP)   { SVP.push(StatisticalPoint.SVP.runtime) }      else {SVP.push(null)}
              
       })
       serieArray.push(new serie('ONCO', ONCO))

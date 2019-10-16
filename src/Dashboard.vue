@@ -2,11 +2,29 @@
 <b-container id="dashboard" fluid>
   <b-row  no-gutters class="h-50">
     <b-col class="h-100">
-      <track-and-trace :headers="headers" :APIvOne="APIv1Url" :url="APIv2Url" @add-statistic="addStatistics" @token-expired="setToken" :runtime-threshold="threshold" class="h-100 mt-1"/>
+      <track-and-trace 
+      :headers="headers"
+      :APIvOne="APIv1Url"
+      :url="APIv2Url"
+      @add-statistic="addStatistics" 
+      @token-expired="setToken" 
+      :threshold-onco="thresholdOnco"
+      :threshold-pcs="thresholdPcs"
+      :threshold-exoom="thresholdExoom"
+      :threshold-svp="thresholdSvp"
+      class="h-100 mt-1"/>
     </b-col>
   </b-row>
   <b-row no-gutters class="h-50">
-    <b-col ><run-time-statistics :run-times="runtimes" @new-threshold="setThreshold" /></b-col>
+    <b-col >
+      <run-time-statistics :run-times="runtimes" 
+      @new-threshold-onco="setOncoMax"
+      @new-threshold-pcs="setPcsMax"
+      @new-threshold-exoom="setExoomMax"
+      @new-threshold-svp="setSvpMax"
+      />
+    
+    </b-col>
   </b-row>
 </b-container>
 </template>
@@ -49,7 +67,11 @@ export default Vue.extend({
       APIv2Url: 'http://localhost:8081/api/v2/',
       runtimes: [
       ],
-      threshold: 20
+      threshold: 20,
+      thresholdOnco: 20,
+      thresholdPcs: 20,
+      thresholdExoom: 20,
+      thresholdSvp: 20
     }
   },
   computed: {
@@ -97,7 +119,22 @@ export default Vue.extend({
 
     setThreshold (threshold: number) {
       this.threshold = threshold
+    },
+    setOncoMax (threshold: number) {
+      this.thresholdOnco = threshold
+    },
+    setPcsMax (threshold: number) {
+      this.thresholdPcs = threshold
+    },
+    setExoomMax (threshold: number) {
+      this.thresholdExoom = threshold
+    },
+    setSvpMax (threshold: number) {
+      this.thresholdSvp = threshold
     }
+
+
+
   }
 })
 
