@@ -27,18 +27,10 @@
 </b-tr>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 
-declare module 'vue/types/vue' {
-  interface Vue {
-    hidden: string[],
-    
-  }
-}
-
-export default Vue.extend({
+export default {
   name: 'run-status-table-row',
 
   components: {
@@ -67,10 +59,12 @@ export default Vue.extend({
       required: false,
       return: false
     },
+
     hidden: {
       type: Array,
       required: true
     },
+    
     variant: {
       type: String,
       required: false,
@@ -79,29 +73,29 @@ export default Vue.extend({
   },
   computed: {
     LocalHidden: {
-      get: function(): string[] {
+      get: function() {
         return this.hidden
       },
-      set: function(value): void {
+      set: function(value){
         this.$emit('update-hidden', value)
       }
     }
   },
   methods: {
-    selectRun(run: string): void {
+    selectRun(run) {
       this.$emit('select-run', run)
     },
-    emitFinish(run: string): void {
+    emitFinish(run) {
       this.$emit('progress-finish', run)
     },
-    arrayDiffrence (array1: Array<any>, array2: Array<any>): Array<any> {
+    arrayDiffrence (array1, array2) {
       return array1.filter((item) => { return array2.indexOf(item) < 0 })
     },
-    setMouseOn(run: string): void {
+    setMouseOn(run) {
       this.$emit('mouse-on', run)
     }
   }
-})
+}
 </script>
 
 <style lang="scss" scoped>

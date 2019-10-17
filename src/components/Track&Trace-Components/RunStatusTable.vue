@@ -1,6 +1,6 @@
 <template>
-  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto h-5r">
-    <b-table-simple small fixed hover >
+  <b-container fluid @mouseleave="mouseOn = ''" >
+    <b-table-simple small fixed hover class="overflow-auto">
       <b-thead class="">
         <b-tr class="">
           <b-td class="text-center" colspan="2">
@@ -9,13 +9,14 @@
               @click="emitPause()"
               v-if="cyclePaused"
               icon="play-circle"
-              size="lg"/>
-
+              size="lg"
+              ></font-awesome-icon>
               <font-awesome-icon
               @click="emitPause()"
               v-else
               icon="pause-circle"
-              size="lg"/>
+              size="lg"
+              ></font-awesome-icon>
             </span>
             <span> Run</span>
           </b-td>
@@ -93,7 +94,8 @@ export default Vue.extend({
       checkbox: false,
       hidden: [],
       mouseOn: '',
-      hiddenToggled: false
+      hiddenToggled: false,
+      show: 7
     }
   },
   props: {
@@ -157,12 +159,17 @@ export default Vue.extend({
     }
   },
   computed: {
-    visibleRuns() {
-      return this.totalRuns.filter((run) => { return !this.hidden.includes(run.run) })
+    visibleRuns () {
+      let visibleRuns = this.totalRuns.filter((run) => { return !this.hidden.includes(run.run) })
+      if (visibleRuns.length > this.show) {
+        this.hidden = this.hidden.concat(Array.from(visibleRuns.slice(this.show), x => x.run))
+        return visibleRuns.slice(0, this.show)
+      }
+      return visibleRuns
     },
     hiddenRuns () {
       if (this.hiddenToggled){
-        return this.totalRuns.filter((run) => { return this.hidden.includes(run.run)})
+        return this.totalRuns.filter((run) => { return this.hidden.includes(run.run) })
       }
       return []
     }

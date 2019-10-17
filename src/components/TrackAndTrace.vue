@@ -1,7 +1,7 @@
 <template>
-    <b-row id="track-and-trace" no-gutters>
-      <b-col  class="p-2" lg="4" cols="12">
-        <b-container fluid class="border border-primary p-0">
+    <b-row id="track-and-trace" no-gutters class="h-100">
+      <b-col  class="p-2 h-100" lg="4" cols="12">
+        <b-container fluid class="border border-primary p-0 h-100">
           <run-status-table
           @run-finished="addRunToStatistics"
           @cycle-next="cycleRun"

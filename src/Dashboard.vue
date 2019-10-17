@@ -1,5 +1,5 @@
 <template>
-<b-container id="dashboard" fluid>
+<b-container id="dashboard"  class="fill" fluid>
   <b-row  no-gutters class="h-50">
     <b-col class="h-100">
       <track-and-trace 
@@ -151,5 +151,10 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .h-40 {
 height: 45%;
+}
+
+.fill {
+
+  max-height: 100vh;
 }
 </style>
