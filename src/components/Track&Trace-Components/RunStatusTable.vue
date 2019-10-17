@@ -27,60 +27,36 @@
         </b-tr>
       </b-thead>
       <b-tbody class="">
-        <transition
-        v-for="run in totalRuns"
-        :key="run.run" name="slide">
-          <b-tr :id="'runId-' + run.run" class=""
-          @click="selectRun(run.run)"
-          @mouseover="mouseOn = run.run"
-          v-show="!hidden.includes(run.run)"
-          :variant="selectedRun === run.run ? 'primary' : 'light'">
-            <b-td v-show="mouseOn === run.run">
-              <b-form-checkbox
-                v-model="hidden"
-                :value="run.run"
-                :id="run.run"
-                switch>
-              </b-form-checkbox>
-            </b-td>
-            <b-td :colspan="mouseOn !== run.run ? 2 : 6" class="text-truncate">{{run.run}}</b-td>
-            <b-td colspan="5" v-show="mouseOn !== run.run" class="text-center">
-              <progress-bar
-              @progress-finish="emitFinish(run.run)"
-              :totalSteps="5"
-              :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'"
-              :animated="run.step !== 4 && !run.containsError"
-              class="mt-1" :step="run.step + 1">
-              </progress-bar>
-            </b-td>
-          </b-tr>
-        </transition>
-        <b-tr v-show="hiddenToggled"
-              v-for="run in hiddenRuns"
-              :key="run.run" name="slide"
-              :id="'runId-' + run.run" class=""
-                @click="selectRun(run.run)"
-                @mouseover="mouseOn = run.run"
-                variant="secondary">
-                  <b-td v-show="mouseOn === run.run">
-                    <b-form-checkbox
-                      v-model="hidden"
-                      :value="run.run"
-                      :id="run.run"
-                      switch>
-                    </b-form-checkbox>
-                  </b-td>
-                  <b-td :colspan="mouseOn !== run.run ? 2 : 6" class="text-truncate">{{run.run}}</b-td>
-                  <b-td colspan="5" v-show="mouseOn !== run.run" class="text-center">
-                    <progress-bar
-                    @progress-finish="emitFinish(run.run)"
-                    :totalSteps="5"
-                    :variant="run.containsError ? 'danger' : run.step === 4 ? 'success' : 'primary'"
-                    :animated="run.step !== 4 && !run.containsError"
-                    class="mt-1" :step="run.step + 1">
-                    </progress-bar>
-                  </b-td>
-          </b-tr>
+          <run-status-table-row
+            v-for="run in visibleRuns"
+            :variant="selectedRun === run.run ? 'primary' : 'light'"
+            :key="run.run"
+            :run="run.run"
+            :mouseOn="mouseOn"
+            :step="run.step"
+            :error="run.containsError"
+            :hidden="hidden"
+            @update-hidden="updateHidden"
+            @select-run="selectRun"
+            @mouse-on="setMouseOn"
+            @progress-finish="emitFinish"
+          ></run-status-table-row>
+          <run-status-table-row 
+          v-for="run in hiddenRuns"
+          :key="run.run"
+          name="slide"
+          :variant="'secondary'"
+          :run="run.run"
+          :mouseOn="mouseOn"
+          :step="run.step"
+          :error="run.containsError"
+          :hidden="hidden"
+          @update-hidden="updateHidden"
+          @select-run="selectRun"
+          @mouse-on="setMouseOn"
+          @click="selectRun(run)"
+          @progress-finish="emitFinish"
+          ></run-status-table-row>
         <b-tr v-show="hidden.length > 0">
           <b-td
           @click="toggleHidden"
@@ -98,18 +74,18 @@
 <script lang="ts">
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
+import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
 
 declare module 'vue/types/vue' {
   interface Vue {
     hidden: string[]
-
   }
 }
 
 export default Vue.extend({
   name: 'run-status-table',
   components: {
-    ProgressBar
+    RunStatusTableRow
 
   },
   data () {
@@ -169,18 +145,26 @@ export default Vue.extend({
     },
     hideCheckbox (): void {
       this.checkbox = false
+    },
+    insertRuns() {
+      this.visibleRuns.push(...this.totalRuns)
+    },
+    setMouseOn(run: string) {
+      this.mouseOn = run
+    },
+    updateHidden(hidden: string[]){
+      this.hidden = hidden
     }
   },
   computed: {
-    hiddenRuns() {
-      let hiddenRuns = []
-      this.totalRuns.forEach(run => {
-        if (this.hidden.includes(run.run)) {
-          hiddenRuns.push(run)
-        }
-
-      })
-      return hiddenRuns
+    visibleRuns() {
+      return this.totalRuns.filter((run) => { return !this.hidden.includes(run.run) })
+    },
+    hiddenRuns () {
+      if (this.hiddenToggled){
+        return this.totalRuns.filter((run) => { return this.hidden.includes(run.run)})
+      }
+      return []
     }
   },
   watch: {
@@ -188,7 +172,7 @@ export default Vue.extend({
       if (this.hidden.includes(this.selectedRun)){
         this.$emit('cycle-next')
       }
-    }
+    },
   }
 })
 </script>
