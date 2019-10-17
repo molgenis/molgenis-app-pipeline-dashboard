@@ -140,7 +140,8 @@ export default Vue.extend({
       
       showRun: '',
       paused: false,
-      loading: false
+      loading: false,
+      graphRuns: []
     }
   },
   computed: {
@@ -529,9 +530,12 @@ export default Vue.extend({
       return StartedDate
     },
     addRunToStatistics (run: string): void {
-      const runObj = this.runData.find((x: Run) => { return x.run_id === run })
-      const runTimeStats = new RunTimeStatistic(runObj!.projects, run)
-      this.$emit('add-statistic', runTimeStats)
+      if (!this.graphRuns.includes(run)) {
+        const runObj = this.runData.find((x: Run) => { return x.run_id === run })
+        const runTimeStats = new RunTimeStatistic(runObj!.projects, run)
+        this.$emit('add-statistic', runTimeStats)
+        this.graphRuns.push(run)
+      }
     }
   },
 
