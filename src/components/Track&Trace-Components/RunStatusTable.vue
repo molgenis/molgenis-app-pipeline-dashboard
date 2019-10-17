@@ -27,14 +27,14 @@
         </b-tr>
       </b-thead>
       <b-tbody class="">
-        <transition
-        v-for="run in totalRuns"
-        :key="run.run" name="slide">
+        <template
+        v-for="run in visibleRuns"
+         name="slide">
           <b-tr :id="'runId-' + run.run" class=""
           @click="selectRun(run.run)"
           @mouseover="mouseOn = run.run"
-          v-show="!hidden.includes(run.run)"
-          :variant="selectedRun === run.run ? 'primary' : 'light'">
+          :variant="selectedRun === run.run ? 'primary' : 'light'"
+          :key="run.run">
             <b-td v-show="mouseOn === run.run">
               <b-form-checkbox
                 v-model="hidden"
@@ -54,14 +54,14 @@
               </progress-bar>
             </b-td>
           </b-tr>
-        </transition>
+        </template>
         <b-tr v-show="hiddenToggled"
               v-for="run in hiddenRuns"
               :key="run.run" name="slide"
               :id="'runId-' + run.run" class=""
                 @click="selectRun(run.run)"
                 @mouseover="mouseOn = run.run"
-                variant="secondary">
+                variant="secondary" borderless>
                   <b-td v-show="mouseOn === run.run">
                     <b-form-checkbox
                       v-model="hidden"
@@ -169,18 +169,20 @@ export default Vue.extend({
     },
     hideCheckbox (): void {
       this.checkbox = false
+    },
+    arrayDiffrence (array1, array2) {
+      return array1.filter((item) => { return array2.indexOf(item) < 0 })
+    },
+    insertRuns() {
+      this.visibleRuns.push(...this.totalRuns)
     }
   },
   computed: {
-    hiddenRuns() {
-      let hiddenRuns = []
-      this.totalRuns.forEach(run => {
-        if (this.hidden.includes(run.run)) {
-          hiddenRuns.push(run)
-        }
-
-      })
-      return hiddenRuns
+    visibleRuns() {
+      return this.totalRuns.filter((run) => { return !this.hidden.includes(run.run) })
+    },
+    hiddenRuns () {
+      return this.totalRuns.filter((run) => { return this.hidden.includes(run.run)})
     }
   },
   watch: {
@@ -188,7 +190,7 @@ export default Vue.extend({
       if (this.hidden.includes(this.selectedRun)){
         this.$emit('cycle-next')
       }
-    }
+    },
   }
 })
 </script>
