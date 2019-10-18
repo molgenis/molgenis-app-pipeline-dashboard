@@ -10,8 +10,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, serie, outlier} from '@/types/graphTypes'
-import { RunTime, RunTimeStatistic, averageData } from '@/types/dataTypes'
+import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, Serie, outlier } from '@/types/graphTypes'
+import { RunTime, RunTimeStatistic, AverageData } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-time-statistics',
@@ -26,9 +26,9 @@ export default Vue.extend({
      * Computed property that builds the annotations for the graph
      * @returns Object annotations
      */
-    annotations(): graphAnnotation {
+    annotations (): graphAnnotation {
       let thresholdNumber = this.threshold as number
-      let averageNumber = this.average as number
+      let averageNumber = this.average.ONCO
       let outline = thresholdNumber + averageNumber
       return {
         xaxis: this.xAnnotations as xAnnotation[],
@@ -40,7 +40,7 @@ export default Vue.extend({
      * Computed property that builds chart options
      * @returns Object chartOptions
      */
-    chartOptions(): chartOptions {
+    chartOptions (): chartOptions {
       return {
         chart: {
           id: 'run-time-graph',
@@ -82,7 +82,7 @@ export default Vue.extend({
         annotations: this.annotations as graphAnnotation
       }
     },
-    numbersArray(): number[] {
+    numbersArray (): number[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]
       let numbers: number[] = []
       runTimeArray.forEach((RunTimeStatistic: RunTimeStatistic) => {
@@ -95,104 +95,97 @@ export default Vue.extend({
      * Finds max value
      * @returns Number
      */
-    maxValue(): number {
+    maxValue (): number {
       const max = Math.max(...this.numbersArray)
-      
+
       if (max > 20) {
         return max + 10
       }
       return 20
-      
     },
     /**
      * average runtime
      * @returns average
      */
-    average(): averageData {
+    average (): AverageData {
       let ONCO = 0
       let PCS = 0
       let Exoom = 0
       let SVP = 0
-      this.series.forEach((serie: serie) => {
+      this.series.forEach((serie: Serie) => {
         switch (serie.name) {
           case 'ONCO':
             ONCO = this.findAverage(serie.data)
             break
           case 'PCS':
             PCS = this.findAverage(serie.data)
+            break
           case 'Exoom':
             Exoom = this.findAverage(serie.data)
+            break
           case 'SVP':
             SVP = this.findAverage(serie.data)
+            break
           default:
-            break;
+            break
         }
       })
 
-      return new averageData(ONCO, PCS, Exoom, SVP)
+      return new AverageData(ONCO, PCS, Exoom, SVP)
     },
     /**
-     * calculates threshold for runtimes
+     * calculates threshold for each pipeline
      * @returns threshold
      */
-    thresholds(): averageData {
+    thresholds (): AverageData {
       let avg = this.average
 
-      const ONCO = this.getSD(this.series[0].data , avg.ONCO)
-      const PCS = this.getSD(this.series[1].data , avg.PCS)
-      const Exoom = this.getSD(this.series[2].data , avg.Exoom)
-      const SVP = this.getSD(this.series[3].data , avg.SVP)
+      const ONCO = this.getSD(this.series[0].data, avg.ONCO)
+      const PCS = this.getSD(this.series[1].data, avg.PCS)
+      const Exoom = this.getSD(this.series[2].data, avg.Exoom)
+      const SVP = this.getSD(this.series[3].data, avg.SVP)
 
-      return new averageData(ONCO + avg.ONCO, PCS + avg.PCS, Exoom + avg.Exoom, SVP + avg.SVP)
+      return new AverageData(ONCO + avg.ONCO, PCS + avg.PCS, Exoom + avg.Exoom, SVP + avg.SVP)
     },
     /**
      * builds series array for graph
      */
-    series(): serie[] {
+    series (): Serie[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]
-      let serieArray: serie[] = []
+      let SerieArray: Serie[] = []
       let ONCO: number[] = []
       let PCS: number[] = []
       let Exoom: number[] = []
       let SVP: number[] = []
-      let other: Array<RunTime[]> = []
-
 
       runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
-        const emptyNumber = null
-        if (StatisticalPoint.ONCO)  { ONCO.push(StatisticalPoint.ONCO.runtime) }    else {ONCO.push(0)}
-        if (StatisticalPoint.PCS)   { PCS.push(StatisticalPoint.PCS.runtime) }      else {PCS.push(0)}
-        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) }  else {Exoom.push(0)}
-        if (StatisticalPoint.SVP)   { SVP.push(StatisticalPoint.SVP.runtime) }      else {SVP.push(0)}
-             
+        if (StatisticalPoint.ONCO) { ONCO.push(StatisticalPoint.ONCO.runtime) } else { ONCO.push(0) }
+        if (StatisticalPoint.PCS) { PCS.push(StatisticalPoint.PCS.runtime) } else { PCS.push(0) }
+        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) } else { Exoom.push(0) }
+        if (StatisticalPoint.SVP) { SVP.push(StatisticalPoint.SVP.runtime) } else { SVP.push(0) }
       })
-      serieArray.push(new serie('ONCO', ONCO))
-      serieArray.push(new serie('PCS', PCS))
-      serieArray.push(new serie('Exoom', Exoom))
-      serieArray.push(new serie('SVP', SVP))
 
-      return serieArray
+      SerieArray.push(new Serie('ONCO', ONCO))
+      SerieArray.push(new Serie('PCS', PCS))
+      SerieArray.push(new Serie('Exoom', Exoom))
+      SerieArray.push(new Serie('SVP', SVP))
+
+      return SerieArray
     },
     /**
      * calculates the outliers in the data
+     * @todo
      * @returns outlier array
      */
-    outliers(): outlier[] {
+    outliers (): outlier[] {
       let outliers = [] as outlier[]
-      let runTimeArray = this.runTimes as RunTime[]
-      for (let i = 0; i < runTimeArray.length; i++) {
-        let run = runTimeArray[i]
-        if (run.runtime >= this.average + this.threshold) {
-          outliers.push({id: run.runId, position: i + 1})
-        }
-      }
       return outliers
     },
     /**
      * creates xAnnotations for outliers
      * @returns Annotation objects for outliers
      */
-    xAnnotations(): xAnnotation[] {
+    xAnnotations (): xAnnotation[] {
       let annotations = [] as xAnnotation[]
       this.outliers.forEach((outlier) => {
         annotations.push(this.CreateXannotation(outlier.position, this.cropTitle(outlier.id, 20)))
@@ -296,9 +289,9 @@ export default Vue.extend({
   },
   watch: {
     /**
-     * Emits a threshold update
+     * Emits a threshold update if they change
      */
-    thresholds(): void {
+    thresholds (): void {
       this.$emit('new-threshold-onco', this.thresholds.ONCO)
       this.$emit('new-threshold-pcs', this.thresholds.PCS)
       this.$emit('new-threshold-exoom', this.thresholds.Exoom)

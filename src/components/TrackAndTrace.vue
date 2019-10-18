@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue' 
+import Vue from 'vue'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
@@ -69,9 +69,10 @@ declare module 'vue/types/vue' {
     runData: Run[]
     runIds: string[]
     runSteps: Step[]
+    graphRuns: string[]
     setCurrentIndex(index: number): void
     sortRuns(run1: Run, run2: Run): number
-    setShowRun(run: string): void 
+    setShowRun(run: string): void
     timeUp(): void
     setTimer(): void
     getData(): Promise<void>
@@ -82,7 +83,7 @@ declare module 'vue/types/vue' {
     getRunProjects (projects: projectDataObject[], run: string): projectDataObject[]
     getProjectJobs (jobs: Job[], project: projectDataObject): Job[]
     runFinished (run: Run): Boolean
-    countProjectFinishedCopying (projects: ProjectObject[]): number 
+    countProjectFinishedCopying (projects: ProjectObject[]): number
     constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run
     getStatus (project: projectDataObject, jobs: Job[]): string
     countJobStatus (jobs: Job[], status: string): number
@@ -134,10 +135,8 @@ export default Vue.extend({
       runs: [] as RunDataObject[],
       jobs: [] as Job[],
       projects: [] as projectDataObject[],
-
       runUrl: '',
       time: 0,
-      
       showRun: '',
       paused: false,
       loading: false,
@@ -149,7 +148,7 @@ export default Vue.extend({
      * Currently selected run
      * @returns Run
      */
-    run(): Run {
+    run (): Run {
       const run = this.runData.find((x: Run) => { return x.run_id === this.showRun })
       if (run) {
         return run!
@@ -163,7 +162,7 @@ export default Vue.extend({
      */
     runID (): string {
       const runID = this.run.run_id
-      if (typeof (runID) === undefined) {
+      if (typeof (runID) === 'undefined') {
         return ''
       }
       return this.run.run_id
@@ -263,9 +262,9 @@ export default Vue.extend({
 
     /**
      * run comparator function
-     * @param run1 run 1
-     * @param run2 run 2
-     * @returns Number
+     * @param run1 first run
+     * @param run2 second run
+     * @returns Number Sort order
      */
     sortRuns (run1: Run, run2: Run): number {
       if (run1.containsError && !run2.containsError) {
@@ -328,6 +327,7 @@ export default Vue.extend({
     /**
      * fetches data from specified location
      * @param ref fetch location url
+     * @param items fetch previous page contents
      * @returns Array of items
      */
     async fetchData (ref: string, items = []): Promise<Array<RawDataObject>> {
@@ -501,6 +501,11 @@ export default Vue.extend({
     countJobStatus (jobs: Job[], status: string): number {
       return jobs.filter(function (x) { return x.status === status }).length
     },
+    /**
+     * resolves the last known finish date
+     * @param projects Projects to search for finish date
+     * @returns finished date in MS
+     */
     findLastDateTime (projects: ProjectObject[]): number {
       let FinishedDate = 0
       projects.forEach((project: ProjectObject) => {
@@ -515,6 +520,11 @@ export default Vue.extend({
       })
       return FinishedDate
     },
+    /**
+     * resolves the start date of the project array
+     * @param projects projects to search
+     * @returns Started date in MS
+     */
     findStartDateTime (projects: ProjectObject[]): number {
       let StartedDate = Infinity
       projects.forEach((project: ProjectObject) => {
@@ -529,6 +539,10 @@ export default Vue.extend({
       })
       return StartedDate
     },
+    /**
+     * Creates a RunTimeStatistic object and sends it to the grah
+     * @param run run to add to graph
+     */
     addRunToStatistics (run: string): void {
       if (!this.graphRuns.includes(run)) {
         const runObj = this.runData.find((x: Run) => { return x.run_id === run })
@@ -551,8 +565,8 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import '../../node_modules/bootstrap/scss/bootstrap';
-@import '../../node_modules/bootstrap-vue/src/index.scss';
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity .3s;

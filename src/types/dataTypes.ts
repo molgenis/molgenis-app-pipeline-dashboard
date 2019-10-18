@@ -45,7 +45,7 @@ export enum pipelineType {
   SVP = 'SVP',
   OTHER = 'OTHER'
 }
- 
+
 /**
  * Stores available project data
  * @function findLastDateTime returns last date in ms
@@ -237,15 +237,22 @@ export class Comment {
 /**
  * Stores numbers for the diffrent pipeline types
  */
-export class averageData {
+export class AverageData {
   ONCO: number
   PCS: number
   Exoom: number
   SVP: number
-  constructor(onco: number, pcs: number, exoom: number, svp: number) {
+  constructor (onco: number, pcs: number, exoom: number, svp: number) {
     this.ONCO = onco
     this.PCS = pcs
     this.Exoom = exoom
     this.SVP = svp
   }
+}
+
+export interface RunStatusData {
+  containsError: boolean
+  len: number
+  run: string
+  step: number
 }

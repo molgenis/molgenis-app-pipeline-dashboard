@@ -29,7 +29,7 @@
       </b-thead>
       <b-tbody class="">
           <run-status-table-row
-            v-for="run in visibleRuns"
+            v-for="run in shownRuns"
             :variant="selectedRun === run.run ? 'primary' : 'light'"
             :key="run.run"
             :run="run.run"
@@ -42,7 +42,7 @@
             @mouse-on="setMouseOn"
             @progress-finish="emitFinish"
           ></run-status-table-row>
-          <run-status-table-row 
+          <run-status-table-row
           v-for="run in hiddenRuns"
           :key="run.run"
           name="slide"
@@ -58,7 +58,7 @@
           @click="selectRun(run)"
           @progress-finish="emitFinish"
           ></run-status-table-row>
-        <b-tr v-show="hidden.length > 0">
+        <b-tr>
           <b-td
           @click="toggleHidden"
           class="text-center"
@@ -76,12 +76,7 @@
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
-
-declare module 'vue/types/vue' {
-  interface Vue {
-    hidden: string[]
-  }
-}
+import { Run, RunStatusData } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-status-table',
@@ -92,10 +87,10 @@ export default Vue.extend({
   data () {
     return {
       checkbox: false,
-      hidden: [],
+      hidden: [] as string[],
       mouseOn: '',
       hiddenToggled: false,
-      show: 7
+      show: 7 as number
     }
   },
   props: {
@@ -122,7 +117,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    toggleHidden() {
+    toggleHidden () {
       this.hiddenToggled = !this.hiddenToggled
     },
     /**
@@ -138,40 +133,39 @@ export default Vue.extend({
     emitPause (): void {
       this.$emit('toggle-cycle')
     },
-
+    /**
+    *  emit finish to save run as finished
+    * @param run run id string
+    */
     emitFinish (run: string): void {
       this.$emit('run-finished', run)
     },
-    showCheckbox (): void {
-      this.checkbox = true
-    },
-    hideCheckbox (): void {
-      this.checkbox = false
-    },
-    insertRuns() {
-      this.visibleRuns.push(...this.totalRuns)
-    },
-    setMouseOn(run: string) {
+    setMouseOn (run: string): void {
       this.mouseOn = run
     },
-    updateHidden(hidden: string[]){
+    updateHidden (hidden: string[]): void {
       this.hidden = hidden
     }
   },
   computed: {
     visibleRuns () {
-      let visibleRuns = this.totalRuns.filter((run) => { return !this.hidden.includes(run.run) })
-      if (visibleRuns.length > this.show) {
-        this.hidden = this.hidden.concat(Array.from(visibleRuns.slice(this.show), x => x.run))
-        return visibleRuns.slice(0, this.show)
-      }
+      const runs = this.totalRuns as RunStatusData[]
+      const hidden = this.hidden as string[]
+      let visibleRuns = runs.filter((run) => { return !hidden.includes(run.run) })
       return visibleRuns
     },
     hiddenRuns () {
-      if (this.hiddenToggled){
-        return this.totalRuns.filter((run) => { return this.hidden.includes(run.run) })
+      let hiddenRuns = [] as RunStatusData[]
+      const runs = this.totalRuns as RunStatusData[]
+      const hidden = this.hidden as string[]
+      if (this.hiddenToggled) {
+        hiddenRuns = runs.filter((run: RunStatusData) => { return hidden.includes(run.run) })
       }
-      return []
+      return hiddenRuns
+    },
+    shownRuns () {
+      let shown = this.visibleRuns.slice(0, this.show) as RunStatusData[]
+      return shown
     }
   },
   watch: {
@@ -179,7 +173,7 @@ export default Vue.extend({
       if (this.hidden.includes(this.selectedRun)){
         this.$emit('cycle-next')
       }
-    },
+    }
   }
 })
 </script>
