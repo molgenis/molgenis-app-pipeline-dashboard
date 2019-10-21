@@ -1,6 +1,6 @@
 <template>
-  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto h-5r">
-    <b-table-simple small fixed hover >
+  <b-container fluid @mouseleave="mouseOn = ''" >
+    <b-table-simple small fixed hover class="overflow-auto">
       <b-thead class="">
         <b-tr class="">
           <b-td class="text-center" colspan="2">
@@ -9,13 +9,14 @@
               @click="emitPause()"
               v-if="cyclePaused"
               icon="play-circle"
-              size="lg"/>
-
+              size="lg"
+              ></font-awesome-icon>
               <font-awesome-icon
               @click="emitPause()"
               v-else
               icon="pause-circle"
-              size="lg"/>
+              size="lg"
+              ></font-awesome-icon>
             </span>
             <span> Run</span>
           </b-td>
@@ -41,8 +42,8 @@
             @mouse-on="setMouseOn"
             @progress-finish="emitFinish"
           ></run-status-table-row>
-          <run-status-table-row 
-          v-for="run in hiddenRuns"
+          <run-status-table-row
+          v-for="run in showHiddenRuns"
           :key="run.run"
           name="slide"
           :variant="'secondary'"
@@ -57,7 +58,7 @@
           @click="selectRun(run)"
           @progress-finish="emitFinish"
           ></run-status-table-row>
-        <b-tr v-show="hidden.length > 0">
+        <b-tr>
           <b-td
           @click="toggleHidden"
           class="text-center"
@@ -75,12 +76,7 @@
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
-
-declare module 'vue/types/vue' {
-  interface Vue {
-    hidden: string[]
-  }
-}
+import { Run, RunStatusData } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-status-table',
@@ -91,9 +87,13 @@ export default Vue.extend({
   data () {
     return {
       checkbox: false,
-      hidden: [],
       mouseOn: '',
-      hiddenToggled: false
+      hiddenToggled: false,
+      show: 7 as number,
+      hidden: [] as string[],
+      visibleRuns: [] as RunStatusData[],
+      hiddenRuns: [] as RunStatusData[],
+      hiddenRunsByLength: [] as RunStatusData[]
     }
   },
   props: {
@@ -120,7 +120,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    toggleHidden() {
+    toggleHidden () {
       this.hiddenToggled = !this.hiddenToggled
     },
     /**
@@ -136,33 +136,24 @@ export default Vue.extend({
     emitPause (): void {
       this.$emit('toggle-cycle')
     },
-
+    /**
+    *  emit finish to save run as finished
+    * @param run run id string
+    */
     emitFinish (run: string): void {
       this.$emit('run-finished', run)
     },
-    showCheckbox (): void {
-      this.checkbox = true
-    },
-    hideCheckbox (): void {
-      this.checkbox = false
-    },
-    insertRuns() {
-      this.visibleRuns.push(...this.totalRuns)
-    },
-    setMouseOn(run: string) {
+    setMouseOn (run: string): void {
       this.mouseOn = run
     },
-    updateHidden(hidden: string[]){
+    updateHidden (hidden: string[]): void {
       this.hidden = hidden
     }
   },
   computed: {
-    visibleRuns() {
-      return this.totalRuns.filter((run) => { return !this.hidden.includes(run.run) })
-    },
-    hiddenRuns () {
-      if (this.hiddenToggled){
-        return this.totalRuns.filter((run) => { return this.hidden.includes(run.run)})
+    showHiddenRuns (): RunStatusData[] {
+      if (this.hiddenToggled) {
+        return this.hiddenRuns
       }
       return []
     }
@@ -173,6 +164,29 @@ export default Vue.extend({
         this.$emit('cycle-next')
       }
     },
+    hidden: {
+      immediate: true,
+      handler (oldhidden, hidden) {
+        const totalRuns = this.totalRuns as RunStatusData[]
+        let notHidden = totalRuns.filter((run) => {
+          return !this.hidden.includes(run.run)
+        })
+        if (notHidden.length > this.show) {
+          this.visibleRuns = notHidden.slice(0, this.show)
+          this.hiddenRunsByLength = notHidden.filter((run) => !this.visibleRuns.includes(run))
+        } else {
+          this.visibleRuns = notHidden
+        }
+        this.hiddenRuns = totalRuns.filter((run) => {
+          return !this.visibleRuns.includes(run)
+        })
+      }
+    },
+    totalRuns: function (runs) {
+      if (this.hidden.length === 0) {
+        this.hidden = []
+      }
+    }
   }
 })
 </script>

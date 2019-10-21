@@ -104,10 +104,10 @@ export interface chartOptions {
 /**
  * A graph data series
  */
-export class serie {
+export class Serie {
   name: string
   data: number[]
-  constructor(name: string, data: number[]){
+  constructor (name: string, data: number[]) {
     this.name = name
     this.data = data
   }
