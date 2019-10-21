@@ -29,7 +29,7 @@
       </b-thead>
       <b-tbody class="">
           <run-status-table-row
-            v-for="run in shownRuns"
+            v-for="run in visibleRuns"
             :variant="selectedRun === run.run ? 'primary' : 'light'"
             :key="run.run"
             :run="run.run"
@@ -43,7 +43,7 @@
             @progress-finish="emitFinish"
           ></run-status-table-row>
           <run-status-table-row
-          v-for="run in hiddenRuns"
+          v-for="run in showHiddenRuns"
           :key="run.run"
           name="slide"
           :variant="'secondary'"
@@ -87,10 +87,13 @@ export default Vue.extend({
   data () {
     return {
       checkbox: false,
-      hidden: [] as string[],
       mouseOn: '',
       hiddenToggled: false,
-      show: 7 as number
+      show: 7 as number,
+      hidden: [] as string[],
+      visibleRuns: [] as RunStatusData[],
+      hiddenRuns: [] as RunStatusData[],
+      hiddenRunsByLength: [] as RunStatusData[]
     }
   },
   props: {
@@ -148,30 +151,40 @@ export default Vue.extend({
     }
   },
   computed: {
-    visibleRuns () {
-      const runs = this.totalRuns as RunStatusData[]
-      const hidden = this.hidden as string[]
-      let visibleRuns = runs.filter((run) => { return !hidden.includes(run.run) })
-      return visibleRuns
-    },
-    hiddenRuns () {
-      let hiddenRuns = [] as RunStatusData[]
-      const runs = this.totalRuns as RunStatusData[]
-      const hidden = this.hidden as string[]
+    showHiddenRuns (): RunStatusData[] {
       if (this.hiddenToggled) {
-        hiddenRuns = runs.filter((run: RunStatusData) => { return hidden.includes(run.run) })
+        return this.hiddenRuns
       }
-      return hiddenRuns
-    },
-    shownRuns () {
-      let shown = this.visibleRuns.slice(0, this.show) as RunStatusData[]
-      return shown
+      return []
     }
   },
   watch: {
     selectedRun: function (oldRun, newRun) {
       if (this.hidden.includes(this.selectedRun)){
         this.$emit('cycle-next')
+      }
+    },
+    hidden: {
+      immediate: true,
+      handler (oldhidden, hidden) {
+        const totalRuns = this.totalRuns as RunStatusData[]
+        let notHidden = totalRuns.filter((run) => {
+          return !this.hidden.includes(run.run)
+        })
+        if (notHidden.length > this.show) {
+          this.visibleRuns = notHidden.slice(0, this.show)
+          this.hiddenRunsByLength = notHidden.filter((run) => !this.visibleRuns.includes(run))
+        } else {
+          this.visibleRuns = notHidden
+        }
+        this.hiddenRuns = totalRuns.filter((run) => {
+          return !this.visibleRuns.includes(run)
+        })
+      }
+    },
+    totalRuns: function (runs) {
+      if (this.hidden.length === 0) {
+        this.hidden = []
       }
     }
   }
