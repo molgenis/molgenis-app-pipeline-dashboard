@@ -159,14 +159,14 @@ export default Vue.extend({
     }
   },
   watch: {
-    selectedRun: function (oldRun, newRun) {
-      if (this.hidden.includes(this.selectedRun)){
+    selectedRun: function () {
+      if (this.hidden.includes(this.selectedRun)) {
         this.$emit('cycle-next')
       }
     },
     hidden: {
       immediate: true,
-      handler (oldhidden, hidden) {
+      handler () {
         const totalRuns = this.totalRuns as RunStatusData[]
         let notHidden = totalRuns.filter((run) => {
           return !this.hidden.includes(run.run)
@@ -182,7 +182,7 @@ export default Vue.extend({
         })
       }
     },
-    totalRuns: function (runs) {
+    totalRuns: function () {
       if (this.hidden.length === 0) {
         this.hidden = []
       }

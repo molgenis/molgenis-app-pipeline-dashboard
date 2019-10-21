@@ -60,6 +60,7 @@ export interface LabelStyle {
 export interface chartOptions {
   chart: {
     id: string
+    height?: any
     toolbar: {
       show: boolean
       tools: {

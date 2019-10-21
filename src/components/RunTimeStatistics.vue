@@ -1,8 +1,8 @@
 <template>
   <b-container class="h-100 p-2" fluid>
-    <b-row no-gutters>
-      <b-col >
-        <b-container class="border border-primary p-0" fluid>
+    <b-row no-gutters class="h-100">
+      <b-col class="h-100">
+        <b-container class="border border-primary p-0 h-100" fluid >
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
       </b-col>
