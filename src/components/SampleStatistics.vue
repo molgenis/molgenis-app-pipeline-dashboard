@@ -9,9 +9,10 @@
         <b-col>
           Samples processed:
           <span class="badge badge-info ml-1 mr-1">Total: {{ totalSampleCount }}</span>
-          <span class="badge badge-info ml-1 mr-1">Week: {{ Math.floor(totalSampleCount/29) }}</span>
-          <span class="badge badge-info ml-1 mr-1">Today: {{ Math.floor(totalSampleCount / 144) }}</span>
-          <span class="badge badge-info ml-1 mr-1">Now: {{ Math.floor(totalSampleCount/ 444) }}</span>
+          <span class="badge badge-info ml-1 mr-1">Year: {{ yearlySampleCount }}</span>
+          <span class="badge badge-info ml-1 mr-1">Week: {{ weeklySampleCount }}</span>
+          <span class="badge badge-info ml-1 mr-1">Today: {{ dailySampleCount }}</span>
+          <span class="badge badge-info ml-1 mr-1">Now: {{ currentSampleCount }}</span>
         </b-col>
       </b-row>
     </b-col>
@@ -27,6 +28,10 @@ export default Vue.extend({
   data () {
     return {
       totalSampleCount: 14324,
+      yearlySampleCount: 9549,
+      weeklySampleCount: 493,
+      dailySampleCount: 99,
+      currentSampleCount: 32,
       series: [6357, 760, 6272, 860, 482, 163, 76],
       chartOptions: {
         labels: ['NB501043', 'M01785', 'NB501093', 'M01997', 'K00296', 'A00379', 'NB500917R'],
