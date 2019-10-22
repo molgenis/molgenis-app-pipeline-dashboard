@@ -26,7 +26,7 @@
       />
     </b-col>
     <b-col cols="12" lg="6" class="h-100">
-      <sample-statistics></sample-statistics>
+      <sample-statistics :API="APIv2Url" :headers="headers"></sample-statistics>
     </b-col>
   </b-row>
 </b-container>
@@ -36,7 +36,7 @@
 import Vue from 'vue'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
-import SampleStatistics from '@/components/SampleStatistics.vue';
+import SampleStatistics from '@/components/SampleStatistics.vue'
 import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
 
 declare module 'vue/types/vue' {
