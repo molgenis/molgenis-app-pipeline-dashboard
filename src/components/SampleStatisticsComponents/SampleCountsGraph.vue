@@ -135,6 +135,10 @@ export default {
         chart: {
           type: 'bar',
         },
+        title: {
+          text: this.title,
+          align: 'center'
+        },
         dataLabels: {
           enabled: false
         },
