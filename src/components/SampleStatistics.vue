@@ -6,10 +6,13 @@
         <sequencer-usage-spread-graph :API="API" :headers="headers"></sequencer-usage-spread-graph>
       </b-tab>
       <b-tab title="Week">
-        <sample-week-graph :API="API" :headers="headers"></sample-week-graph>
+        <sample-counts-graph :API="API" :headers="headers" :type="'WEEK'"></sample-counts-graph>
+      </b-tab>
+      <b-tab title="Month">
+        <sample-counts-graph :API="API" :headers="headers" :type="'MONTH'"></sample-counts-graph>
       </b-tab>
       <b-tab title="Year">
-        <sample-year-graph :API="API" :headers="headers"></sample-year-graph>
+        <sample-counts-graph :API="API" :headers="headers" :type="'YEAR'"></sample-counts-graph>
       </b-tab>
     </b-tabs>
   </b-row>
@@ -19,16 +22,14 @@
 <script>
 import SequencerUsageSpreadGraph from '@/components/SampleStatisticsComponents/SequencerUsageSpreadGraph.vue'
 import SampleCountsDisplay from '@/components/SampleStatisticsComponents/SampleCountsDisplay.vue'
-import SampleWeekGraph from '@/components/SampleStatisticsComponents/SampleWeekGraph.vue'
-import SampleYearGraph from '@/components/SampleStatisticsComponents/SampleYearGraph.vue'
+import SampleCountsGraph from '@/components/SampleStatisticsComponents/SampleCountsGraph.vue'
 
 export default {
   name: 'sample-statistics',
   components: {
     SequencerUsageSpreadGraph,
     SampleCountsDisplay,
-    SampleWeekGraph,
-    SampleYearGraph
+    SampleCountsGraph
   },
   props: {
     API: {
