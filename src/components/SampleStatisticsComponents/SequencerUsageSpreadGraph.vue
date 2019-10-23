@@ -1,26 +1,13 @@
 <template>
-  <b-row no-gutters>
-    <apexchart type="donut" width="500" :options="chartOptions" :series="series"></apexchart>
+  <b-row no-gutters class="h-100">
+    <b-col class="h-100">
+      <apexchart type="donut" :options="chartOptions" :series="series"></apexchart>
+    </b-col>
   </b-row>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-
-declare module 'vue/types/vue' {
-    interface Vue {
-      API: string
-      headers: Headers
-      series: number[]
-      chartLabels: string[]
-      getSequencerStatistics(): Promise<void>
-    }
-}
-
-
-
-
-export default Vue.extend({
+<script >
+export default {
   name: 'sequencer-spread-graph',
   props: {
     API: {
@@ -34,8 +21,8 @@ export default Vue.extend({
   },
   data () {
     return {
-      series: [] as number[],
-      chartLabels: [] as string[]
+      series: [],
+      chartLabels: []
     }
   },
   methods: {
@@ -47,7 +34,7 @@ export default Vue.extend({
         let response = await fetch(this.API + 'status_samples?aggs=x==sequencer;distinct==externalSampleID', { headers: this.headers })
         const responseJson = await response.json()
         const Aggregates = await responseJson.aggs
-        this.series = Array.from(Aggregates.matrix, (x: number[]) => x[0])
+        this.series = Array.from(Aggregates.matrix, (x) => x[0])
         this.chartLabels = Aggregates.xLabels
 
       } catch (error) {
@@ -60,11 +47,8 @@ export default Vue.extend({
       return {
         labels: this.chartLabels,
         responsive: [{
-          breakpoint: 480,
           options: {
             chart: {
-              width: 200,
-              height: '50%'
             },
             legend: {
               show: false
@@ -83,11 +67,11 @@ export default Vue.extend({
       }
     }
   },
-  mounted (): void {
+  mounted() {
+    
     this.getSequencerStatistics()
-    setInterval(this.getSequencerStatistics, 100000)
-  }
-})
+  },
+}
 </script>
 
 <style lang="scss" scoped>

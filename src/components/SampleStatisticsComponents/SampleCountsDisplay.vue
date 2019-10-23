@@ -11,9 +11,8 @@
   </b-row>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-export default Vue.extend({
+<script>
+export default {
   name: 'sample-count',
   props: {
     API: {
@@ -27,7 +26,7 @@ export default Vue.extend({
   },
   data () {
     return {
-      totalSampleCount: 14324,
+      totalSampleCount: 0,
       yearlySampleCount: 0,
       monthlySampleCount: 0,
       weeklySampleCount: 0,
@@ -52,6 +51,9 @@ export default Vue.extend({
         this.weeklySampleCount = await this.getSamplesInDateRange(weekRange)
         this.dailySampleCount = await this.getSamplesInDateRange(dayRange)
         this.monthlySampleCount = await this.getSamplesInDateRange(MonthRange)
+        const totalResponse = await fetch(this.API + 'status_samples?num=1', { headers: this.headers })
+        const totalJson = await totalResponse.json()
+        this.totalSampleCount = totalJson.total
       } catch (error) {
         console.error
       }
@@ -60,7 +62,7 @@ export default Vue.extend({
      * Formats a Date object to yyyy-mm-dd
      * @returns Date string as yyyy-mm-dd
      */
-    formatDate(date: Date): string {
+    formatDate(date) {
       let day = date.getDay().toString()
       let month = date.getMonth().toString()
       const year = date.getFullYear()
@@ -77,7 +79,7 @@ export default Vue.extend({
      * @param range Array in format [date1, date2] where date = yyyy-mm-dd
      * @returns total samples in range
      */
-    async getSamplesInDateRange(range: string[]): Promise<number> {
+    async getSamplesInDateRange(range) {
       const response = await fetch(
         this.API +
         'status_samples?q=sequencingStartDate=rng=(' +
@@ -90,10 +92,11 @@ export default Vue.extend({
       return Total.total
     }
   },
-    mounted (): void {
-      this.getSampleNumbers()
-      setInterval(this.getSampleNumbers, 100000)
-    }
+  mounted () {
+    this.getSampleNumbers()
+    setInterval(this.getSampleNumbers, 100000)
+  
+  }
 
-})
+}
 </script>

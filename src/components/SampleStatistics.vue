@@ -1,53 +1,34 @@
 <template>
 <b-container class="p-2 h-100" fluid>
   <b-row no-gutters class="h-100">
-    <b-tabs class="border border-primary p-0 h-100">
-      <b-tab title="Sequencer Usage">
+    <b-tabs class="border border-primary p-0 w-100">
+      <b-tab title="Sequencer Usage" class="h-100">
         <sequencer-usage-spread-graph :API="API" :headers="headers"></sequencer-usage-spread-graph>
-      <b-row no-gutters>
-        <b-col>
-          <h1> :-)</h1>
-        </b-col>
-      </b-row>
       </b-tab>
-      <b-tab title="Sequencer Usage2">
-      <b-row no-gutters>
-        <sample-counts-display :API="API" :headers="headers"></sample-counts-display>
-      </b-row>
+      <b-tab title="Week">
+        <sample-week-graph :API="API" :headers="headers"></sample-week-graph>
       </b-tab>
-      <b-tab title="Sequencer Usage3">
-      
+      <b-tab title="Year">
+        <sample-year-graph :API="API" :headers="headers"></sample-year-graph>
       </b-tab>
-
     </b-tabs>
   </b-row>
 </b-container>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
 import SequencerUsageSpreadGraph from '@/components/SampleStatisticsComponents/SequencerUsageSpreadGraph.vue'
 import SampleCountsDisplay from '@/components/SampleStatisticsComponents/SampleCountsDisplay.vue'
+import SampleWeekGraph from '@/components/SampleStatisticsComponents/SampleWeekGraph.vue'
+import SampleYearGraph from '@/components/SampleStatisticsComponents/SampleYearGraph.vue'
 
-declare module 'vue/types/vue' {
-    interface Vue {
-      API: string
-      headers: Headers
-      yearlySampleCount: number
-      weeklySampleCount: number
-      dailySampleCount: number
-      monthlySampleCount: number
-      formatDate(date: Date): string
-      getSamplesInDateRange(range: string[]): Promise<number>
-      getSampleNumbers(): Promise<void>
-    }
-}
-
-export default Vue.extend({
+export default {
   name: 'sample-statistics',
   components: {
     SequencerUsageSpreadGraph,
-    SampleCountsDisplay
+    SampleCountsDisplay,
+    SampleWeekGraph,
+    SampleYearGraph
   },
   props: {
     API: {
@@ -59,5 +40,5 @@ export default Vue.extend({
       required: true
     }
   }
-})
+}
 </script>
