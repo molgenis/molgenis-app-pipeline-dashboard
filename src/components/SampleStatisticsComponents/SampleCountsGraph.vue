@@ -1,7 +1,9 @@
 <template>
-  <b-row no-gutters>
-    <b-col>
-      <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
+  <b-row no-gutters class="h-100">
+    <b-col class="h-100">
+      <b-container class="h-100" fluid>
+        <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
+      </b-container>
     </b-col>
   </b-row>
 </template>
@@ -134,6 +136,10 @@ export default {
       return {
         chart: {
           type: 'bar',
+          height: '100%',
+          toolbar: {
+            show: false
+          }
         },
         title: {
           text: this.title,

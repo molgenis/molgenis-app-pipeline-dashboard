@@ -1,6 +1,6 @@
 <template>
-  <b-container fluid @mouseleave="mouseOn = ''" >
-    <b-table-simple small fixed hover class="overflow-auto">
+  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto h-100 w-100">
+    <b-table-simple small fixed hover>
       <b-thead class="">
         <b-tr class="">
           <b-td class="text-center" colspan="2">

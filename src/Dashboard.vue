@@ -1,5 +1,5 @@
 <template>
-<b-container id="dashboard"  class="h-100" fluid>
+<b-container id="dashboard" class="h-100" fluid>
   <b-row  no-gutters class="h-50">
     <b-col class="h-100">
       <track-and-trace
@@ -16,7 +16,7 @@
     </b-col>
   </b-row>
   <b-row no-gutters class="h-50">
-    <b-col cols="12" lg="6" class="h-50">
+    <b-col cols="12" lg="6" class="h-100">
       <run-time-statistics
         :run-times="runTimeArray"
         @new-threshold-onco="setOncoMax"
@@ -26,7 +26,7 @@
       />
     </b-col>
     <b-col cols="12" lg="6" class="h-100">
-      <sample-statistics :API="APIv2Url" :headers="headers" class="h-100"></sample-statistics>
+      <sample-statistics :API="APIv2Url" :headers="headers" ></sample-statistics>
     </b-col>
   </b-row>
 </b-container>
@@ -157,13 +157,18 @@ export default Vue.extend({
 
 </script>
 
+
 <style lang="scss" scoped>
-.h-40 {
+@import 'styles/heightClasses.scss';
+
+.h-45 {
 height: 45%;
 }
-
+.h-55 {
+  height: 55%
+}
 .fill {
 
-  max-height: 100vh;
+  height: 100%;
 }
 </style>

@@ -45,6 +45,7 @@ export default Vue.extend({
     chartOptions (): chartOptions {
       return {
         chart: {
+          height: '100%',
           id: 'run-time-graph',
           toolbar: {
             show: false,

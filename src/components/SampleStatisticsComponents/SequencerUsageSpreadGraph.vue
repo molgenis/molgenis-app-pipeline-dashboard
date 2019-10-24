@@ -1,7 +1,9 @@
 <template>
   <b-row no-gutters class="h-100">
     <b-col class="h-100">
-      <apexchart type="donut" :options="chartOptions" :series="series"></apexchart>
+      <b-container class=" p-0 h-100" fluid>
+        <apexchart type="donut" :options="chartOptions" :series="series"></apexchart>
+      </b-container>
     </b-col>
   </b-row>
 </template>
@@ -45,10 +47,17 @@ export default {
   computed: {
     chartOptions () {
       return {
+        chart: {
+          height: '100%',
+          toolbar: {
+            show: false
+          }
+        },
         labels: this.chartLabels,
         responsive: [{
           options: {
             chart: {
+              
             },
             legend: {
               show: false

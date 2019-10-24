@@ -15,8 +15,8 @@
         </b-container>
       </b-col>
     <b-col class="p-2" cols="12" lg="8">
-      <b-container class="border border-primary h-100" fluid>
-      <transition name="fade" mode="out-in">
+      <b-container class="border border-primary h-100 overflow-auto" fluid>
+      <transition name="fade" mode="out-in" class="h-100">
         <run-table
         :runID="runID"
         :showRun="showRun"
