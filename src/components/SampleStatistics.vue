@@ -1,47 +1,50 @@
 <template>
 <b-container class="p-2 h-100" fluid>
   <b-row no-gutters class="h-100">
-    <b-col class="border border-primary p-0 h-100">
-      <b-row no-gutters>
-        <apexchart type="donut" width="500" :options="chartOptions" :series="series"></apexchart>
-      </b-row>
-      <b-row no-gutters>
-        <b-col>
-          Samples processed:
-          <span class="badge badge-info ml-1 mr-1">Total: {{ totalSampleCount }}</span>
-          <span class="badge badge-info ml-1 mr-1">Year: {{ yearlySampleCount }}</span>
-          <span class="badge badge-info ml-1 mr-1">Week: {{ weeklySampleCount }}</span>
-          <span class="badge badge-info ml-1 mr-1">Today: {{ dailySampleCount }}</span>
-          <span class="badge badge-info ml-1 mr-1">Now: {{ currentSampleCount }}</span>
-        </b-col>
-      </b-row>
+    <b-col class="h-100">
+      <b-container class="p-0 h-100 border border-primary" fluid>
+        <b-row>
+          <b-col>
+            <b-nav tabs align="center">
+                <b-nav-item :active="selected === 'sequencer'" @click="selected = 'sequencer'; paused = true">Sequencer Usage</b-nav-item>
+                <b-nav-item-dropdown id="my-nav-dropdown"
+                text="Sample Counts"
+                toggle-class="nav-link-custom"
+                class="active"
+                right>
+                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly'; paused = true">Week</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly'; paused = true">Month</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly'; paused = true">Year</b-dropdown-item-button>
+                </b-nav-item-dropdown>
+            </b-nav>
+          </b-col>
+        </b-row>
+        <b-row class="h-75">
+          <b-col class="h-100">
+            <sequencer-usage-spread-graph v-if="selected === 'sequencer'" :API="API" :headers="headers"></sequencer-usage-spread-graph>
+            <sample-counts-graph v-else-if="selected === 'weekly'" :API="API" :headers="headers" :type="'WEEK'"></sample-counts-graph>
+            <sample-counts-graph v-else-if="selected === 'monthly'" :API="API" :headers="headers" :type="'MONTH'"></sample-counts-graph>
+            <sample-counts-graph v-else-if="selected === 'yearly'" :API="API" :headers="headers" :type="'YEAR'"></sample-counts-graph>
+          </b-col>
+        </b-row>
+      </b-container>
     </b-col>
   </b-row>
 </b-container>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import { parse } from '@fortawesome/fontawesome-svg-core'
+<script>
+import SequencerUsageSpreadGraph from '@/components/SampleStatisticsComponents/SequencerUsageSpreadGraph.vue'
+import SampleCountsDisplay from '@/components/SampleStatisticsComponents/SampleCountsDisplay.vue'
+import SampleCountsGraph from '@/components/SampleStatisticsComponents/SampleCountsGraph.vue'
 
-declare module 'vue/types/vue' {
-    interface Vue {
-      API: string
-      headers: Headers
-      series: number[]
-      chartLabels: string[]
-      yearlySampleCount: number
-      weeklySampleCount: number
-      dailySampleCount: number
-      monthlySampleCount: number
-      getSequencerStatistics(): Promise<void>
-      formatDate(date: Date): string
-      getSamplesInDateRange(range: string[]): Promise<number>
-    }
-}
-
-export default Vue.extend({
+export default {
   name: 'sample-statistics',
+  components: {
+    SequencerUsageSpreadGraph,
+    SampleCountsDisplay,
+    SampleCountsGraph
+  },
   props: {
     API: {
       type: String,
@@ -54,114 +57,32 @@ export default Vue.extend({
   },
   data () {
     return {
-      totalSampleCount: 14324,
-      yearlySampleCount: 0,
-      monthlySampleCount: 0,
-      weeklySampleCount: 0,
-      dailySampleCount: 0,
-      currentSampleCount: 32,
-      series: [] as number[],
-      chartLabels: [] as string[],
+      selected: 'sequencer',
+      selectAble: ['sequencer', 'weekly', 'monthly', 'yearly'],
+      paused: false
     }
   },
   methods: {
-    /**
-     * Gets sequencer spread numbers from MOLGENIS database
-     */
-    async getSequencerStatistics () {
-      try {
-        let response = await fetch(this.API + 'status_samples?aggs=x==sequencer;distinct==externalSampleID', { headers: this.headers })
-        const responseJson = await response.json()
-        const Aggregates = await responseJson.aggs
-        this.series = Array.from(Aggregates.matrix, (x: number[]) => x[0])
-        this.chartLabels = Aggregates.xLabels
-
-      } catch (error) {
-        console.error(error)
-      }
-    },
-    /**
-     * Gets Sample totals in date ranges from MOLGENIS database
-     */
-    async getSampleNumbers () {
-      try {
-        const now = new Date()
-        const dayMs = 24 * 60 * 60 * 1000
-        const nowFormatted = this.formatDate(now)
-        const yearRange = [this.formatDate(new Date(now.getTime() - (356 * dayMs))), nowFormatted]
-        const MonthRange = [this.formatDate(new Date(now.getTime() - (31 * dayMs))), nowFormatted]
-        const weekRange = [this.formatDate(new Date(now.getTime() - (7 * dayMs))), nowFormatted]
-        const dayRange = [this.formatDate(new Date(now.getTime() -  (dayMs))), nowFormatted]
-        this.yearlySampleCount = await this.getSamplesInDateRange(yearRange)
-        this.weeklySampleCount = await this.getSamplesInDateRange(weekRange)
-        this.dailySampleCount = await this.getSamplesInDateRange(dayRange)
-        this.monthlySampleCount = await this.getSamplesInDateRange(MonthRange)
-      } catch (error) {
-        console.error
-      }
-    },
-    formatDate(date: Date): string {
-      let day = date.getDay().toString()
-      let month = date.getMonth().toString()
-      const year = date.getFullYear()
-      if (parseInt(month) < 10) {
-        month = '0' + month
-      }
-      if (parseInt(day) < 10) {
-        day = '0' + day
-      }
-      return year + '-' + month + '-' + day
-    },
-    /**
-     * Gets a sample total in a date range
-     * @param range Array in format [date1, date2] where date = yymmdd
-     * @returns total samples in range
-     */
-    async getSamplesInDateRange(range: string[]): Promise<number> {
-      const response = await fetch(
-        this.API +
-        'status_samples?q=sequencingStartDate=rng=(' +
-        range[0] +
-        ',' +
-        range[1] +
-        ')&num=1', { headers: this.headers }
-      )
-      const Total = await response.json()
-      return Total.total
-    }
-  },
-  computed: {
-    chartOptions () {
-      return {
-        labels: this.chartLabels,
-        responsive: [{
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 200,
-              height: '50%'
-            },
-            legend: {
-              show: false
-            }
-          }
-        }],
-        legend: {
-          position: 'right',
-          offsetY: 0,
-          height: 230
-        },
-        title: {
-          text: 'Sequencer Usage Spread',
-          align: 'center'
+    cycle() {
+      const index = this.selectAble.indexOf(this.selected)
+      const length = this.selectAble.length
+      if (!this.paused){
+        console.log(index)
+        console.log(length)
+        if ((index + 1) === length || (index + 1) >= length) {
+          this.selected = this.selectAble[0]
+        } else {
+          this.selected = this.selectAble[index + 1]
         }
       }
     }
   },
-    mounted (): void {
-      this.getSequencerStatistics()
-      this.getSampleNumbers()
-      setInterval(this.getSequencerStatistics, 100000)
-    }
-})
+  mounted () {
+    setInterval(this.cycle, 15000)
+  }
+}
 </script>
+
+<style lang="scss" scoped>
+
+</style>
