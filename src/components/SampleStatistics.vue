@@ -65,9 +65,11 @@ export default {
   methods: {
     cycle() {
       const index = this.selectAble.indexOf(this.selected)
-      const lenght = this.selectAble.lenght
+      const length = this.selectAble.length
       if (!this.paused){
-        if ((index + 1) >= lenght) {
+        console.log(index)
+        console.log(length)
+        if ((index + 1) === length || (index + 1) >= length) {
           this.selected = this.selectAble[0]
         } else {
           this.selected = this.selectAble[index + 1]
