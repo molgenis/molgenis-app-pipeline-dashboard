@@ -6,15 +6,15 @@
         <b-row>
           <b-col>
             <b-nav tabs align="center">
-                <b-nav-item :active="selected === 'sequencer'" @click="selected = 'sequencer'">Sequencer Usage</b-nav-item>
+                <b-nav-item :active="selected === 'sequencer'" @click="selected = 'sequencer'; paused = true">Sequencer Usage</b-nav-item>
                 <b-nav-item-dropdown id="my-nav-dropdown"
                 text="Sample Counts"
                 toggle-class="nav-link-custom"
                 class="active"
                 right>
-                  <b-dropdown-item @click="selected = 'weekly'">Week</b-dropdown-item>
-                  <b-dropdown-item @click="selected = 'monthly'">Month</b-dropdown-item>
-                  <b-dropdown-item @click="selected = 'yearly'">Year</b-dropdown-item>
+                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly'; paused = true">Week</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly'; paused = true">Month</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly'; paused = true">Year</b-dropdown-item-button>
                 </b-nav-item-dropdown>
             </b-nav>
           </b-col>
@@ -57,8 +57,26 @@ export default {
   },
   data () {
     return {
-      selected: 'sequencer'
+      selected: 'sequencer',
+      selectAble: ['sequencer', 'weekly', 'monthly', 'yearly'],
+      paused: false
     }
+  },
+  methods: {
+    cycle() {
+      const index = this.selectAble.indexOf(this.selected)
+      const lenght = this.selectAble.lenght
+      if (!this.paused){
+        if ((index + 1) >= lenght) {
+          this.selected = this.selectAble[0]
+        } else {
+          this.selected = this.selectAble[index + 1]
+        }
+      }
+    }
+  },
+  mounted () {
+    setInterval(this.cycle, 15000)
   }
 }
 </script>
