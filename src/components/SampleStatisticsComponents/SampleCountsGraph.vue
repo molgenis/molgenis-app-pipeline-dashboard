@@ -1,7 +1,7 @@
 <template>
-  <b-row no-gutters class="h-100">
-    <b-col class="h-100">
-      <b-container class="h-100" fluid>
+  <b-row no-gutters class="h-100 w-100">
+    <b-col class="h-100 w-100">
+      <b-container class="h-100 w-100 p-0" fluid>
         <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
       </b-container>
     </b-col>
@@ -25,11 +25,6 @@ export default {
       required: false,
       default: 'WEEK'
     },
-    timeIndex: {
-      type: Number,
-      required: false,
-      default: 0
-    }
   },
   data () {
     return {
@@ -43,18 +38,18 @@ export default {
         sunday: 3,
       },
       year: {
-        jan: 122,
-        feb: 256,
-        mar: 99,
-        apr: 68,
-        may: 66,
-        jun: 343,
-        jul: 432, 
-        aug: 399,
-        sep: 302,
-        oct: 267,
-        nov: 201,
-        dec: 104
+        jan: 0,
+        feb: 0,
+        mar: 0,
+        apr: 0,
+        may: 0,
+        jun: 0,
+        jul: 0, 
+        aug: 0,
+        sep: 0,
+        oct: 0,
+        nov: 0,
+        dec: 0
       },
       month: {
         '1': 12,
@@ -92,6 +87,13 @@ export default {
     }
   },
   computed: {
+    timeIndex() {
+      if (this.type === 'YEAR') {
+        const date = new Date()
+        return date.getMonth()
+      }
+      return 0
+    },
     selectedData() {
       switch (this.type) {
         case 'WEEK':
@@ -105,11 +107,11 @@ export default {
     title() {
       switch (this.type) {
         case 'WEEK':
-          return 'Samples Used last 7 days'
+          return 'Samples Sequenced last 7 days'
         case 'YEAR':
-          return 'Samples Used last 12 Months'
+          return 'Samples Sequenced last 12 Months'
         default:
-          return 'Samples Used last 31 days'
+          return 'Samples Sequenced last 31 days'
       }
     },
     ordered() {
@@ -121,7 +123,7 @@ export default {
     },
     labels() {
       let labels = Object.keys(this.selectedData)
-      for (let index = 0; index < this.today; index++) {
+      for (let index = 0; index < this.timeIndex; index++) {
         labels.push(labels.shift())
       }
       return labels
@@ -137,6 +139,7 @@ export default {
         chart: {
           type: 'bar',
           height: '100%',
+          width: '100%',
           toolbar: {
             show: false
           }
@@ -161,8 +164,87 @@ export default {
         }
     }
 
+    }
+  },
+  methods: {
+    async getPreviousYearData () {
+      try {
+      let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID', { headers: this.headers })
+      let result = await response.json()
+          
+      const CountMatrix = result.aggs.matrix
+      const MatrixDates = result.aggs.xLabels
+      const Now = new Date()
+      const dayMs = 24 * 60 * 60 * 1000
+
+      const Month = new Date(Now.getTime() - (31 * dayMs))
+      
+      
+        let Dates = []
+        const CurrentMonth = Now.getMonth()
+        const CurrentYear = Now.getFullYear()
+
+        for (let index = 0; index < MatrixDates.length; index++) {
+          //format dd-mm-yyyy
+          const reformat = MatrixDates[index].split('-')
+          
+          const date = new Date()
+          date.setFullYear(Number(reformat[0]))
+          date.setMonth(Number(reformat[1]))
+          date.setDate(Number(reformat[2]))
+          console.log(reformat, date)
+          const count = CountMatrix[index][0]
+          let dateMonth = date.getMonth()
+          if ((date.getMonth() <= CurrentMonth && date.getFullYear() === CurrentYear) || (date.getMonth() > CurrentMonth && date.getFullYear() === (CurrentYear - 1))) {
+            switch (dateMonth) {
+              case 0:
+                this.year.jan += count
+                break
+              case 1:
+                this.year.feb += count
+                break
+              case 2:
+                this.year.mar += count
+                break
+              case 3:
+                this.year.apr += count
+                break
+              case 4:
+                this.year.apr += count
+                break
+              case 5:
+                this.year.jun += count
+                break
+              case 6:
+                this.year.jul += count
+                break
+              case 7:
+                this.year.aug += count
+                break
+              case 8:
+                this.year.sep += count
+                break
+              case 9:
+                this.year.oct += count
+                break
+              case 10:
+                this.year.nov += count
+                break
+              default:
+                this.year.dec += count
+                break
+            }
+          }
+        }      
+    } catch (error) {
+        console.error(error)
+      }
+    }
+  },
+  mounted () {
+    this.getPreviousYearData ()
   }
-}}
+}
 
 </script>
 

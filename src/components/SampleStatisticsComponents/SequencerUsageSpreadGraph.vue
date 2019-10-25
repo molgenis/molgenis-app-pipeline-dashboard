@@ -48,26 +48,17 @@ export default {
     chartOptions () {
       return {
         chart: {
+          type: 'donut',
           height: '100%',
+          width: '100%',
           toolbar: {
             show: false
           }
         },
         labels: this.chartLabels,
-        responsive: [{
-          options: {
-            chart: {
-              
-            },
-            legend: {
-              show: false
-            }
-          }
-        }],
         legend: {
           position: 'right',
-          offsetY: 0,
-          height: 230
+          offsetY: 0
         },
         title: {
           text: 'Sequencer Usage Spread',
