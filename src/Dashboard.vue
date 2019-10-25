@@ -159,7 +159,6 @@ export default Vue.extend({
 
 
 <style lang="scss" scoped>
-@import 'styles/heightClasses.scss';
 
 .h-45 {
 height: 45%;

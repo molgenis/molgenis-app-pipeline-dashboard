@@ -19,12 +19,14 @@
             </b-nav>
           </b-col>
         </b-row>
-        <b-row class="h-75">
+        <b-row v-show="selected === 'sequencer'" class="h-75" no-gutters>
+          <b-col class="h-100 w-100" cols="12">
+              <sequencer-usage-spread-graph  :API="API" :headers="headers"></sequencer-usage-spread-graph>
+          </b-col>
+        </b-row>
+        <b-row v-show="selected !== 'sequencer'" class="h-75" no-gutters>
           <b-col class="h-100">
-            <sequencer-usage-spread-graph v-if="selected === 'sequencer'" :API="API" :headers="headers"></sequencer-usage-spread-graph>
-            <sample-counts-graph v-else-if="selected === 'weekly'" :API="API" :headers="headers" :type="'WEEK'"></sample-counts-graph>
-            <sample-counts-graph v-else-if="selected === 'monthly'" :API="API" :headers="headers" :type="'MONTH'"></sample-counts-graph>
-            <sample-counts-graph v-else-if="selected === 'yearly'" :API="API" :headers="headers" :type="'YEAR'"></sample-counts-graph>
+            <sample-counts-graph id="sample-counts" :API="API" :headers="headers" :type="returnType(selected)"></sample-counts-graph>
           </b-col>
         </b-row>
       </b-container>
@@ -67,13 +69,23 @@ export default {
       const index = this.selectAble.indexOf(this.selected)
       const length = this.selectAble.length
       if (!this.paused){
-        console.log(index)
-        console.log(length)
         if ((index + 1) === length || (index + 1) >= length) {
           this.selected = this.selectAble[0]
         } else {
           this.selected = this.selectAble[index + 1]
         }
+      }
+    },
+    returnType(select) {
+      switch (select) {
+        case 'weekly':
+          return 'WEEK'
+        case 'monthly':
+          return 'MONTH'
+        case 'yearly':
+          return 'YEAR'
+        default:
+          return ''
       }
     }
   },
@@ -84,5 +96,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.height-80 {
+  height: 80%;
+}
 
 </style>
