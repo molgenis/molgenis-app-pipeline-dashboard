@@ -29,13 +29,13 @@ export default {
   data () {
     return {
       week: {
+        sunday: 3,
         monday: 12,
         tuesday: 30,
         wednesday: 9,
         thursday: 26,
         friday: 42,
-        saturday: 2,
-        sunday: 3,
+        saturday: 2
       },
       year: {
         january: 0,
@@ -52,48 +52,58 @@ export default {
         december: 0
       },
       month: {
-        '1': 12,
-        '2': 32,
-        '3': 5,
-        '4': 7,
-        '5': 6,
-        '6': 2,
-        '7': 66,
-        '8': 34,
-        '9': 23,
-        '10': 9,
-        '11': 19,
-        '12': 21,
-        '13': 11,
-        '14': 12,
-        '15': 42,
-        '16': 23,
-        '17': 12,
-        '18': 22,
-        '19': 30,
-        '20': 33,
-        '21': 53,
-        '22': 9,
-        '23': 3,
-        '24': 8,
-        '25': 5,
-        '26': 4,
-        '27': 2,
-        '28': 4,
-        '29': 8,
-        '30': 3,
-        '31': 3
+        '1': 0,
+        '2': 0,
+        '3': 0,
+        '4': 0,
+        '5': 0,
+        '6': 0,
+        '7': 0,
+        '8': 0,
+        '9': 0,
+        '10': 0,
+        '11': 0,
+        '12': 0,
+        '13': 0,
+        '14': 0,
+        '15': 0,
+        '16': 0,
+        '17': 0,
+        '18': 0,
+        '19': 0,
+        '20': 0,
+        '21': 0,
+        '22': 0,
+        '23': 0,
+        '24': 0,
+        '25': 0,
+        '26': 0,
+        '27': 0,
+        '28': 0,
+        '29': 0,
+        '30': 0
       }
     }
   },
   computed: {
+    /**
+     * returns the current day/month index
+     * @returns {number} timeindex
+     */
     timeIndex() {
       if (this.type === 'YEAR') {
         const date = new Date()
         return date.getMonth()
+      } else if (this.type === 'WEEK') {
+        const date = new Date()
+        return date.getDay()
       }
       return 0
     },
+    /**
+     * returns the visible data
+     * @returns {Object} sample counts per date 
+     */
     selectedData() {
       switch (this.type) {
         case 'WEEK':
@@ -104,6 +114,10 @@ export default {
           return this.month
       }
     },
+    /**
+     * Returns the correct title for the graph
+     * @returns {string} title
+     */
     title() {
       switch (this.type) {
         case 'WEEK':
@@ -111,9 +125,14 @@ export default {
         case 'YEAR':
           return 'Samples Sequenced last 12 Months'
         default:
-          return 'Samples Sequenced last 31 days'
+          return 'Samples Sequenced last 30 days'
       }
     },
+    /**
+     * Returns a ordered array of sample counts per date.
+     * Ordered by wich date it is currently
+     * @returns {Array<Number>}
+     */
     ordered() {
       let seriesArray = Object.values(this.selectedData)
       for (let index = 0; index < this.timeIndex; index++) {
@@ -121,6 +140,11 @@ export default {
       }
       return seriesArray
     },
+    /**
+     * Returns a ordered array of labels
+     * Ordered by wich date it is currently
+     * @returns {Array<String>}
+     */
     labels() {
       let labels = Object.keys(this.selectedData)
       for (let index = 0; index < this.timeIndex; index++) {
@@ -128,12 +152,20 @@ export default {
       }
       return labels
     },
+    /**
+     * Returns a series for the graph
+     * @returns {Array<Object>}
+     */
     series() {
       return [{
         name: 'Samples',
         data: this.ordered
       }]
     },
+    /**
+     * Returns all chart options
+     * @returns {Object}
+     */
     chartOptions() {
       return {
         chart: {
@@ -167,6 +199,11 @@ export default {
     }
   },
   methods: {
+    /**
+     * Creates a formatted date string for the query to database
+     * @param {Date} date - date to format
+     * @returns {String} - date in yyyy-mm-dd
+     */
     constructQueryDateString(date) {
       const year = date.getFullYear().toString()
       let month = date.getMonth().toString()
@@ -181,81 +218,162 @@ export default {
       return year + '-' + month + '-' + day
 
     },
+    /**
+     * Resets data to 0 for refilling
+     */
+    resetData() {
+      this.month = {
+        '1': 0,
+        '2': 0,
+        '3': 0,
+        '4': 0,
+        '5': 0,
+        '6': 0,
+        '7': 0,
+        '8': 0,
+        '9': 0,
+        '10': 0,
+        '11': 0,
+        '12': 0,
+        '13': 0,
+        '14': 0,
+        '15': 0,
+        '16': 0,
+        '17': 0,
+        '18': 0,
+        '19': 0,
+        '20': 0,
+        '21': 0,
+        '22': 0,
+        '23': 0,
+        '24': 0,
+        '25': 0,
+        '26': 0,
+        '27': 0,
+        '28': 0,
+        '29': 0,
+        '30': 0
+      }
+      this.year = {
+        january: 0,
+        february: 0,
+        march: 0,
+        april: 0,
+        may: 0,
+        june: 0,
+        july: 0, 
+        august: 0,
+        september: 0,
+        october: 0,
+        november: 0,
+        december: 0
+      }
+      this.week = {
+        sunday: 0,
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0
+      }
+    },
+    /**
+     * Updates year data
+     * @param {Number} Month - Month of year (0-11)
+     * @param {Number} Count - Sample count that month
+     */
+    UpdateYear(Month, Count) {
+      switch (Month) {
+          case 0:
+            this.year.january += Count
+            break
+          case 1:
+            this.year.february += Count
+            break
+          case 2:
+            this.year.march += Count
+            break
+          case 3:
+            this.year.april += Count
+            break
+          case 4:
+            this.year.may += Count
+            break
+          case 5:
+            this.year.june += Count
+            break
+          case 6:
+            this.year.july += Count
+            break
+          case 7:
+            this.year.august += Count
+            break
+          case 8:
+            this.year.september += Count
+            break
+          case 9:
+            this.year.october += Count
+            break
+          case 10:
+            this.year.november += Count
+            break
+          default:
+            this.year.december += Count
+            break
+        }
+    },
+    /**
+     * Updates graph data
+     * @param {Array<Number>} FormattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
+     * @param {Number} SampleCount - Samples Sequenced on Formatted date
+     */
+    fillData(FormattedDate, SampleCount) {
+      const Now = new Date()
+      const dayMs = 24 * 60 * 60 * 1000
+      const CurrentMonth = Now.getMonth()
+      const CurrentYear = Now.getFullYear()
+
+      const date = new Date()
+      date.setFullYear(Number(FormattedDate[0]))
+      date.setMonth(Number(FormattedDate[1]) - 1)
+      date.setDate(Number(FormattedDate[2]))
+
+      let dateMonth = date.getMonth()
+      let dateYear = date.getFullYear()
+
+      if ((dateMonth <= CurrentMonth && dateYear === CurrentYear) || (dateMonth > CurrentMonth && dateYear === (CurrentYear - 1))) {
+        this.UpdateYear(dateMonth, SampleCount)
+      }
+
+      let timeDiffrence = Math.abs(Now - date)
+      let dayDiffrence = Math.ceil(timeDiffrence / dayMs)
+      
+      if (dayDiffrence <= 30) {
+        this.month[dayDiffrence.toString()] = SampleCount
+      }
+      if (dayDiffrence <= 7) {
+        this.week[Object.keys(this.week)[date.getDay()]] = SampleCount
+      }
+    },
+    /**
+     * Gets all samlpe counts of the past year from database
+     */
     async getPreviousYearData () {
       const Now = new Date()
       const dayMs = 24 * 60 * 60 * 1000
-
       const lastYear = new Date(Now.getTime() - (375 * dayMs))
       
-
-
       try {
-      let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=' + this.constructQueryDateString(lastYear), { headers: this.headers })
-      let result = await response.json()
-          
-      const CountMatrix = result.aggs.matrix
-      const MatrixDates = result.aggs.xLabels
-      const Now = new Date()
-      const dayMs = 24 * 60 * 60 * 1000
-
-      const Month = new Date(Now.getTime() - (31 * dayMs))
-      
-      
-        let Dates = []
-        const CurrentMonth = Now.getMonth()
-        const CurrentYear = Now.getFullYear()
-
+        let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=' + this.constructQueryDateString(lastYear), { headers: this.headers })
+        let result = await response.json()
+            
+        const CountMatrix = result.aggs.matrix
+        const MatrixDates = result.aggs.xLabels
+        console.log(CountMatrix)
+        this.resetData()
         for (let index = 0; index < MatrixDates.length; index++) {
-          //format dd-mm-yyyy
-          const reformat = MatrixDates[index].split('-')
-          
-          const date = new Date()
-          date.setFullYear(Number(reformat[0]))
-          date.setMonth(Number(reformat[1]))
-          date.setDate(Number(reformat[2]))
-          console.log(reformat, date)
-          const count = CountMatrix[index][0]
-          let dateMonth = date.getMonth()
-          if ((date.getMonth() <= CurrentMonth && date.getFullYear() === CurrentYear) || (date.getMonth() > CurrentMonth && date.getFullYear() === (CurrentYear - 1))) {
-            switch (dateMonth) {
-              case 0:
-                this.year.january += count
-                break
-              case 1:
-                this.year.february += count
-                break
-              case 2:
-                this.year.march += count
-                break
-              case 3:
-                this.year.april += count
-                break
-              case 4:
-                this.year.may += count
-                break
-              case 5:
-                this.year.june += count
-                break
-              case 6:
-                this.year.july += count
-                break
-              case 7:
-                this.year.august += count
-                break
-              case 8:
-                this.year.september += count
-                break
-              case 9:
-                this.year.october += count
-                break
-              case 10:
-                this.year.november += count
-                break
-              default:
-                this.year.december += count
-                break
-            }
-          }
+          this.fillData(MatrixDates[index].split('-'), CountMatrix[index][0])
         }      
     } catch (error) {
         console.error(error)
@@ -264,6 +382,7 @@ export default {
   },
   mounted () {
     this.getPreviousYearData ()
+    setInterval(this.getPreviousYearData, 3600000)
   }
 }
 
