@@ -12,8 +12,8 @@
                 toggle-class="nav-link-custom"
                 class="active"
                 right>
-                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly'; paused = true">Week</b-dropdown-item-button>
-                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly'; paused = true">Month</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly'; paused = true">7 days</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly'; paused = true">30 days</b-dropdown-item-button>
                   <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly'; paused = true">Year</b-dropdown-item-button>
                 </b-nav-item-dropdown>
             </b-nav>
@@ -65,6 +65,9 @@ export default {
     }
   },
   methods: {
+    /**
+     * Cycles visible Graph by 1 index
+     */
     cycle() {
       const index = this.selectAble.indexOf(this.selected)
       const length = this.selectAble.length
@@ -76,6 +79,10 @@ export default {
         }
       }
     },
+    /**
+     * find the correct return tyle
+     * @param {string} select - selected string
+     */
     returnType(select) {
       switch (select) {
         case 'weekly':
