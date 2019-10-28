@@ -38,18 +38,18 @@ export default {
         sunday: 3,
       },
       year: {
-        jan: 0,
-        feb: 0,
-        mar: 0,
-        apr: 0,
+        january: 0,
+        february: 0,
+        march: 0,
+        april: 0,
         may: 0,
-        jun: 0,
-        jul: 0, 
-        aug: 0,
-        sep: 0,
-        oct: 0,
-        nov: 0,
-        dec: 0
+        june: 0,
+        july: 0, 
+        august: 0,
+        september: 0,
+        october: 0,
+        november: 0,
+        december: 0
       },
       month: {
         '1': 12,
@@ -167,9 +167,30 @@ export default {
     }
   },
   methods: {
+    constructQueryDateString(date) {
+      const year = date.getFullYear().toString()
+      let month = date.getMonth().toString()
+      if (month.length < 2) {
+        month = '0' + month
+      }
+      let day = date.getDate().toString()
+      if (day.length < 2) {
+        dat = '0' + day
+      }
+      
+      return year + '-' + month + '-' + day
+
+    },
     async getPreviousYearData () {
+      const Now = new Date()
+      const dayMs = 24 * 60 * 60 * 1000
+
+      const lastYear = new Date(Now.getTime() - (375 * dayMs))
+      
+
+
       try {
-      let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID', { headers: this.headers })
+      let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=' + this.constructQueryDateString(lastYear), { headers: this.headers })
       let result = await response.json()
           
       const CountMatrix = result.aggs.matrix
@@ -198,40 +219,40 @@ export default {
           if ((date.getMonth() <= CurrentMonth && date.getFullYear() === CurrentYear) || (date.getMonth() > CurrentMonth && date.getFullYear() === (CurrentYear - 1))) {
             switch (dateMonth) {
               case 0:
-                this.year.jan += count
+                this.year.january += count
                 break
               case 1:
-                this.year.feb += count
+                this.year.february += count
                 break
               case 2:
-                this.year.mar += count
+                this.year.march += count
                 break
               case 3:
-                this.year.apr += count
+                this.year.april += count
                 break
               case 4:
-                this.year.apr += count
+                this.year.may += count
                 break
               case 5:
-                this.year.jun += count
+                this.year.june += count
                 break
               case 6:
-                this.year.jul += count
+                this.year.july += count
                 break
               case 7:
-                this.year.aug += count
+                this.year.august += count
                 break
               case 8:
-                this.year.sep += count
+                this.year.september += count
                 break
               case 9:
-                this.year.oct += count
+                this.year.october += count
                 break
               case 10:
-                this.year.nov += count
+                this.year.november += count
                 break
               default:
-                this.year.dec += count
+                this.year.december += count
                 break
             }
           }
