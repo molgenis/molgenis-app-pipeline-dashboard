@@ -29,13 +29,13 @@ export default {
   data () {
     return {
       week: {
-        sunday: 3,
-        monday: 12,
-        tuesday: 30,
-        wednesday: 9,
-        thursday: 26,
-        friday: 42,
-        saturday: 2
+        sunday: 0,
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0
       },
       year: {
         january: 0,
@@ -324,26 +324,35 @@ export default {
         }
     },
     /**
+     * Calculates if given date falls within last year
+     * @param {Date} date - date to verify
+     * @param {Date} now - Current date
+     * 
+     * @returns {Boolean}
+     */
+    dateIsLastYear(date, now) {
+      return 
+      (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) ||
+      (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
+    },
+    /**
      * Updates graph data
-     * @param {Array<Number>} FormattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
+     * @param {Number[]} FormattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
      * @param {Number} SampleCount - Samples Sequenced on Formatted date
      */
     fillData(FormattedDate, SampleCount) {
       const Now = new Date()
+
       const dayMs = 24 * 60 * 60 * 1000
-      const CurrentMonth = Now.getMonth()
-      const CurrentYear = Now.getFullYear()
 
       const date = new Date()
+
       date.setFullYear(Number(FormattedDate[0]))
       date.setMonth(Number(FormattedDate[1]) - 1)
       date.setDate(Number(FormattedDate[2]))
 
-      let dateMonth = date.getMonth()
-      let dateYear = date.getFullYear()
-
-      if ((dateMonth <= CurrentMonth && dateYear === CurrentYear) || (dateMonth > CurrentMonth && dateYear === (CurrentYear - 1))) {
-        this.UpdateYear(dateMonth, SampleCount)
+      if (this.dateIsLastYear(date, Now)) {
+        this.UpdateYear(date.getMonth(), SampleCount)
       }
 
       let timeDiffrence = Math.abs(Now - date)
@@ -370,7 +379,7 @@ export default {
             
         const CountMatrix = result.aggs.matrix
         const MatrixDates = result.aggs.xLabels
-        console.log(CountMatrix)
+        
         this.resetData()
         for (let index = 0; index < MatrixDates.length; index++) {
           this.fillData(MatrixDates[index].split('-'), CountMatrix[index][0])

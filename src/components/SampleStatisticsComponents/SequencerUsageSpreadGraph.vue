@@ -45,6 +45,9 @@ export default {
     }
   },
   computed: {
+    /**
+     * Sets the chart options & labels
+     */
     chartOptions () {
       return {
         chart: {
