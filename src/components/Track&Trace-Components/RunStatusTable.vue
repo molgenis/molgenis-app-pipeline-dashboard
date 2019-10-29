@@ -1,6 +1,6 @@
 <template>
   <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto h-100 w-100">
-    <b-table-simple small fixed hover>
+    <b-table-simple small fixed hover class="minH">
       <b-thead class="">
         <b-tr class="">
           <b-td class="text-center" colspan="2">
@@ -236,5 +236,9 @@ export default Vue.extend({
 
 .h-5r {
   max-height: 45vh
+}
+
+.minH {
+  min-height: 100%
 }
 </style>

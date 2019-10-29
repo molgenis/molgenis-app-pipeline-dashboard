@@ -1,12 +1,12 @@
 <template>
   <b-tr
     name="slide"
-    :id="'runId-' + run" class=""
+    :id="'runId-' + run"
     :variant="variant"
     @click="selectRun(run)"
     @mouseover="setMouseOn(run)"
     borderless>
-      <b-td v-show="mouseOn === run">
+      <b-td v-show="mouseOn === run" class="align-middle">
         <b-form-checkbox
           v-model="LocalHidden"
           :value="run"
@@ -14,8 +14,8 @@
           switch>
         </b-form-checkbox>
       </b-td>
-      <b-td :colspan="mouseOn !== run ? 2 : 6" class="text-truncate">{{run}}</b-td>
-      <b-td colspan="5" v-show="mouseOn !== run" class="text-center">
+      <b-td :colspan="mouseOn !== run ? 2 : 6" class="text-truncate align-middle">{{run}}</b-td>
+      <b-td colspan="5" v-show="mouseOn !== run" class="text-center align-middle">
         <progress-bar
         @progress-finish="emitFinish(run)"
         :totalSteps="5"
