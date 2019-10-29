@@ -9,7 +9,7 @@
     <form ref="form">
       <b-form-group>
         <b-form-textarea
-          id="textarea"
+          id="textinput"
           v-model="placeHolderComment"
           placeholder="Comment..."
           rows="10"
@@ -124,7 +124,7 @@ export default Vue.extend({
     /**
      * Closes modal
      * 
-     * @emits 'comment-modal'
+     * 
      * @returns {void}
      */
     closeModal(): void {
@@ -191,10 +191,13 @@ export default Vue.extend({
      * If run changes put the correct comment
      * @returns {void}
      */
-    Run(): void {
-      this.placeHolderComment = this.comment
-      this.CommentUpdatedState = true
-      this.submitStatus = true
+    Run: {
+      immediate: true,
+      handler () {
+        this.placeHolderComment = this.comment
+        this.CommentUpdatedState = true
+        this.submitStatus = true
+      }
     }
   }
 })

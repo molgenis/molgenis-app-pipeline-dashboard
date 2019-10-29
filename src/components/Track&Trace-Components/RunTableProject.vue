@@ -108,14 +108,16 @@ export default Vue.extend({
   computed: {
     /**
      * Check for long runtime
+     * 
      * @returns {Boolean}
      */
     HasNoWarning (): Boolean {
-      const warning = (this.thresholdToMs > this.finishTime - this.startTime) || !this.started
+      const warning = (this.thresholdToMs > (this.finishTime - this.startTime)) || !this.started
       return warning
     },
     /**
      * Converts average hours to milliseconds for timer
+     * 
      * @returns {Number}
      */
     thresholdToMs (): number {

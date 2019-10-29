@@ -206,9 +206,9 @@ export default {
      */
     constructQueryDateString(date) {
       const year = date.getFullYear().toString()
-      let month = date.getMonth().toString()
+      let month = date.getMonth() + 1
       if (month.length < 2) {
-        month = '0' + month
+        month = '0' + month.toString()
       }
       let day = date.getDate().toString()
       if (day.length < 2) {

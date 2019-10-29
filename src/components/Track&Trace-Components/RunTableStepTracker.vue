@@ -13,8 +13,8 @@
         <span>
           <template v-if="StepRunning(step)">
             <font-awesome-icon v-if="error" icon="exclamation-circle"/>
-            <font-awesome-icon v-else-if="warning" icon="exclamation-triangle"/>
             <font-awesome-icon v-else-if="isFinalStep(step)" icon="check-circle"/>
+            <font-awesome-icon v-else-if="warning" icon="exclamation-triangle"/>
             <b-spinner v-else variant="primary" small/>
           </template>
           <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
