@@ -11,10 +11,10 @@
   </b-progress>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
 
-export default Vue.extend({
+
+export default {
     name: 'progress-bar',
     props: {
         step: {
@@ -46,22 +46,33 @@ export default Vue.extend({
         }
     },
     methods: {
-        checkProgress (): void {
+        /**
+         * If progress is finished emits 'progress-finish'
+         * 
+         * @emits 'progress-finish'
+         * @returns {void}
+         */
+        checkProgress () {
             if (this.step === this.totalSteps){
                 this.$emit('progress-finish')
             }
         }
     },
     watch: {
-        step(): void {
+        /**
+         * If step changes check te progress
+         * 
+         * @returns {void}
+         */
+        step() {
             this.checkProgress()
             }   
         },
-    mounted (): void {
+    mounted () {
         this.checkProgress()
     }
 
-})
+}
 
 </script>
 

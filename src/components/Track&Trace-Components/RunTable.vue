@@ -55,6 +55,10 @@ declare module 'vue/types/vue' {
     selectedProject: string
     comment: string
     projects: ProjectObject[]
+    thresholdOnco: number
+    thresholdExoom: number
+    thresholdPcs: number
+    thresholdSvp: number
   }
 
 }
@@ -154,15 +158,17 @@ export default Vue.extend({
   methods: {
     /**
      * sets Warning status for run
-     * @param warning warning status to set
+     * @param {Boolean} warning - warning status to set
      */
     setRunWarning (warning: boolean): void {
       this.warning = warning
     },
     /**
      * opens the modal for the project
-     * @param project project to comment
-     * @param comment project comment content
+     * @param {String} project - project to comment
+     * @param {String} comment - project comment content
+     * 
+     * @returns {void}
      */
     openModal(project: string, comment: string): void {
       this.selectedProject = project
@@ -171,17 +177,23 @@ export default Vue.extend({
     },
     /**
      * emtis a comment update
-     * @param project project to update
-     * @param comment content
+     * @param {String} project - project to update
+     * @param {String} comment - content
+     * 
+     * @emits 'comment-update'
+     * @returns {void}
      */
     emitComment(project, comment): void {
       this.$emit('comment-update', project, comment)
     },
     /**
      * Updates the stored comment to prevent comment update errors
+     * @param {String} project - project comment to update
+     * @param {String} comment - comment change
+     * 
+     * @returns {void}
      */
     updateLocalComment(project, comment): void {
-      console.log('update:', project)
       for (let i = 0; i < this.projects.length; i++) {
         if (this.projects[i].project === project){
           this.projects[i].Comment = comment
@@ -191,10 +203,12 @@ export default Vue.extend({
     },
     /**
      * Gets the correct threshold for each pipeline type
-     * @returns threshold number
+     * @param {ProjectObject} project - project
+     * 
+     * @returns {Number} threshold number
      */
     getThreshold(project: ProjectObject): number {
-      switch (project.Type) {
+      switch (project.type) {
         case pipelineType.ONCO:
           return this.thresholdOnco
         case pipelineType.Exoom:
@@ -213,8 +227,10 @@ export default Vue.extend({
   watch: {
     /**
      * resets warning if new run is selected
+     * 
+     * @returns {void}
      */
-    runID: function (old: any, newID: any): void {
+    runID: function (): void {
       this.warning = false
     } 
   }

@@ -98,6 +98,15 @@ export default Vue.extend({
   methods: {
     /** 
      * Sends the new comment if the user changed the contents
+     * 
+     * @param {String} Run - run where the comment was added
+     * @param {String} placeHolderComment - local saved comment
+     * @param {String} comment - comment the user edited
+     * @param {String} API - API url
+     * @param {Headers} headers - headers for api call
+     * @param {Boolean} validation - validation status
+     *
+     * @returns {Promise<void>}
      */
     async handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void> {
       try {
@@ -114,17 +123,20 @@ export default Vue.extend({
     },
     /**
      * Closes modal
+     * 
+     * @emits 'comment-modal'
+     * @returns {void}
      */
     closeModal(): void {
       this.$bvModal.hide('comment-modal')
     },
     /**
      * Updates the comment value in MOLGENIS database
-     * @param project project to update
-     * @param vModelComment new comment content
-     * @param comment old comment
-     * @param APIv1 API url
-     * @param headers request headers
+     * @param {String} project - project to update
+     * @param {String} vModelComment - new comment content
+     * @param {String} comment - old comment
+     * @param {String} APIv1 - API url
+     * @param {Headers} headers - request headers
      */
     async PutNewCommentText(project, vModelComment, comment, API, headers, validated) {
       if (comment !== vModelComment && validated) {
@@ -149,7 +161,13 @@ export default Vue.extend({
     },
     /**
      * Checks database if there were any users that added other comments
-     * @returns true if there was an update or the check failed
+     * is true if there was an update or the check failed
+     * @param {String} API - Api url
+     * @param {String} project - project id
+     * @param {Headers} headers - api call headers
+     * @param {String} comment - old comment
+     * 
+     * @returns {Promise<Boolean>}
      */
     async CheckCommentUpdate(API: string, project: string, headers: Headers, comment: string): Promise<boolean> {
       try {
@@ -170,7 +188,8 @@ export default Vue.extend({
   },
   watch: {
     /**
-     * watches for changes in the comment and sets the editable placeHolderComment
+     * If run changes put the correct comment
+     * @returns {void}
      */
     Run(): void {
       this.placeHolderComment = this.comment

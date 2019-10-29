@@ -67,6 +67,8 @@ export default {
   methods: {
     /**
      * Cycles visible Graph by 1 index
+     * 
+     * @returns {void}
      */
     cycle() {
       const index = this.selectAble.indexOf(this.selected)
@@ -81,7 +83,9 @@ export default {
     },
     /**
      * find the correct return tyle
-     * @param {string} select - selected string
+     * @param {String} select - selected string
+     * 
+     * @returns {String}
      */
     returnType(select) {
       switch (select) {

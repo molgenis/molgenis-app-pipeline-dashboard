@@ -65,7 +65,7 @@ export default Vue.extend({
   methods: {
     /**
      * Finds status of current step
-     * @returns String status
+     * @returns {String} status
      */
     getStepStatus (step: string): string {
       if (this.isFinalStep(step) && this.StepRunning(step)) {
@@ -95,30 +95,35 @@ export default Vue.extend({
     },
     /**
      * Checks if step is currently running
-     * @param step String
-     * @returns Boolean
+     * @param {String} step - step to check
+     * 
+     * @returns {Boolean}
      */
     StepRunning (step: string): boolean {
       return this.started && (this.steps[this.currentStep] === step)
     },
     /**
      * Checks if step has been completed
-     * @returns Boolean
+     * @param {String} step - step to check
+     * 
+     * @returns {Boolean}
      */
     StepComplete (step: string): boolean {
       return this.started && (this.getStepIndex(step) < this.currentStep)
     },
     /**
      * Checks if step is final step
-     * @returns Boolean
+     * @param {String} step - step to check
+     * 
+     * @returns {Boolean}
      */
     isFinalStep (step: string): boolean {
       return this.getStepIndex(step) === this.steps.length-1
     },
     /**
      * gets Step index
-     * @param step string to search steps
-     * @returns index
+     * @param {String} step - Step to get index of
+     * @returns {Number} index
      */
     getStepIndex (step: string): number {
       return this.steps.indexOf(step)

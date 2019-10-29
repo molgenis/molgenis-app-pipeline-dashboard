@@ -5,9 +5,8 @@
     <span v-else class="align-middle">Not Started</span>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-export default Vue.extend({
+<script>
+export default {
     name: 'project-timer',
     props: {
         startTime: {
@@ -35,17 +34,19 @@ export default Vue.extend({
     computed: {
         /**
          * calculates timediffrence
-         * @returns Number (milliseconds)
+         * 
+         * @returns {Number} - milliseconds
          */
-        time(): number {
+        time() {
             return this.finishTime - this.startTime
         },
 
         /**
          * Calculates the seconds counter
-         * @returns String
+         * 
+         * @returns {String}
          */
-        seconds(): string {
+        seconds() {
             const seconds = Math.sqrt(Math.pow(Math.round(((this.time / 1000) % 3600) % 60), 2))
             if (seconds < 10) {
                 return '0' + seconds
@@ -55,9 +56,9 @@ export default Vue.extend({
 
         /**
          * Calculates the minutes counter
-         * @returns String
+         * @returns {String}
          */
-        minutes(): string {
+        minutes() {
             const minutes = Math.sqrt(Math.pow(Math.round(((this.time / 1000) / 3600) % 60), 2))
             if (minutes < 10){
                 return '0' + minutes
@@ -67,9 +68,10 @@ export default Vue.extend({
 
         /**
          * Calculates hour counter
-         * @returns String
+         * 
+         * @returns {String}
          */
-        hours(): string {
+        hours() {
             const hours = Math.round((this.time / 1000) / 3600)
             if (hours < 10) {
                 return '0' + hours
@@ -79,14 +81,15 @@ export default Vue.extend({
         
         /**
          * Checks if project is on hold
-         * @returns Boolean
+         * 
+         * @returns {Boolean}
          */
-        waiting(): Boolean {
+        waiting() {
             return (!this.started)
         }
         
     }  
-})
+}
 </script>
 
 <style scoped>

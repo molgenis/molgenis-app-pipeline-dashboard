@@ -10,10 +10,8 @@
     </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-
-export default Vue.extend({
+<script>
+export default {
     name: 'status-icon',
     props: {
         status: {
@@ -26,7 +24,8 @@ export default Vue.extend({
             default: false
         }
     }
-})
+}
+
 </script>
 
 <style lang="scss" scoped>

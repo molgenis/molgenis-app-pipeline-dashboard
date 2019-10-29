@@ -331,9 +331,7 @@ export default {
      * @returns {Boolean}
      */
     dateIsLastYear(date, now) {
-      return 
-      (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) ||
-      (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
+      return (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) || (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
     },
     /**
      * Updates graph data

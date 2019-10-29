@@ -26,7 +26,7 @@ export default Vue.extend({
   computed: {
     /**
      * Computed property that builds the annotations for the graph
-     * @returns Object annotations
+     * @returns {graphAnnotation}
      */
     annotations (): graphAnnotation {
       let thresholdNumber = this.threshold as number
@@ -40,7 +40,7 @@ export default Vue.extend({
     },
     /**
      * Computed property that builds chart options
-     * @returns Object chartOptions
+     * @returns {chartOptions}
      */
     chartOptions (): chartOptions {
       return {
@@ -186,7 +186,7 @@ export default Vue.extend({
     },
     /**
      * creates xAnnotations for outliers
-     * @returns Annotation objects for outliers
+     * @returns {xAnnotation[]}
      */
     xAnnotations (): xAnnotation[] {
       let annotations = [] as xAnnotation[]
@@ -200,9 +200,10 @@ export default Vue.extend({
   methods: {
     /**
      * gets standard deviation
-     * @param numArray Array<Number>
-     * @param average Number
-     * @returns Number Standard deviation from the average
+     * @param {Number[]} numArray - Array with numbers to get SD
+     * @param {Number} average - average
+     * 
+     * @returns {Number} sd
      */
     getSD (numArray: number[], average: number): number {
       let sumOfDistance = 0
@@ -214,8 +215,8 @@ export default Vue.extend({
     },
     /**
      * gets the average of array
-     * @param numArray Array<Number>
-     * @returns Number average of array
+     * @param {Number} numArray - array of numbers to calculate average
+     * @returns {Number}
      */
     findAverage (numArray: number[]): number {
       let sum = 0
@@ -227,8 +228,9 @@ export default Vue.extend({
 
     /**
      * returns average without outliers
-     * @param numArray Array<Number>
-     * @returns Number average of Array
+     * @param {Number[]} numArray - Average without any outliers
+     * 
+     * @returns {Number}
      */
     findAverageOfNormalValues (numArray: number[]): number {
       const average = this.findAverage(numArray)
@@ -242,9 +244,10 @@ export default Vue.extend({
     },
     /**
      * Creates xAnnotation Object
-     * @param coordinate coordinate of annotation
-     * @param name name to put in label
-     * @returns xAnnotation Object
+     * @param {Number} coordinate - coordinate of annotation
+     * @param {String} name - name to put in label
+     * 
+     * @returns {xAnnotation}
      */
     CreateXannotation (coordinate: number, name: string): xAnnotation {
       let labelPosition = 'top'
@@ -279,9 +282,9 @@ export default Vue.extend({
 
     /**
      * crops given title by the provided lenght
-     * @param title String title to crop
-     * @param lenght Number maxlenght
-     * @returns cropped title
+     * @param {String} title - title to crop
+     * @param {Number} lenght - maxlenght
+     * @returns {String}
      */
     cropTitle (title: string, length: number): string {
       if (title.length > length) {
@@ -293,6 +296,13 @@ export default Vue.extend({
   watch: {
     /**
      * Emits a threshold update if they change
+     * 
+     * @emits 'new-threshold-onco'
+     * @emits 'new-threshold-pcs'
+     * @emits 'new-threshold-exoom'
+     * @emits 'new-threshold-svp'
+     * 
+     * @returns {void}
      */
     thresholds (): void {
       this.$emit('new-threshold-onco', this.thresholds.ONCO)

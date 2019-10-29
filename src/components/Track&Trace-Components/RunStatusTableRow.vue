@@ -82,15 +82,43 @@ export default {
     }
   },
   methods: {
+    /**
+     * Changes the selected run
+     * @param {String} run - run Id to select
+     * 
+     * @emits 'select-run'
+     * @returns {void}
+     */
     selectRun(run) {
       this.$emit('select-run', run)
     },
+    /**
+     * Noitifys run as finished
+     * @param {String} run - run to pass on with status finished
+     * 
+     * @emits 'progress-finish'
+     * @returns {void}
+     */
     emitFinish(run) {
       this.$emit('progress-finish', run)
     },
+    /**
+     * Calculates diffrence between two arrays
+     * @param {Array} array1 - 1st array
+     * @param {Array} array2 - 2nd array
+     * 
+     * @returns {Array} diffrence
+     */
     arrayDiffrence (array1, array2) {
       return array1.filter((item) => { return array2.indexOf(item) < 0 })
     },
+    /**
+     * Change run where mouse is on
+     * @param {String} run - the new run
+     * 
+     * @emits 'mouse-on'
+     * @returns {void}
+     */
     setMouseOn(run) {
       this.$emit('mouse-on', run)
     }

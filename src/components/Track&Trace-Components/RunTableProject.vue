@@ -108,6 +108,7 @@ export default Vue.extend({
   computed: {
     /**
      * Check for long runtime
+     * @returns {Boolean}
      */
     HasNoWarning (): Boolean {
       const warning = (this.thresholdToMs > this.finishTime - this.startTime) || !this.started
@@ -115,7 +116,7 @@ export default Vue.extend({
     },
     /**
      * Converts average hours to milliseconds for timer
-     * @returns Number
+     * @returns {Number}
      */
     thresholdToMs (): number {
       return this.threshold * 3600 * 1000
@@ -123,7 +124,7 @@ export default Vue.extend({
 
     /**
      * Filters jobs that are not completed sorted by start date
-     * @returns Array
+     * @returns {Job[]}
      */
     remainingJobs (): Job[] {
       let jobArray: Job[] = this.jobs
@@ -136,7 +137,7 @@ export default Vue.extend({
 
     /**
      * calculates finished step count
-     * @returns Number
+     * @returns {Number}
      */
     steps (): number {
       if (this.resultCopy === 'finished') {
@@ -148,7 +149,7 @@ export default Vue.extend({
 
     /**
      * Calculates total step count for completion
-     * @returns Number
+     * @returns {Number}
      */
     totalSteps (): number {
       return this.jobs.length
@@ -156,7 +157,7 @@ export default Vue.extend({
 
     /**
      * Finds status of project and sets variant
-     * @returns String
+     * @returns {String}
      */
     status (): string {
       if (this.finished) {
@@ -179,7 +180,10 @@ export default Vue.extend({
         return 'waiting'
       }
     },
-
+    /**
+     * Sets the correct color variant
+     * @returns {String}
+     */
     variant (): string {
       switch (this.status) {
         case 'finished':
@@ -197,7 +201,7 @@ export default Vue.extend({
 
     /**
      * Checks if project has been started
-     * @returns Boolean
+     * @returns {Boolean}
      */
     started (): boolean {
       if (this.steps > 0) {
@@ -210,7 +214,7 @@ export default Vue.extend({
 
     /**
      * Checks if all steps are completed
-     * @returns Boolean
+     * @returns {Boolean}
      */
     finished (): boolean {
       return (
@@ -220,7 +224,7 @@ export default Vue.extend({
 
     /**
      * Sums up all job runtimes
-     * @returns total runtime
+     * @returns {Number}
      */
     runtime (): number {
       let runtime = 0
@@ -235,7 +239,7 @@ export default Vue.extend({
 
     /**
      * Gets finished time, if not finished returns now()
-     * @returns Number (milliseconds)
+     * @returns {Number} (milliseconds)
      */
     finishTime (): number {
       let FinishedDate = 0
@@ -248,7 +252,7 @@ export default Vue.extend({
 
     /**
      * Gets started time
-     * @returns Number (milliseconds)
+     * @returns {Number} (milliseconds)
      */
     startTime (): number {
       return this.findStartDateTime(this.jobs as Job[])
@@ -257,12 +261,18 @@ export default Vue.extend({
   methods: {
     /**
      * emits job to open the modal
+     * 
+     * @emits 'open-modal'
+     * @returns {void}
      */
     toggleLogBox (): void {
      this.$emit('open-modal', this.project, this.comment) 
     },
     /**
      * Checks if the project contains warnings
+     * 
+     * @emits 'project-warning'
+     * @returns {void}
      */
     CheckForWarnings(): void {
       if (!this.HasNoWarning) {
@@ -271,6 +281,9 @@ export default Vue.extend({
     },
     /**
      * emits finished when called
+     * 
+     * @emits 'finished'
+     * @returns {void}
      */
     projectFinished (): void {
       this.$emit('finished', this.runtime)
@@ -278,8 +291,8 @@ export default Vue.extend({
 
     /**
      * Searches data for last or running job date/time
-     * @param jobs jobs of project
-     * @returns Number finished date in ms
+     * @param {Job[]} jobs - jobs of project
+     * @returns {Number} finished date in ms
      */
     findLastDateTime (jobs: Job[]): number {
       let FinishedDate = 0
@@ -297,8 +310,8 @@ export default Vue.extend({
 
     /**
      * Searches data for first job date/time
-     * @param jobs jobs of project
-     * @returns Number started date in ms
+     * @param {Job[]} jobs - jobs of project
+     * @returns {Number} started date in ms
      */
     findStartDateTime (jobs: Job[]): number {
       let StartedDate = Infinity
@@ -315,9 +328,9 @@ export default Vue.extend({
 
     /**
      * Comperator function for job sorting by time
-     * @param Job1 first job
-     * @param Job2 second job
-     * @returns Number sort order
+     * @param {Job} Job1 - first job
+     * @param {Job} Job2 - second job
+     * @returns {Number} sort order
      */
     SortJobsByTime (Job1: Job, Job2: Job): number {
       const Job1StartedDate = Job1.started_date

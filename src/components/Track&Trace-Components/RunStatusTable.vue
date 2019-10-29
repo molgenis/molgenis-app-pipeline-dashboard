@@ -125,32 +125,58 @@ export default Vue.extend({
     },
     /**
      * emit selected run
-     * @param run to be selected
+     * @param {String} run - Run to select
+     * 
+     * @emits 'select-run'
+     * @returns {void}
      */
     selectRun (run: string): void {
       this.$emit('select-run', run)
     },
     /**
      * emit pause to stop cycling runs
+     * 
+     * @emits 'toggle-cycle'
+     * @returns {void}
      */
     emitPause (): void {
       this.$emit('toggle-cycle')
     },
     /**
     *  emit finish to save run as finished
-    * @param run run id string
+    * @param {String} run - run id string
+    * 
+    * @emits 'run-finished'
+    * @returns {void}
     */
     emitFinish (run: string): void {
       this.$emit('run-finished', run)
     },
+    /**
+     * Sets mouseOn string
+     * @param {String} run - run id
+     * 
+     * @returns {void}
+     */
     setMouseOn (run: string): void {
       this.mouseOn = run
     },
+    /**
+     * Updates hidden parameter
+     * @param {String[]} hidden - hidden values array
+     * 
+     * @returns {void}
+     */
     updateHidden (hidden: string[]): void {
       this.hidden = hidden
     }
   },
   computed: {
+    /**
+     * When hidden is toggled true return hidden array for display
+     * 
+     * @returns {RunStatusData[]}
+     */
     showHiddenRuns (): RunStatusData[] {
       if (this.hiddenToggled) {
         return this.hiddenRuns
@@ -159,11 +185,23 @@ export default Vue.extend({
     }
   },
   watch: {
+    /**
+     * When selected run changes check if it is hidden
+     * if it is hidden cycle to the next run
+     * 
+     * @emits 'cycle-next'
+     * @returns {void}
+     */
     selectedRun: function () {
       if (this.hidden.includes(this.selectedRun)) {
         this.$emit('cycle-next')
       }
     },
+    /**
+     * when hidden v-model changes makes sure the visible runs does not extend the maximum show value
+     * 
+     * @returns {void}
+     */
     hidden: {
       immediate: true,
       handler () {
