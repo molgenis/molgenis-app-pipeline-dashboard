@@ -158,7 +158,8 @@ export default Vue.extend({
 
     /**
      * Currently selected run id
-     * @returns String run id
+     * 
+     * @returns {String} run id
      */
     runID (): string {
       const runID = this.run.run_id
@@ -170,7 +171,8 @@ export default Vue.extend({
 
     /**
      * Currently selected run projects
-     * @returns Array of Projects
+     * 
+     * @returns {ProjectObject[]}
      */
     runProjects (): ProjectObject[] {
       return this.run.projects
@@ -178,7 +180,8 @@ export default Vue.extend({
 
     /**
      * Currently selected run project count
-     * @returns Number of projects
+     * 
+     * @returns {Number}
      */
     projectCount (): number {
       return this.run.len + 1
@@ -186,7 +189,8 @@ export default Vue.extend({
 
     /**
      * Currently selected run error status
-     * @returns Boolean
+     * 
+     * @returns {Boolean}
      */
     containsError (): Boolean {
       return this.run.containsError
@@ -194,7 +198,8 @@ export default Vue.extend({
 
     /**
      * checks if run is busy demultiplexing
-     * @returns boolean if it is demultiplexing
+     * 
+     * @returns {Boolean}
      */
     demultiplexing (): Boolean {
       const demultiplexing = this.run.demultiplexing
@@ -203,7 +208,8 @@ export default Vue.extend({
     },
     /**
      * Currently selected run step
-     * @returns Number step
+     * 
+     * @returns {Number}
      */
     currentStep (): number {
       return this.runStep(this.run)
@@ -211,7 +217,8 @@ export default Vue.extend({
 
     /**
      * Combines all data into one object
-     * @returns Object
+     * 
+     * @returns {Run[]}
      */
     runData (): Run[] {
       let data: Run[] = []
@@ -222,7 +229,8 @@ export default Vue.extend({
 
     /**
      * Creates array of runId Strings
-     * @returns Array
+     * 
+     * @returns {String[]}
      */
     runIds (): string[] {
       let runIds: string[] = []
@@ -234,7 +242,8 @@ export default Vue.extend({
 
     /**
      * creates an Array of run objects for step tracker
-     * @returns Array
+     * 
+     * @returns {Step[]}
      */
     runSteps (): Step[] {
       let runSteps: Step[] = []
@@ -289,6 +298,8 @@ export default Vue.extend({
 
     /**
      * increases timer by 1 second
+     * 
+     * @returns {void}
      */
     timeUp (): void {
       this.time = this.time + 1000
@@ -296,6 +307,8 @@ export default Vue.extend({
 
     /**
      * primes the timer for counting runtimes
+     * 
+     * @returns {void}
      */
     setTimer ():void {
       this.time = new Date().getTime()
@@ -304,6 +317,8 @@ export default Vue.extend({
 
     /**
      * Get the available projects in status data.
+     * 
+     * @returns {Promise<void>}
      */
     async getData (): Promise<void> {
       try {
@@ -326,11 +341,12 @@ export default Vue.extend({
     },
     /**
      * fetches data from specified location
-     * @param ref fetch location url
-     * @param items fetch previous page contents
-     * @returns Array of items
+     * @param {String} ref - fetch location url
+     * @param {Promise<RawDataObject[]>} items - fetch previous page contents
+     * 
+     * @returns {Promise<RawDataObject[]>}
      */
-    async fetchData (ref: string, items = []): Promise<Array<RawDataObject>> {
+    async fetchData (ref: string, items = []): Promise<RawDataObject[]> {
       const response = await fetch(ref, {
         headers: this.headers
       })
@@ -345,6 +361,8 @@ export default Vue.extend({
 
     /**
      * Cycles the display index by 1
+     * 
+     * @returns {void}
      */
     cycleRun (): void {
       if (!this.paused) {
@@ -360,8 +378,9 @@ export default Vue.extend({
 
     /**
      * finds run status step number
-     * @param run run to check
-     * @returns step Number
+     * @param {Run} run - run to check
+     * 
+     * @returns {Number}
      */
     runStep (run: Run): number {
       switch (run.demultiplexing) {
@@ -427,16 +446,18 @@ export default Vue.extend({
 
     /**
      * Checks if a run is finished with its pipelines
-     * @param run Object
-     * @returns Boolean
+     * @param {Run} run - run to check pipelines
+     * 
+     * @returns {Boolean}
      */
     runFinished (run: Run): Boolean {
       return run.projects.filter((x) => { return x.status.toLowerCase() === 'finished' }).length === run.len
     },
     /**
      * returns number of finished projects
-     * @param projects projects to check
-     * @returns Number
+     * @param {ProjectObject[]} projects - projects to check
+     * 
+     * @returns {Number}
      */
     countProjectFinishedCopying (projects: ProjectObject[]): number {
       const finishedProjects = projects.filter(function (x) {
@@ -447,10 +468,11 @@ export default Vue.extend({
 
     /**
      * combines all available data into one run
-     * @param run run to add data to
-     * @param projects all projects to filter
-     * @param jobs all jobs to filter
-     * @returns runObject
+     * @param {RunDataObject} run - run to add data to
+     * @param {ProjectDataObject[]} projects - all projects to filter
+     * @param {Job[]} jobs - all jobs to filter
+     * 
+     * @returns {Run}
      */
     constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run {
       let Projects: ProjectObject[] = []
@@ -477,9 +499,10 @@ export default Vue.extend({
 
     /**
      * gets the project status
-     * @param project project
-     * @param jobs project jobs
-     * @returns String status
+     * @param {projectDataObject} project - project
+     * @param {Job[]} jobs - project jobs
+     * 
+     * @returns {String} - status
      */
     getStatus (project: projectDataObject, jobs: Job[]): string {
       if (project.copy_results_prm === 'finished') {
@@ -496,15 +519,16 @@ export default Vue.extend({
     /**
      * Coutns status occurence in a job Array
      *
-     * @returns status count Number
+     * @returns {Number} - status count
      */
     countJobStatus (jobs: Job[], status: string): number {
       return jobs.filter(function (x) { return x.status === status }).length
     },
     /**
      * resolves the last known finish date
-     * @param projects Projects to search for finish date
-     * @returns finished date in MS
+     * @param {ProjectObject} projects - Projects to search for finish date
+     * 
+     * @returns {Number} - finished date in ms
      */
     findLastDateTime (projects: ProjectObject[]): number {
       let FinishedDate = 0
@@ -522,8 +546,9 @@ export default Vue.extend({
     },
     /**
      * resolves the start date of the project array
-     * @param projects projects to search
-     * @returns Started date in MS
+     * @param {ProjectObject[]} projects - projects to search
+     * 
+     * @returns {Number} - started date in ms
      */
     findStartDateTime (projects: ProjectObject[]): number {
       let StartedDate = Infinity
@@ -541,7 +566,9 @@ export default Vue.extend({
     },
     /**
      * Creates a RunTimeStatistic object and sends it to the grah
-     * @param run run to add to graph
+     * @param {String} run run to add to graph
+     * 
+     * @returns {void}
      */
     addRunToStatistics (run: string): void {
       if (!this.graphRuns.includes(run)) {
