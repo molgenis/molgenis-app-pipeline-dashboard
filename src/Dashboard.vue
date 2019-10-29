@@ -79,6 +79,11 @@ export default Vue.extend({
     }
   },
   computed: {
+    /**
+     * Creates the api headers object
+     * 
+     * @returns {Headers}
+     */
     headers () {
       const header = new Headers()
       header.append('x-molgenis-token', this.token)
@@ -89,8 +94,10 @@ export default Vue.extend({
   methods: {
     /**
      * Gets the new login token
-     * @param username login name
-     * @param password login password
+     * @param {String} username - login name
+     * @param {String} password - login password
+     * 
+     * @returns {String}
      */
     async getToken (username: string, password: string) {
       const response = await fetch('http://localhost:8081/api/v1/login')
@@ -103,13 +110,17 @@ export default Vue.extend({
 
     /**
      * Sets the access token
+     * 
+     * @returns {void}
      */
     async setToken () {
       this.token = await this.getToken(this.username, this.password)
     },
     /**
      * Adds new runtime statistics to graph with a max lenght of 10
-     * @param run String runId
+     * @param {RunTimeStatistic} run - new statistic to add
+     * 
+     * @returns {void}
      */
     addStatistics (run: RunTimeStatistic) {
       let timeArray = this.runTimeArray
@@ -123,34 +134,39 @@ export default Vue.extend({
     },
     /**
      * Sets maximum threshold for ONCO pipeline types
-     * @param threshold ONCO threshold hours
+     * @param {Number} threshold - ONCO threshold hours
+     * 
+     * @returns {void}
      */
     setOncoMax (threshold: number): void {
       this.thresholdOnco = threshold
     },
     /**
      * Sets maximum threshold for PCS pipeline types
-     * @param threshold PCS threshold hours
+     * @param {Number} threshold - PCS threshold hours
+     * 
+     * @returns {void}
      */
     setPcsMax (threshold: number): void {
       this.thresholdPcs = threshold
     },
     /**
      * Sets maximum threshold for Exoom pipeline types
-     * @param threshold Exoom threshold hours
+     * @param {Number} threshold - Exoom threshold hours
+     * 
+     * @returns {void}
      */
     setExoomMax (threshold: number):void {
       this.thresholdExoom = threshold
     },
     /**
      * Sets maximum threshold for SVP pipeline types
-     * @param threshold SVP threshold hours
+     * @param {Number} threshold - SVP threshold hours
+     * 
+     * @returns {void}
      */
     setSvpMax (threshold: number): void {
       this.thresholdSvp = threshold
-    },
-    setFullscreen(): void {
-      this.$el.requestFullscreen()
     }
   }
 })
