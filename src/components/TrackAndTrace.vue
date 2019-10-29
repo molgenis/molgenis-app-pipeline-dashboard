@@ -50,7 +50,7 @@ declare module 'vue/types/vue' {
   interface Vue {
     runs: RunDataObject[]
     jobs: Job[]
-    projects: projectDataObject[]
+    TotalProjects: projectDataObject[]
     runUrl: string
     time: number
     showRun: string
@@ -134,7 +134,7 @@ export default Vue.extend({
     return {
       runs: [] as RunDataObject[],
       jobs: [] as Job[],
-      projects: [] as projectDataObject[],
+      TotalProjects: [] as projectDataObject[],
       runUrl: '',
       time: 0,
       showRun: '',
@@ -146,7 +146,7 @@ export default Vue.extend({
   computed: {
     /**
      * Currently selected run
-     * @returns Run
+     * @returns {Run}
      */
     run (): Run {
       const run = this.runData.find((x: Run) => { return x.run_id === this.showRun })
@@ -222,7 +222,7 @@ export default Vue.extend({
      */
     runData (): Run[] {
       let data: Run[] = []
-      this.runs.forEach((run: RunDataObject) => { data.push(this.constructRun(run, this.projects, this.jobs)) })
+      this.runs.forEach((run: RunDataObject) => { data.push(this.constructRun(run, this.TotalProjects, this.jobs)) })
       data = data.sort(this.sortRuns)
       return data
     },
@@ -329,8 +329,8 @@ export default Vue.extend({
         if (jobs !== this.jobs) {
           this.jobs = jobs
         }
-        if (projects !== this.projects) {
-          this.projects = projects
+        if (projects !== this.TotalProjects) {
+          this.TotalProjects = projects
         }
         if (runs !== this.runs) {
           this.runs = runs

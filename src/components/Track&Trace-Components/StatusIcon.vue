@@ -25,13 +25,12 @@ export default {
         }
     }
 }
-
 </script>
 
 <style lang="scss" scoped>
 
-@import '../../../node_modules/bootstrap/scss/bootstrap';
-@import '../../../node_modules/bootstrap-vue/src/index.scss';
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
 
 .complete {
     color: $success;
