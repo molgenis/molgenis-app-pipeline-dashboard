@@ -5,6 +5,7 @@
       ref="modal"
       :title="Run"
       hide-footer
+      :static="true"
       >
     <form ref="form">
       <b-form-group>
@@ -72,7 +73,7 @@ export default Vue.extend({
       default: ''
     },
     headers: {
-      type: Headers,
+      type: Object,
       required: true
     },
     API: {
@@ -131,14 +132,27 @@ export default Vue.extend({
       this.$bvModal.hide('comment-modal')
     },
     /**
+     * Opens the modal
+     * 
+     * 
+     * @returns {void}
+     */
+    showModal(): void {
+      this.$bvModal.show('comment-modal')
+    },
+    /**
      * Updates the comment value in MOLGENIS database
+     * 
      * @param {String} project - project to update
      * @param {String} vModelComment - new comment content
      * @param {String} comment - old comment
      * @param {String} APIv1 - API url
      * @param {Headers} headers - request headers
+     * @param {Boolean} validated - comment is correct
+     * 
+     * @returns {Promise<void>}
      */
-    async PutNewCommentText(project, vModelComment, comment, API, headers, validated) {
+    async PutNewCommentText(project: string, vModelComment: string, comment: string, API: string, headers: Headers, validated: Boolean): Promise<void> {
       if (comment !== vModelComment && validated) {
         try {
           const response = await fetch(API + 'status_projects/' + project + '/comment', {
