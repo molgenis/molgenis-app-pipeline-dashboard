@@ -8,70 +8,75 @@ const localVue = createLocalVue()
 localVue.use(BootstrapVue)
 
 describe('RunTableCommentModal.vue', () => {
+  const comment = 'hello, this is a test!'
+  const run = 'TestRun1'
+  const API = 'localTest:8080'
+  // render commentmodal
   
-
-  it('Contains the correct comment and saves it locally', async () => {
-    const comment = 'hello, this is a test!'
-    const run = 'TestRun1'
-    const API = 'localTest:8080'
-
-    // render commentmodal
-    const wrapper = mount(
-      CommentModal,
-      {
-        propsData: {
-          Run: run,
-          comment: comment, 
-          headers: {}, 
-          API: API
-        },
-        localVue: localVue,
-        attachToDocument: true
-      }
-    )
-    
-    expect(wrapper.isVueInstance()).toBeTruthy()
-
-    // Unhide comment modal
-
+  const wrapper = mount(
+    CommentModal,
+    {
+      propsData: {
+        Run: run,
+        comment: comment, 
+        headers: {}, 
+        API: API
+      },
+      localVue: localVue,
+      attachToDocument: true
+    }
+  )
+  
+  beforeEach(() => {
+    //Show modal
     wrapper.vm.$bvModal.show('comment-modal')
+  })
 
-    const modal = wrapper.find('#comment-modal')
+  afterEach(() => {
+    //Close Modal
+    wrapper.vm.$bvModal.hide('comment-modal')
+  })
 
-    //Rendered Comment modal
-    expect(modal.exists()).toBeTruthy()
+  afterAll(() => { wrapper.destroy() })
 
-    // title is same as run
-    expect(modal.find('.modal-title').text()).toEqual(run)
-
-    // 
-    let textarea = modal.find('textarea')
-
-    expect(textarea.exists()).toBeTruthy()
-
-    // assert placeholder comment has been saved
-    expect(wrapper.vm.$data.placeHolderComment).toBe('hello, this is a test!')
-
-    // Select Submit button
-    let button = modal.findAll('button').at(1)
-    expect(button.text()).toEqual('Submit')
-
-
-    // Put new value
-    textarea.setValue('Updated Comment!')
-
-    // assert placeholder updated
-    expect(wrapper.vm.$data.placeHolderComment).toEqual('Updated Comment!')
-    
-    // Make sure it exists
-    wrapper.destroy()
-
-    // User changed the comment
-    
-
-
-    
-    
+  it('Is Vue instance', () => {
+    expect(wrapper.isVueInstance()).toBeTruthy()
   })
   
+  it('exists', () => {
+    //Rendered Comment modal
+    expect(wrapper.find('#comment-modal').exists()).toBeTruthy()
+  })
+
+  it('Has correct initial content', () => {
+    // title is same as run
+    expect(wrapper.find('#comment-modal').find('.modal-title').text()).toEqual(run)
+
+    // assert placeholder comment has been saved
+    expect(wrapper.vm.$data.placeHolderComment).toEqual(comment)
+    
+  })
+
+  it('Updates local comment on text change', () => {
+    const newComment = 'Updated Comment!'
+
+    //Comment equals old comment before change
+    expect(wrapper.vm.$data.placeHolderComment).toEqual(comment)
+
+    //Change textarea content
+    wrapper.find('#comment-modal').find('textarea').setValue(newComment)
+
+    //Comment changed locally
+    expect(wrapper.vm.$data.placeHolderComment).toEqual(newComment)
+  })
+
+  it('displays error if comment has been changed on remote', () => {
+    //@todo
+  })
+  it('displays error if comment is too long', () => {
+    //@todo
+  })
+  it('displays error if submit failed', () => {
+    //@todo
+  })
 })

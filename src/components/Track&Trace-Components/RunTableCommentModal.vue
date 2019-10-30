@@ -73,7 +73,7 @@ export default Vue.extend({
       default: ''
     },
     headers: {
-      type: Object,
+      type: Object as (() => Headers),
       required: true
     },
     API: {
