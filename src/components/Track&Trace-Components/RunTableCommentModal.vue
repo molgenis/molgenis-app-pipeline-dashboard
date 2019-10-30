@@ -34,33 +34,8 @@
 </b-container>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-
-interface CommentResponseJson{
-  href: string,
-  comment?: string
-}
-
-declare module 'vue/types/vue' {
-  interface Vue {
-    Run: string
-    comment: string
-    headers: Headers
-    API: string
-    CommentUpdatedState: boolean
-    placeHolderComment: string
-    name: string
-    submitStatus: boolean
-    validation(): boolean
-    PutNewCommentText(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void>
-    handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void>
-    CheckCommentUpdate(API: string, Run: string, headers: Headers, comment: string): Promise<boolean>
-    closeModal(): void
-  }
-}
-
-export default Vue.extend({
+<script>
+export default {
   name: 'comment-modal',
   props: {
     Run: {
@@ -73,7 +48,7 @@ export default Vue.extend({
       default: ''
     },
     headers: {
-      type: Object as (() => Headers),
+      type: Object,
       required: true
     },
     API: {
@@ -91,8 +66,8 @@ export default Vue.extend({
     }
   },
   computed: {
-    validation(): boolean {
-      const comment: string = this.placeHolderComment
+    validation() {
+      const comment = this.placeHolderComment
       return comment.length <= 65535
     }
   },
@@ -109,14 +84,14 @@ export default Vue.extend({
      *
      * @returns {Promise<void>}
      */
-    async handleSubmit(Run: string, placeHolderComment: string, comment: string, API: string, headers: Headers, validation: boolean): Promise<void> {
+    async handleSubmit(Run, placeHolderComment, comment, API, headers, validation) {
       try {
         const CommentUpdated = await this.CheckCommentUpdate(API, Run, headers, comment)
         if (CommentUpdated) {
           this.CommentUpdatedState = false
         } else {
-        this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
-        this.closeModal()
+          this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
+          ßthis.closeModal()
         }
       } catch (error) {
         console.error(error)
@@ -128,7 +103,7 @@ export default Vue.extend({
      * 
      * @returns {void}
      */
-    closeModal(): void {
+    closeModal() {
       this.$bvModal.hide('comment-modal')
     },
     /**
@@ -137,7 +112,7 @@ export default Vue.extend({
      * 
      * @returns {void}
      */
-    showModal(): void {
+    showModal() {
       this.$bvModal.show('comment-modal')
     },
     /**
@@ -152,7 +127,7 @@ export default Vue.extend({
      * 
      * @returns {Promise<void>}
      */
-    async PutNewCommentText(project: string, vModelComment: string, comment: string, API: string, headers: Headers, validated: Boolean): Promise<void> {
+    async PutNewCommentText(project, vModelComment, comment, API, headers, validated) {
       if (comment !== vModelComment && validated) {
         try {
           const response = await fetch(API + 'status_projects/' + project + '/comment', {
@@ -183,13 +158,13 @@ export default Vue.extend({
      * 
      * @returns {Promise<Boolean>}
      */
-    async CheckCommentUpdate(API: string, project: string, headers: Headers, comment: string): Promise<boolean> {
+    async CheckCommentUpdate(API, project, headers, comment) {
       try {
         const response = await fetch(API + 'status_projects/' + project + '/comment', {
             method: 'get',
             headers: headers
           })
-        const commentJson: CommentResponseJson = await response.json()
+        const commentJson= await response.json()
         if (!commentJson.comment) {
           return false
         }
@@ -214,7 +189,7 @@ export default Vue.extend({
       }
     }
   }
-})
+}
 </script>
 
 <style lang="scss" scoped>

@@ -48,7 +48,7 @@ declare module 'vue/types/vue' {
     APIv2Url: string
     runTimeArray: RunTimeStatistic[]
     threshold: number
-    headers: Headers
+    headers: object
     getToken(username: string, password: string): Promise<string>
     setToken(): Promise<void>
     addStatistics(run: RunTimeStatistic): void
@@ -82,12 +82,13 @@ export default Vue.extend({
     /**
      * Creates the api headers object
      * 
-     * @returns {Headers}
+     * @returns {Object}
      */
     headers () {
-      const header = new Headers()
-      header.append('x-molgenis-token', this.token)
-      header.append('Content-Type', 'application/json')
+      const header = {
+        'x-molgenis-token': this.token,
+        'Content-Type': 'application/json'
+      }
       return header
     }
   },

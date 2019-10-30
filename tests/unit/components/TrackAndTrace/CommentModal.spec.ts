@@ -1,10 +1,8 @@
-import { mount, createLocalVue } from '@vue/test-utils'
+import { mount, createLocalVue, config} from '@vue/test-utils'
 import BootstrapVue from 'bootstrap-vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
-import {BFormText} from 'bootstrap-vue'
 
 const localVue = createLocalVue()
-
 localVue.use(BootstrapVue)
 
 describe('RunTableCommentModal.vue', () => {
