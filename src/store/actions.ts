@@ -5,22 +5,25 @@ export default {
   async getTrackerData ({commit, state}: {commit: any, state: State}) {
     const ApiInstance = axios.create({
       baseURL: state.APIv2,
-      timeout: 1000,
       headers: {
         'x-molgenis-token': state.AccessToken,
         'Content-Type': 'application/json'
       }
     })
-    await ApiInstance.get(`/${state.overviewTable}`, {
+    await ApiInstance.get(`${state.overviewTable}`, {
       params: {
         num: 10000
       }
     })
     .then(function (response) {
       const tableContent = response.data.items
-      if (tableContent.items.length > 0) {
+      console.log(response.data)
+      if (tableContent.length > 0) {
         commit('setRuns', tableContent)
       }
+    }).catch(function (error) {
+      console.error(`Failed fetching runs! Using instance ${ApiInstance.defaults.baseURL} Caused by:`, error)
+      
     })
 
     await ApiInstance.get(`${state.projectsTable}`, {
@@ -33,6 +36,8 @@ export default {
       if (tableContent.length > 0) {
         commit('setProjects', tableContent)
       }
+    }).catch(function (error) {
+      console.error('Failed fetching projects! Caused by:', error)
     })
 
     await ApiInstance.get(`${state.jobTable}`, {
@@ -45,6 +50,8 @@ export default {
       if (tableContent.length > 0) {
         commit('setJobs', tableContent)
       }
+    }).catch(function (error) {
+      console.error('Failed fetching jobs! Caused by:', error)
     })
   }
 }

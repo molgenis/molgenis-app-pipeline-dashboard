@@ -22,8 +22,8 @@ const state: State = {
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
-  APIv1: 'localhost:8081/api/v1/',
-  APIv2: 'localhost:8081/api/v2/',
+  APIv1: 'http://localhost:8081/api/v1/',
+  APIv2: 'http://localhost:8081/api/v2/',
   AccessToken: 'admin-test-token'
 }
 

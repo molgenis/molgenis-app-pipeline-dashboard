@@ -41,6 +41,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import {mapActions} from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
@@ -155,7 +156,6 @@ export default Vue.extend({
       }
       return new Run('', [], '', '', 0, false, 0)
     },
-
     /**
      * Currently selected run id
      * 
@@ -321,23 +321,11 @@ export default Vue.extend({
      * @returns {Promise<void>}
      */
     async getData (): Promise<void> {
-      try {
-        let runs: RunDataObject[] = await this.fetchData(this.url + 'status_overview?num=10000')
-        let projects: projectDataObject[] = await this.fetchData(this.url + 'status_projects?num=10000')
-        let jobs: Job[] = await this.fetchData(this.url + 'status_jobs?num=10000')
+      this.$store.dispatch('getTrackerData')
 
-        if (jobs !== this.jobs) {
-          this.jobs = jobs
-        }
-        if (projects !== this.TotalProjects) {
-          this.TotalProjects = projects
-        }
-        if (runs !== this.runs) {
-          this.runs = runs
-        }
-      } catch (error) {
-        console.error(error)
-      }
+      this.jobs = this.$store.state.jobs
+      this.TotalProjects = this.$store.state.projects
+      this.runs = this.$store.state.runs
     },
     /**
      * fetches data from specified location
@@ -424,9 +412,10 @@ export default Vue.extend({
 
     /**
      * filters jobs that are linked to project
-     * @param jobs all jobs
-     * @param project project to add data to
-     * @returns project jobs
+     * @param {Job[]} jobs all jobs
+     * @param {projectDataObject} project project to add data to
+     * 
+     * @returns {Job[]}
      */
     getProjectJobs (jobs: Job[], project: projectDataObject): Job[] {
       return jobs
