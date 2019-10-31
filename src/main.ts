@@ -2,6 +2,7 @@ import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import VueApexCharts from 'vue-apexcharts'
 import Dashboard from './Dashboard.vue'
+import store from './store/store'
 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -33,5 +34,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 
 new Vue({
+  store,
   render: h => h(Dashboard)
 }).$mount('#dashboard')
