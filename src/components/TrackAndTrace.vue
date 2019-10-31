@@ -56,7 +56,7 @@ declare module 'vue/types/vue' {
     showRun: string
     paused: boolean
     loading: boolean
-    headers: Headers
+    headers: object
     url: string
     APIvOne: string
     run: Run
@@ -101,7 +101,7 @@ export default Vue.extend({
   },
   props: {
     headers: {
-      type: Headers,
+      type: Object,
       required: true
     },
 
@@ -352,7 +352,7 @@ export default Vue.extend({
       })
 
       const data = await response.json()
-      let totalItems = items.concat(data.items)
+      let totalItems: RawDataObject[] = items.concat(data.items)
       if (data.nextHref) {
         totalItems = await this.fetchData(data.nextHref, totalItems)
       }

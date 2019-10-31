@@ -17,7 +17,7 @@ export default {
       required: true
     },
     headers: {
-      type: Headers,
+      type: Object,
       required: true
     },
     type: {
@@ -154,7 +154,8 @@ export default {
     },
     /**
      * Returns a series for the graph
-     * @returns {Array<Object>}
+     * 
+     * @returns {Array<Serie>}
      */
     series() {
       return [{
@@ -206,9 +207,9 @@ export default {
      */
     constructQueryDateString(date) {
       const year = date.getFullYear().toString()
-      let month = date.getMonth().toString()
+      let month = date.getMonth() + 1
       if (month.length < 2) {
-        month = '0' + month
+        month = '0' + month.toString()
       }
       let day = date.getDate().toString()
       if (day.length < 2) {
@@ -334,9 +335,12 @@ export default {
       return (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) || (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
     },
     /**
-     * Updates graph data
+     * Fills graph data
+     * 
      * @param {Number[]} FormattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
      * @param {Number} SampleCount - Samples Sequenced on Formatted date
+     * 
+     * @returns {void}
      */
     fillData(FormattedDate, SampleCount) {
       const Now = new Date()
@@ -365,6 +369,8 @@ export default {
     },
     /**
      * Gets all samlpe counts of the past year from database
+     * 
+     * @returns {void}
      */
     async getPreviousYearData () {
       const Now = new Date()

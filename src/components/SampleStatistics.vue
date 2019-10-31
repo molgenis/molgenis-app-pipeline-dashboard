@@ -53,7 +53,7 @@ export default {
       required: true
     },
     headers: {
-      type: Headers,
+      type: Object,
       required: true
     }
   },

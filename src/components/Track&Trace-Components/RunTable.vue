@@ -109,7 +109,7 @@ export default Vue.extend({
     },
 
     headers: {
-      type: Headers,
+      type: Object,
       required: true
     },
 
@@ -183,7 +183,7 @@ export default Vue.extend({
      * @emits 'comment-update'
      * @returns {void}
      */
-    emitComment(project, comment): void {
+    emitComment(project: string, comment: string): void {
       this.$emit('comment-update', project, comment)
     },
     /**
@@ -193,7 +193,7 @@ export default Vue.extend({
      * 
      * @returns {void}
      */
-    updateLocalComment(project, comment): void {
+    updateLocalComment(project: string, comment: string): void {
       for (let i = 0; i < this.projects.length; i++) {
         if (this.projects[i].project === project){
           this.projects[i].Comment = comment
