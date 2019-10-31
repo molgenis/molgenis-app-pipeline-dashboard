@@ -17,13 +17,13 @@
           max-rows="30"
           :state="(!validation || !CommentUpdatedState || !submitStatus) ? false : undefined"
         ></b-form-textarea>
-        <b-form-invalid-feedback v-if="!validation">
+        <b-form-invalid-feedback id='lengthError' v-if="!validation">
           Comment too long. Must be smaller than 65536 characters
         </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-else-if="!CommentUpdatedState">
+        <b-form-invalid-feedback id='updatedError' v-else-if="!CommentUpdatedState">
         Comment updated by another user, try again later
         </b-form-invalid-feedback>
-        <b-form-invalid-feedback v-else-if="!submitStatus">
+        <b-form-invalid-feedback id='submitError' v-else-if="!submitStatus">
         Could not update comment, please try again later
       </b-form-invalid-feedback>
       </b-form-group>

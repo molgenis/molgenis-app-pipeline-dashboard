@@ -26,6 +26,7 @@ export default Vue.extend({
   computed: {
     /**
      * Computed property that builds the annotations for the graph
+     * 
      * @returns {graphAnnotation}
      */
     annotations (): graphAnnotation {
@@ -40,6 +41,7 @@ export default Vue.extend({
     },
     /**
      * Computed property that builds chart options
+     * 
      * @returns {chartOptions}
      */
     chartOptions (): chartOptions {
@@ -96,7 +98,8 @@ export default Vue.extend({
     },
     /**
      * Finds max value
-     * @returns Number
+     * 
+     * @returns {Number}
      */
     maxValue (): number {
       const max = Math.max(...this.numbersArray)
@@ -138,7 +141,8 @@ export default Vue.extend({
     },
     /**
      * calculates threshold for each pipeline
-     * @returns threshold
+     * 
+     * @returns {AverageData}
      */
     thresholds (): AverageData {
       let avg = this.average
@@ -152,6 +156,8 @@ export default Vue.extend({
     },
     /**
      * builds series array for graph
+     * 
+     * @returns {Serie[]}
      */
     series (): Serie[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]

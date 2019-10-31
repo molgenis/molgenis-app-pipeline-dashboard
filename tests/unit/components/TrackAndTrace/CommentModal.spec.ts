@@ -3,12 +3,13 @@ import BootstrapVue from 'bootstrap-vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 
 const localVue = createLocalVue()
+const fetchMock = require('fetch-mock')
 localVue.use(BootstrapVue)
 
 describe('RunTableCommentModal.vue', () => {
   const comment = 'hello, this is a test!'
   const run = 'TestRun1'
-  const API = 'localTest:8080'
+  const API = 'localTest.com/'
   // render commentmodal
   
   const wrapper = mount(
@@ -68,13 +69,35 @@ describe('RunTableCommentModal.vue', () => {
     expect(wrapper.vm.$data.placeHolderComment).toEqual(newComment)
   })
 
-  it('displays error if comment has been changed on remote', () => {
-    //@todo
-  })
+  
+  /* it('displays error if comment has been changed on remote', () => {
+    //Set remote TODO: add fetch mock
+    
+    //Set new comment
+    wrapper.find('#comment-modal').find('textarea').setValue('Comment has changed?')
+
+    // expect an error when submitting
+    wrapper.find('#comment-modal').findAll('button').at(1).trigger('click')
+    expect(fetchMock.called()).toBeTruthy()
+    expect(wrapper.find('#comment-modal').find('#updateError').exists()).toBeTruthy()
+    
+  })*/
+
   it('displays error if comment is too long', () => {
-    //@todo
+    let longArray = new Array(655640)
+    // set text value too long
+    wrapper.find('#comment-modal').find('textarea').setValue(longArray.join('@'))
+    longArray = new Array(1)
+
+    // Expect an error
+    expect(wrapper.find('#comment-modal').find('#lengthError').exists()).toBeTruthy()
+
+    //expect the error to go away when comment is no longer too long
+    wrapper.find('#comment-modal').find('textarea').setValue('reset')
+    expect(wrapper.find('#comment-modal').find('#lengthError').exists()).toBeFalsy()
+
   })
-  it('displays error if submit failed', () => {
+  /*it('displays error if submit failed', () => {
     //@todo
-  })
+  })*/
 })
