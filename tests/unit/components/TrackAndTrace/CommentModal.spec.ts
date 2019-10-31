@@ -1,9 +1,8 @@
-import { mount, createLocalVue, config} from '@vue/test-utils'
+import { mount, createLocalVue} from '@vue/test-utils'
 import BootstrapVue from 'bootstrap-vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 
 const localVue = createLocalVue()
-const fetchMock = require('fetch-mock')
 localVue.use(BootstrapVue)
 
 describe('RunTableCommentModal.vue', () => {
