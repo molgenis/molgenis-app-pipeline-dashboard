@@ -35,5 +35,8 @@ yarn install
 yarn run serve
 ```
 
+### Data context
+![Database model](docs/DatabaseModel.png)
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
