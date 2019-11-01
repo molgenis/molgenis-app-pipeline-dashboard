@@ -5,8 +5,7 @@ import { Serie } from '@/types/graphTypes';
 
 export default {
   /**
-   * Gets data from MOLGENIS database for Track and trace
-   * 
+   * Gets data from MOLGENIS database for Track and trace 
    */
   async getTrackerData ({commit, state}: {commit: any, state: State}) {
     const ApiInstance = axios.create({
@@ -37,7 +36,6 @@ export default {
         console.error('Error', error.message)
       }
       console.error(error)
-      
     })
 
     await ApiInstance.get(`${state.projectsTable}`, {
@@ -68,6 +66,10 @@ export default {
       console.error('Failed fetching jobs! Caused by:', error)
     })
   },
+  /**
+   * Gets the data from MOLGENIS for the runtime statistics table
+   * @param {Number} range - amount of results to get
+   */
   async getTimingData({commit, state}: {commit: any, state: State}, range: number) {
     const ApiInstance = axios.create({
       baseURL: state.APIv2,
@@ -76,6 +78,7 @@ export default {
         'Content-Type': 'application/json'
       }
     })
+    // Data per machine
     await ApiInstance.get(`${state.timingTable}`, {
       params: {
         aggs: 'x==machine;distinct==unique_id'
@@ -100,12 +103,10 @@ export default {
         })
       })
       commit('setMachineRuntimes', machineSeries)
-
     })
     .catch(function (error) {
       console.error(error)
     })
-
     state.pipelineTypes.forEach(async (pipelineType: string) => {
       await ApiInstance.get(`${state.timingTable}`, {
         params: {
