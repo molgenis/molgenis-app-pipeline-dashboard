@@ -1,4 +1,5 @@
 import {RawDataObject, projectDataObject, RunDataObject, ProjectObject, Job} from '@/types/dataTypes'
+import { Serie } from '@/types/graphTypes';
 export type State = {
   runs: RunDataObject[]
   projects: projectDataObject[]
@@ -14,6 +15,7 @@ export type State = {
   pipelineTypes: string[]
   statistics: object
   statisticsEmpty: boolean
+  MachineRuntimes: Serie[]
 }
 
 const state: State = {
@@ -30,7 +32,8 @@ const state: State = {
   AccessToken: 'admin-test-token',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS', 'FH', 'SCA'],
   statistics: {},
-  statisticsEmpty: true
+  statisticsEmpty: true,
+  MachineRuntimes: []
 }
 
 export default state

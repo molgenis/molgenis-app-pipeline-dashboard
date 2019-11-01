@@ -1,5 +1,6 @@
 import { State } from './state';
 import { RunDataObject, projectDataObject, Job } from '@/types/dataTypes';
+import { Serie } from '@/types/graphTypes';
 
 export default {
   setRuns (state: State, runs: RunDataObject[]) {
@@ -16,7 +17,10 @@ export default {
     state.statistics = statistics
     state.statisticsEmpty = false
   },
-  setRuntimeStatisticsEmpty(state) {
+  setRuntimeStatisticsEmpty(state: State) {
     state.statisticsEmpty = true
+  },
+  setMachineRuntimes(state: State, series: Serie[]) {
+    state.MachineRuntimes = series
   }
 }

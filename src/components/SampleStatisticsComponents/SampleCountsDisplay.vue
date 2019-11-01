@@ -80,6 +80,7 @@ export default {
      * @returns total samples in range
      */
     async getSamplesInDateRange(range) {
+      const response2 = await axios.get()
       const response = await fetch(
         this.API +
         'status_samples?q=sequencingStartDate=rng=(' +

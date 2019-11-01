@@ -284,7 +284,7 @@ export default Vue.extend({
   methods: {
     /**
      * changes detailed view to the given index
-     * @param index Number
+     * @param {Number} index - index of current run
      */
     setCurrentIndex (index: number): void {
       this.showRun = this.runIds[index]
@@ -292,8 +292,8 @@ export default Vue.extend({
 
     /**
      * run comparator function
-     * @param run1 first run
-     * @param run2 second run
+     * @param {Run} run1 - first run
+     * @param {Run} run2 - second run
      * @returns Number Sort order
      */
     sortRuns (run1: Run, run2: Run): number {
@@ -310,7 +310,7 @@ export default Vue.extend({
 
     /**
      * pauses the run cycleRun when selecting a run
-     * @param run run to select
+     * @param {String} run - runID of run to select
      */
     setShowRun (run: string): void {
       this.paused = true
