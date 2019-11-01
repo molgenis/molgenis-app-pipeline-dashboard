@@ -133,9 +133,6 @@ export default Vue.extend({
   },
   data () {
     return {
-      runs: [] as RunDataObject[],
-      jobs: [] as Job[],
-      TotalProjects: [] as projectDataObject[],
       runUrl: '',
       time: 0,
       showRun: '',
@@ -145,6 +142,30 @@ export default Vue.extend({
     }
   },
   computed: {
+    /**
+     * Retrieves runs from store
+     * 
+     * @returns {RunDataObject[]}
+     */
+    runs (): RunDataObject[] {
+      return this.$store.state.runs
+    },
+    /**
+     * Retrieves projects from store
+     * 
+     * @returns {projectDataObject[]}
+     */
+    TotalProjects (): projectDataObject[] {
+      return this.$store.state.projects
+    },
+    /**
+     * Retrieves jobs from store
+     * 
+     * @returns {Job[]}
+     */
+    jobs (): Job[] {
+      return this.$store.state.jobs
+    },
     /**
      * Currently selected run
      * @returns {Run}
@@ -322,10 +343,6 @@ export default Vue.extend({
      */
     async getData (): Promise<void> {
       this.$store.dispatch('getTrackerData')
-
-      this.jobs = this.$store.state.jobs
-      this.TotalProjects = this.$store.state.projects
-      this.runs = this.$store.state.runs
     },
     /**
      * fetches data from specified location

@@ -11,6 +11,9 @@ export type State = {
   APIv1: string
   APIv2: string
   AccessToken: string
+  pipelineTypes: string[]
+  statistics: object
+  statisticsEmpty: boolean
 }
 
 const state: State = {
@@ -24,7 +27,10 @@ const state: State = {
   sampleTable: 'status_samples',
   APIv1: 'http://localhost:8081/api/v1/',
   APIv2: 'http://localhost:8081/api/v2/',
-  AccessToken: 'admin-test-token'
+  AccessToken: 'admin-test-token',
+  pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS', 'FH', 'SCA'],
+  statistics: {},
+  statisticsEmpty: true
 }
 
 export default state

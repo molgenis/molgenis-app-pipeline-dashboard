@@ -1,7 +1,12 @@
 <template>
-  <b-container class="h-100 p-2" fluid>
+  <b-container class="h-100 p-2" fluid @mouseover="hover = true" @mouseleave="hover = false">
     <b-row no-gutters class="h-100">
       <b-col class="h-100">
+        <transition name="fade">
+        <div v-show="hover" style="position: absolute; z-index: 2; right: 0; margin-right: 10px; margin-top: 5px;">
+            <b>Range:</b><b-form-select v-model="selected" :options="rangeOptions" size="sm" plain></b-form-select>
+          </div>
+        </transition>
         <b-container class="border border-primary p-0 h-100" fluid >
           <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
         </b-container>
@@ -21,6 +26,17 @@ export default Vue.extend({
     runTimes: {
       type: Array,
       required: true
+    }
+  },
+  data () {
+    return {
+      selected: 10,
+      rangeOptions: [
+        { value: 10, text: '10'},
+        { value: 100, text: '100'},
+        { value: 1000, text: '1000'}
+      ],
+      hover: false
     }
   },
   computed: {
@@ -321,5 +337,10 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>

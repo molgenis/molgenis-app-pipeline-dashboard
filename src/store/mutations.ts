@@ -10,5 +10,13 @@ export default {
   },
   setJobs (state: State, jobs: Job[]) {
     state.jobs = jobs
+  },
+  setRuntimeStatistics(state: State, statistics: object) {
+    
+    state.statistics = statistics
+    state.statisticsEmpty = false
+  },
+  setRuntimeStatisticsEmpty(state) {
+    state.statisticsEmpty = true
   }
 }
