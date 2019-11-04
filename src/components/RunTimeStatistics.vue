@@ -1,9 +1,15 @@
 <template>
-  <b-container class="h-100 p-2" fluid>
+  <b-container class="h-100 p-2" fluid @mouseover="hover = true" @mouseleave="hover = false">
     <b-row no-gutters class="h-100">
       <b-col class="h-100">
+        <transition name="fade">
+        <div v-show="hover" style="position: absolute; z-index: 2; right: 0; margin-right: 10px; margin-top: 5px;">
+            <b>Range:</b><b-form-select v-model="selectedRange" :options="rangeOptions" size="sm" plain></b-form-select>
+            <b>Statistic:</b><b-form-select v-model="selectedStatistic" :options="statisticsOptions" size="sm" plain></b-form-select>
+          </div>
+        </transition>
         <b-container class="border border-primary p-0 h-100" fluid >
-          <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
+          <apexchart type="line" :options="chartOptions" :series="machineStats"></apexchart>
         </b-container>
       </b-col>
     </b-row>
@@ -23,7 +29,27 @@ export default Vue.extend({
       required: true
     }
   },
+  data () {
+    return {
+      selectedRange: 10,
+      selectedStatistic: 'machine',
+      rangeOptions: [
+        { value: 10, text: '10'},
+        { value: 100, text: '100'},
+        { value: 1000, text: '1000'}
+      ],
+      statisticsOptions: [
+        { value: 'machine', text: 'Machine'},
+        { value: 'pipeline', text: 'Pipeline'}
+      ],
+      hover: false
+    }
+  },
   computed: {
+    machineStats (): Serie[] {
+
+      return this.$store.state.MachineRuntimes
+    },
     /**
      * Computed property that builds the annotations for the graph
      * 
@@ -45,6 +71,7 @@ export default Vue.extend({
      * @returns {chartOptions}
      */
     chartOptions (): chartOptions {
+      const sampleCounts = this.machineSampleCounts
       return {
         chart: {
           height: '100%',
@@ -56,8 +83,20 @@ export default Vue.extend({
             }
           }
         },
+        noData: {
+          text: 'Loading...',
+          align: 'center',
+          verticalAlign: 'middle',
+          offsetX: 0,
+          offsetY: 0,
+          style: {
+            color: undefined,
+            fontSize: '14px',
+            fontFamily: undefined
+          }
+        },
         title: {
-          text: 'Runtime per Run per Pipeline type',
+          text: `Runtime per project grouped by ${this.selectedStatistic}`,
           align: 'center'
         },
         stroke: {
@@ -67,25 +106,30 @@ export default Vue.extend({
         dataLabels: {
           enabled: false
         },
+        xaxis: {
+          labels: {
+            show: false
+          }
+        },
         yaxis: {
           title: {
             text: 'Runtime (hours)'
           },
-          min: 0,
-          max: this.maxValue as number
+          min: 0
         },
-        xaxis: {
-          title: { text: 'Run' },
-          type: 'Number',
-          categories: [
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'
-          ],
-          labels: {
-            rotate: -90
+        tooltip: {
+          y: {
+          
+          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w}: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, MachineSampleCounts: Record<string, number[]> = sampleCounts) {
+            return `${value} (hr), ${MachineSampleCounts[Object.keys(MachineSampleCounts)[seriesIndex]][dataPointIndex]} (samples)`
           }
+  }
         },
         annotations: this.annotations as graphAnnotation
       }
+    },
+    machineSampleCounts () {
+      return this.$store.state.MachineSampleCounts
     },
     numbersArray (): number[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]
@@ -204,6 +248,9 @@ export default Vue.extend({
 
   },
   methods: {
+    updateTimingData (range: number): void {
+      this.$store.dispatch('getTimingData', range)
+    },
     /**
      * gets standard deviation
      * @param {Number[]} numArray - Array with numbers to get SD
@@ -315,11 +362,22 @@ export default Vue.extend({
       this.$emit('new-threshold-pcs', this.thresholds.PCS)
       this.$emit('new-threshold-exoom', this.thresholds.Exoom)
       this.$emit('new-threshold-svp', this.thresholds.SVP)
+    },
+    selectedRange (): void {
+      this.updateTimingData(this.selectedRange)
     }
+  },
+  mounted () {
+    this.updateTimingData(this.selectedRange)
   }
 })
 </script>
 
 <style scoped>
-
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>

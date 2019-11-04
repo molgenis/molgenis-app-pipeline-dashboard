@@ -121,7 +121,7 @@ export default {
      * @param {String} project - project to update
      * @param {String} vModelComment - new comment content
      * @param {String} comment - old comment
-     * @param {String} APIv1 - API url
+     * @param {String} API - API url
      * @param {Headers} headers - request headers
      * @param {Boolean} validated - comment is correct
      * 

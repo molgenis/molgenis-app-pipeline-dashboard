@@ -41,6 +41,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import {mapActions} from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
@@ -132,9 +133,6 @@ export default Vue.extend({
   },
   data () {
     return {
-      runs: [] as RunDataObject[],
-      jobs: [] as Job[],
-      TotalProjects: [] as projectDataObject[],
       runUrl: '',
       time: 0,
       showRun: '',
@@ -144,6 +142,30 @@ export default Vue.extend({
     }
   },
   computed: {
+    /**
+     * Retrieves runs from store
+     * 
+     * @returns {RunDataObject[]}
+     */
+    runs (): RunDataObject[] {
+      return this.$store.state.runs
+    },
+    /**
+     * Retrieves projects from store
+     * 
+     * @returns {projectDataObject[]}
+     */
+    TotalProjects (): projectDataObject[] {
+      return this.$store.state.projects
+    },
+    /**
+     * Retrieves jobs from store
+     * 
+     * @returns {Job[]}
+     */
+    jobs (): Job[] {
+      return this.$store.state.jobs
+    },
     /**
      * Currently selected run
      * @returns {Run}
@@ -155,7 +177,6 @@ export default Vue.extend({
       }
       return new Run('', [], '', '', 0, false, 0)
     },
-
     /**
      * Currently selected run id
      * 
@@ -263,7 +284,7 @@ export default Vue.extend({
   methods: {
     /**
      * changes detailed view to the given index
-     * @param index Number
+     * @param {Number} index - index of current run
      */
     setCurrentIndex (index: number): void {
       this.showRun = this.runIds[index]
@@ -271,8 +292,8 @@ export default Vue.extend({
 
     /**
      * run comparator function
-     * @param run1 first run
-     * @param run2 second run
+     * @param {Run} run1 - first run
+     * @param {Run} run2 - second run
      * @returns Number Sort order
      */
     sortRuns (run1: Run, run2: Run): number {
@@ -289,7 +310,7 @@ export default Vue.extend({
 
     /**
      * pauses the run cycleRun when selecting a run
-     * @param run run to select
+     * @param {String} run - runID of run to select
      */
     setShowRun (run: string): void {
       this.paused = true
@@ -321,23 +342,7 @@ export default Vue.extend({
      * @returns {Promise<void>}
      */
     async getData (): Promise<void> {
-      try {
-        let runs: RunDataObject[] = await this.fetchData(this.url + 'status_overview?num=10000')
-        let projects: projectDataObject[] = await this.fetchData(this.url + 'status_projects?num=10000')
-        let jobs: Job[] = await this.fetchData(this.url + 'status_jobs?num=10000')
-
-        if (jobs !== this.jobs) {
-          this.jobs = jobs
-        }
-        if (projects !== this.TotalProjects) {
-          this.TotalProjects = projects
-        }
-        if (runs !== this.runs) {
-          this.runs = runs
-        }
-      } catch (error) {
-        console.error(error)
-      }
+      this.$store.dispatch('getTrackerData', 20)
     },
     /**
      * fetches data from specified location
@@ -424,9 +429,10 @@ export default Vue.extend({
 
     /**
      * filters jobs that are linked to project
-     * @param jobs all jobs
-     * @param project project to add data to
-     * @returns project jobs
+     * @param {Job[]} jobs all jobs
+     * @param {projectDataObject} project project to add data to
+     * 
+     * @returns {Job[]}
      */
     getProjectJobs (jobs: Job[], project: projectDataObject): Job[] {
       return jobs

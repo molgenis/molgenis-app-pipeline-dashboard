@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'sample-counts-graph',
   props: {
@@ -387,8 +389,9 @@ export default {
         this.resetData()
         for (let index = 0; index < MatrixDates.length; index++) {
           this.fillData(MatrixDates[index].split('-'), CountMatrix[index][0])
-        }      
-    } catch (error) {
+        }
+      }      
+       catch (error) {
         console.error(error)
       }
     }
