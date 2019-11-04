@@ -84,8 +84,11 @@ export default {
         aggs: 'x==machine;distinct==unique_id'
       }
     }).then(function (response) {
-      const machines = response.data.xLables
+      
+      const machines = response.data.aggs.xLabels as string[]
       let machineSeries: Serie[] = []
+      let sampleCounts: Record<string, number[]> = {}
+      console.log(machines)
       machines.forEach(async (machine: string) => {
         await ApiInstance.get(`${state.timingTable}`, {
           params: {
@@ -96,6 +99,7 @@ export default {
         }).then(function (response) {
           if (response.data.items.length > 0) {
             machineSeries.push(new Serie(machine, Array.from(response.data.items, (x: any) => x.total_hours)))
+            sampleCounts[machine] = Array.from(response.data.items, (x: any) => x.numberofSamples as number)
           }
         })
         .catch(function (error) {
@@ -103,6 +107,7 @@ export default {
         })
       })
       commit('setMachineRuntimes', machineSeries)
+      commit('setMachineSampleCounts', sampleCounts)
     })
     .catch(function (error) {
       console.error(error)

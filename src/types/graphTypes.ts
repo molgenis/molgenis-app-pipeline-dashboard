@@ -68,6 +68,18 @@ export interface chartOptions {
       }
     }
   }
+  noData?: {
+    text?: string,
+    align?: string,
+    verticalAlign?: string,
+    offsetX?: number,
+    offsetY?: number,
+    style?: {
+      color?: string | undefined,
+      fontSize?: string,
+      fontFamily?: string | undefined
+    }
+  }
   title: {
     text: string
     align: string
@@ -87,18 +99,21 @@ export interface chartOptions {
       text: string
     }
     min: number
-    max: number
+    max?: number
   }
   xaxis: {
-    title: {
-      text: string
+    title?: {
+      text?: string
     }
-    type: string
-    categories: string[]
-    labels: {
-      rotate: number
+    type?: string
+    categories?: string[]
+    labels?: {
+      rotate?: number
+      show?: boolean
     }
-  }
+  },
+  tooltip?: any
+  
   annotations: graphAnnotation
 }
 

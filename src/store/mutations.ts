@@ -21,5 +21,8 @@ export default {
   },
   setMachineRuntimes(state: State, series: Serie[]) {
     state.MachineRuntimes = series
+  },
+  setMachineSampleCounts(state: State, sampleCounts: Record<string, number[]>) {
+    state.MachineSampleCounts = sampleCounts
   }
 }

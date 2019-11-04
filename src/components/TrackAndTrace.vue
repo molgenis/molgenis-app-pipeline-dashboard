@@ -342,7 +342,7 @@ export default Vue.extend({
      * @returns {Promise<void>}
      */
     async getData (): Promise<void> {
-      this.$store.dispatch('getTrackerData')
+      this.$store.dispatch('getTrackerData', 20)
     },
     /**
      * fetches data from specified location

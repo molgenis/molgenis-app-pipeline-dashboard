@@ -16,6 +16,7 @@ export type State = {
   statistics: object
   statisticsEmpty: boolean
   MachineRuntimes: Serie[]
+  MachineSampleCounts: Record<string, number[]>
 }
 
 const state: State = {
@@ -33,7 +34,8 @@ const state: State = {
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS', 'FH', 'SCA'],
   statistics: {},
   statisticsEmpty: true,
-  MachineRuntimes: []
+  MachineRuntimes: [],
+  MachineSampleCounts: {}
 }
 
 export default state
