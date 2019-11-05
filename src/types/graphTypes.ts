@@ -1,7 +1,7 @@
 /**
  * Annotation object that defines where x and y annotations are located
  */
-export interface graphAnnotation {
+export interface GraphAnnotation {
   xaxis: xAnnotation[]
   yaxis: yAnnotation[]
 }
@@ -9,7 +9,7 @@ export interface graphAnnotation {
 /**
  * Stores annotation options
  */
-export interface annotation {
+export interface Annotation {
   borderColor: string
   label: AnnotationLabel
 }
@@ -17,7 +17,7 @@ export interface annotation {
 /**
  * Stores xAnnotation options
  */
-export interface xAnnotation extends annotation {
+export interface xAnnotation extends Annotation {
   x: number
   x2: number
   fillColor: string
@@ -27,7 +27,7 @@ export interface xAnnotation extends annotation {
 /**
  * Stores yAnnotation options
  */
-export interface yAnnotation extends annotation {
+export interface yAnnotation extends Annotation {
   y: number
   strokeDashArray: number
 }
@@ -57,7 +57,7 @@ export interface LabelStyle {
 /**
  * Stores global chart options
  */
-export interface chartOptions {
+export interface ChartOptions {
   chart: {
     id: string
     height?: any
@@ -114,7 +114,7 @@ export interface chartOptions {
   },
   tooltip?: any
   
-  annotations: graphAnnotation
+  annotations: GraphAnnotation
 }
 
 /**
@@ -132,7 +132,7 @@ export class Serie {
 /**
  * Outlier position object
  */
-export interface outlier {
+export interface Outlier {
   id: string
   position: number
 }

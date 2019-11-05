@@ -7,7 +7,6 @@
         :APIvOne="APIv1Url"
         :url="APIv2Url"
         @add-statistic="addStatistics"
-        @token-expired="setToken"
         :thresholdOnco="thresholdOnco"
         :thresholdPcs="thresholdPcs"
         :thresholdExoom="thresholdExoom"
@@ -49,8 +48,6 @@ declare module 'vue/types/vue' {
     runTimeArray: RunTimeStatistic[]
     threshold: number
     headers: object
-    getToken(username: string, password: string): Promise<string>
-    setToken(): Promise<void>
     addStatistics(run: RunTimeStatistic): void
     setThreshold(threshold: number): void
   }
@@ -65,8 +62,6 @@ export default Vue.extend({
   },
   data () {
     return {
-      username: 'admin',
-      password: 'admin',
       token: 'admin-test-token',
       APIv1Url: 'http://localhost:8081/api/v1/',
       APIv2Url: 'http://localhost:8081/api/v2/',
@@ -93,30 +88,6 @@ export default Vue.extend({
     }
   },
   methods: {
-    /**
-     * Gets the new login token
-     * @param {String} username - login name
-     * @param {String} password - login password
-     * 
-     * @returns {String}
-     */
-    async getToken (username: string, password: string) {
-      const response = await fetch('http://localhost:8081/api/v1/login')
-
-      let json: responseJSON = await response.json()
-
-      const token: string = json.token
-      return token
-    },
-
-    /**
-     * Sets the access token
-     * 
-     * @returns {void}
-     */
-    async setToken () {
-      this.token = await this.getToken(this.username, this.password)
-    },
     /**
      * Adds new runtime statistics to graph with a max lenght of 10
      * @param {RunTimeStatistic} run - new statistic to add

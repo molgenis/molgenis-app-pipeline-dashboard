@@ -23,8 +23,16 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, Serie, outlier } from '@/types/graphTypes'
+import { mapState, mapActions } from 'vuex'
+import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier } from '@/types/graphTypes'
 import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
+import { State } from '../store/state'
+
+declare module 'vue/types/vue' { 
+  interface Vue extends State {
+    getTimingData(range: number): void
+  }
+}
 
 export default Vue.extend({
   name: 'run-time-statistics',
@@ -54,20 +62,17 @@ export default Vue.extend({
   computed: {
     subOptions(): Array<{value: string, text: string}>{
       let options: Array<{value: string, text: string}> = []
-      this.$store.state.pipelineTypes.forEach((pipelineType: string) => {
+      this.pipelineTypes.forEach((pipelineType: string) => {
         options.push({ value: pipelineType, text: pipelineType})
       })
       return options
-    },
-    machineStats (): Record<string, Serie[]> {
-      return this.$store.state.MachineRuntimes
     },
     /**
      * Computed property that builds the annotations for the graph
      * 
      * @returns {graphAnnotation}
      */
-    annotations (): graphAnnotation {
+    annotations (): GraphAnnotation {
       let thresholdNumber = this.threshold as number
       let averageNumber = this.average.ONCO
       let outline = thresholdNumber + averageNumber
@@ -82,8 +87,8 @@ export default Vue.extend({
      * 
      * @returns {chartOptions}
      */
-    chartOptions (): chartOptions {
-      const sampleCounts = this.machineSampleCounts
+    chartOptions (): ChartOptions {
+      const sampleCounts = this.MachineSampleCounts
       return {
         chart: {
           height: '100%',
@@ -137,11 +142,11 @@ export default Vue.extend({
           }
   }
         },
-        annotations: this.annotations as graphAnnotation
+        annotations: this.annotations as GraphAnnotation
       }
     },
     machineSampleCounts () {
-      return this.$store.state.MachineSampleCounts
+      return this.MachineSampleCounts
     },
     numbersArray (): number[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]
@@ -153,47 +158,34 @@ export default Vue.extend({
       return numbers
     },
     /**
-     * Finds max value
-     * 
-     * @returns {Number}
-     */
-    maxValue (): number {
-      const max = Math.max(...this.numbersArray)
-
-      if (max > 20) {
-        return max + 10
-      }
-      return 20
-    },
-    /**
      * average runtime
      * @returns average
      */
     average (): AverageData {
-      let ONCO = 0
-      let PCS = 0
-      let Exoom = 0
-      let SVP = 0
+      let onco = 0
+      let pcs = 0
+      let exoom = 0
+      let svp = 0
       this.series.forEach((serie: Serie) => {
         switch (serie.name) {
           case 'ONCO':
-            ONCO = this.findAverage(serie.data)
+            onco = this.findAverage(serie.data)
             break
           case 'PCS':
-            PCS = this.findAverage(serie.data)
+            pcs = this.findAverage(serie.data)
             break
           case 'Exoom':
-            Exoom = this.findAverage(serie.data)
+            exoom = this.findAverage(serie.data)
             break
           case 'SVP':
-            SVP = this.findAverage(serie.data)
+            svp = this.findAverage(serie.data)
             break
           default:
             break
         }
       })
 
-      return new AverageData(ONCO, PCS, Exoom, SVP)
+      return new AverageData(onco, pcs, exoom, svp)
     },
     /**
      * calculates threshold for each pipeline
@@ -203,12 +195,12 @@ export default Vue.extend({
     thresholds (): AverageData {
       let avg = this.average
 
-      const ONCO = this.getSD(this.series[0].data, avg.ONCO)
-      const PCS = this.getSD(this.series[1].data, avg.PCS)
-      const Exoom = this.getSD(this.series[2].data, avg.Exoom)
-      const SVP = this.getSD(this.series[3].data, avg.SVP)
+      const onco = this.getSD(this.series[0].data, avg.ONCO)
+      const pcs = this.getSD(this.series[1].data, avg.PCS)
+      const exoom = this.getSD(this.series[2].data, avg.Exoom)
+      const svp = this.getSD(this.series[3].data, avg.SVP)
 
-      return new AverageData(ONCO + avg.ONCO, PCS + avg.PCS, Exoom + avg.Exoom, SVP + avg.SVP)
+      return new AverageData(onco + avg.ONCO, pcs + avg.PCS, exoom + avg.Exoom, svp + avg.SVP)
     },
     /**
      * builds series array for graph
@@ -218,22 +210,22 @@ export default Vue.extend({
     series (): Serie[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]
       let SerieArray: Serie[] = []
-      let ONCO: number[] = []
-      let PCS: number[] = []
-      let Exoom: number[] = []
-      let SVP: number[] = []
+      let onco: number[] = []
+      let pcs: number[] = []
+      let exoom: number[] = []
+      let svp: number[] = []
 
       runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
-        if (StatisticalPoint.ONCO) { ONCO.push(StatisticalPoint.ONCO.runtime) } else { ONCO.push(0) }
-        if (StatisticalPoint.PCS) { PCS.push(StatisticalPoint.PCS.runtime) } else { PCS.push(0) }
-        if (StatisticalPoint.Exoom) { Exoom.push(StatisticalPoint.Exoom.runtime) } else { Exoom.push(0) }
-        if (StatisticalPoint.SVP) { SVP.push(StatisticalPoint.SVP.runtime) } else { SVP.push(0) }
+        if (StatisticalPoint.ONCO) { onco.push(StatisticalPoint.ONCO.runtime) } else { onco.push(0) }
+        if (StatisticalPoint.PCS) { pcs.push(StatisticalPoint.PCS.runtime) } else { pcs.push(0) }
+        if (StatisticalPoint.Exoom) { exoom.push(StatisticalPoint.Exoom.runtime) } else { exoom.push(0) }
+        if (StatisticalPoint.SVP) { svp.push(StatisticalPoint.SVP.runtime) } else { svp.push(0) }
       })
 
-      SerieArray.push(new Serie('ONCO', ONCO))
-      SerieArray.push(new Serie('PCS', PCS))
-      SerieArray.push(new Serie('Exoom', Exoom))
-      SerieArray.push(new Serie('SVP', SVP))
+      SerieArray.push(new Serie('ONCO', onco))
+      SerieArray.push(new Serie('PCS', pcs))
+      SerieArray.push(new Serie('Exoom', exoom))
+      SerieArray.push(new Serie('SVP', svp))
 
       return SerieArray
     },
@@ -242,8 +234,8 @@ export default Vue.extend({
      * @todo
      * @returns outlier array
      */
-    outliers (): outlier[] {
-      let outliers = [] as outlier[]
+    outliers (): Outlier[] {
+      let outliers = [] as Outlier[]
       return outliers
     },
     /**
@@ -253,29 +245,31 @@ export default Vue.extend({
     xAnnotations (): xAnnotation[] {
       let annotations = [] as xAnnotation[]
       this.outliers.forEach((outlier) => {
-        annotations.push(this.CreateXannotation(outlier.position, this.cropTitle(outlier.id, 20)))
+        annotations.push(this.createXAnnotation(outlier.position, this.cropTitle(outlier.id, 20)))
       })
       return annotations
-    },
-    pipelineSeriesData (): Serie[] {
-      return this.$store.state.statistics
     },
     computedSeries (): Serie[] | null{
       switch (this.selectedStatistic) {
         case 'prepKit':
-          return this.pipelineSeriesData
+          return this.statistics
         case 'cluster':
-          return this.machineStats[this.selectedSubStatistic]
+          return this.MachineRuntimes[this.selectedSubStatistic]
         default:
           return null
       }
-    }
-
+    },
+    ...mapState([
+      'MachineSampleCounts',
+      'statistics',
+      'pipelineTypes',
+      'MachineRuntimes'
+    ])
   },
   methods: {
-    updateTimingData (range: number): void {
-      this.$store.dispatch('getTimingData', range)
-    },
+    ...mapActions([
+      'getTimingData'
+    ]),
     /**
      * gets standard deviation
      * @param {Number[]} numArray - Array with numbers to get SD
@@ -327,7 +321,7 @@ export default Vue.extend({
      * 
      * @returns {xAnnotation}
      */
-    CreateXannotation (coordinate: number, name: string): xAnnotation {
+    createXAnnotation (coordinate: number, name: string): xAnnotation {
       let labelPosition = 'top'
       let position1 = coordinate - 0.1
       let position2 = coordinate + 0.1
@@ -389,11 +383,11 @@ export default Vue.extend({
       this.$emit('new-threshold-svp', this.thresholds.SVP)
     },
     selectedRange (): void {
-      this.updateTimingData(this.selectedRange)
+      this.getTimingData(this.selectedRange)
     }
   },
   mounted () {
-    this.updateTimingData(this.selectedRange)
+    this.getTimingData(this.selectedRange)
   }
 })
 </script>

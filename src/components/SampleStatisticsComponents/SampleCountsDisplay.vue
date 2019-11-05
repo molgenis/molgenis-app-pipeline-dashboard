@@ -31,7 +31,7 @@ export default {
       monthlySampleCount: 0,
       weeklySampleCount: 0,
       dailySampleCount: 0,
-      currentSampleCount: 32,
+      currentSampleCount: 32
     }
   },
   methods: {
