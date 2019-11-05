@@ -12,14 +12,10 @@ export default {
   setJobs (state: State, jobs: Job[]) {
     state.jobs = jobs
   },
-  setRuntimeStatistics(state: State, statistics: object) {
+  setPipelineData(state: State, statistics: Serie[]) {
     state.statistics = statistics
-    state.statisticsEmpty = false
   },
-  setRuntimeStatisticsEmpty(state: State) {
-    state.statisticsEmpty = true
-  },
-  setMachineRuntimes(state: State, series: Serie[]) {
+  setMachineRuntimes(state: State, series: Record<string, Serie[]>) {
     state.MachineRuntimes = series
   },
   setMachineSampleCounts(state: State, sampleCounts: Record<string, number[]>) {

@@ -15,8 +15,7 @@
         </b-container>
       </b-col>
     <b-col class="p-2" cols="12" lg="8">
-      <b-container class="border border-primary h-100 overflow-auto" fluid>
-      <transition name="fade" mode="out-in" class="h-100">
+      <b-container class="border border-primary h-100 p-0" fluid>
         <run-table
         :runID="runID"
         :showRun="showRun"
@@ -33,7 +32,6 @@
         :thresholdExoom="thresholdExoom"
         :thresholdSvp="thresholdSvp">
         </run-table>
-      </transition>
       </b-container>
     </b-col>
     </b-row>

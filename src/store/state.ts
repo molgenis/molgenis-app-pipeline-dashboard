@@ -13,9 +13,9 @@ export type State = {
   APIv2: string
   AccessToken: string
   pipelineTypes: string[]
-  statistics: object
+  statistics: Serie[]
   statisticsEmpty: boolean
-  MachineRuntimes: Serie[]
+  MachineRuntimes: Record<string,Serie[]>
   MachineSampleCounts: Record<string, number[]>
 }
 
@@ -31,10 +31,10 @@ const state: State = {
   APIv1: 'http://localhost:8081/api/v1/',
   APIv2: 'http://localhost:8081/api/v2/',
   AccessToken: 'admin-test-token',
-  pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS', 'FH', 'SCA'],
-  statistics: {},
+  pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
+  statistics: [],
   statisticsEmpty: true,
-  MachineRuntimes: [],
+  MachineRuntimes: {},
   MachineSampleCounts: {}
 }
 

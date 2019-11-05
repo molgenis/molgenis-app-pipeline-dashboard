@@ -2,14 +2,19 @@
   <b-container class="h-100 p-2" fluid @mouseover="hover = true" @mouseleave="hover = false">
     <b-row no-gutters class="h-100">
       <b-col class="h-100">
-        <transition name="fade">
-        <div v-show="hover" style="position: absolute; z-index: 2; right: 0; margin-right: 10px; margin-top: 5px;">
-            <b>Range:</b><b-form-select v-model="selectedRange" :options="rangeOptions" size="sm" plain></b-form-select>
-            <b>Statistic:</b><b-form-select v-model="selectedStatistic" :options="statisticsOptions" size="sm" plain></b-form-select>
-          </div>
-        </transition>
+        <transition-group name="fade">
+          <template v-show="hover">
+            <div :key="1" v-show="hover" class="graphOptions right">
+              <b>Range:</b><b-form-select v-model="selectedRange" :options="rangeOptions" size="sm" plain></b-form-select>
+            </div>
+            <div :key="2" v-show="hover" class="">
+              <span class="graphOptions left"><b>Statistic:</b><b-form-select v-model="selectedStatistic" :options="statisticsOptions" size="sm" plain></b-form-select></span>
+              <span v-if="selectedStatistic === 'cluster'" class="graphOptions left leftPlus"><b>prepKit:</b><b-form-select v-model="selectedSubStatistic" :options="subOptions" size="sm" plain></b-form-select></span>
+            </div>
+          </template>
+        </transition-group>
         <b-container class="border border-primary p-0 h-100" fluid >
-          <apexchart type="line" :options="chartOptions" :series="machineStats"></apexchart>
+          <apexchart type="line" :options="chartOptions" :series="computedSeries"></apexchart>
         </b-container>
       </b-col>
     </b-row>
@@ -19,7 +24,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { graphAnnotation, annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, chartOptions, Serie, outlier } from '@/types/graphTypes'
-import { RunTime, RunTimeStatistic, AverageData } from '@/types/dataTypes'
+import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
 
 export default Vue.extend({
   name: 'run-time-statistics',
@@ -32,22 +37,29 @@ export default Vue.extend({
   data () {
     return {
       selectedRange: 10,
-      selectedStatistic: 'machine',
+      selectedStatistic: 'cluster',
+      selectedSubStatistic: 'Exoom',
       rangeOptions: [
         { value: 10, text: '10'},
         { value: 100, text: '100'},
         { value: 1000, text: '1000'}
       ],
       statisticsOptions: [
-        { value: 'machine', text: 'Machine'},
-        { value: 'pipeline', text: 'Pipeline'}
+        { value: 'cluster', text: 'Cluster'},
+        { value: 'prepKit', text: 'prepKit'}
       ],
       hover: false
     }
   },
   computed: {
-    machineStats (): Serie[] {
-
+    subOptions(): Array<{value: string, text: string}>{
+      let options: Array<{value: string, text: string}> = []
+      this.$store.state.pipelineTypes.forEach((pipelineType: string) => {
+        options.push({ value: pipelineType, text: pipelineType})
+      })
+      return options
+    },
+    machineStats (): Record<string, Serie[]> {
       return this.$store.state.MachineRuntimes
     },
     /**
@@ -244,6 +256,19 @@ export default Vue.extend({
         annotations.push(this.CreateXannotation(outlier.position, this.cropTitle(outlier.id, 20)))
       })
       return annotations
+    },
+    pipelineSeriesData (): Serie[] {
+      return this.$store.state.statistics
+    },
+    computedSeries (): Serie[] | null{
+      switch (this.selectedStatistic) {
+        case 'prepKit':
+          return this.pipelineSeriesData
+        case 'cluster':
+          return this.machineStats[this.selectedSubStatistic]
+        default:
+          return null
+      }
     }
 
   },
@@ -379,5 +404,22 @@ export default Vue.extend({
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+.graphOptions {
+  position: absolute; 
+  z-index: 2; 
+  margin-top: 5px;
+}
+.right {
+  right: 0; 
+  margin-right: 10px; 
+}
+.left {
+  left: 0;
+  margin-left: 10px;
+}
+
+.leftPlus {
+  left: 80px;
 }
 </style>

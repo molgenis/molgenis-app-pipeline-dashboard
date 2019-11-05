@@ -11,7 +11,7 @@
           v-model="LocalHidden"
           :value="run"
           :id="run"
-          switch>
+          >
         </b-form-checkbox>
       </b-td>
       <b-td :colspan="mouseOn !== run ? 2 : 6" class="text-truncate align-middle">{{run}}</b-td>

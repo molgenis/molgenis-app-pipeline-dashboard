@@ -84,34 +84,39 @@ export default {
         aggs: 'x==machine;distinct==unique_id'
       }
     }).then(function (response) {
-      
-      const machines = response.data.aggs.xLabels as string[]
+      let machines = response.data.aggs.xLabels as string[]
+      machines = machines.filter((x) => { return x !== null }).sort()
       let machineSeries: Serie[] = []
       let sampleCounts: Record<string, number[]> = {}
-      console.log(machines)
+      let machineSeriesGrouped: Record<string, Serie[]> = {}
       machines.forEach(async (machine: string) => {
-        await ApiInstance.get(`${state.timingTable}`, {
-          params: {
-            num: range,
-            sort: 'finishedTime:desc',
-            q: `machine==${machine};total_hours=gt=0`
+        state.pipelineTypes.forEach(async (pipelineType: string) => {
+          if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
+            machineSeriesGrouped[pipelineType] = [] as Serie[]
           }
-        }).then(function (response) {
-          if (response.data.items.length > 0) {
-            machineSeries.push(new Serie(machine, Array.from(response.data.items, (x: any) => x.total_hours)))
-            sampleCounts[machine] = Array.from(response.data.items, (x: any) => x.numberofSamples as number)
-          }
-        })
-        .catch(function (error) {
-          console.error(error)
-        })
-      })
-      commit('setMachineRuntimes', machineSeries)
+          await ApiInstance.get(`${state.timingTable}`, {
+            params: {
+              num: range,
+              sort: 'finishedTime:desc',
+              q: `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
+            }
+          }).then(function (response) {
+            if (response.data.items.length > 0) {
+                machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.data.items, (x:any) => {return x.total_hours} )))
+                sampleCounts[machine] = Array.from(response.data.items, (x: any) => x.numberofSamples as number).reverse()
+              }})
+              .catch(function (error) {
+                console.error(error)
+              })
+            })
+          })
+      commit('setMachineRuntimes', machineSeriesGrouped)
       commit('setMachineSampleCounts', sampleCounts)
     })
     .catch(function (error) {
       console.error(error)
     })
+    let pipelineSeries: Serie[] = []
     state.pipelineTypes.forEach(async (pipelineType: string) => {
       await ApiInstance.get(`${state.timingTable}`, {
         params: {
@@ -122,15 +127,12 @@ export default {
       })
       .then(function (response) {
         const ResponseData = response.data.items
-        if (ResponseData.length > 0) {
-          commit('setRuntimeStatistics', ResponseData)
-        } else {
-          commit('setRuntimeStatisticsEmpty')
-        }
+        pipelineSeries.push(new Serie(pipelineType, Array.from(ResponseData, (x: any) => Math.round(x.pipelineDuration / 60)).reverse()))
       })
       .catch(function (error) {
         console.error(error)
       })
     })
+    commit('setPipelineData', pipelineSeries)
   }
 }

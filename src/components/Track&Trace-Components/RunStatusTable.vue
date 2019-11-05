@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto h-100 w-100">
+  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto p-0 h-100 w-100">
     <b-table-simple small fixed hover class="minH">
       <b-thead class="">
         <b-tr class="">

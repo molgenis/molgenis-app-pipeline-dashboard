@@ -1,5 +1,5 @@
 <template>
-    <b-container class="mb-3">
+    <b-container class="mb-3 h-100 overflow-auto">
         <b-row>
           <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold text-truncate">
             {{runID}}
@@ -242,5 +242,9 @@ export default Vue.extend({
 @import 'bootstrap-vue/src/index.scss';
 .project-row:hover{
   background-color: $light
+}
+
+.minH {
+  min-height: 100%
 }
 </style>
