@@ -26,6 +26,8 @@ import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
 import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier } from '@/types/graphTypes'
 import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
+import { getSD, findAverage } from '@/helpers/statistics'
+import { cropTitle } from '@/helpers/text'
 import { State } from '../store/state'
 
 declare module 'vue/types/vue' { 
@@ -113,7 +115,7 @@ export default Vue.extend({
           }
         },
         title: {
-          text: `Runtime per project grouped by ${this.selectedStatistic}`,
+          text: `Runtime trends for ${this.selectedSubStatistic} by ${this.selectedStatistic}`,
           align: 'center'
         },
         stroke: {
@@ -169,16 +171,16 @@ export default Vue.extend({
       this.series.forEach((serie: Serie) => {
         switch (serie.name) {
           case 'ONCO':
-            onco = this.findAverage(serie.data)
+            onco = findAverage(serie.data)
             break
           case 'PCS':
-            pcs = this.findAverage(serie.data)
+            pcs = findAverage(serie.data)
             break
           case 'Exoom':
-            exoom = this.findAverage(serie.data)
+            exoom = findAverage(serie.data)
             break
           case 'SVP':
-            svp = this.findAverage(serie.data)
+            svp = findAverage(serie.data)
             break
           default:
             break
@@ -195,10 +197,10 @@ export default Vue.extend({
     thresholds (): AverageData {
       let avg = this.average
 
-      const onco = this.getSD(this.series[0].data, avg.ONCO)
-      const pcs = this.getSD(this.series[1].data, avg.PCS)
-      const exoom = this.getSD(this.series[2].data, avg.Exoom)
-      const svp = this.getSD(this.series[3].data, avg.SVP)
+      const onco = getSD(this.series[0].data, avg.ONCO)
+      const pcs = getSD(this.series[1].data, avg.PCS)
+      const exoom = getSD(this.series[2].data, avg.Exoom)
+      const svp = getSD(this.series[3].data, avg.SVP)
 
       return new AverageData(onco + avg.ONCO, pcs + avg.PCS, exoom + avg.Exoom, svp + avg.SVP)
     },
@@ -245,7 +247,7 @@ export default Vue.extend({
     xAnnotations (): xAnnotation[] {
       let annotations = [] as xAnnotation[]
       this.outliers.forEach((outlier) => {
-        annotations.push(this.createXAnnotation(outlier.position, this.cropTitle(outlier.id, 20)))
+        annotations.push(this.createXAnnotation(outlier.position, cropTitle(outlier.id, 20)))
       })
       return annotations
     },
@@ -270,50 +272,6 @@ export default Vue.extend({
     ...mapActions([
       'getTimingData'
     ]),
-    /**
-     * gets standard deviation
-     * @param {Number[]} numArray - Array with numbers to get SD
-     * @param {Number} average - average
-     * 
-     * @returns {Number} sd
-     */
-    getSD (numArray: number[], average: number): number {
-      let sumOfDistance = 0
-      numArray.forEach((x) => {
-        sumOfDistance += Math.pow(x - average, 2)
-      })
-
-      return Math.sqrt(sumOfDistance / numArray.length)
-    },
-    /**
-     * gets the average of array
-     * @param {Number} numArray - array of numbers to calculate average
-     * @returns {Number}
-     */
-    findAverage (numArray: number[]): number {
-      let sum = 0
-      numArray.forEach((x) => {
-        sum += x
-      })
-      return sum / numArray.length
-    },
-
-    /**
-     * returns average without outliers
-     * @param {Number[]} numArray - Average without any outliers
-     * 
-     * @returns {Number}
-     */
-    findAverageOfNormalValues (numArray: number[]): number {
-      const average = this.findAverage(numArray)
-      const SD = this.getSD(numArray, average)
-      const cutOff = SD
-      const lower = average - cutOff
-      const higher = average + cutOff
-      const filteredArray = numArray.filter((x) => { return x > lower && x < higher })
-
-      return this.findAverage(filteredArray)
-    },
     /**
      * Creates xAnnotation Object
      * @param {Number} coordinate - coordinate of annotation
@@ -350,19 +308,6 @@ export default Vue.extend({
           text: name
         }
       }
-    },
-
-    /**
-     * crops given title by the provided lenght
-     * @param {String} title - title to crop
-     * @param {Number} lenght - maxlenght
-     * @returns {String}
-     */
-    cropTitle (title: string, length: number): string {
-      if (title.length > length) {
-        return title.substring(0, length) + '...'
-      }
-      return title
     }
   },
   watch: {

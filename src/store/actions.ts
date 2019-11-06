@@ -2,6 +2,8 @@ import axios from 'axios'
 import { State } from './state';
 import { pipelineType } from '@/types/dataTypes';
 import { Serie } from '@/types/graphTypes';
+// @ts-ignore
+import api from '@molgenis/molgenis-api-client'
 
 export default {
   /**
@@ -134,5 +136,39 @@ export default {
       })
     })
     commit('setPipelineData', pipelineSeries)
+  },
+  async getSequencerStatistics ({commit, state}: {commit: any, state: State}) {
+    api.get(`/api/v2/${state.sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
+    .then(function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
+      const Aggregates = response.aggs
+
+      commit('setSequencerStatisticsSeries', Array.from(Aggregates.matrix, (x: number[]) => x[0]))
+      commit('setSequencerStatisticsLabels', Aggregates.xLabels)
+    })
+    .catch(function (error: any) {
+      console.error(error)
+    })
+  },
+  /**
+   * Gets a sample total in a date range
+   * @param {[String, String]} range - Array in format [date1, date2] where date = yyyy-mm-dd
+   * @returns total samples in range
+   */
+  async getSamplesInDateRange({state}: {state: State}, range: [string, string]): Promise<number> {
+    const query = `sequencingStartDate=rng=(${range[0]}, ${range[1]})`
+    return await api.get(`/api/v2/${state.sampleTable}?q=${query}&num=1`)
+    .then(function (response: any) {
+      const responseJson = response.json()
+      return responseJson.total
+    }).catch(function (error: any) {
+      console.error(error)
+      return Promise.reject()
+    })
+  },
+  async getTotalSampleCount({commit, state}:{commit: any, state: State}): Promise<void> {
+    api.get(`/api/v2/${state.sampleTable}?num=1`)
+    .then(function (response: any) {
+      commit('setTotalSamples', response.json().total)
+    })
   }
 }

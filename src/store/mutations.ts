@@ -20,5 +20,14 @@ export default {
   },
   setMachineSampleCounts(state: State, sampleCounts: Record<string, number[]>) {
     state.MachineSampleCounts = sampleCounts
+  },
+  setSequencerStatisticsSeries(state: State, series: number[]) {
+    state.SequencerStatisticsSeries = series
+  },
+  setSequencerStatisticsLabels(state: State, labels: string[]) {
+    state.SequencerStatisticsLabels = labels
+  },
+  setTotalCounts(state: State, counts: number) {
+    state.totalSampleCounts = counts
   }
 }

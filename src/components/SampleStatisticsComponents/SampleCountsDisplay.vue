@@ -12,21 +12,13 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex'
+import { createDateRange } from '@/helpers/dates'
+
 export default {
   name: 'sample-count',
-  props: {
-    API: {
-      type: String,
-      required: true
-    },
-    headers: {
-      type: Headers,
-      required: true
-    }
-  },
   data () {
     return {
-      totalSampleCount: 0,
       yearlySampleCount: 0,
       monthlySampleCount: 0,
       weeklySampleCount: 0,
@@ -37,66 +29,42 @@ export default {
   methods: {
     /**
      * Gets Sample totals in date ranges from MOLGENIS database
+     * 
+     * @returns {Promise<void>}
      */
     async getSampleNumbers () {
+      this.getTotalSampleCounts()
       try {
         const now = new Date()
         const dayMs = 24 * 60 * 60 * 1000
-        const nowFormatted = this.formatDate(now)
-        const yearRange = [this.formatDate(new Date(now.getTime() - (356 * dayMs))), nowFormatted]
-        const MonthRange = [this.formatDate(new Date(now.getTime() - (31 * dayMs))), nowFormatted]
-        const weekRange = [this.formatDate(new Date(now.getTime() - (7 * dayMs))), nowFormatted]
-        const dayRange = [this.formatDate(new Date(now.getTime() -  (dayMs))), nowFormatted]
+
+        const yearRange = createDateRange(new Date(now.getTime() - (356 * dayMs)), now)
+        const MonthRange = createDateRange(new Date(now.getTime() - (31 * dayMs)), now)
+        const weekRange = createDateRange(new Date(now.getTime() - (7 * dayMs)), now)
+        const dayRange = createDateRange(new Date(now.getTime() -  (dayMs)), now)
+
         this.yearlySampleCount = await this.getSamplesInDateRange(yearRange)
         this.weeklySampleCount = await this.getSamplesInDateRange(weekRange)
         this.dailySampleCount = await this.getSamplesInDateRange(dayRange)
         this.monthlySampleCount = await this.getSamplesInDateRange(MonthRange)
-        const totalResponse = await fetch(this.API + 'status_samples?num=1', { headers: this.headers })
-        const totalJson = await totalResponse.json()
-        this.totalSampleCount = totalJson.total
+
       } catch (error) {
         console.error
       }
-    },
-    /**-
-     * Formats a Date object to yyyy-mm-dd
-     * @returns Date string as yyyy-mm-dd
-     */
-    formatDate(date) {
-      let day = date.getDay().toString()
-      let month = date.getMonth().toString()
-      const year = date.getFullYear()
-      if (parseInt(month) < 10) {
-        month = '0' + month
-      }
-      if (parseInt(day) < 10) {
-        day = '0' + day
-      }
-      return year + '-' + month + '-' + day
-    },
-    /**
-     * Gets a sample total in a date range
-     * @param range Array in format [date1, date2] where date = yyyy-mm-dd
-     * @returns total samples in range
-     */
-    async getSamplesInDateRange(range) {
-      const response2 = await axios.get()
-      const response = await fetch(
-        this.API +
-        'status_samples?q=sequencingStartDate=rng=(' +
-        range[0] +
-        ',' +
-        range[1] +
-        ')&num=1', { headers: this.headers }
-      )
-      const Total = await response.json()
-      return Total.total
     }
+  },
+  computed: {
+    ...mapActions([
+      'getSamplesInDateRange',
+      'getTotalSampleCount'
+    ]),
+    ...mapState([
+      'totalSampleCount'
+    ])
   },
   mounted () {
     this.getSampleNumbers()
     setInterval(this.getSampleNumbers, 100000)
-  
   }
 
 }

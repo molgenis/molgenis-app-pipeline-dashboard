@@ -17,6 +17,9 @@ export type State = {
   statisticsEmpty: boolean
   MachineRuntimes: Record<string,Serie[]>
   MachineSampleCounts: Record<string, number[]>
+  SequencerStatisticsSeries: number[]
+  SequencerStatisticsLabels: string[]
+  totalSampleCounts: number
 }
 
 const state: State = {
@@ -35,7 +38,10 @@ const state: State = {
   statistics: [],
   statisticsEmpty: true,
   MachineRuntimes: {},
-  MachineSampleCounts: {}
+  MachineSampleCounts: {},
+  SequencerStatisticsLabels: [],
+  SequencerStatisticsSeries: [],
+  totalSampleCounts: 0
 }
 
 export default state
