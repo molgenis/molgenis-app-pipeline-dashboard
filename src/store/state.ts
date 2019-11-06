@@ -20,6 +20,10 @@ export type State = {
   SequencerStatisticsSeries: number[]
   SequencerStatisticsLabels: string[]
   totalSampleCounts: number
+  yearlySampleCounts: number
+  monthlySampleCounts: number
+  weeklySampleCounts: number
+  dailySampleCounts: number
 }
 
 const state: State = {
@@ -41,7 +45,11 @@ const state: State = {
   MachineSampleCounts: {},
   SequencerStatisticsLabels: [],
   SequencerStatisticsSeries: [],
-  totalSampleCounts: 0
+  totalSampleCounts: 0,
+  yearlySampleCounts: 0,
+  monthlySampleCounts: 0,
+  weeklySampleCounts: 0,
+  dailySampleCounts: 0
 }
 
 export default state

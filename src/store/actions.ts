@@ -5,6 +5,8 @@ import { Serie } from '@/types/graphTypes';
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
 
+import { createDateRange } from '@/helpers/dates'
+
 export default {
   /**
    * Gets data from MOLGENIS database for Track and trace 
@@ -165,10 +167,17 @@ export default {
       return Promise.reject()
     })
   },
-  async getTotalSampleCount({commit, state}:{commit: any, state: State}): Promise<void> {
+  async getSampleNumbers({commit, state}:{commit: any, state: State}): Promise<void> {
     api.get(`/api/v2/${state.sampleTable}?num=1`)
     .then(function (response: any) {
       commit('setTotalSamples', response.json().total)
     })
+    const now = new Date()
+    const dayMs = 24 * 60 * 60 * 1000
+    this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (356 * dayMs)), now)).then(function (response: number) {commit('setYearlySampleCounts'), response})
+    this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (31 * dayMs)), now)).then(function (response: number) {commit('setMonthlySampleCounts'), response})
+    this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (7 * dayMs)), now)).then(function (response: number) {commit('setWeeklySampleCounts'), response})
+    this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (dayMs)), now)).then(function (response: number) {commit('setDailySampleCounts'), response})
+    
   }
 }
