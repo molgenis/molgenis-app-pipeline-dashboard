@@ -12,6 +12,11 @@
 import { mapState, mapActions } from 'vuex'
 export default {
   name: 'sequencer-spread-graph',
+  methods: {
+    updateStatistics () {
+      this.getSequencerStatistics()
+    }
+  },
   computed: {
     ...mapState([
       'SequencerStatisticsSeries',
@@ -46,7 +51,7 @@ export default {
     }
   },
   mounted() { 
-    this.getSequencerStatistics()
+    this.updateStatistics()
   },
 }
 </script>

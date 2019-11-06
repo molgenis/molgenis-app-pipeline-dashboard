@@ -1,35 +1,25 @@
 import axios from 'axios'
 import { State } from './state';
-import { pipelineType } from '@/types/dataTypes';
+import { pipelineType, RunDataObject, projectDataObject, Job } from '@/types/dataTypes';
 import { Serie } from '@/types/graphTypes';
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
 
 import { createDateRange } from '@/helpers/dates'
+import { faSort } from '@fortawesome/free-solid-svg-icons';
 
 export default {
   /**
    * Gets data from MOLGENIS database for Track and trace 
    */
   async getTrackerData ({commit, state}: {commit: any, state: State}) {
-    const ApiInstance = axios.create({
-      baseURL: state.APIv2,
-      headers: {
-        'x-molgenis-token': state.AccessToken,
-        'Content-Type': 'application/json'
-      }
-    })
-    await ApiInstance.get(`${state.overviewTable}`, {
-      params: {
-        num: 10000
-      }
-    })
-    .then(function (response) {
-      const tableContent = response.data.items
+    api.get(`/api/v2/${state.overviewTable}?num=10000`)
+    .then(function (response: {items: RunDataObject[]}) {
+      const tableContent = response.items
       if (tableContent.length > 0) {
         commit('setRuns', tableContent)
       }
-    }).catch(function (error) {
+    }).catch(function (error: any) {
       if (error.response) {
         console.error(error.response.data)
         console.error(error.response.status)
@@ -42,74 +32,55 @@ export default {
       console.error(error)
     })
 
-    await ApiInstance.get(`${state.projectsTable}`, {
-      params: {
-        num: 10000
-      }
-    })
-    .then(function (response) {
-      const tableContent = response.data.items
+    api.get(`/api/v2/${state.projectsTable}?num=10000`)
+    .then(function (response: {items: projectDataObject[]}) {
+      const tableContent = response.items
       if (tableContent.length > 0) {
         commit('setProjects', tableContent)
       }
-    }).catch(function (error) {
+    }).catch(function (error: any) {
       console.error('Failed fetching projects! Caused by:', error)
     })
 
-    await ApiInstance.get(`${state.jobTable}`, {
-      params: {
-        num: 10000
-      }
-    })
-    .then(function (response) {
-      const tableContent = response.data.items
+    api.get(`/api/v2/${state.jobTable}?num=10000`)
+    .then(function (response: {items: Job[]}) {
+      const tableContent = response.items
       if (tableContent.length > 0) {
         commit('setJobs', tableContent)
       }
-    }).catch(function (error) {
+    }).catch(function (error: any) {
       console.error('Failed fetching jobs! Caused by:', error)
     })
   },
+
   /**
    * Gets the data from MOLGENIS for the runtime statistics table
+   * 
    * @param {Number} range - amount of results to get
    */
   async getTimingData({commit, state}: {commit: any, state: State}, range: number) {
-    const ApiInstance = axios.create({
-      baseURL: state.APIv2,
-      headers: {
-        'x-molgenis-token': state.AccessToken,
-        'Content-Type': 'application/json'
-      }
-    })
     // Data per machine
-    await ApiInstance.get(`${state.timingTable}`, {
-      params: {
-        aggs: 'x==machine;distinct==unique_id'
-      }
-    }).then(function (response) {
-      let machines = response.data.aggs.xLabels as string[]
+    api.get(`/api/v2/${state.timingTable}?aggs=x==machine;distinct==unique_id`)
+    .then(function (response: {aggs: {matrix: Array<number[]>, xLabels: string[]}}) {
+      let machines = response.aggs.xLabels as string[]
       machines = machines.filter((x) => { return x !== null }).sort()
-      let machineSeries: Serie[] = []
+
       let sampleCounts: Record<string, number[]> = {}
       let machineSeriesGrouped: Record<string, Serie[]> = {}
-      machines.forEach(async (machine: string) => {
+
+       machines.forEach(async (machine: string) => {
         state.pipelineTypes.forEach(async (pipelineType: string) => {
           if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
             machineSeriesGrouped[pipelineType] = [] as Serie[]
           }
-          await ApiInstance.get(`${state.timingTable}`, {
-            params: {
-              num: range,
-              sort: 'finishedTime:desc',
-              q: `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
-            }
-          }).then(function (response) {
-            if (response.data.items.length > 0) {
-                machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.data.items, (x:any) => {return x.total_hours} )))
-                sampleCounts[machine] = Array.from(response.data.items, (x: any) => x.numberofSamples as number).reverse()
+          let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
+          await api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+          .then(function (response: {items: Object[]}) {
+            if (response.items.length > 0) {
+                machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.items, (x:any) => {return x.total_hours} )))
+                sampleCounts[machine] = Array.from(response.items, (x: any) => x.numberofSamples as number).reverse()
               }})
-              .catch(function (error) {
+              .catch(function (error: any) {
                 console.error(error)
               })
             })
@@ -117,28 +88,28 @@ export default {
       commit('setMachineRuntimes', machineSeriesGrouped)
       commit('setMachineSampleCounts', sampleCounts)
     })
-    .catch(function (error) {
+    .catch(function (error: any) {
       console.error(error)
     })
     let pipelineSeries: Serie[] = []
+    
     state.pipelineTypes.forEach(async (pipelineType: string) => {
-      await ApiInstance.get(`${state.timingTable}`, {
-        params: {
-          num: range,
-          sort: 'finishedTime:desc',
-          q: `project=like=${pipelineType};total_hours=gt=0`
-        }
-      })
-      .then(function (response) {
-        const ResponseData = response.data.items
+      let query = `project=like=${pipelineType};total_hours=gt=0`
+      api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+      .then(function (response: {items: Object[]}) {
+        const ResponseData = response.items
         pipelineSeries.push(new Serie(pipelineType, Array.from(ResponseData, (x: any) => Math.round(x.pipelineDuration / 60)).reverse()))
       })
-      .catch(function (error) {
+      .catch(function (error: any) {
         console.error(error)
       })
     })
     commit('setPipelineData', pipelineSeries)
   },
+  /**
+   * Gets the Sequencer spread statistics
+   * 
+   */
   async getSequencerStatistics ({commit, state}: {commit: any, state: State}) {
     api.get(`/api/v2/${state.sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
     .then(function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
@@ -151,6 +122,7 @@ export default {
       console.error(error)
     })
   },
+
   /**
    * Gets a sample total in a date range
    * @param {[String, String]} range - Array in format [date1, date2] where date = yyyy-mm-dd
@@ -167,6 +139,11 @@ export default {
       return Promise.reject()
     })
   },
+
+  /**
+   * Gets Sample counts in the scopes: yearly, montly, weekly, daily
+   *  
+   */
   async getSampleNumbers({commit, state}:{commit: any, state: State}): Promise<void> {
     api.get(`/api/v2/${state.sampleTable}?num=1`)
     .then(function (response: any) {

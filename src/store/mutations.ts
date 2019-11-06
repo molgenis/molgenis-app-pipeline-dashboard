@@ -29,5 +29,17 @@ export default {
   },
   setTotalCounts(state: State, counts: number) {
     state.totalSampleCounts = counts
+  },
+  setYearlySampleCounts(state: State, counts: number) {
+    state.yearlySampleCounts = counts
+  },
+  setMonthlySampleCounts(state: State, counts: number) {
+    state.monthlySampleCounts = counts
+  },
+  setWeeklySampleCounts(state: State, counts: number) {
+    state.weeklySampleCounts = counts
+  },
+  setDailySampleCounts(state: State, counts: number) {
+    state.dailySampleCounts = counts
   }
 }
