@@ -1,49 +1,58 @@
 /**
  * gets standard deviation
- * @param {Number[]} numArray - Array with numbers
- * @param {Number} average - average
+ * @param {Number[]} numberSeries - Array with numbers
+ * @param {Number} mean - average
  * 
  * @returns {Number} - Standard deviation
  */
-export function getSD (numArray: number[], average: number): number {
+export function getSD (numberSeries: number[], mean: number): number {
   let sumOfDistance = 0
 
-  numArray.forEach((x) => {
-    sumOfDistance += Math.pow(x - average, 2)
+  numberSeries.forEach((number) => {
+    sumOfDistance += Math.pow(number - mean, 2)
   })
 
-  return Math.sqrt(sumOfDistance / numArray.length)
+  return Math.sqrt(sumOfDistance / numberSeries.length)
 }
 
 /**
- * gets the average of array
- * @param {Number} numArray - array of numbers to calculate average
- * @returns {Number}
- */
-export function findAverage (numArray: number[]): number {
-  let sum = 0
-
-  numArray.forEach((x) => {
-    sum += x
-  })
-
-  return sum / numArray.length
-}
-
-
-/**
- * Removes outliers from array, then calculates average
- * @param {Number[]} numArray - Average without any outliers
+ * Calculates mean of numeric array
+ * @param {Number} numberSeries - array of numbers to calculate average
  * 
  * @returns {Number}
  */
-export function findAverageOfNormalValues (numArray: number[]): number {
-  const average = findAverage(numArray)
-  const SD = getSD(numArray, average)
-  const cutOff = SD
-  const lower = average - cutOff
-  const higher = average + cutOff
-  const filteredArray = numArray.filter((x) => { return x > lower && x < higher })
+export function calculateMean (numberSeries: number[]): number {
+  
+  const arrayLenght = numberSeries.length
+  if (arrayLenght > 0) {
+    const sum = numberSeries.reduce((total: number, number: number): number => { return total + number})
+    return sum / arrayLenght
+  }
+  return 0
+}
 
-  return findAverage(filteredArray)
+
+/**
+ * Calculates mean of numeric array excluding outliers
+ * @param {Number[]} numberSeries - Average without any outliers
+ * 
+ * @returns {Number}
+ */
+export function calculateMeanWithoutOutliers (numberSeries: number[], standardDeviations = 1): number {
+
+  const mean = calculateMean(numberSeries)
+  const SD = getSD(numberSeries, mean)
+
+  if (standardDeviations < 1) {
+    console.warn('Less than zero standard deviations... defaulting to 1 SD')
+    standardDeviations = 1
+  }
+
+  const cutOff = SD * Math.floor(standardDeviations)
+
+  const lowerThreshold = mean - cutOff
+  const upperThreshold = mean + cutOff
+  const filteredSeries = numberSeries.filter((number) => { return number > lowerThreshold && number < upperThreshold })
+
+  return calculateMean(filteredSeries)
 }

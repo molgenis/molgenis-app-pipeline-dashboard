@@ -91,7 +91,7 @@ export default {
           this.CommentUpdatedState = false
         } else {
           this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
-          ßthis.closeModal()
+          this.closeModal()
         }
       } catch (error) {
         console.error(error)

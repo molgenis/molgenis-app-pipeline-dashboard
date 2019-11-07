@@ -26,7 +26,7 @@ import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
 import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier } from '@/types/graphTypes'
 import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
-import { getSD, findAverage } from '@/helpers/statistics'
+import { getSD, calculateMean } from '@/helpers/statistics'
 import { cropTitle } from '@/helpers/text'
 import { State } from '../store/state'
 
@@ -171,16 +171,16 @@ export default Vue.extend({
       this.series.forEach((serie: Serie) => {
         switch (serie.name) {
           case 'ONCO':
-            onco = findAverage(serie.data)
+            onco = calculateMean(serie.data)
             break
           case 'PCS':
-            pcs = findAverage(serie.data)
+            pcs = calculateMean(serie.data)
             break
           case 'Exoom':
-            exoom = findAverage(serie.data)
+            exoom = calculateMean(serie.data)
             break
           case 'SVP':
-            svp = findAverage(serie.data)
+            svp = calculateMean(serie.data)
             break
           default:
             break
@@ -341,7 +341,7 @@ export default Vue.extend({
 .fade-enter-active, .fade-leave-active {
   transition: opacity .2s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
 }
 .graphOptions {
