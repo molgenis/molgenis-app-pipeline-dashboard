@@ -4,9 +4,7 @@ import { pipelineType, RunDataObject, projectDataObject, Job } from '@/types/dat
 import { Serie } from '@/types/graphTypes';
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
-
-import { createDateRange } from '@/helpers/dates'
-import { faSort } from '@fortawesome/free-solid-svg-icons';
+import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
 
 export default {
   /**
@@ -150,11 +148,27 @@ export default {
       commit('setTotalSamples', response.json().total)
     })
     const now = new Date()
-    const dayMs = 24 * 60 * 60 * 1000
+    
+
     this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (356 * dayMs)), now)).then(function (response: number) {commit('setYearlySampleCounts'), response})
     this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (31 * dayMs)), now)).then(function (response: number) {commit('setMonthlySampleCounts'), response})
     this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (7 * dayMs)), now)).then(function (response: number) {commit('setWeeklySampleCounts'), response})
     this.getSamplesInDateRange({state: state}, createDateRange(new Date(now.getTime() - (dayMs)), now)).then(function (response: number) {commit('setDailySampleCounts'), response})
     
+  },
+  async getLastYearSampleSequencedNumbers({ commit, state }: {commit: any, state: State}): Promise<void> {
+    const Now = new Date()
+    const lastYear = formatDate(new Date(Now.getTime() - (375 * dayMs)))
+
+    api.get(`/api/v2/${state.sampleTable}?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=${lastYear}`)
+    .then(function (result: any) {
+      let resultedData = {counts: [] as number[], labels: [] as string[]}
+      resultedData.counts = Array.from(result.aggs.matrix, (nestedNumber: number[]) => nestedNumber[0])
+      resultedData.labels = result.aggs.xLabels
+      commit('setSequnecedSampleNumbers', resultedData)
+    })
+    .catch(function (error: any) {
+      console.error(error)
+    })
   }
 }

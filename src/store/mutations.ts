@@ -41,5 +41,11 @@ export default {
   },
   setDailySampleCounts(state: State, counts: number) {
     state.dailySampleCounts = counts
+  },
+  setSequnecedSampleNumbers(state: State, data: {labels: string[], counts: number[]}){
+    state.sequencedSampleNumbers = {
+      labels: data.labels,
+      counts: data.counts
+    }
   }
 }

@@ -21,7 +21,7 @@
         </b-row>
         <b-row v-show="selected === 'sequencer'" class="h-75" no-gutters>
           <b-col class="h-100 w-100" cols="12">
-              <sequencer-usage-spread-graph  :API="API" :headers="headers"></sequencer-usage-spread-graph>
+              <sequencer-usage-spread-graph></sequencer-usage-spread-graph>
           </b-col>
         </b-row>
         <b-row v-show="selected !== 'sequencer'" class="h-75" no-gutters>

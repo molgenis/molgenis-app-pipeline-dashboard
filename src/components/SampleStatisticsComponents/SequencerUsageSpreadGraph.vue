@@ -13,6 +13,9 @@ import { mapState, mapActions } from 'vuex'
 export default {
   name: 'sequencer-spread-graph',
   methods: {
+    ...mapActions([
+      'getSequencerStatistics'
+    ]),
     updateStatistics () {
       this.getSequencerStatistics()
     }
@@ -21,9 +24,6 @@ export default {
     ...mapState([
       'SequencerStatisticsSeries',
       'SequencerStatisticsLabels'
-    ]),
-    ...mapActions([
-      'getSequencerStatistics'
     ]),
     /**
      * Sets the chart options & labels

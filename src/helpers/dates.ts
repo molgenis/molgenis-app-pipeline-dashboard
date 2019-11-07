@@ -29,3 +29,16 @@ export function formatDate(date: Date): string {
 export function createDateRange(rangeStart: Date, rangeEnd: Date): [string, string] {
   return [formatDate(rangeStart), formatDate(rangeEnd)]
 }
+
+/**
+ * Calculates if given date falls within last year
+ * @param {Date} date - date to verify
+ * @param {Date} now - Current date
+ * 
+ * @returns {Boolean}
+ */
+export function dateIsLastYear(date: Date, now: Date) {
+  return (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) || (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
+}
+
+export const dayMs = 24 * 60 * 60 * 1000

@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { formatDate } from '../../helpers/dates'
+import { formatDate, dateIsLastYear } from '../../helpers/dates'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'sample-counts-graph',
@@ -30,8 +30,7 @@ export default {
     },
   },
   data () {
-    return {
-      initialWeek: {
+    const initialWeek = {
         sunday: 0,
         monday: 0,
         tuesday: 0,
@@ -39,8 +38,8 @@ export default {
         thursday: 0,
         friday: 0,
         saturday: 0
-      },
-      initialYear: {
+      }
+      const initialYear =  {
         january: 0,
         february: 0,
         march: 0,
@@ -53,8 +52,8 @@ export default {
         october: 0,
         november: 0,
         december: 0
-      },
-      initialMonth: {
+      }
+      const initialMonth =  {
         '30': 0,
         '29': 0,
         '28': 0,
@@ -85,13 +84,21 @@ export default {
         '3': 0,
         '2': 0,
         '1': 0
-      },
-      week: {},
-      month: {},
-      year: {}
+      }
+    return {
+      week: initialWeek,
+      month: initialMonth,
+      year: initialYear,
+      initialWeek: initialWeek,
+      initialYear: initialYear,
+      initialMonth: initialMonth
     }
   },
   computed: {
+    ...mapState([
+      'sequencedSampleNumbers'
+    ]),
+
     /**
      * returns the current day/month index
      * @returns {number} timeindex
@@ -206,6 +213,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions({
+      getNumbers: 'getLastYearSampleSequencedNumbers'
+    }),
     /**
      * Resets data to 0 for refilling
      */
@@ -260,16 +270,6 @@ export default {
         }
     },
     /**
-     * Calculates if given date falls within last year
-     * @param {Date} date - date to verify
-     * @param {Date} now - Current date
-     * 
-     * @returns {Boolean}
-     */
-    dateIsLastYear(date, now) {
-      return (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) || (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
-    },
-    /**
      * Fills graph data
      * 
      * @param {Number[]} FormattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
@@ -288,7 +288,7 @@ export default {
       date.setMonth(Number(FormattedDate[1]) - 1)
       date.setDate(Number(FormattedDate[2]))
 
-      if (this.dateIsLastYear(date, Now)) {
+      if (dateIsLastYear(date, Now)) {
         this.UpdateYear(date.getMonth(), SampleCount)
       }
 
@@ -308,33 +308,25 @@ export default {
      * @returns {void}
      */
     async getPreviousYearData () {
-      const Now = new Date()
-      const dayMs = 24 * 60 * 60 * 1000
-      const lastYear = new Date(Now.getTime() - (375 * dayMs))
-      
-      try {
-        let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=' + formatDate(lastYear), { headers: this.headers })
-        let result = await response.json()
-            
-        const CountMatrix = result.aggs.matrix
-        const MatrixDates = result.aggs.xLabels
-        
-        this.resetData()
-        for (let index = 0; index < MatrixDates.length; index++) {
-          this.fillData(MatrixDates[index].split('-'), CountMatrix[index][0])
-        }
-      }      
-       catch (error) {
-        console.error(error)
-      }
+    
+    await this.getNumbers()
+    
+    
+    }
+  },
+  watch: {
+    sequencedSampleNumbers() {
+    this.resetData()
+    for (let index = 0; index < this.sequencedSampleNumbers.labels.length; index++) {
+      this.fillData(this.sequencedSampleNumbers.labels[index].split('-'), this.sequencedSampleNumbers.counts[index])
+    }
     }
   },
   mounted () {
-    this.getPreviousYearData()
-    setInterval(this.getPreviousYearData, 3600000)
+    this.getNumbers()
+    setInterval(this.getNumbers, 3600000)
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

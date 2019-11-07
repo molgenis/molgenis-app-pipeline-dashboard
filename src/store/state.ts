@@ -24,6 +24,7 @@ export type State = {
   monthlySampleCounts: number
   weeklySampleCounts: number
   dailySampleCounts: number
+  sequencedSampleNumbers: {counts: number[], labels: string[]}
 }
 
 const state: State = {
@@ -49,7 +50,8 @@ const state: State = {
   yearlySampleCounts: 0,
   monthlySampleCounts: 0,
   weeklySampleCounts: 0,
-  dailySampleCounts: 0
+  dailySampleCounts: 0,
+  sequencedSampleNumbers: {counts: [], labels: []}
 }
 
 export default state
