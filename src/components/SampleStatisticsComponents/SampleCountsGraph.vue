@@ -31,61 +31,64 @@ export default {
   },
   data () {
     return {
-      week: {
-        sunday: 7,
-        monday: 10,
-        tuesday: 23,
-        wednesday: 3,
-        thursday: 6,
-        friday: 3,
-        saturday: 5
+      initialweek: {
+        sunday: 0,
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0
       },
-      year: {
-        january: 133,
-        february: 342,
-        march: 223,
-        april: 404,
-        may: 231,
-        june: 263,
-        july: 196, 
-        august: 124,
-        september: 450,
-        october: 152,
-        november: 350,
-        december: 144
+      initialyear: {
+        january: 0,
+        february: 0,
+        march: 0,
+        april: 0,
+        may: 0,
+        june: 0,
+        july: 0, 
+        august: 0,
+        september: 0,
+        october: 0,
+        november: 0,
+        december: 0
       },
-      month: {
-        '30': 12,
-        '29': 16,
-        '28': 13,
-        '27': 25,
-        '26': 3,
-        '25': 5,
-        '24': 8,
-        '23': 12,
-        '22': 32,
-        '21': 12,
-        '20': 14,
-        '19': 9,
-        '18': 3,
-        '17': 13,
-        '16': 12,
-        '15': 12,
-        '14': 12,
-        '13': 4,
-        '12': 16,
-        '11': 12,
-        '10': 34,
-        '9': 13,
-        '8': 9,
-        '7': 2,
-        '6': 21,
-        '5': 12,
-        '4': 23,
-        '3': 20,
-        '2': 21,
-        '1': 12
-      }
+      initialmonth: {
+        '30': 0,
+        '29': 0,
+        '28': 0,
+        '27': 0,
+        '26': 0,
+        '25': 0,
+        '24': 0,
+        '23': 0,
+        '22': 0,
+        '21': 0,
+        '20': 0,
+        '19': 0,
+        '18': 0,
+        '17': 0,
+        '16': 0,
+        '15': 0,
+        '14': 0,
+        '13': 0,
+        '12': 0,
+        '11': 0,
+        '10': 0,
+        '9': 0,
+        '8': 0,
+        '7': 0,
+        '6': 0,
+        '5': 0,
+        '4': 0,
+        '3': 0,
+        '2': 0,
+        '1': 0
+      },
+      week: initialweek,
+      month: initialmonth,
+      year: initialyear
     }
   },
   computed: {
@@ -207,61 +210,9 @@ export default {
      * Resets data to 0 for refilling
      */
     resetData() {
-      this.month = {
-        '30': 0,
-        '29': 0,
-        '28': 0,
-        '27': 0,
-        '26': 0,
-        '25': 0,
-        '24': 0,
-        '23': 0,
-        '22': 0,
-        '21': 0,
-        '20': 0,
-        '19': 0,
-        '18': 0,
-        '17': 0,
-        '16': 0,
-        '15': 0,
-        '14': 0,
-        '13': 0,
-        '12': 0,
-        '11': 0,
-        '10': 0,
-        '9': 0,
-        '8': 0,
-        '7': 0,
-        '6': 0,
-        '5': 0,
-        '4': 0,
-        '3': 0,
-        '2': 0,
-        '1': 0
-      }
-      this.year = {
-        january: 0,
-        february: 0,
-        march: 0,
-        april: 0,
-        may: 0,
-        june: 0,
-        july: 0, 
-        august: 0,
-        september: 0,
-        october: 0,
-        november: 0,
-        december: 0
-      }
-      this.week = {
-        sunday: 0,
-        monday: 0,
-        tuesday: 0,
-        wednesday: 0,
-        thursday: 0,
-        friday: 0,
-        saturday: 0
-      }
+      this.week = this.initialweek
+      this.month = this.initialmonth
+      this.initialyear = this.initialyear
     },
     /**
      * Updates year data
@@ -379,7 +330,8 @@ export default {
     }
   },
   mounted () {
-    
+    this.getPreviousYearData()
+    setInterval(this.getPreviousYearData, 3600000)
   }
 }
 
