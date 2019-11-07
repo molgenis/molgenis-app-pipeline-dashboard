@@ -10,6 +10,7 @@
 
 <script>
 import axios from 'axios'
+import { formatDate } from '../../helpers/dates'
 
 export default {
   name: 'sample-counts-graph',
@@ -31,59 +32,59 @@ export default {
   data () {
     return {
       week: {
-        sunday: 0,
-        monday: 0,
-        tuesday: 0,
-        wednesday: 0,
-        thursday: 0,
-        friday: 0,
-        saturday: 0
+        sunday: 7,
+        monday: 10,
+        tuesday: 23,
+        wednesday: 3,
+        thursday: 6,
+        friday: 3,
+        saturday: 5
       },
       year: {
-        january: 0,
-        february: 0,
-        march: 0,
-        april: 0,
-        may: 0,
-        june: 0,
-        july: 0, 
-        august: 0,
-        september: 0,
-        october: 0,
-        november: 0,
-        december: 0
+        january: 133,
+        february: 342,
+        march: 223,
+        april: 404,
+        may: 231,
+        june: 263,
+        july: 196, 
+        august: 124,
+        september: 450,
+        october: 152,
+        november: 350,
+        december: 144
       },
       month: {
-        '30': 0,
-        '29': 0,
-        '28': 0,
-        '27': 0,
-        '26': 0,
-        '25': 0,
-        '24': 0,
-        '23': 0,
-        '22': 0,
-        '21': 0,
-        '20': 0,
-        '19': 0,
-        '18': 0,
-        '17': 0,
-        '16': 0,
-        '15': 0,
-        '14': 0,
-        '13': 0,
-        '12': 0,
-        '11': 0,
-        '10': 0,
-        '9': 0,
-        '8': 0,
-        '7': 0,
-        '6': 0,
-        '5': 0,
-        '4': 0,
-        '3': 0,
-        '2': 0,
-        '1': 0
+        '30': 12,
+        '29': 16,
+        '28': 13,
+        '27': 25,
+        '26': 3,
+        '25': 5,
+        '24': 8,
+        '23': 12,
+        '22': 32,
+        '21': 12,
+        '20': 14,
+        '19': 9,
+        '18': 3,
+        '17': 13,
+        '16': 12,
+        '15': 12,
+        '14': 12,
+        '13': 4,
+        '12': 16,
+        '11': 12,
+        '10': 34,
+        '9': 13,
+        '8': 9,
+        '7': 2,
+        '6': 21,
+        '5': 12,
+        '4': 23,
+        '3': 20,
+        '2': 21,
+        '1': 12
       }
     }
   },
@@ -202,25 +203,6 @@ export default {
     }
   },
   methods: {
-    /**
-     * Creates a formatted date string for the query to database
-     * @param {Date} date - date to format
-     * @returns {String} - date in yyyy-mm-dd
-     */
-    constructQueryDateString(date) {
-      const year = date.getFullYear().toString()
-      let month = date.getMonth() + 1
-      if (month.length < 2) {
-        month = '0' + month.toString()
-      }
-      let day = date.getDate().toString()
-      if (day.length < 2) {
-        dat = '0' + day
-      }
-      
-      return year + '-' + month + '-' + day
-
-    },
     /**
      * Resets data to 0 for refilling
      */
@@ -380,7 +362,7 @@ export default {
       const lastYear = new Date(Now.getTime() - (375 * dayMs))
       
       try {
-        let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=' + this.constructQueryDateString(lastYear), { headers: this.headers })
+        let response = await fetch(this.API + 'status_samples?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=' + formatDate(lastYear), { headers: this.headers })
         let result = await response.json()
             
         const CountMatrix = result.aggs.matrix
@@ -397,8 +379,7 @@ export default {
     }
   },
   mounted () {
-    this.getPreviousYearData ()
-    setInterval(this.getPreviousYearData, 3600000)
+    
   }
 }
 
