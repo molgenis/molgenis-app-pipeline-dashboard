@@ -31,7 +31,7 @@ export default {
   },
   data () {
     return {
-      initialweek: {
+      initialWeek: {
         sunday: 0,
         monday: 0,
         tuesday: 0,
@@ -40,7 +40,7 @@ export default {
         friday: 0,
         saturday: 0
       },
-      initialyear: {
+      initialYear: {
         january: 0,
         february: 0,
         march: 0,
@@ -54,7 +54,7 @@ export default {
         november: 0,
         december: 0
       },
-      initialmonth: {
+      initialMonth: {
         '30': 0,
         '29': 0,
         '28': 0,
@@ -86,9 +86,9 @@ export default {
         '2': 0,
         '1': 0
       },
-      week: initialweek,
-      month: initialmonth,
-      year: initialyear
+      week: {},
+      month: {},
+      year: {}
     }
   },
   computed: {
@@ -210,9 +210,9 @@ export default {
      * Resets data to 0 for refilling
      */
     resetData() {
-      this.week = this.initialweek
-      this.month = this.initialmonth
-      this.initialyear = this.initialyear
+      this.week = this.initialWeek
+      this.month = this.initialMonth
+      this.year = this.initialYear
     },
     /**
      * Updates year data
