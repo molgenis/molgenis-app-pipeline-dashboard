@@ -170,5 +170,11 @@ export default {
     .catch(function (error: any) {
       console.error(error)
     })
+  },
+  async getProjectComment({state}: {state: State}, project: string): Promise<any> {
+    return api.get(`/api/v1/${state.projectsTable}/${project}/comment`)
+  },
+  async updateProjectComment({state}: {state: State}, commentData: {project: string, comment: string}) {
+    return api.put(`/api/v1/${state.projectsTable}/${commentData.project}/comment`, { body: JSON.stringify(commentData.comment) })
   }
 }

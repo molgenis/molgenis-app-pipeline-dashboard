@@ -36,7 +36,7 @@
 
 <script>
 import api from '@molgenis/molgenis-api-client'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'comment-modal',
   props: {
@@ -70,6 +70,10 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'getProjectComment',
+      'updateProjectComment'
+    ]),
     /** 
      * Sends the new comment if the user changed the contents
      * 
@@ -82,7 +86,7 @@ export default {
      */
     async handleSubmit(project, oldComment, newComment, validation) {
       try {
-        const CommentUpdated = await this.CheckCommentForUpdates(project, newComment)
+        const CommentUpdated = await this.checkCommentForUpdates(project, newComment)
         if (CommentUpdated) {
           this.CommentUpdatedState = false
         } else {
@@ -123,7 +127,7 @@ export default {
      */
     async PutNewCommentText(project, newComment, oldComment, validated) {
       if (oldComment !== newComment && validated) {
-        await api.put(`/api/v1/${this.projectsTable}/${project}/comment`, { body: JSON.stringify(newComment) })
+        await this.updateProjectComment({project: project, comment: newComment})
         .then(
           response => {this.$emit('comment-updated', project, newComment); this.submitStatus = true }, 
           error => { this.submitStatus = false; console.error(error)})
@@ -137,12 +141,11 @@ export default {
      * 
      * @returns {Promise<Boolean>}
      */
-    async CheckCommentForUpdates(project, comment) {
+    async checkCommentForUpdates(project, comment) {
       let commentIsUpdated
       this.submitStatus = true
       
-      await api.get(`/api/v1/${this.projectsTable}/${project}/comment`)
-      .then(function (response) {
+      await this.getProjectComment(project).then(function (response) {
         if (!response.comment) {
           commentIsUpdated = false
         } else {

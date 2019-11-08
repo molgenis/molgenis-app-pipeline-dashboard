@@ -39,11 +39,11 @@ export interface RunDataObject {
  * Standardized pipeline type enum
  */
 export enum pipelineType {
-  ONCO = 'ONCO',
-  PCS = 'PCS',
-  Exoom = 'Exoom',
-  SVP = 'SVP',
-  OTHER = 'OTHER'
+  onco = 'ONCO',
+  pcs = 'PCS',
+  exoom = 'Exoom',
+  svp = 'SVP',
+  other = 'OTHER'
 }
 
 /**
@@ -72,15 +72,15 @@ export class ProjectObject {
     const regPCS = new RegExp('PCS.*')
     const regSVP = new RegExp('S[VP]{2}.*')
     if (projectName.match(regONCO)) {
-      this.type = pipelineType.ONCO
+      this.type = pipelineType.onco
     } else if (projectName.match(regExoom)){
-      this.type = pipelineType.Exoom
+      this.type = pipelineType.exoom
     } else if (projectName.match(regPCS)) {
-      this.type = pipelineType.PCS
+      this.type = pipelineType.pcs
     } else if (projectName.match(regSVP)) {
-      this.type = pipelineType.SVP
+      this.type = pipelineType.svp
     } else {
-      this.type = pipelineType.OTHER
+      this.type = pipelineType.other
     }
   }
   findStartDateTime (): number {
@@ -184,16 +184,16 @@ export class RunTimeStatistic {
       let runTimeObject = new RunTime(runId, project.getRunTime())
 
       switch (project.type) {
-        case pipelineType.ONCO:
+        case pipelineType.onco:
           this.ONCO = runTimeObject
           break
-        case pipelineType.Exoom:
+        case pipelineType.exoom:
           this.Exoom = runTimeObject
           break
-        case pipelineType.PCS:
+        case pipelineType.pcs:
           this.PCS = runTimeObject
           break
-        case pipelineType.SVP:
+        case pipelineType.svp:
           this.SVP = runTimeObject
           break
         default:

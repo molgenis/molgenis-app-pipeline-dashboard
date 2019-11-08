@@ -1,18 +1,18 @@
 <template>
   <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto p-0 h-100 w-100">
     <b-table-simple small fixed hover class="minH">
-      <b-thead class="">
-        <b-tr class="">
+      <b-thead>
+        <b-tr>
           <b-td class="text-center" colspan="2">
             <span>
               <font-awesome-icon
-              @click="emitPause()"
+              @click="emitPause"
               v-if="cyclePaused"
               icon="play-circle"
               size="lg"
               ></font-awesome-icon>
               <font-awesome-icon
-              @click="emitPause()"
+              @click="emitPause"
               v-else
               icon="pause-circle"
               size="lg"
@@ -27,7 +27,7 @@
           <b-th class="text-right overflow-hidden">Finished</b-th>
         </b-tr>
       </b-thead>
-      <b-tbody class="">
+      <b-tbody>
           <run-status-table-row
             v-for="run in visibleRuns"
             :variant="selectedRun === run.run ? 'primary' : 'light'"
@@ -89,7 +89,7 @@ export default Vue.extend({
       checkbox: false,
       mouseOn: '',
       hiddenToggled: false,
-      show: 7 as number,
+      show: 7,
       hidden: [] as string[],
       visibleRuns: [] as RunStatusData[],
       hiddenRuns: [] as RunStatusData[],

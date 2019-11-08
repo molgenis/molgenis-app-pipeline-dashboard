@@ -199,13 +199,13 @@ export default Vue.extend({
      */
     getThreshold(project: ProjectObject): number {
       switch (project.type) {
-        case pipelineType.ONCO:
+        case pipelineType.onco:
           return this.thresholdOnco
-        case pipelineType.Exoom:
+        case pipelineType.exoom:
           return this.thresholdExoom
-        case pipelineType.PCS:
+        case pipelineType.pcs:
           return this.thresholdPcs
-        case pipelineType.SVP:
+        case pipelineType.svp:
           return this.thresholdSvp
         default:
           return 15
