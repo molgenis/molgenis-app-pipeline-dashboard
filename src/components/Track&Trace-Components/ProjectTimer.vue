@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { formatTime, calculateHours, calculateMinutes, calculateSeconds} from '@/helpers/time'
 export default {
     name: 'project-timer',
     props: {
@@ -47,11 +48,7 @@ export default {
          * @returns {String}
          */
         seconds() {
-            const seconds = Math.sqrt(Math.pow(Math.round(((this.time / 1000) % 3600) % 60), 2))
-            if (seconds < 10) {
-                return '0' + seconds
-            } 
-            return seconds.toString()
+            return formatTime(calculateSeconds(this.time))
         },
 
         /**
@@ -59,11 +56,7 @@ export default {
          * @returns {String}
          */
         minutes() {
-            const minutes = Math.sqrt(Math.pow(Math.round(((this.time / 1000) / 3600) % 60), 2))
-            if (minutes < 10){
-                return '0' + minutes
-            }
-            return minutes.toString()
+            return formatTime(calculateMinutes(this.time))
         },
 
         /**
@@ -72,11 +65,7 @@ export default {
          * @returns {String}
          */
         hours() {
-            const hours = Math.round((this.time / 1000) / 3600)
-            if (hours < 10) {
-                return '0' + hours
-            }
-            return hours.toString()
+            return formatTime(calculateHours(this.time))
         },
         
         /**

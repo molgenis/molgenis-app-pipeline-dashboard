@@ -2,7 +2,7 @@
   <b-row no-gutters class="h-100 w-100">
     <b-col class="h-100 w-100">
       <b-container class="h-100 w-100 p-0" fluid>
-        <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
+        <apexchart type="bar" :options="chartOptions" :series="graphSeries"></apexchart>
       </b-container>
     </b-col>
   </b-row>
@@ -138,7 +138,7 @@ export default {
      * Ordered by wich date it is currently
      * @returns {Array<Number>}
      */
-    ordered() {
+    sampleCountsInOrder() {
       let seriesArray = Object.values(this.selectedData)
       for (let index = 0; index < this.timeIndex; index++) {
         seriesArray.push(seriesArray.shift())
@@ -150,7 +150,7 @@ export default {
      * Ordered by wich date it is currently
      * @returns {Array<String>}
      */
-    labels() {
+    orderedSampleLabels() {
       let labels = Object.keys(this.selectedData)
       for (let index = 0; index < this.timeIndex; index++) {
         labels.push(labels.shift())
@@ -162,10 +162,10 @@ export default {
      * 
      * @returns {Array<Serie>}
      */
-    series() {
+    graphSeries() {
       return [{
         name: 'Samples',
-        data: this.ordered
+        data: this.sampleCountsInOrder
       }]
     },
     /**
@@ -193,7 +193,7 @@ export default {
           width: 2
         },
         xaxis: {
-          categories: this.labels
+          categories: this.orderedSampleLabels
         },
         yaxis: {
           title: {
