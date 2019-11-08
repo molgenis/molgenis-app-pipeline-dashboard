@@ -15,14 +15,6 @@ import { mapActions, mapState } from 'vuex'
 export default {
   name: 'sample-counts-graph',
   props: {
-    API: {
-      type: String,
-      required: true
-    },
-    headers: {
-      type: Object,
-      required: true
-    },
     type: {
       type: String,
       required: false,

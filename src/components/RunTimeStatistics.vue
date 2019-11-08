@@ -91,6 +91,13 @@ export default Vue.extend({
      */
     chartOptions (): ChartOptions {
       const sampleCounts = this.MachineSampleCounts
+      let title = ''
+      if (this.selectedStatistic === 'cluster') {
+        title = `${this.selectedSubStatistic} runtime trends by ${this.selectedStatistic}`
+      } else {
+        title = `runtime trends by ${this.selectedStatistic}`
+      }
+
       return {
         chart: {
           height: '100%',
@@ -114,13 +121,12 @@ export default Vue.extend({
             fontFamily: undefined
           }
         },
-        title: {
-          text: `Runtime trends for ${this.selectedSubStatistic} by ${this.selectedStatistic}`,
+        title: { 
+          text: title,
           align: 'center'
         },
         stroke: {
-          width: 4,
-          curve: 'smooth'
+          width: 4
         },
         dataLabels: {
           enabled: false

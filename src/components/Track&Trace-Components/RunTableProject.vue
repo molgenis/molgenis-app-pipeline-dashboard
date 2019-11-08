@@ -1,6 +1,6 @@
 <template>
 <b-row @click="toggleLogBox">
-  <b-col cols="4" class="text-center text-truncate">{{project}}</b-col>
+  <b-col cols="4" class="text-center"><p class="text-truncate fontvw">{{project}}</p></b-col>
   <b-col cols="4" class="text-center pt-1">
     <status-icon :status="status" :comment="comment.length > 0"/>
   </b-col>
@@ -367,4 +367,7 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.fontvw {
+  font-size: '150%';
+}
 </style>

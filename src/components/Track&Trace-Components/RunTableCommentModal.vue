@@ -27,7 +27,7 @@
         Could not update comment, please try again later
       </b-form-invalid-feedback>
       </b-form-group>
-      <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(Run, placeHolderComment, comment, API, headers, validation)">Submit</b-button>
+      <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(Run, placeHolderComment, comment, validation)">Submit</b-button>
       <b-button class="mt-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
     </form>
   </b-modal>
@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import api from '@molgenis/molgenis-api-client'
+import { mapState } from 'vuex'
 export default {
   name: 'comment-modal',
   props: {
@@ -46,14 +48,6 @@ export default {
       type: String,
       required: false,
       default: ''
-    },
-    headers: {
-      type: Object,
-      required: true
-    },
-    API: {
-      type: String,
-      required: true
     }
   },
   data () {
@@ -61,11 +55,15 @@ export default {
       name: '',
       placeHolderComment: '',
       CommentUpdatedState: true,
-      submitStatus: true
+      submitStatus: true,
+
 
     }
   },
   computed: {
+    ...mapState([
+      'projectsTable'
+    ]),
     validation() {
       const comment = this.placeHolderComment
       return comment.length <= 65535
@@ -78,19 +76,17 @@ export default {
      * @param {String} Run - run where the comment was added
      * @param {String} placeHolderComment - local saved comment
      * @param {String} comment - comment the user edited
-     * @param {String} API - API url
-     * @param {Headers} headers - headers for api call
      * @param {Boolean} validation - validation status
      *
      * @returns {Promise<void>}
      */
-    async handleSubmit(Run, placeHolderComment, comment, API, headers, validation) {
+    async handleSubmit(project, oldComment, newComment, validation) {
       try {
-        const CommentUpdated = await this.CheckCommentUpdate(API, Run, headers, comment)
+        const CommentUpdated = await this.CheckCommentForUpdates(project, newComment)
         if (CommentUpdated) {
           this.CommentUpdatedState = false
         } else {
-          this.PutNewCommentText(Run, placeHolderComment, comment, API, headers, validation)
+          await this.PutNewCommentText(project, oldComment, newComment, validation)
           this.closeModal()
         }
       } catch (error) {
@@ -119,60 +115,45 @@ export default {
      * Updates the comment value in MOLGENIS database
      * 
      * @param {String} project - project to update
-     * @param {String} vModelComment - new comment content
-     * @param {String} comment - old comment
-     * @param {String} API - API url
-     * @param {Headers} headers - request headers
+     * @param {String} newComment - new comment content
+     * @param {String} oldComment - old comment
      * @param {Boolean} validated - comment is correct
      * 
      * @returns {Promise<void>}
      */
-    async PutNewCommentText(project, vModelComment, comment, API, headers, validated) {
-      if (comment !== vModelComment && validated) {
-        try {
-          const response = await fetch(API + 'status_projects/' + project + '/comment', {
-            method: 'PUT',
-            body: JSON.stringify(vModelComment),
-            headers: headers
-          })
-
-          if (response.ok) {
-            this.$emit('comment-updated', project, vModelComment)
-            this.submitStatus = true
-          } else {
-            this.submitStatus = false
-          }
-          
-        } catch (error) {
-          console.error(error)
-        }
+    async PutNewCommentText(project, newComment, oldComment, validated) {
+      if (oldComment !== newComment && validated) {
+        await api.put(`/api/v1/${this.projectsTable}/${project}/comment`, { body: JSON.stringify(newComment) })
+        .then(
+          response => {this.$emit('comment-updated', project, newComment); this.submitStatus = true }, 
+          error => { this.submitStatus = false; console.error(error)})
       }
     },
     /**
      * Checks database if there were any users that added other comments
      * is true if there was an update or the check failed
-     * @param {String} API - Api url
      * @param {String} project - project id
-     * @param {Headers} headers - api call headers
      * @param {String} comment - old comment
      * 
      * @returns {Promise<Boolean>}
      */
-    async CheckCommentUpdate(API, project, headers, comment) {
-      try {
-        const response = await fetch(API + 'status_projects/' + project + '/comment', {
-            method: 'get',
-            headers: headers
-          })
-        const commentJson= await response.json()
-        if (!commentJson.comment) {
-          return false
+    async CheckCommentForUpdates(project, comment) {
+      let commentIsUpdated
+      this.submitStatus = true
+      
+      await api.get(`/api/v1/${this.projectsTable}/${project}/comment`)
+      .then(function (response) {
+        if (!response.comment) {
+          commentIsUpdated = false
+        } else {
+          commentIsUpdated = (response.comment !== comment)
         }
-        return commentJson.comment !== comment
-      } catch (error) {
-        console.error(error)
-        return true
-      }
+      })
+      .catch(function (error) {
+        this.submitStatus = false
+      })
+
+      return commentIsUpdated
     }
   },
   watch: {

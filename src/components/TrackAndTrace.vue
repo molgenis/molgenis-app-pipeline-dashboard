@@ -14,8 +14,8 @@
           </run-status-table>
         </b-container>
       </b-col>
-    <b-col class="p-2" cols="12" lg="8">
-      <b-container class="border border-primary h-100 p-0" fluid>
+    <b-col class="p-2 h-100" cols="12" lg="8" >
+      <b-container class="border border-primary h-100 p-0 overflow-auto" fluid>
         <run-table
         :runID="runID"
         :showRun="showRun"
@@ -25,8 +25,6 @@
         :currentStep="currentStep"
         :time="time"
         :demultiplexing="demultiplexing"
-        :headers="headers"
-        :API="APIvOne"
         :thresholdOnco="thresholdOnco"
         :thresholdPcs="thresholdPcs"
         :thresholdExoom="thresholdExoom"
@@ -50,14 +48,11 @@ declare module 'vue/types/vue' {
     runs: RunDataObject[]
     jobs: Job[]
     TotalProjects: projectDataObject[]
-    runUrl: string
     time: number
     showRun: string
     paused: boolean
     loading: boolean
-    headers: object
     url: string
-    APIvOne: string
     run: Run
     runID: string
     runProjects: ProjectObject[]
@@ -99,19 +94,6 @@ export default Vue.extend({
     RunStatusTable
   },
   props: {
-    headers: {
-      type: Object,
-      required: true
-    },
-
-    url: {
-      type: String,
-      required: true
-    },
-    APIvOne: {
-      type: String,
-      required: true
-    },
     thresholdOnco: {
       type: Number,
       required: true
@@ -131,7 +113,6 @@ export default Vue.extend({
   },
   data () {
     return {
-      runUrl: '',
       time: 0,
       showRun: '',
       paused: false,
@@ -342,26 +323,6 @@ export default Vue.extend({
     async getData (): Promise<void> {
       this.$store.dispatch('getTrackerData', 20)
     },
-    /**
-     * fetches data from specified location
-     * @param {String} ref - fetch location url
-     * @param {Promise<RawDataObject[]>} items - fetch previous page contents
-     * 
-     * @returns {Promise<RawDataObject[]>}
-     */
-    async fetchData (ref: string, items = []): Promise<RawDataObject[]> {
-      const response = await fetch(ref, {
-        headers: this.headers
-      })
-
-      const data = await response.json()
-      let totalItems: RawDataObject[] = items.concat(data.items)
-      if (data.nextHref) {
-        totalItems = await this.fetchData(data.nextHref, totalItems)
-      }
-      return totalItems
-    },
-
     /**
      * Cycles the display index by 1
      * 

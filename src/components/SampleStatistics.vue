@@ -26,7 +26,7 @@
         </b-row>
         <b-row v-show="selected !== 'sequencer'" class="h-75" no-gutters>
           <b-col class="h-100">
-            <sample-counts-graph id="sample-counts" :API="API" :headers="headers" :type="returnType(selected)"></sample-counts-graph>
+            <sample-counts-graph id="sample-counts" :type="returnType(selected)"></sample-counts-graph>
           </b-col>
         </b-row>
       </b-container>
@@ -46,16 +46,6 @@ export default {
     SequencerUsageSpreadGraph,
     SampleCountsDisplay,
     SampleCountsGraph
-  },
-  props: {
-    API: {
-      type: String,
-      required: true
-    },
-    headers: {
-      type: Object,
-      required: true
-    }
   },
   data () {
     return {
