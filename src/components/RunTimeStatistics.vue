@@ -33,6 +33,7 @@ import { State } from '../store/state'
 declare module 'vue/types/vue' { 
   interface Vue extends State {
     getTimingData(range: number): void
+
   }
 }
 
@@ -90,7 +91,7 @@ export default Vue.extend({
      * @returns {chartOptions}
      */
     chartOptions (): ChartOptions {
-      const sampleCounts = this.MachineSampleCounts
+      const sampleCounts = this.machineSampleCounts
       let title = ''
       if (this.selectedStatistic === 'cluster') {
         title = `${this.selectedSubStatistic} runtime trends by ${this.selectedStatistic}`
@@ -145,8 +146,8 @@ export default Vue.extend({
         tooltip: {
           y: {
           
-          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w}: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, MachineSampleCounts: Record<string, number[]> = sampleCounts) {
-            return `${value} (hr), ${MachineSampleCounts[Object.keys(MachineSampleCounts)[seriesIndex]][dataPointIndex]} (samples)`
+          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w}: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineSampleCounts: Record<string, number[]> = sampleCounts) {
+            return `${value} (hr), ${machineSampleCounts[Object.keys(machineSampleCounts)[seriesIndex]][dataPointIndex]} (samples)`
           }
   }
         },
@@ -154,7 +155,7 @@ export default Vue.extend({
       }
     },
     machineSampleCounts () {
-      return this.MachineSampleCounts
+      return this.machineSampleCounts
     },
     numbersArray (): number[] {
       const runTimeArray = this.runTimes as RunTimeStatistic[]
@@ -224,10 +225,10 @@ export default Vue.extend({
       let svp: number[] = []
 
       runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
-        if (StatisticalPoint.ONCO) { onco.push(StatisticalPoint.ONCO.runtime) } else { onco.push(0) }
-        if (StatisticalPoint.PCS) { pcs.push(StatisticalPoint.PCS.runtime) } else { pcs.push(0) }
-        if (StatisticalPoint.Exoom) { exoom.push(StatisticalPoint.Exoom.runtime) } else { exoom.push(0) }
-        if (StatisticalPoint.SVP) { svp.push(StatisticalPoint.SVP.runtime) } else { svp.push(0) }
+        StatisticalPoint.ONCO ? onco.push(StatisticalPoint.ONCO.runtime) : onco.push(0)
+        StatisticalPoint.PCS ? pcs.push(StatisticalPoint.PCS.runtime) : pcs.push(0)
+        StatisticalPoint.Exoom ? exoom.push(StatisticalPoint.Exoom.runtime) : exoom.push(0)
+        StatisticalPoint.SVP ? svp.push(StatisticalPoint.SVP.runtime) : svp.push(0) 
       })
 
       SerieArray.push(new Serie('ONCO', onco))
@@ -262,16 +263,16 @@ export default Vue.extend({
         case 'prepKit':
           return this.statistics
         case 'cluster':
-          return this.MachineRuntimes[this.selectedSubStatistic]
+          return this.machineRuntimes[this.selectedSubStatistic]
         default:
           return null
       }
     },
     ...mapState([
-      'MachineSampleCounts',
+      'machineSampleCounts',
       'statistics',
       'pipelineTypes',
-      'MachineRuntimes'
+      'machineRuntimes'
     ])
   },
   methods: {

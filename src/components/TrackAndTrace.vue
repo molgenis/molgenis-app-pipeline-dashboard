@@ -202,9 +202,7 @@ export default Vue.extend({
      * @returns {Run[]}
      */
     runData (): Run[] {
-      let data: Run[] = []
-      this.runs.forEach((run: RunDataObject) => { data.push(this.constructRun(run, this.TotalProjects, this.jobs)) })
-      data = data.sort(this.sortRuns)
+      const data: Run[] = this.runs.map((run: RunDataObject) => this.constructRun(run, this.TotalProjects, this.jobs)).sort(this.sortRuns)
       return data
     },
 
@@ -214,10 +212,7 @@ export default Vue.extend({
      * @returns {String[]}
      */
     runIds (): string[] {
-      let runIds: string[] = []
-      this.runData.forEach((run: Run) => {
-        runIds.push(run.run_id)
-      })
+      const runIds: string[] = this.runData.map((run: Run) => run.run_id)
       return runIds
     },
 
@@ -227,17 +222,14 @@ export default Vue.extend({
      * @returns {Step[]}
      */
     runSteps (): Step[] {
-      let runSteps: Step[] = []
-      this.runData.forEach((run) => {
-        runSteps.push(
-          {
-            run: run.run_id,
-            step: this.runStep(run),
-            containsError: run.containsError,
-            len: run.len
+      const runSteps: Step[] = this.runData.map((run) => {
+        return {
+          run: run.run_id,
+          step: this.runStep(run),
+          containsError: run.containsError,
+          len: run.len
           }
-        )
-      })
+        })
       return runSteps
     }
   },
@@ -262,9 +254,7 @@ export default Vue.extend({
     sortRuns (run1: Run, run2: Run): number {
       if (run1.containsError && !run2.containsError) {
         return -1
-      } else if (run2.containsError) {
-        return 1
-      } else if (this.runStep(run1) > this.runStep(run2)) {
+      } else if (run2.containsError || this.runStep(run1) > this.runStep(run2)) {
         return 1
       } else {
         return 0
@@ -424,26 +414,22 @@ export default Vue.extend({
      * @returns {Run}
      */
     constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run {
-      let Projects: ProjectObject[] = []
       const runProjects = this.getRunProjects(projects, run.run_id)
       let errors = 0
-      runProjects.forEach((RunProject: projectDataObject) => {
+      const projectArray = runProjects.map((RunProject: projectDataObject) => {
         const ProjectJobs = this.getProjectJobs(jobs, RunProject)
+        errors += this.countJobStatus(ProjectJobs, 'error')
 
-        Projects.push(
-          new ProjectObject(
+        return new ProjectObject(
             RunProject.project,
             ProjectJobs,
             RunProject.pipeline,
             this.getStatus(RunProject, ProjectJobs),
             RunProject.copy_results_prm,
             RunProject.comment
-          )
-        )
-
-        errors += this.countJobStatus(ProjectJobs, 'error')
+          )        
       })
-      return new Run(run.run_id, Projects, run.demultiplexing, run.copy_raw_prm, Projects.length, errors >= 1, this.countProjectFinishedCopying(Projects))
+      return new Run(run.run_id, projectArray, run.demultiplexing, run.copy_raw_prm, projectArray.length, errors >= 1, this.countProjectFinishedCopying(projectArray))
     },
 
     /**
@@ -454,9 +440,7 @@ export default Vue.extend({
      * @returns {String} - status
      */
     getStatus (project: projectDataObject, jobs: Job[]): string {
-      if (project.copy_results_prm === 'finished') {
-        return 'finished'
-      } else if (this.countJobStatus(jobs, 'finished') === jobs.length) {
+      if (project.copy_results_prm === 'finished' || this.countJobStatus(jobs, 'finished') === jobs.length) {
         return 'finished'
       } else if (this.countJobStatus(jobs, 'started') >= 1) {
         return 'started'

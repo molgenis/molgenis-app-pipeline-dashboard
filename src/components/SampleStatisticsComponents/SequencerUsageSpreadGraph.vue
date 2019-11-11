@@ -2,7 +2,7 @@
   <b-row no-gutters class="h-100">
     <b-col class="h-100">
       <b-container class=" p-0 h-100" fluid>
-        <apexchart type="donut" :options="chartOptions" :series="SequencerStatisticsSeries"></apexchart>
+        <apexchart type="donut" :options="chartOptions" :series="sequencerStatisticsSeries"></apexchart>
       </b-container>
     </b-col>
   </b-row>
@@ -22,8 +22,8 @@ export default {
   },
   computed: {
     ...mapState([
-      'SequencerStatisticsSeries',
-      'SequencerStatisticsLabels'
+      'sequencerStatisticsSeries',
+      'sequencerStatisticsLabels'
     ]),
     /**
      * Sets the chart options & labels
@@ -38,7 +38,7 @@ export default {
             show: false
           }
         },
-        labels: this.SequencerStatisticsLabels,
+        labels: this.sequencerStatisticsLabels,
         legend: {
           position: 'right',
           offsetY: 0

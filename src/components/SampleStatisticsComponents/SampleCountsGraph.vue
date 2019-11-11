@@ -139,11 +139,7 @@ export default {
      * @returns {Array<Number>}
      */
     sampleCountsInOrder() {
-      let seriesArray = Object.values(this.selectedData)
-      for (let index = 0; index < this.timeIndex; index++) {
-        seriesArray.push(seriesArray.shift())
-      }
-      return seriesArray
+      return Object.values(this.selectedData).reverse()
     },
     /**
      * Returns a ordered array of labels
@@ -151,11 +147,7 @@ export default {
      * @returns {Array<String>}
      */
     orderedSampleLabels() {
-      let labels = Object.keys(this.selectedData)
-      for (let index = 0; index < this.timeIndex; index++) {
-        labels.push(labels.shift())
-      }
-      return labels
+      return Object.keys(this.selectedData).reverse()
     },
     /**
      * Returns a series for the graph
@@ -218,80 +210,80 @@ export default {
     },
     /**
      * Updates year data
-     * @param {Number} Month - Month of year (0-11)
-     * @param {Number} Count - Sample count that month
+     * @param {Number} month - month of year (0-11)
+     * @param {Number} count - Sample count that month
      */
-    UpdateYear(Month, Count) {
-      switch (Month) {
+    updateYear(month, count) {
+      switch (month) {
           case 0:
-            this.year.january += Count
+            this.year.january += count
             break
           case 1:
-            this.year.february += Count
+            this.year.february += count
             break
           case 2:
-            this.year.march += Count
+            this.year.march += count
             break
           case 3:
-            this.year.april += Count
+            this.year.april += count
             break
           case 4:
-            this.year.may += Count
+            this.year.may += count
             break
           case 5:
-            this.year.june += Count
+            this.year.june += count
             break
           case 6:
-            this.year.july += Count
+            this.year.july += count
             break
           case 7:
-            this.year.august += Count
+            this.year.august += count
             break
           case 8:
-            this.year.september += Count
+            this.year.september += count
             break
           case 9:
-            this.year.october += Count
+            this.year.october += count
             break
           case 10:
-            this.year.november += Count
+            this.year.november += count
             break
           default:
-            this.year.december += Count
+            this.year.december += count
             break
         }
     },
     /**
      * Fills graph data
      * 
-     * @param {Number[]} FormattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
-     * @param {Number} SampleCount - Samples Sequenced on Formatted date
+     * @param {Number[]} formattedDate - Molgenis date formatted to Array [YYYY, MM, DD]
+     * @param {Number} sampleCount - Samples Sequenced on Formatted date
      * 
      * @returns {void}
      */
-    fillData(FormattedDate, SampleCount) {
-      const Now = new Date()
+    fillData(formattedDate, sampleCount) {
+      const now = new Date()
 
       const dayMs = 24 * 60 * 60 * 1000
 
       const date = new Date()
 
-      date.setFullYear(Number(FormattedDate[0]))
-      date.setMonth(Number(FormattedDate[1]) - 1)
-      date.setDate(Number(FormattedDate[2]))
+      date.setFullYear(Number(formattedDate[0]))
+      date.setMonth(Number(formattedDate[1]) - 1)
+      date.setDate(Number(formattedDate[2]))
 
-      if (dateIsLastYear(date, Now)) {
-        this.UpdateYear(date.getMonth(), SampleCount)
+      if (dateIsLastYear(date, now)) {
+        this.updateYear(date.getMonth(), sampleCount)
       }
 
-      let timeDiffrence = Math.abs(Now - date)
-      let dayDiffrence = Math.ceil(timeDiffrence / dayMs)
+      let timeDifference = Math.abs(now - date)
+      let dayDifference = Math.ceil(timeDifference / dayMs)
       
-      if (dayDiffrence <= 30) {
-        this.month[dayDiffrence.toString()] = SampleCount
+      if (dayDifference <= 30) {
+        this.month[dayDifference.toString()] = sampleCount
       }
-      if (dayDiffrence <= 7) {
-        this.week[Object.keys(this.week)[date.getDay()]] = SampleCount
+      if (dayDifference <= 7) {
+        this.week[Object.keys(this.week)[date.getDay()]] = sampleCount
       }
     },
     /**
