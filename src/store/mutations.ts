@@ -16,16 +16,16 @@ export default {
     state.statistics = statistics
   },
   setMachineRuntimes(state: State, series: Record<string, Serie[]>) {
-    state.MachineRuntimes = series
+    state.machineRuntimes = series
   },
   setMachineSampleCounts(state: State, sampleCounts: Record<string, number[]>) {
-    state.MachineSampleCounts = sampleCounts
+    state.machineSampleCounts = sampleCounts
   },
   setSequencerStatisticsSeries(state: State, series: number[]) {
-    state.SequencerStatisticsSeries = series
+    state.sequencerStatisticsSeries = series
   },
   setSequencerStatisticsLabels(state: State, labels: string[]) {
-    state.SequencerStatisticsLabels = labels
+    state.sequencerStatisticsLabels = labels
   },
   setTotalCounts(state: State, counts: number) {
     state.totalSampleCounts = counts

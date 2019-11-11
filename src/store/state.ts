@@ -12,10 +12,10 @@ export type State = {
   pipelineTypes: string[]
   statistics: Serie[]
   statisticsEmpty: boolean
-  MachineRuntimes: Record<string,Serie[]>
-  MachineSampleCounts: Record<string, number[]>
-  SequencerStatisticsSeries: number[]
-  SequencerStatisticsLabels: string[]
+  machineRuntimes: Record<string,Serie[]>
+  machineSampleCounts: Record<string, number[]>
+  sequencerStatisticsSeries: number[]
+  sequencerStatisticsLabels: string[]
   totalSampleCounts: number
   yearlySampleCounts: number
   monthlySampleCounts: number
@@ -36,10 +36,10 @@ const state: State = {
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   statistics: [],
   statisticsEmpty: true,
-  MachineRuntimes: {},
-  MachineSampleCounts: {},
-  SequencerStatisticsLabels: [],
-  SequencerStatisticsSeries: [],
+  machineRuntimes: {},
+  machineSampleCounts: {},
+  sequencerStatisticsLabels: [],
+  sequencerStatisticsSeries: [],
   totalSampleCounts: 0,
   yearlySampleCounts: 0,
   monthlySampleCounts: 0,

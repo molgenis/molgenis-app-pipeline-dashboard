@@ -52,18 +52,13 @@ export default {
   },
 
   /**
-   * Gets the data from MOLGENIS for the runtime statistics table
+   * Gets the runtime data for each given machine
    * 
-   * @param {Number} range - amount of results to get
+   * @param machines - array of machine id's
+   * 
    */
-  async getTimingData({commit, state}: {commit: any, state: State}, range: number) {
-    // Data per machine
-    api.get(`/api/v2/${state.timingTable}?aggs=x==machine;distinct==unique_id`)
-    .then(function (response: {aggs: {matrix: Array<number[]>, xLabels: string[]}}) {
-      let machines = response.aggs.xLabels as string[]
-      machines = machines.filter((x) => { return x !== null }).sort()
-
-      let sampleCounts: Record<string, number[]> = {}
+  async getMachineData({commit, state}: {commit: any, state: State}, {machines, range}: {machines: string[], range: number}) {
+    let sampleCounts: Record<string, number[]> = {}
       let machineSeriesGrouped: Record<string, Serie[]> = {}
 
        machines.forEach(async (machine: string) => {
@@ -85,13 +80,12 @@ export default {
           })
       commit('setMachineRuntimes', machineSeriesGrouped)
       commit('setMachineSampleCounts', sampleCounts)
-    })
-    .catch(function (error: any) {
-      console.error(error)
-    })
+  },
+
+  async getPipelineData({commit, state}: {commit:any, state: State}, range: number) {
     let pipelineSeries: Serie[] = []
-    
-    state.pipelineTypes.forEach(async (pipelineType: string) => {
+
+    state.pipelineTypes.map(async (pipelineType: string) => {
       let query = `project=like=${pipelineType};total_hours=gt=0`
       api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
       .then(function (response: {items: Object[]}) {
@@ -103,6 +97,25 @@ export default {
       })
     })
     commit('setPipelineData', pipelineSeries)
+  },
+
+  /**
+   * Gets the data from MOLGENIS for the runtime statistics table
+   * 
+   * @param {Number} range - amount of results to get
+   */
+  async getTimingData({dispatch, state}: {dispatch: any, state: State}, range: number) {
+    // Data per machine
+    api.get(`/api/v2/${state.timingTable}?aggs=x==machine;distinct==unique_id`)
+    .then(async function (response: {aggs: {matrix: Array<number[]>, xLabels: string[]}}) {
+      let machines = response.aggs.xLabels as string[]
+      machines = machines.filter((x) => { return x !== null }).sort()
+      dispatch('getMachineData', {machines: machines, range: range})
+    })
+    .catch(function (error: any) {
+      console.error(error)
+    })
+    dispatch('getPipelineData', range)
   },
   /**
    * Gets the Sequencer spread statistics
