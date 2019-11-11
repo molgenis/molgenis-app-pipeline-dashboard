@@ -39,7 +39,7 @@
             :hidden="hidden"
             @update-hidden="updateHidden"
             @select-run="selectRun"
-            @mouse-on="setMouseOn"
+            @mouse-on="event => mouseOn = event"
             @progress-finish="emitFinish"
           ></run-status-table-row>
           <run-status-table-row
@@ -54,7 +54,7 @@
           :hidden="hidden"
           @update-hidden="updateHidden"
           @select-run="selectRun"
-          @mouse-on="setMouseOn"
+          @mouse-on="event => mouseOn = event"
           @click="selectRun(run)"
           @progress-finish="emitFinish"
           ></run-status-table-row>
@@ -77,6 +77,7 @@ import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
 import { Run, RunStatusData } from '@/types/dataTypes'
+import { getFilteredArray } from '@/helpers/utils'
 
 export default Vue.extend({
   name: 'run-status-table',
@@ -87,7 +88,7 @@ export default Vue.extend({
   data () {
     return {
       checkbox: false,
-      mouseOn: '',
+      mouse: '',
       hiddenToggled: false,
       show: 7,
       hidden: [] as string[],
@@ -153,15 +154,6 @@ export default Vue.extend({
       this.$emit('run-finished', run)
     },
     /**
-     * Sets mouseOn string
-     * @param {String} run - run id
-     * 
-     * @returns {void}
-     */
-    setMouseOn (run: string): void {
-      this.mouseOn = run
-    },
-    /**
      * Updates hidden parameter
      * @param {String[]} hidden - hidden values array
      * 
@@ -172,6 +164,23 @@ export default Vue.extend({
     }
   },
   computed: {
+    mouseOn: {
+      get: function (): string {
+        return this.mouse
+      },
+      set: function (run: string): void {
+        this.mouse = run
+      }
+    },
+    localHidden: {
+      get: function (): string[] {
+        return this.hidden
+      },
+      set: function (updatedHidden: string[]) {
+        this.hidden = updatedHidden
+      }
+
+    },
     /**
      * When hidden is toggled true return hidden array for display
      * 
@@ -206,18 +215,16 @@ export default Vue.extend({
       immediate: true,
       handler () {
         const totalRuns = this.totalRuns as RunStatusData[]
-        let notHidden = totalRuns.filter((run) => {
-          return !this.hidden.includes(run.run)
-        })
+        let notHidden = getFilteredArray(totalRuns, this.hidden)
+                
         if (notHidden.length > this.show) {
-          this.visibleRuns = notHidden.slice(0, this.show)
-          this.hiddenRunsByLength = notHidden.filter((run) => !this.visibleRuns.includes(run))
+          this.visibleRuns  = notHidden.slice(0, this.show)
+          this.hiddenRunsByLength = getFilteredArray(notHidden, this.visibleRuns)
         } else {
           this.visibleRuns = notHidden
         }
-        this.hiddenRuns = totalRuns.filter((run) => {
-          return !this.visibleRuns.includes(run)
-        })
+        
+        this.hiddenRuns = getFilteredArray(this.totalRuns, Array.from(this.visibleRuns, x => x.run))
       }
     },
     totalRuns: function () {

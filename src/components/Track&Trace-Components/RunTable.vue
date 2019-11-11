@@ -25,6 +25,8 @@
                 :resultCopy="project.resultCopyStatus"
                 :project="project.project"
                 :jobs="project.jobs" :header="false"
+                :startedDate="project.findStartDateTime()"
+                :finishedDate="project.findLastDateTime()"
                 :runID="runID"
                 :projectCount="projectCount"
                 :time="time"
@@ -35,9 +37,9 @@
           </template>
           
           <comment-modal
-            :Run="selectedProject"
+            :run="selectedProject"
             :comment="comment"
-            @comment-updated="updateLocalComment">
+            @comment-updated="updateLocalcomment">
           </comment-modal>
     </b-container>
 </template>
@@ -183,7 +185,7 @@ export default Vue.extend({
      * 
      * @returns {void}
      */
-    updateLocalComment(project: string, comment: string): void {
+    updateLocalcomment(project: string, comment: string): void {
       for (let i = 0; i < this.projects.length; i++) {
         if (this.projects[i].project === project){
           this.projects[i].Comment = comment

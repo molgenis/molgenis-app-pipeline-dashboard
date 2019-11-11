@@ -11,13 +11,13 @@
         </span>
         <span class="d-lg-none">{{index + 1}}</span>
         <span>
-          <template v-if="StepRunning(step)">
+          <template v-if="stepRunning(step)">
             <font-awesome-icon v-if="error" icon="exclamation-circle"/>
             <font-awesome-icon v-else-if="isFinalStep(step)" icon="check-circle"/>
             <font-awesome-icon v-else-if="warning" icon="exclamation-triangle"/>
             <b-spinner v-else variant="primary" small/>
           </template>
-          <font-awesome-icon v-else-if="StepComplete(step) && !error" icon="check-circle"/>
+          <font-awesome-icon v-else-if="stepComplete(step) && !error" icon="check-circle"/>
         </span>
       </div>
     </b-col>
@@ -68,7 +68,7 @@ export default Vue.extend({
      * @returns {String} status
      */
     getStepStatus (step: string): string {
-      if (this.isFinalStep(step) && this.StepRunning(step)) {
+      if (this.isFinalStep(step) && this.stepRunning(step)) {
         return 'complete'
       } else if (this.steps[this.currentStep] === step) {
         if (!this.started) {
@@ -82,7 +82,7 @@ export default Vue.extend({
         }
         return 'running'
       } else {
-        if (this.StepComplete(step)) {
+        if (this.stepComplete(step)) {
           if (this.error) {
             return 'error'
           } else {
@@ -99,7 +99,7 @@ export default Vue.extend({
      * 
      * @returns {Boolean}
      */
-    StepRunning (step: string): boolean {
+    stepRunning (step: string): boolean {
       return this.started && (this.steps[this.currentStep] === step)
     },
     /**
@@ -108,7 +108,7 @@ export default Vue.extend({
      * 
      * @returns {Boolean}
      */
-    StepComplete (step: string): boolean {
+    stepComplete (step: string): boolean {
       return this.started && (this.getStepIndex(step) < this.currentStep)
     },
     /**

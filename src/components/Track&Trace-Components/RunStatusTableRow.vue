@@ -107,9 +107,9 @@ export default {
      * @param {Array} array1 - 1st array
      * @param {Array} array2 - 2nd array
      * 
-     * @returns {Array} diffrence
+     * @returns {Array} difference
      */
-    arrayDiffrence (array1, array2) {
+    arrayDifference (array1, array2) {
       return array1.filter((item) => { return array2.indexOf(item) < 0 })
     },
     /**

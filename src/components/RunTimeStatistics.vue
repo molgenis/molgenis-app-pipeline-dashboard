@@ -27,7 +27,7 @@ import { mapState, mapActions } from 'vuex'
 import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier } from '@/types/graphTypes'
 import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
 import { getSD, calculateMean } from '@/helpers/statistics'
-import { cropTitle } from '@/helpers/text'
+import { cropTitle } from '@/helpers/utils'
 import { State } from '../store/state'
 
 declare module 'vue/types/vue' { 

@@ -16,7 +16,7 @@
         :variant="variant"
         :step="steps"
         :totalSteps="totalSteps"
-        :HasNoWarning="HasNoWarning"
+        :noWarning="hasNoWarning"
         :error="false"
         :animated="true"
         class="w-100 mt-1"
@@ -61,6 +61,15 @@ export default Vue.extend({
     jobs: {
       type: Array,
       required: true
+    },
+    startedDate: {
+      type: Number,
+      required: false
+    },
+
+    finishedDate: {
+      type: Number,
+      required: false
     },
 
     runID: {
@@ -111,7 +120,7 @@ export default Vue.extend({
      * 
      * @returns {Boolean}
      */
-    HasNoWarning (): Boolean {
+    hasNoWarning (): Boolean {
       const warning = (this.thresholdToMs > (this.finishTime - this.startTime)) || !this.started
       return warning
     },
@@ -170,7 +179,7 @@ export default Vue.extend({
         }).length >= 1
       ) {
         return 'error'
-      } else if (!this.HasNoWarning) {
+      } else if (!this.hasNoWarning) {
         return 'warning'
       } else if (
         this.remainingJobs.filter(function (job) {
@@ -244,9 +253,8 @@ export default Vue.extend({
      * @returns {Number} (milliseconds)
      */
     finishTime (): number {
-      let FinishedDate = 0
       if (this.finished) {
-        return this.findLastDateTime(this.jobs as Job[])
+        return this.finishedDate
       } else {
         return this.time
       }
@@ -257,7 +265,7 @@ export default Vue.extend({
      * @returns {Number} (milliseconds)
      */
     startTime (): number {
-      return this.findStartDateTime(this.jobs as Job[])
+      return this.startedDate
     }
   },
   methods: {
@@ -276,9 +284,9 @@ export default Vue.extend({
      * @emits 'project-warning'
      * @returns {void}
      */
-    CheckForWarnings(): void {
-      if (!this.HasNoWarning) {
-        this.$emit('project-warning', !this.HasNoWarning)
+    checkForWarnings(): void {
+      if (!this.hasNoWarning) {
+        this.$emit('project-warning', !this.hasNoWarning)
       }
     },
     /**
@@ -290,77 +298,39 @@ export default Vue.extend({
     projectFinished (): void {
       this.$emit('finished', this.runtime)
     },
-
-    /**
-     * Searches data for last or running job date/time
-     * @param {Job[]} jobs - jobs of project
-     * @returns {Number} finished date in ms
-     */
-    findLastDateTime (jobs: Job[]): number {
-      let FinishedDate = 0
-      jobs.forEach(job => {
-        if (job.finished_date) {
-          let CurrentJobDate = new Date(job.finished_date).getTime()
-          if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
-            FinishedDate = CurrentJobDate
-          }
-        }
-      })
-
-      return FinishedDate
-    },
-
-    /**
-     * Searches data for first job date/time
-     * @param {Job[]} jobs - jobs of project
-     * @returns {Number} started date in ms
-     */
-    findStartDateTime (jobs: Job[]): number {
-      let StartedDate = Infinity
-      jobs.forEach(job => {
-        if (job.started_date) {
-          let CurrentJobDate = new Date(job.started_date).getTime()
-          if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
-            StartedDate = CurrentJobDate
-          }
-        }
-      })
-      return StartedDate
-    },
-
     /**
      * Comperator function for job sorting by time
      * @param {Job} Job1 - first job
      * @param {Job} Job2 - second job
      * @returns {Number} sort order
      */
-    SortJobsByTime (Job1: Job, Job2: Job): number {
-      const Job1StartedDate = Job1.started_date
-      const Job1Type = typeof (Job1StartedDate)
-      const Job2StartedDate = Job2.started_date
-      const Job2Type = typeof (Job2StartedDate)
+    SortJobsByTime (job1: Job, job2: Job): number {
+      const job1StartedDate = job1.started_date
+      const job1Type = typeof (job1StartedDate)
+      const job2StartedDate = job2.started_date
+      const job2Type = typeof (job2StartedDate)
 
-      if ((Job1StartedDate === '' && Job2StartedDate === '') || (Job1Type === undefined && Job2Type === undefined)) {
+      if ((job1StartedDate === '' && job2StartedDate === '') || (job1Type === undefined && job2Type === undefined)) {
         return 0
-      } else if ((Job1StartedDate !== '' && Job2StartedDate === '') || Job1Type === undefined) {
+      } else if ((job1StartedDate !== '' && job2StartedDate === '') || job1Type === undefined) {
         return 1
-      } else if ((Job2StartedDate !== '' && Job1StartedDate === '') || Job2Type === undefined) {
+      } else if ((job2StartedDate !== '' && job1StartedDate === '') || job2Type === undefined) {
         return -1
       }
 
-      const Job1Date = new Date(Job1StartedDate!).getTime()
-      const Job2Date = new Date(Job2StartedDate!).getTime()
+      const job1Date = new Date(job1StartedDate!).getTime()
+      const job2Date = new Date(job2StartedDate!).getTime()
 
-      if (Job1Date > Job2Date) {
+      if (job1Date > job2Date) {
         return 1
-      } else if (Job1Date < Job2Date) {
+      } else if (job1Date < job2Date) {
         return -1
       } else return 0
     }
   },
   mounted () {
-    this.CheckForWarnings()
-    setInterval(this.CheckForWarnings, 30000)
+    this.checkForWarnings()
+    setInterval(this.checkForWarnings, 30000)
     
   }
 })

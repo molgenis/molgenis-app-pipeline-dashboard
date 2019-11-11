@@ -12,3 +12,13 @@ export function cropTitle (title: string, length: number): string {
 
   return title
 }
+
+/**
+ * returns array of items that is not in the other array
+ * 
+ * @param arrayToFilter 
+ * @param arrayToCheck 
+ */
+export function getFilteredArray (arrayToFilter: Array<any>, arrayToCheck: Array<any>): Array<any> {
+  return arrayToFilter.filter((run) => { return !arrayToCheck.includes(run.run) })
+}

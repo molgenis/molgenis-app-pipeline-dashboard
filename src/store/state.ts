@@ -9,9 +9,6 @@ export type State = {
   jobTable: string
   timingTable: string
   sampleTable: string
-  APIv1: string
-  APIv2: string
-  AccessToken: string
   pipelineTypes: string[]
   statistics: Serie[]
   statisticsEmpty: boolean
@@ -36,9 +33,6 @@ const state: State = {
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
-  APIv1: 'http://localhost:8081/api/v1/',
-  APIv2: 'http://localhost:8081/api/v2/',
-  AccessToken: 'admin-test-token',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   statistics: [],
   statisticsEmpty: true,

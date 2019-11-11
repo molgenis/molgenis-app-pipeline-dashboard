@@ -3,7 +3,7 @@
   <b-modal
       id="comment-modal"
       ref="modal"
-      :title="Run"
+      :title="run"
       hide-footer
       :static="true"
       >
@@ -15,19 +15,19 @@
           placeholder="Comment..."
           rows="10"
           max-rows="30"
-          :state="(!validation || !CommentUpdatedState || !submitStatus) ? false : undefined"
+          :state="(!validation || !commentUpdatedState || !submitStatus) ? false : undefined"
         ></b-form-textarea>
         <b-form-invalid-feedback id='lengthError' v-if="!validation">
           Comment too long. Must be smaller than 65536 characters
         </b-form-invalid-feedback>
-        <b-form-invalid-feedback id='updatedError' v-else-if="!CommentUpdatedState">
+        <b-form-invalid-feedback id='updatedError' v-else-if="!commentUpdatedState">
         Comment updated by another user, try again later
         </b-form-invalid-feedback>
         <b-form-invalid-feedback id='submitError' v-else-if="!submitStatus">
         Could not update comment, please try again later
       </b-form-invalid-feedback>
       </b-form-group>
-      <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(Run, placeHolderComment, comment, validation)">Submit</b-button>
+      <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(run, placeHolderComment, comment, validation)">Submit</b-button>
       <b-button class="mt-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
     </form>
   </b-modal>
@@ -40,7 +40,7 @@ import { mapState, mapActions } from 'vuex'
 export default {
   name: 'comment-modal',
   props: {
-    Run: {
+    run: {
       type: String,
       required: true
     },
@@ -54,7 +54,7 @@ export default {
     return {
       name: '',
       placeHolderComment: '',
-      CommentUpdatedState: true,
+      commentUpdatedState: true,
       submitStatus: true,
 
 
@@ -77,7 +77,7 @@ export default {
     /** 
      * Sends the new comment if the user changed the contents
      * 
-     * @param {String} Run - run where the comment was added
+     * @param {String} run - run where the comment was added
      * @param {String} placeHolderComment - local saved comment
      * @param {String} comment - comment the user edited
      * @param {Boolean} validation - validation status
@@ -86,11 +86,11 @@ export default {
      */
     async handleSubmit(project, oldComment, newComment, validation) {
       try {
-        const CommentUpdated = await this.checkCommentForUpdates(project, newComment)
-        if (CommentUpdated) {
-          this.CommentUpdatedState = false
+        const commentUpdated = await this.checkCommentForUpdates(project, newComment)
+        if (commentUpdated) {
+          this.commentUpdatedState = false
         } else {
-          await this.PutNewCommentText(project, oldComment, newComment, validation)
+          await this.putNewComment(project, oldComment, newComment, validation)
           this.closeModal()
         }
       } catch (error) {
@@ -125,7 +125,7 @@ export default {
      * 
      * @returns {Promise<void>}
      */
-    async PutNewCommentText(project, newComment, oldComment, validated) {
+    async putNewComment(project, newComment, oldComment, validated) {
       if (oldComment !== newComment && validated) {
         await this.updateProjectComment({project: project, comment: newComment})
         .then(
@@ -164,11 +164,11 @@ export default {
      * If run changes put the correct comment
      * @returns {void}
      */
-    Run: {
+    run: {
       immediate: true,
       handler () {
         this.placeHolderComment = this.comment
-        this.CommentUpdatedState = true
+        this.commentUpdatedState = true
         this.submitStatus = true
       }
     }

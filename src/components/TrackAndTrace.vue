@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {mapActions} from 'vuex'
+import {mapActions, mapState} from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
@@ -70,7 +70,6 @@ declare module 'vue/types/vue' {
     timeUp(): void
     setTimer(): void
     getData(): Promise<void>
-    fetchData(ref: string, items?: RawDataObject[]): Promise<RawDataObject[]>
     cycleRun (): void
     runStep (run: Run): number
     toggleCycle (): void
@@ -83,6 +82,7 @@ declare module 'vue/types/vue' {
     countJobStatus (jobs: Job[], status: string): number
     findLastDateTime (projects: ProjectObject[]): number
     findStartDateTime (projects: ProjectObject[]): number
+    getTrackerData(range: number): void
     addRunToStatistics (run: string): void
   }
 }
@@ -121,30 +121,11 @@ export default Vue.extend({
     }
   },
   computed: {
-    /**
-     * Retrieves runs from store
-     * 
-     * @returns {RunDataObject[]}
-     */
-    runs (): RunDataObject[] {
-      return this.$store.state.runs
-    },
-    /**
-     * Retrieves projects from store
-     * 
-     * @returns {projectDataObject[]}
-     */
-    TotalProjects (): projectDataObject[] {
-      return this.$store.state.projects
-    },
-    /**
-     * Retrieves jobs from store
-     * 
-     * @returns {Job[]}
-     */
-    jobs (): Job[] {
-      return this.$store.state.jobs
-    },
+    ...mapState({
+      runs: 'runs',
+      TotalProjects: 'projects',
+      jobs: 'jobs'
+    }),
     /**
      * Currently selected run
      * @returns {Run}
@@ -163,10 +144,10 @@ export default Vue.extend({
      */
     runID (): string {
       const runID = this.run.run_id
-      if (typeof (runID) === 'undefined') {
+      if (!runID) {
         return ''
       }
-      return this.run.run_id
+      return runID
     },
 
     /**
@@ -261,6 +242,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    ...mapActions([
+      'getTrackerData'
+    ]),
     /**
      * changes detailed view to the given index
      * @param {Number} index - index of current run
@@ -316,12 +300,12 @@ export default Vue.extend({
     },
 
     /**
-     * Get the available projects in status data.
+     * Calls data fetch action
      * 
      * @returns {Promise<void>}
      */
     async getData (): Promise<void> {
-      this.$store.dispatch('getTrackerData', 20)
+      this.getTrackerData(20)
     },
     /**
      * Cycles the display index by 1
@@ -488,46 +472,6 @@ export default Vue.extend({
      */
     countJobStatus (jobs: Job[], status: string): number {
       return jobs.filter(function (x) { return x.status === status }).length
-    },
-    /**
-     * resolves the last known finish date
-     * @param {ProjectObject} projects - Projects to search for finish date
-     * 
-     * @returns {Number} - finished date in ms
-     */
-    findLastDateTime (projects: ProjectObject[]): number {
-      let FinishedDate = 0
-      projects.forEach((project: ProjectObject) => {
-        project.jobs.forEach((job: Job) => {
-          if (typeof (job.finished_date) !== 'undefined') {
-            let CurrentJobDate = new Date(job.finished_date!).getTime()
-            if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
-              FinishedDate = CurrentJobDate
-            }
-          }
-        })
-      })
-      return FinishedDate
-    },
-    /**
-     * resolves the start date of the project array
-     * @param {ProjectObject[]} projects - projects to search
-     * 
-     * @returns {Number} - started date in ms
-     */
-    findStartDateTime (projects: ProjectObject[]): number {
-      let StartedDate = Infinity
-      projects.forEach((project: ProjectObject) => {
-        project.jobs.forEach((job: Job) => {
-          if (typeof (job.started_date) !== 'undefined') {
-            let CurrentJobDate = new Date(job.started_date!).getTime()
-            if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
-              StartedDate = CurrentJobDate
-            }
-          }
-        })
-      })
-      return StartedDate
     },
     /**
      * Creates a RunTimeStatistic object and sends it to the grah

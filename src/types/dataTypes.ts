@@ -46,6 +46,12 @@ export enum pipelineType {
   other = 'OTHER'
 }
 
+
+enum dateSearch {
+  started = 'started_date',
+  finished = 'finished_date'
+}
+
 /**
  * Stores available project data
  * @function findLastDateTime returns last date in ms
@@ -83,30 +89,33 @@ export class ProjectObject {
       this.type = pipelineType.other
     }
   }
-  findStartDateTime (): number {
-    let StartedDate = Infinity
-    this.jobs.forEach(job => {
-      if (job.started_date){
-        let CurrentJobDate = new Date(job.started_date).getTime()
-        if (StartedDate > CurrentJobDate && !isNaN(StartedDate)) {
-          StartedDate = CurrentJobDate
+  private checkDateOfJob(dateToCheck: string, date: number, dateKey: string): number {
+    if (dateToCheck) {
+      let CurrentJobDate = new Date(dateToCheck!).getTime()
+      if (!isNaN(date)){
+        if (dateKey === dateSearch.finished && date < CurrentJobDate) {
+          date = CurrentJobDate
+        } else if (dateKey === dateSearch.started && date > CurrentJobDate) {
+          date = CurrentJobDate
         }
       }
+    }
+    return date
+  }
+  private getRelevantDate (date: number, dateKey: string) {
+    this.jobs.forEach((job: Job) => {
+      //@ts-ignore
+      const dateToCheck = job[dateKey]
+
+      date = this.checkDateOfJob(dateToCheck, date, dateKey)
     })
-    return StartedDate
+    return date
   }
   findLastDateTime (): number {
-    let FinishedDate = 0
-    this.jobs.forEach(job => {
-      if (job.finished_date){
-        let CurrentJobDate = new Date(job.finished_date).getTime()
-        if (FinishedDate < CurrentJobDate && !isNaN(FinishedDate)) {
-          FinishedDate = CurrentJobDate
-        }
-      }
-    })
-
-    return FinishedDate
+    return this.getRelevantDate(0, dateSearch.finished)
+  }
+  findStartDateTime (): number {
+    return this.getRelevantDate(Infinity, dateSearch.started)
   }
   getRunTime(): number {
     return this.findLastDateTime() - this.findStartDateTime()
