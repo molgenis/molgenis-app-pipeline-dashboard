@@ -12,7 +12,7 @@ export function getSD (numberSeries: number[], mean: number): number {
     sumOfDistance += Math.pow(number - mean, 2)
   })
 
-  return Math.sqrt(sumOfDistance / numberSeries.length)
+  return Math.sqrt(sumOfDistance / (numberSeries.length - 1))
 }
 
 /**
@@ -44,7 +44,7 @@ export function calculateMeanWithoutOutliers (numberSeries: number[], standardDe
   const SD = getSD(numberSeries, mean)
 
   if (standardDeviations < 1) {
-    console.warn('Less than zero standard deviations... defaulting to 1 SD')
+    throw new Error('Given standard deviation less than 1')
     standardDeviations = 1
   }
 
