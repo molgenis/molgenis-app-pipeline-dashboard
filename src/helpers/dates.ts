@@ -27,6 +27,9 @@ export function formatDate(date: Date): string {
  * @returns {[String, String]} - [yyyy-mm-dd, yyyy-mm-ddd]
  */
 export function createDateRange(rangeStart: Date, rangeEnd: Date): [string, string] {
+  if (rangeStart > rangeEnd) {
+    throw new Error('End date is not before start date')
+  }
   return [formatDate(rangeStart), formatDate(rangeEnd)]
 }
 
@@ -37,8 +40,9 @@ export function createDateRange(rangeStart: Date, rangeEnd: Date): [string, stri
  * 
  * @returns {Boolean}
  */
-export function dateIsLastYear(date: Date, now: Date) {
-  return (date.getMonth() <= now.getMonth() && date.getFullYear() === now.getFullYear()) || (date.getMonth() > now.getMonth() && date.getFullYear() === (now.getFullYear() - 1))
+export function dateIsLastYear(date: Date, now: Date): boolean {
+  const lastYear = new Date(now.getTime() - 365 * dayMs)
+  return date >= lastYear
 }
 
 export const dayMs = 24 * 60 * 60 * 1000
