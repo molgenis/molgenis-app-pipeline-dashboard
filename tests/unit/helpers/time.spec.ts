@@ -43,4 +43,8 @@ describe('calculateSeconds', () => {
   it('converts milliseconds to seconds', () => {
     expect(calculateSeconds(20000)).toEqual(20)
   })
+
+  it('recalculates from zero when 1 or more minutes have passed', () => {
+    expect(calculateSeconds(61000)).toEqual(1)
+  })
 })

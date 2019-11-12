@@ -5,6 +5,7 @@ import CommentModal from '@/components/Track&Trace-Components/RunTableCommentMod
 const localVue = createLocalVue()
 localVue.use(BootstrapVue)
 
+
 describe('RunTableCommentModal.vue', () => {
   const comment = 'hello, this is a test!'
   const run = 'TestRun1'

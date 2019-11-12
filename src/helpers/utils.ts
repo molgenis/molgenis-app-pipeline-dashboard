@@ -20,5 +20,5 @@ export function cropTitle (title: string, length: number): string {
  * @param arrayToCheck 
  */
 export function getFilteredArray (arrayToFilter: Array<any>, arrayToCheck: Array<any>): Array<any> {
-  return arrayToFilter.filter((run) => { return !arrayToCheck.includes(run.run) })
+  return arrayToFilter.filter((item) => { return !arrayToCheck.includes(item) })
 }
