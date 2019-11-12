@@ -39,7 +39,6 @@ describe('calculateMeanWithoutOutliers', () => {
 
   it('removes outliers then calculates mean', () => {
     const numbers = [1,2,1,2,1,2,1,2,30]
-    const shouldNotEqual = calculateMean(numbers)
     const shouldEqual = calculateMean(numbers.slice(0, - 1))
 
     expect(calculateMeanWithoutOutliers(numbers)).toEqual(shouldEqual)
