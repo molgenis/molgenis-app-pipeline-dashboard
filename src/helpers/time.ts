@@ -1,13 +1,19 @@
+export enum timeUnit {
+  hours = Infinity,
+  minutes = 60,
+  seconds = 60
+}
+
 /**
  * formats a time number to a number in string form with two characters
  * @param {Number} timeNumber - number to format
  * 
  * @returns {String(2)}
  */
-export function formatTime(timeNumber: number): string {
+export function formatTime(timeNumber: number, unit: timeUnit): string {
 
-  if (timeNumber > 60) {
-    throw new Error(`Number cannot be time digit, ${timeNumber} > 60`)
+  if (timeNumber > unit) {
+    throw new Error(`Number cannot be time digit, ${timeNumber} > ${unit}`)
   } else if (timeNumber < 0) {
     throw new Error('Number is negative')
   }

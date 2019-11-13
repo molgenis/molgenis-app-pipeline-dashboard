@@ -1,17 +1,17 @@
-import { formatTime, calculateHours, calculateMinutes, calculateSeconds} from '@/helpers/time'
+import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit} from '@/helpers/time'
 
 describe('formatTime', () => {
   test('formats a single digit number to double digit', () => {
-    expect(formatTime(2)).toEqual('02')
-    expect(formatTime(22)).toEqual('22')
+    expect(formatTime(2, timeUnit.hours)).toEqual('02')
+    expect(formatTime(22, timeUnit.hours)).toEqual('22')
   })
 
   test('throws error when digit is not in time format', () => {
     function largeNumber() {
-      formatTime(123)
+      formatTime(123, timeUnit.minutes)
     }
     function negativeNumber() {
-      formatTime(-1)
+      formatTime(-1, timeUnit.minutes)
     }
 
     expect(largeNumber).toThrowError('Number cannot be time digit, 123 > 60')
