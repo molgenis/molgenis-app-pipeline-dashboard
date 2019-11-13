@@ -191,6 +191,10 @@ export default Vue.extend({
         return this.hiddenRuns
       }
       return []
+    },
+    hiddenObjects (): RunStatusData[] {
+      const totalRuns = this.totalRuns as RunStatusData[]
+      return totalRuns.filter((run) => { return this.hidden.includes(run.run)})
     }
   },
   watch: {
@@ -206,6 +210,7 @@ export default Vue.extend({
         this.$emit('cycle-next')
       }
     },
+    
     /**
      * when hidden v-model changes makes sure the visible runs does not extend the maximum show value
      * 
@@ -215,7 +220,7 @@ export default Vue.extend({
       immediate: true,
       handler () {
         const totalRuns = this.totalRuns as RunStatusData[]
-        let notHidden = getFilteredArray(totalRuns, this.hidden)
+        let notHidden: RunStatusData[] = getFilteredArray(totalRuns, this.hiddenObjects)
                 
         if (notHidden.length > this.show) {
           this.visibleRuns  = notHidden.slice(0, this.show)
@@ -224,7 +229,7 @@ export default Vue.extend({
           this.visibleRuns = notHidden
         }
         
-        this.hiddenRuns = getFilteredArray(this.totalRuns, Array.from(this.visibleRuns, x => x.run))
+        this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns)
       }
     },
     totalRuns: function () {
