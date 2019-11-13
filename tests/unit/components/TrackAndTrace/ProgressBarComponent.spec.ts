@@ -27,4 +27,19 @@ describe('ProgressBar.vue', () => {
     })
     expect(wrapper.emitted('progress-finish')).toBeTruthy()
   })
+
+  test('Emits finished when steps changes to 100%', () => {
+    let step = 2
+    const totalSteps = 3
+    const wrapper = mount(ProgressBar, {
+      localVue,
+      propsData: {step, totalSteps}
+    })
+
+    expect(Object.keys(wrapper.emitted())).not.toContain('progress-finish')
+    step = totalSteps
+    wrapper.setProps({step, totalSteps})
+
+    expect(Object.keys(wrapper.emitted())).toContain('progress-finish')
+  })
 })
