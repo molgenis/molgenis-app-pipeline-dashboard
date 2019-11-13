@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { formatTime, calculateHours, calculateMinutes, calculateSeconds} from '@/helpers/time'
+import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit} from '@/helpers/time'
 export default {
     name: 'project-timer',
     props: {
@@ -48,7 +48,7 @@ export default {
          * @returns {String}
          */
         seconds() {
-            return formatTime(calculateSeconds(this.time))
+            return formatTime(calculateSeconds(this.time), timeUnit.seconds)
         },
 
         /**
@@ -56,7 +56,7 @@ export default {
          * @returns {String}
          */
         minutes() {
-            return formatTime(calculateMinutes(this.time))
+            return formatTime(calculateMinutes(this.time), timeUnit.minutes)
         },
 
         /**
@@ -65,7 +65,7 @@ export default {
          * @returns {String}
          */
         hours() {
-            return formatTime(calculateHours(this.time))
+            return formatTime(calculateHours(this.time), timeUnit.hours)
         },
         
         /**
