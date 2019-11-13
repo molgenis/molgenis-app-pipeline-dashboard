@@ -1,31 +1,39 @@
 <template>
-<b-container id="dashboard" class="h-100" fluid>
-  <b-row  no-gutters class="h-50">
-    <b-col class="h-100">
-      <track-and-trace
-        @add-statistic="addStatistics"
-        :thresholdOnco="thresholdOnco"
-        :thresholdPcs="thresholdPcs"
-        :thresholdExoom="thresholdExoom"
-        :thresholdSvp="thresholdSvp"
-        class="h-100 mt-1"/>
-    </b-col>
-  </b-row>
-  <b-row no-gutters class="h-50">
-    <b-col cols="12" lg="6" class="h-100">
-      <run-time-statistics
-        :run-times="runTimeArray"
-        @new-threshold-onco="setOncoMax"
-        @new-threshold-pcs="setPcsMax"
-        @new-threshold-exoom="setExoomMax"
-        @new-threshold-svp="setSvpMax"
-      />
-    </b-col>
-    <b-col cols="12" lg="6" class="h-100">
-      <sample-statistics></sample-statistics>
-    </b-col>
-  </b-row>
-</b-container>
+<transiton name="fade" mode="out-in">
+  <b-container v-show="loading" id="dashboard" class="h-100" fluid>
+    <b-row  no-gutters class="h-50">
+      <b-col class="h-100">
+        <track-and-trace
+          @add-statistic="addStatistics"
+          :thresholdOnco="thresholdOnco"
+          :thresholdPcs="thresholdPcs"
+          :thresholdExoom="thresholdExoom"
+          :thresholdSvp="thresholdSvp"
+          class="h-100 mt-1"/>
+      </b-col>
+    </b-row>
+    <b-row no-gutters class="h-50">
+      <b-col cols="12" lg="6" class="h-100">
+        <run-time-statistics
+          :run-times="runTimeArray"
+          @new-threshold-onco="setOncoMax"
+          @new-threshold-pcs="setPcsMax"
+          @new-threshold-exoom="setExoomMax"
+          @new-threshold-svp="setSvpMax"
+        />
+      </b-col>
+      <b-col cols="12" lg="6" class="h-100">
+        <sample-statistics></sample-statistics>
+      </b-col>
+    </b-row>
+  </b-container>
+  <div v-show="!loading" class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw">
+    <div class="d-flex align-items-center">
+      <b-spinner variant="primary" label="Spinning"></b-spinner>
+      <strong> Loading dashboard information</strong>
+    </div>
+  </div>
+</transiton>
 </template>
 
 <script lang="ts">
@@ -53,6 +61,7 @@ export default Vue.extend({
   },
   data () {
     return {
+      loading: true,
       runTimeArray: [],
       threshold: 20,
       thresholdOnco: 20,
@@ -133,5 +142,13 @@ height: 45%;
 .fill {
 
   height: 100%;
+}
+
+.component-fade-enter-active, .component-fade-leave-active {
+  transition: opacity .9s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+/* .component-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
