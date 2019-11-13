@@ -57,6 +57,7 @@ enum dateSearch {
  * @function findLastDateTime returns last date in ms
  * @function findStartDateTime returns start time in ms
  * @function getRunTime returns runtime in ms
+ * @function getProjectType returns project pipeline type
  */
 export class ProjectObject {
   project: string
@@ -65,7 +66,7 @@ export class ProjectObject {
   status: string
   resultCopyStatus?: string
   Comment?: string
-  type: pipelineType
+  
   constructor(projectName: string, jobArray: Job[], pipeline: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
     this.project = projectName
     this.jobs = jobArray
@@ -73,26 +74,17 @@ export class ProjectObject {
     this.resultCopyStatus = resultCopyStatusString
     this.status = statusString
     this.Comment = comment
-    const regONCO = new RegExp('ONCO.*')
-    const regExoom = new RegExp('Exoom.*')
-    const regPCS = new RegExp('PCS.*')
-    const regSVP = new RegExp('S[VP]{2}.*')
-    if (projectName.match(regONCO)) {
-      this.type = pipelineType.onco
-    } else if (projectName.match(regExoom)){
-      this.type = pipelineType.exoom
-    } else if (projectName.match(regPCS)) {
-      this.type = pipelineType.pcs
-    } else if (projectName.match(regSVP)) {
-      this.type = pipelineType.svp
-    } else {
-      this.type = pipelineType.other
-    }
   }
+  /**
+   * Gets the date that is relevant to the dateKey search
+   * @param dateToCheck date to compare to
+   * @param date date
+   * @param dateKey started date or finished date
+   */
   private checkDateOfJob(dateToCheck: string, date: number, dateKey: string): number {
     if (dateToCheck) {
       let CurrentJobDate = new Date(dateToCheck!).getTime()
-      if (!isNaN(date)){
+      if (!isNaN(CurrentJobDate)){
         if (dateKey === dateSearch.finished && date < CurrentJobDate) {
           date = CurrentJobDate
         } else if (dateKey === dateSearch.started && date > CurrentJobDate) {
@@ -102,6 +94,12 @@ export class ProjectObject {
     }
     return date
   }
+  /**
+   * Gets the date that belongs to the calculation using the date key
+   * 
+   * @param date - value to compare date to
+   * @param dateKey - which job collumn to search ( started_date or finished_date ) 
+   */
   private getRelevantDate (date: number, dateKey: string) {
     this.jobs.forEach((job: Job) => {
       //@ts-ignore
@@ -111,13 +109,28 @@ export class ProjectObject {
     })
     return date
   }
-  findLastDateTime (): number {
+  public getProjectType(): pipelineType {
+    if (this.project.match(new RegExp('ONCO.*'))) {
+      return pipelineType.onco
+    }
+    if (this.project.match(new RegExp('Exoom.*'))){
+      return pipelineType.exoom
+    }
+    if (this.project.match(new RegExp('PCS.*'))) {
+      return pipelineType.pcs
+    } 
+    if (this.project.match(new RegExp('S[VP]{2}.*'))) {
+      return pipelineType.svp
+    }
+    return pipelineType.other
+  }
+  public findLastDateTime (): number {
     return this.getRelevantDate(0, dateSearch.finished)
   }
-  findStartDateTime (): number {
+  public findStartDateTime (): number {
     return this.getRelevantDate(Infinity, dateSearch.started)
   }
-  getRunTime(): number {
+  public getRunTime(): number {
     return this.findLastDateTime() - this.findStartDateTime()
   }
 
@@ -192,7 +205,7 @@ export class RunTimeStatistic {
     projects.forEach((project: ProjectObject) => {
       let runTimeObject = new RunTime(runId, project.getRunTime())
 
-      switch (project.type) {
+      switch (project.getProjectType()) {
         case pipelineType.onco:
           this.ONCO = runTimeObject
           break

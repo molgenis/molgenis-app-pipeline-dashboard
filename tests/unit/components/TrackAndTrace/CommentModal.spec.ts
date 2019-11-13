@@ -1,9 +1,11 @@
+
 import { mount, createLocalVue} from '@vue/test-utils'
 import BootstrapVue from 'bootstrap-vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 
 const localVue = createLocalVue()
 localVue.use(BootstrapVue)
+
 
 
 describe('RunTableCommentModal.vue', () => {
@@ -38,16 +40,16 @@ describe('RunTableCommentModal.vue', () => {
 
   afterAll(() => { wrapper.destroy() })
 
-  it('Is Vue instance', () => {
+  test('Is Vue instance', () => {
     expect(wrapper.isVueInstance()).toBeTruthy()
   })
   
-  it('exists', () => {
+  test('exists', () => {
     //Rendered Comment modal
     expect(wrapper.find('#comment-modal').exists()).toBeTruthy()
   })
 
-  it('Has correct initial content', () => {
+  test('Has correct initial content', () => {
     // title is same as run
     expect(wrapper.find('#comment-modal').find('.modal-title').text()).toEqual(run)
 
@@ -56,7 +58,7 @@ describe('RunTableCommentModal.vue', () => {
     
   })
 
-  it('Updates local comment on text change', () => {
+  test('Updates local comment on text change', () => {
     const newComment = 'Updated Comment!'
 
     //Comment equals old comment before change
@@ -70,7 +72,7 @@ describe('RunTableCommentModal.vue', () => {
   })
 
   
-  /* it('displays error if comment has been changed on remote', () => {
+  /* test('displays error if comment has been changed on remote', () => {
     //Set remote TODO: add fetch mock
     
     //Set new comment
@@ -83,7 +85,7 @@ describe('RunTableCommentModal.vue', () => {
     
   })*/
 
-  it('displays error if comment is too long', () => {
+  test('displays error if comment is too long', () => {
     let longArray = new Array(655640)
     // set text value too long
     wrapper.find('#comment-modal').find('textarea').setValue(longArray.join('@'))
@@ -97,7 +99,7 @@ describe('RunTableCommentModal.vue', () => {
     expect(wrapper.find('#comment-modal').find('#lengthError').exists()).toBeFalsy()
 
   })
-  /*it('displays error if submit failed', () => {
+  /*test('displays error if submit failed', () => {
     //@todo
   })*/
 })

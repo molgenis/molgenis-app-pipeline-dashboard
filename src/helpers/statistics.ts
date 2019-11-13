@@ -44,8 +44,7 @@ export function calculateMeanWithoutOutliers (numberSeries: number[], standardDe
   const SD = getSD(numberSeries, mean)
 
   if (standardDeviations < 1) {
-    throw new Error('Given standard deviation less than 1')
-    standardDeviations = 1
+    throw new Error(`Given standard deviation(${standardDeviations}) is ${standardDeviations < 0 ? 'negative' : 'less than 1'}`)
   }
 
   const cutOff = SD * Math.floor(standardDeviations)

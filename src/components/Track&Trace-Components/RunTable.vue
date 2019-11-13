@@ -200,7 +200,7 @@ export default Vue.extend({
      * @returns {Number} threshold number
      */
     getThreshold(project: ProjectObject): number {
-      switch (project.type) {
+      switch (project.getProjectType()) {
         case pipelineType.onco:
           return this.thresholdOnco
         case pipelineType.exoom:

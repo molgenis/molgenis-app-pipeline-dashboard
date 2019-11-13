@@ -8,7 +8,7 @@ localVue.use(BootstrapVue)
 
 
 describe('ProgressBar.vue', () => {
-  it('renders a bootstrap progress bar when passed', () => {
+  test('renders a bootstrap progress bar when passed', () => {
     const step = 44
     const totalSteps = 120
     const wrapper = mount(ProgressBar, {
@@ -18,7 +18,7 @@ describe('ProgressBar.vue', () => {
     expect(wrapper.text()).toMatch(step + ' / ' + totalSteps)
   })
 
-  it('Emits finished when progressbar is complete', () => {
+  test('Emits finished when progressbar is complete', () => {
     const step = 2
     const totalSteps = 2
     const wrapper = mount(ProgressBar, {
