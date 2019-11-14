@@ -42,6 +42,7 @@ import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
 import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic } from '@/types/dataTypes'
+import { countJobStatus } from '@/helpers/utils'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -79,7 +80,6 @@ declare module 'vue/types/vue' {
     countProjectFinishedCopying (projects: ProjectObject[]): number
     constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run
     getStatus (project: projectDataObject, jobs: Job[]): string
-    countJobStatus (jobs: Job[], status: string): number
     findLastDateTime (projects: ProjectObject[]): number
     findStartDateTime (projects: ProjectObject[]): number
     getTrackerData(range: number): void
@@ -418,7 +418,7 @@ export default Vue.extend({
       let errors = 0
       const projectArray = runProjects.map((RunProject: projectDataObject) => {
         const ProjectJobs = this.getProjectJobs(jobs, RunProject)
-        errors += this.countJobStatus(ProjectJobs, 'error')
+        errors += countJobStatus(ProjectJobs, 'error')
 
         return new ProjectObject(
             RunProject.project,
@@ -440,23 +440,15 @@ export default Vue.extend({
      * @returns {String} - status
      */
     getStatus (project: projectDataObject, jobs: Job[]): string {
-      if (project.copy_results_prm === 'finished' || this.countJobStatus(jobs, 'finished') === jobs.length) {
+      if (project.copy_results_prm === 'finished' || countJobStatus(jobs, 'finished') === jobs.length) {
         return 'finished'
-      } else if (this.countJobStatus(jobs, 'started') >= 1) {
+      } else if (countJobStatus(jobs, 'started') >= 1) {
         return 'started'
       } else {
         return 'Waiting'
       }
     },
 
-    /**
-     * Coutns status occurence in a job Array
-     *
-     * @returns {Number} - status count
-     */
-    countJobStatus (jobs: Job[], status: string): number {
-      return jobs.filter(function (x) { return x.status === status }).length
-    },
     /**
      * Creates a RunTimeStatistic object and sends it to the grah
      * @param {String} run run to add to graph

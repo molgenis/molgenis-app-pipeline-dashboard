@@ -31,6 +31,7 @@ import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
 import { Job } from '@/types/dataTypes.ts'
+import { countJobStatus } from '../../helpers/utils'
 
 export default Vue.extend({
   name: 'project',
@@ -121,8 +122,7 @@ export default Vue.extend({
      * @returns {Boolean}
      */
     hasNoWarning (): Boolean {
-      const warning = (this.thresholdToMs > (this.finishTime - this.startTime)) || !this.started
-      return warning
+      return !this.started || (this.thresholdToMs > (this.finishTime - this.startTime))
     },
     /**
      * Converts average hours to milliseconds for timer
@@ -155,7 +155,7 @@ export default Vue.extend({
         return this.totalSteps
       }
       let jobArray = this.jobs as Job[]
-      return jobArray.filter(function (job) { return job.status === 'finished' }).length
+      return countJobStatus(jobArray, 'finished')
     },
 
     /**
@@ -173,18 +173,12 @@ export default Vue.extend({
     status (): string {
       if (this.finished) {
         return 'finished'
-      } else if (
-        this.remainingJobs.filter(function (job) {
-          return job.status === 'error'
-        }).length >= 1
-      ) {
+      } else if (countJobStatus(this.remainingJobs, 'error') >= 1) {
         return 'error'
       } else if (!this.hasNoWarning) {
         return 'warning'
       } else if (
-        this.remainingJobs.filter(function (job) {
-          return job.status === 'started'
-        }).length >= 1
+        countJobStatus(this.remainingJobs, 'started') >= 1
       ) {
         return 'running'
       } else {
@@ -215,12 +209,7 @@ export default Vue.extend({
      * @returns {Boolean}
      */
     started (): boolean {
-      if (this.steps > 0) {
-        return true
-      } else if (this.jobs.filter((job: Job) => { return job.status === 'started' }).length > 0) {
-        return true
-      }
-      return false
+      return this.steps > 0 || countJobStatus(this.jobs, 'started') > 0
     },
 
     /**
@@ -253,11 +242,7 @@ export default Vue.extend({
      * @returns {Number} (milliseconds)
      */
     finishTime (): number {
-      if (this.finished) {
-        return this.finishedDate
-      } else {
-        return this.time
-      }
+      return this.finished ? this.finishedDate : this.time
     },
 
     /**
