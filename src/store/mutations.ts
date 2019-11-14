@@ -4,12 +4,21 @@ import { Serie } from '@/types/graphTypes';
 
 export default {
   setRuns (state: State, runs: RunDataObject[]) {
+    if (!state.runsLoaded) {
+      state.runsLoaded = true
+    }
     state.runs = runs
   },
   setProjects (state: State, projects: projectDataObject[]) {
+    if (!state.projectsLoaded) {
+      state.projectsLoaded = true
+    }
     state.projects = projects
   },
   setJobs (state: State, jobs: Job[]) {
+    if (!state.jobsLoaded) {
+      state.jobsLoaded = true
+    }
     state.jobs = jobs
   },
   setPipelineData(state: State, statistics: Serie[]) {
@@ -47,5 +56,14 @@ export default {
       labels: data.labels,
       counts: data.counts
     }
+  },
+  setCommentStatusUpdatedTrue(state: State) {
+    state.CommentUpdatedStatus = true
+  },
+  setCommentStatusUpdatedFalse(state: State) {
+    state.CommentUpdatedStatus = false
+  },
+  setCommentUpdateNetworkErrorTrue(state: State) {
+    state.CommentNetworkError = true
   }
 }

@@ -22,6 +22,13 @@ export type State = {
   weeklySampleCounts: number
   dailySampleCounts: number
   sequencedSampleNumbers: {counts: number[], labels: string[]}
+  MainInfoStatus: boolean
+  runsLoaded: boolean
+  projectsLoaded: boolean
+  jobsLoaded: boolean
+  checkedCommentStatus: boolean
+  CommentUpdatedStatus: boolean
+  CommentNetworkError: boolean
 }
 
 const state: State = {
@@ -34,6 +41,7 @@ const state: State = {
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
+  MainInfoStatus: false,
   statistics: [],
   statisticsEmpty: true,
   machineRuntimes: {},
@@ -45,7 +53,13 @@ const state: State = {
   monthlySampleCounts: 0,
   weeklySampleCounts: 0,
   dailySampleCounts: 0,
-  sequencedSampleNumbers: {counts: [], labels: []}
+  sequencedSampleNumbers: {counts: [], labels: []},
+  runsLoaded: false,
+  projectsLoaded: false,
+  jobsLoaded: false,
+  checkedCommentStatus: false,
+  CommentUpdatedStatus: false,
+  CommentNetworkError: false
 }
 
 export default state
