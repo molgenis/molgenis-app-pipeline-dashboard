@@ -291,15 +291,13 @@ export default Vue.extend({
      */
     SortJobsByTime (job1: Job, job2: Job): number {
       const job1StartedDate = job1.started_date
-      const job1Type = typeof (job1StartedDate)
       const job2StartedDate = job2.started_date
-      const job2Type = typeof (job2StartedDate)
 
-      if ((job1StartedDate === '' && job2StartedDate === '') || (job1Type === undefined && job2Type === undefined)) {
+      if ((job1StartedDate === '' && job2StartedDate === '') || (!job1StartedDate && !job2StartedDate)) {
         return 0
-      } else if ((job1StartedDate !== '' && job2StartedDate === '') || job1Type === undefined) {
+      } else if ((job1StartedDate !== '' && job2StartedDate === '') || !job1StartedDate) {
         return 1
-      } else if ((job2StartedDate !== '' && job1StartedDate === '') || job2Type === undefined) {
+      } else if ((job2StartedDate !== '' && job1StartedDate === '') || !job2StartedDate) {
         return -1
       }
 

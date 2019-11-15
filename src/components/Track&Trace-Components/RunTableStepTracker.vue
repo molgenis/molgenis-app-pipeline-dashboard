@@ -93,33 +93,37 @@ export default Vue.extend({
         }
       }
     },
+
     /**
      * Checks if step is currently running
      * @param {String} step - step to check
-     * 
+     *
      * @returns {Boolean}
      */
     stepRunning (step: string): boolean {
       return this.started && (this.steps[this.currentStep] === step)
     },
+
     /**
      * Checks if step has been completed
      * @param {String} step - step to check
-     * 
+     *
      * @returns {Boolean}
      */
     stepComplete (step: string): boolean {
       return this.started && (this.getStepIndex(step) < this.currentStep)
     },
+
     /**
      * Checks if step is final step
      * @param {String} step - step to check
-     * 
+     *
      * @returns {Boolean}
      */
     isFinalStep (step: string): boolean {
-      return this.getStepIndex(step) === this.steps.length-1
+      return this.getStepIndex(step) === this.steps.length - 1
     },
+
     /**
      * gets Step index
      * @param {String} step - Step to get index of
@@ -151,6 +155,15 @@ export default Vue.extend({
   color: $secondary;
 }
 
+.circle-container-small {
+  list-style-type: none;
+  float: left;
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  color: $secondary;
+}
+
 .circle-container:before {
     width: 40px;
     height: 40px;
@@ -162,6 +175,20 @@ export default Vue.extend({
     margin: 0 auto 10px auto;
     border-radius: 50%;
     background-color: $light;
+}
+
+.circle-container-small:before {
+    width: 40px;
+    height: 40px;
+    content: '';
+    line-height: 38px;
+    border: 2px solid $secondary;
+    display: block;
+    text-align: center;
+    margin: 0 auto 10px auto;
+    border-radius: 50%;
+    background-color: $light;
+    display: none;
 }
 
 .circle-container:first-child:after {

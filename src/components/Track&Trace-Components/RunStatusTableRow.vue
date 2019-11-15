@@ -14,8 +14,8 @@
           >
         </b-form-checkbox>
       </b-td>
-      <b-td :colspan="mouseOn !== run ? 2 : 6" class="text-truncate align-middle">{{run}}</b-td>
-      <b-td colspan="5" v-show="mouseOn !== run" class="text-center align-middle">
+      <b-td :colspan="mouseOn !== run ? 2 : 6" class="text-truncate align-middle" :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}">{{run}}</b-td>
+      <b-td colspan="5" v-show="mouseOn !== run"  class="text-center align-middle">
         <progress-bar
         @progress-finish="emitFinish(run)"
         :totalSteps="5"
@@ -92,6 +92,7 @@ export default {
     selectRun(run) {
       this.$emit('select-run', run)
     },
+
     /**
      * Noitifys run as finished
      * @param {String} run - run to pass on with status finished
@@ -102,6 +103,7 @@ export default {
     emitFinish(run) {
       this.$emit('progress-finish', run)
     },
+
     /**
      * Calculates diffrence between two arrays
      * @param {Array} array1 - 1st array
@@ -112,6 +114,7 @@ export default {
     arrayDifference (array1, array2) {
       return array1.filter((item) => { return array2.indexOf(item) < 0 })
     },
+    
     /**
      * Change run where mouse is on
      * @param {String} run - the new run

@@ -155,6 +155,7 @@ export default Vue.extend({
     setRunWarning (warning: boolean): void {
       this.warning = warning
     },
+
     /**
      * opens the modal for the project
      * @param {String} project - project to comment
@@ -167,6 +168,7 @@ export default Vue.extend({
       this.comment = comment
       this.$bvModal.show('comment-modal')
     },
+
     /**
      * emtis a comment update
      * @param {String} project - project to update
@@ -178,6 +180,7 @@ export default Vue.extend({
     emitComment(project: string, comment: string): void {
       this.$emit('comment-update', project, comment)
     },
+
     /**
      * Updates the stored comment to prevent comment update errors
      * @param {String} project - project comment to update
@@ -193,6 +196,7 @@ export default Vue.extend({
         }
       }
     },
+
     /**
      * Gets the correct threshold for each pipeline type
      * @param {ProjectObject} project - project
@@ -214,8 +218,6 @@ export default Vue.extend({
       }
     }
   },
-  computed: {
-  },
   watch: {
     /**
      * resets warning if new run is selected
@@ -233,8 +235,8 @@ export default Vue.extend({
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
 
-.project-row:hover{
-  background-color: $light
+.project-row:hover {
+  background-color: $light;
 }
 
 .minH {

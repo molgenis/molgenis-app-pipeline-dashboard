@@ -124,6 +124,7 @@ export default Vue.extend({
     toggleHidden () {
       this.hiddenToggled = !this.hiddenToggled
     },
+
     /**
      * emit selected run
      * @param {String} run - Run to select
@@ -134,6 +135,7 @@ export default Vue.extend({
     selectRun (run: string): void {
       this.$emit('select-run', run)
     },
+
     /**
      * emit pause to stop cycling runs
      * 
@@ -143,6 +145,7 @@ export default Vue.extend({
     emitPause (): void {
       this.$emit('toggle-cycle')
     },
+
     /**
     *  emit finish to save run as finished
     * @param {String} run - run id string
@@ -153,6 +156,7 @@ export default Vue.extend({
     emitFinish (run: string): void {
       this.$emit('run-finished', run)
     },
+
     /**
      * Updates hidden parameter
      * @param {String[]} hidden - hidden values array
@@ -172,6 +176,7 @@ export default Vue.extend({
         this.mouse = run
       }
     },
+
     localHidden: {
       get: function (): string[] {
         return this.hidden
@@ -181,6 +186,7 @@ export default Vue.extend({
       }
 
     },
+
     /**
      * When hidden is toggled true return hidden array for display
      * 
@@ -192,6 +198,7 @@ export default Vue.extend({
       }
       return []
     },
+
     hiddenObjects (): RunStatusData[] {
       const totalRuns = this.totalRuns as RunStatusData[]
       return totalRuns.filter((run) => { return this.hidden.includes(run.run)})
@@ -232,6 +239,7 @@ export default Vue.extend({
         this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns)
       }
     },
+    
     totalRuns: function () {
       if (this.hidden.length === 0) {
         this.hidden = []

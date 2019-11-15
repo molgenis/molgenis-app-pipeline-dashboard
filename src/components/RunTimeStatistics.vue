@@ -157,14 +157,13 @@ export default Vue.extend({
     machineSampleCounts () {
       return this.machineSampleCounts
     },
+
     numbersArray (): number[] {
-      const runTimeArray = this.runTimes as RunTimeStatistic[]
-      let numbers: number[] = []
-      runTimeArray.forEach((RunTimeStatistic: RunTimeStatistic) => {
-        numbers.push(RunTimeStatistic.getMax())
+      const statistics = this.runTimes as RunTimeStatistic[]
+      return statistics.map((RunTimeStatistic: RunTimeStatistic): number => {
+        return RunTimeStatistic.getMax()
       })
 
-      return numbers
     },
     /**
      * average runtime
