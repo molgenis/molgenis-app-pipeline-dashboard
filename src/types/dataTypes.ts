@@ -191,51 +191,66 @@ export class RunTime {
  * @function getMax gets larges point in data
  */
 export class RunTimeStatistic {
-  ONCO: RunTime
-  Exoom: RunTime
-  PCS: RunTime
-  SVP: RunTime
-  other: RunTime[]
+  ONCO = new RunTime('no data', 0)
+  Exoom = new RunTime('no data', 0)
+  PCS = new RunTime('no data', 0)
+  SVP = new RunTime('no data', 0)
+  other: RunTime[] = []
   constructor(projects: ProjectObject[], runId: string) {
-    let other = [] as RunTime[]
-    this.Exoom = new RunTime('no data', 0)
-    this.ONCO = new RunTime('no data', 0)
-    this.SVP = new RunTime('no data', 0)
-    this.PCS = new RunTime('no data', 0)
     projects.forEach((project: ProjectObject) => {
       let runTimeObject = new RunTime(runId, project.getRunTime())
 
       switch (project.getProjectType()) {
         case pipelineType.onco:
-          this.ONCO = runTimeObject
+          this.setOnco(runTimeObject)
           break
         case pipelineType.exoom:
-          this.Exoom = runTimeObject
+          this.setExoom(runTimeObject)
           break
         case pipelineType.pcs:
-          this.PCS = runTimeObject
+          this.setPcs(runTimeObject)
           break
         case pipelineType.svp:
-          this.SVP = runTimeObject
+          this.setSvp(runTimeObject)
           break
         default:
-          other.push(runTimeObject)
+          this.updateOtherRuntimes(runTimeObject)
       }
     })
-    this.other = other
   }
-  getMax(): number {
-    let max = this.ONCO.runtime
-    if (max < this.Exoom.runtime) {
-      max = this.Exoom.runtime
-    }
-    if (max < this.PCS.runtime) {
-      max = this.PCS.runtime
-    }
-    if (max < this.SVP.runtime) {
-      max = this.SVP.runtime
-    }
-    return max
+  private setOnco(runtime: RunTime) {
+    this.ONCO = runtime
+  }
+  private setExoom(runtime: RunTime) {
+    this.Exoom = runtime
+  }
+  private setPcs(runtime: RunTime) {
+    this.PCS = runtime
+  }
+  private setSvp(runtime: RunTime) {
+    this.SVP = runtime
+  }
+  private updateOtherRuntimes(runtime: RunTime) {
+    this.other.push(runtime)
+  }
+  private compareNums(max: number, current: number) {
+    return max > current ? max : current
+  }
+  public getOncoRuntime () {
+    return this.ONCO.runtime
+  }
+  public getExoomRuntime () {
+    return this.Exoom.runtime
+  }
+  public getPcsRuntime () {
+    return this.PCS.runtime
+  }
+  public getSvpRuntime () {
+    return this.SVP.runtime
+  }
+
+  public getMax(): number {
+    return this.compareNums(this.getOncoRuntime(), this.compareNums(this.getExoomRuntime(), this.compareNums(this.getPcsRuntime(), this.getSvpRuntime())))
   }
 }
 

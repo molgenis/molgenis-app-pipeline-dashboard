@@ -1,4 +1,4 @@
-import {ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment} from '@/types/dataTypes'
+import {ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment, RunTimeStatistic} from '@/types/dataTypes'
 
 describe('Run', () => {
   test('run gets constructed correctly', () => {
@@ -158,6 +158,61 @@ describe('Comment class', () => {
     }
 
     expect(constructedComment).toEqual(fakeComment)
+  })
+})
+
+describe.skip('RunTimeStatistic class', () => {
+  test('empty class construction returns "no data" runtimes', () => {
+    const emptyRunTimeStatistics = new RunTimeStatistic([], 'test')
+    const nodataRuntime = new RunTime('no data', 0)
+
+    expect(emptyRunTimeStatistics.getMax()).toBe(0)
+    expect(emptyRunTimeStatistics.Exoom).toEqual(nodataRuntime)
+    expect(emptyRunTimeStatistics.SVP).toEqual(nodataRuntime)
+    expect(emptyRunTimeStatistics.PCS).toEqual(nodataRuntime)
+    expect(emptyRunTimeStatistics.ONCO).toEqual(nodataRuntime)
+  })
+
+  test('project runtimes get assigned correctly', () => {
+
+    class projectMock extends ProjectObject {
+      public getRunTime() {
+        const projectType = this.getProjectType()
+        switch (projectType) {
+          case pipelineType.onco:
+            return 6
+          case pipelineType.exoom:
+            return 7
+          case pipelineType.pcs:
+            return 8
+          case pipelineType.svp:
+            return 9
+          default:
+            return 10
+        }
+      }
+    }
+    function createMockProject(name: string) {
+      const mockProject = new projectMock(name, [], 'dna', 'finished', 'finished', '')
+
+      return mockProject
+    }
+
+    function returnFilledRuntimeStatistic() {
+
+      const projects = [
+        createMockProject('test-ONCO'),
+        createMockProject('test-Exoom'),
+        createMockProject('test-PCS'),
+        createMockProject('test-SVP'),
+        createMockProject('test-other')
+      ]
+
+      return new RunTimeStatistic(projects, 'test-run')
+    }
+    
+    const mockedStatisticsObject = returnFilledRuntimeStatistic()
+    console.log(mockedStatisticsObject)
   })
 })
 
