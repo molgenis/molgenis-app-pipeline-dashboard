@@ -1,5 +1,5 @@
 import { State } from './state';
-import { RunDataObject, projectDataObject, Job } from '@/types/dataTypes';
+import { RunDataObject, projectDataObject, Job, ProjectObject } from '@/types/dataTypes';
 import { Serie } from '@/types/graphTypes';
 
 export default {
@@ -65,5 +65,9 @@ export default {
   },
   setCommentUpdateNetworkErrorTrue(state: State) {
     state.CommentNetworkError = true
+  },
+  updateCommentOnLocalProject(state: State, {projectName , comment}: {projectName: string, comment: string}) {
+    const index = state.projects.findIndex(project => project.project === projectName)
+    state.projects[index].comment = comment
   }
 }

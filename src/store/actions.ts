@@ -189,30 +189,33 @@ export default {
   async updateProjectComment ({ state }: { state: State }, { project, comment }: { project: string, comment: string }) {
     return api.put(`/api/v1/${state.projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
   },
-  async handleCommentSubmit ({ commit, dispatch, state }: { commit: any, dispatch: any, state: State }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }) {
-    if (validation) {
-    dispatch('checkForCommentUpdates', project, oldComment)
-    .then(() => {
-      if (state.checkedCommentStatus) {
-        commit('setCommentStatusUpdated')
+  async handleCommentSubmit ({ dispatch, commit}: { dispatch: any, commit: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }) {
+    return new Promise((resolve, reject) => {
+      commit('setCommentStatusUpdatedFalse')
+      if (validation) {
+        dispatch('checkForCommentUpdates', { project: project, oldComment: oldComment, newComment: newComment }).then((resolveMessage: string) => { resolve(resolveMessage) }, (reason: string) => { reject(reason) })
       } else {
-        dispatch('updateProjectComment', project, newComment)
+        reject('Comment is invalid')
       }
     })
-  }
   },
-  async checkForCommentUpdates({ commit, state }: { commit: any, state: State }, {project, oldComment}: { project: string, oldComment: string }) {
-    api.get(`/api/v1${state.projectsTable}/${project}/comment`)
-    .then((result: any) => {
-      if (result.comment === oldComment) {
-        commit('setCommentUpdatedTrue')
-      } else {
-        commit('setCommentUpdatedFalse')
-      }
-    })
-    .catch((error: any) => {
-      commit('setCommentUpdateNetworkErrorTrue')
-      console.error(error)
+
+  async checkForCommentUpdates({ commit, dispatch, state }: { commit: any, dispatch: any, state: State }, {project, oldComment, newComment}: { project: string, oldComment: string, newComment: string }) {
+    return new Promise((resolve, reject) => {
+      api.get(`/api/v1/${state.projectsTable}/${project}/comment`)
+      .then((result: { href: string, comment: string }) => {
+        console.log(result.comment, oldComment, newComment)
+        if (!result.comment || result.comment === oldComment) {
+          dispatch('updateProjectComment', { project: project, comment: newComment })
+          resolve('dispatched comment to database')
+        } else {
+          reject('Could not update comment, updated by other user')
+        }
+        
+      })
+      .catch((error: any) => {
+        reject('Network error occured')
+      })
     })
   }
 }

@@ -15,19 +15,13 @@
           placeholder="Comment..."
           rows="10"
           max-rows="30"
-          :state="(!validation || !commentUpdatedState || !submitStatus) ? false : undefined"
+          :state="rejected ? false : undefined"
         ></b-form-textarea>
-        <b-form-invalid-feedback id='lengthError' v-if="!validation">
-          Comment too long. Must be smaller than 65536 characters
+        <b-form-invalid-feedback id='lengthError'>
+          {{errorMessage}}
         </b-form-invalid-feedback>
-        <b-form-invalid-feedback id='updatedError' v-else-if="!commentUpdatedState">
-        Comment updated by another user, try again later
-        </b-form-invalid-feedback>
-        <b-form-invalid-feedback id='submitError' v-else-if="!submitStatus">
-        Could not update comment, please try again later
-      </b-form-invalid-feedback>
       </b-form-group>
-      <b-button class="mt-2" variant="outline-primary" block squared @click="handleSubmit(run, placeHolderComment, comment, validation)">Submit</b-button>
+      <b-button class="mt-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, newComment: placeHolderComment, oldComment: comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
       <b-button class="mt-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
     </form>
   </b-modal>
@@ -35,8 +29,7 @@
 </template>
 
 <script>
-import api from '@molgenis/molgenis-api-client'
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapMutations } from 'vuex'
 export default {
   name: 'comment-modal',
   props: {
@@ -54,15 +47,17 @@ export default {
     return {
       name: '',
       placeHolderComment: '',
-      commentUpdatedState: true,
       submitStatus: true,
-
-
+      rejected: false,
+      resetErrorMessage: 'Could not update comment',
+      errorMessage: ''
     }
   },
   computed: {
     ...mapState([
-      'projectsTable'
+      'projectsTable',
+      'CommentUpdatedStatus',
+      'CommentNetworkError'
     ]),
     validation() {
       const comment = this.placeHolderComment
@@ -71,31 +66,26 @@ export default {
   },
   methods: {
     ...mapActions([
-      'getProjectComment',
-      'updateProjectComment'
+      'handleCommentSubmit'
+
     ]),
-    /** 
-     * Sends the new comment if the user changed the contents
-     * 
-     * @param {String} run - run where the comment was added
-     * @param {String} placeHolderComment - local saved comment
-     * @param {String} comment - comment the user edited
-     * @param {Boolean} validation - validation status
-     *
-     * @returns {Promise<void>}
-     */
-    async handleSubmit(project, oldComment, newComment, validation) {
-      try {
-        const commentUpdated = await this.checkCommentForUpdates(project, newComment)
-        if (commentUpdated) {
-          this.commentUpdatedState = false
-        } else {
-          await this.putNewComment(project, oldComment, newComment, validation)
-          this.closeModal()
-        }
-      } catch (error) {
-        console.error(error)
-      }
+    ...mapMutations([
+      'updateCommentOnLocalProject'
+    ]),
+    commentUpdated(message) {
+      this.rejected = false
+      this.ErrorMessage = this.resetErrorMessage
+      this.updateCommentOnLocalProject({projectName: this.run, comment: this.placeHolderComment})
+      this.closeModal()
+    },
+    commentNotUpdated(reason) {
+      this.rejected = true
+      this.ErrorMessage = reason
+      this.$bvToast.toast(reason, {
+        title: 'Error updating comment',
+        variant: 'danger',
+        noAutoHide: true
+      })
     },
     /**
      * Closes modal
@@ -105,6 +95,7 @@ export default {
      */
     closeModal() {
       this.$bvModal.hide('comment-modal')
+      this.rejected = false
     },
     /**
      * Opens the modal
@@ -115,49 +106,6 @@ export default {
     showModal() {
       this.$bvModal.show('comment-modal')
     },
-    /**
-     * Updates the comment value in MOLGENIS database
-     * 
-     * @param {String} project - project to update
-     * @param {String} newComment - new comment content
-     * @param {String} oldComment - old comment
-     * @param {Boolean} validated - comment is correct
-     * 
-     * @returns {Promise<void>}
-     */
-    async putNewComment(project, newComment, oldComment, validated) {
-      if (oldComment !== newComment && validated) {
-        await this.updateProjectComment({project: project, comment: newComment})
-        .then(
-          response => {this.$emit('comment-updated', project, newComment); this.submitStatus = true }, 
-          error => { this.submitStatus = false; console.error(error)})
-      }
-    },
-    /**
-     * Checks database if there were any users that added other comments
-     * is true if there was an update or the check failed
-     * @param {String} project - project id
-     * @param {String} comment - old comment
-     * 
-     * @returns {Promise<Boolean>}
-     */
-    async checkCommentForUpdates(project, comment) {
-      let commentIsUpdated
-      this.submitStatus = true
-      
-      await this.getProjectComment(project).then(function (response) {
-        if (!response.comment) {
-          commentIsUpdated = false
-        } else {
-          commentIsUpdated = (response.comment !== comment)
-        }
-      })
-      .catch(function (error) {
-        this.submitStatus = false
-      })
-
-      return commentIsUpdated
-    }
   },
   watch: {
     /**
@@ -168,7 +116,6 @@ export default {
       immediate: true,
       handler () {
         this.placeHolderComment = this.comment
-        this.commentUpdatedState = true
         this.submitStatus = true
       }
     }

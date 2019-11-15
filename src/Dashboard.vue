@@ -1,6 +1,15 @@
 <template>
-<transiton name="fade" mode="out-in">
-  <b-container v-show="loading" id="dashboard" class="h-100" fluid>
+<transition-group name="fade">
+  <div :key="'loader'" v-if="!trackingDataLoaded" class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw">
+    <div class="d-flex align-items-center">
+      <b-spinner variant="primary" label="Spinning"></b-spinner>
+      <strong> Loading dashboard information</strong>
+      <b-progress :max="3">
+      <b-progress-bar :value="1"></b-progress-bar>
+    </b-progress>
+    </div>
+  </div>
+  <b-container :key="'dashboard'" v-show="trackingDataLoaded" id="dashboard" class="h-100" fluid>
     <b-row  no-gutters class="h-50">
       <b-col class="h-100">
         <track-and-trace
@@ -13,7 +22,7 @@
       </b-col>
     </b-row>
     <b-row no-gutters class="h-50">
-      <b-col cols="12" lg="6" class="h-100">
+      <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
         <run-time-statistics
           :run-times="runTimeArray"
           @new-threshold-onco="setOncoMax"
@@ -22,31 +31,29 @@
           @new-threshold-svp="setSvpMax"
         />
       </b-col>
-      <b-col cols="12" lg="6" class="h-100">
+      <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
         <sample-statistics></sample-statistics>
       </b-col>
     </b-row>
   </b-container>
-  <div v-show="!loading" class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw">
-    <div class="d-flex align-items-center">
-      <b-spinner variant="primary" label="Spinning"></b-spinner>
-      <strong> Loading dashboard information</strong>
-    </div>
-  </div>
-</transiton>
+</transition-group>
+
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState } from 'vuex'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
 import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
+import { State } from './store/state'
 
 declare module 'vue/types/vue' {
-  interface Vue {
+  interface Vue extends State{
     runTimeArray: RunTimeStatistic[]
     threshold: number
+    toastCount: number
     addStatistics(run: RunTimeStatistic): void
     setThreshold(threshold: number): void
   }
@@ -67,14 +74,15 @@ export default Vue.extend({
       thresholdOnco: 20,
       thresholdPcs: 20,
       thresholdExoom: 20,
-      thresholdSvp: 20
+      thresholdSvp: 20,
+      toastCount: 0
     }
   },
   methods: {
     /**
      * Adds new runtime statistics to graph with a max lenght of 10
      * @param {RunTimeStatistic} run - new statistic to add
-     * 
+     *
      * @returns {void}
      */
     addStatistics (run: RunTimeStatistic) {
@@ -90,7 +98,7 @@ export default Vue.extend({
     /**
      * Sets maximum threshold for ONCO pipeline types
      * @param {Number} threshold - ONCO threshold hours
-     * 
+     *
      * @returns {void}
      */
     setOncoMax (threshold: number): void {
@@ -99,7 +107,7 @@ export default Vue.extend({
     /**
      * Sets maximum threshold for PCS pipeline types
      * @param {Number} threshold - PCS threshold hours
-     * 
+     *
      * @returns {void}
      */
     setPcsMax (threshold: number): void {
@@ -108,7 +116,7 @@ export default Vue.extend({
     /**
      * Sets maximum threshold for Exoom pipeline types
      * @param {Number} threshold - Exoom threshold hours
-     * 
+     *
      * @returns {void}
      */
     setExoomMax (threshold: number):void {
@@ -117,17 +125,33 @@ export default Vue.extend({
     /**
      * Sets maximum threshold for SVP pipeline types
      * @param {Number} threshold - SVP threshold hours
-     * 
+     *
      * @returns {void}
      */
     setSvpMax (threshold: number): void {
       this.thresholdSvp = threshold
+    },
+    makeToast (append = false) {
+      this.toastCount++
+      this.$bvToast.toast(`Unable to retreive data`, {
+        title: 'Error',
+        variant: 'danger'
+      })
+    }
+  },
+  computed: {
+    ...mapState([
+      'runsLoaded',
+      'projectsLoaded',
+      'jobsLoaded'
+    ]),
+    trackingDataLoaded () {
+      return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded].every((state) => state)
     }
   }
 })
 
 </script>
-
 
 <style lang="scss">
 @import 'bootstrap/scss/bootstrap';
@@ -144,11 +168,10 @@ height: 45%;
   height: 100%;
 }
 
-.component-fade-enter-active, .component-fade-leave-active {
-  transition: opacity .9s ease;
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 2s;
 }
-.component-fade-enter, .component-fade-leave-to
-/* .component-fade-leave-active below version 2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
 }
 </style>
