@@ -6,7 +6,7 @@
     @click="selectRun(run)"
     @mouseover="setMouseOn(run)"
     borderless>
-      <b-td v-show="mouseOn === run" class="align-middle">
+      <b-td v-show="mouseOn" class="align-middle">
         <b-form-checkbox
           v-model="LocalHidden"
           :value="run"
@@ -14,8 +14,8 @@
           >
         </b-form-checkbox>
       </b-td>
-      <b-td :colspan="mouseOn !== run ? 2 : 6" class="text-truncate align-middle" :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}">{{run}}</b-td>
-      <b-td colspan="5" v-show="mouseOn !== run"  class="text-center align-middle">
+      <b-td :colspan="mouseOn ? 6 : 2" class="text-truncate align-middle">{{run}}</b-td>
+      <b-td colspan="5" v-show="!mouseOn"  class="text-center align-middle">
         <progress-bar
         @progress-finish="emitFinish(run)"
         :totalSteps="5"
@@ -44,9 +44,9 @@ export default {
     },
 
     mouseOn: {
-      type: String,
+      type: Boolean,
       required: false,
-      default: ''
+      default: false
     },
 
     step: {

@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid @mouseleave="mouseOn = ''" class="overflow-auto p-0 h-100 w-100">
+  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="overflow-auto p-0 h-100 w-100">
     <b-table-simple small fixed hover class="minH">
       <b-thead>
         <b-tr>
@@ -33,7 +33,7 @@
             :variant="selectedRun === run.run ? 'primary' : 'light'"
             :key="run.run"
             :run="run.run"
-            :mouseOn="mouseOn"
+            :mouseOn="mouseOn === run.run"
             :step="run.step"
             :error="run.containsError"
             :hidden="hidden"
@@ -48,7 +48,7 @@
           name="slide"
           :variant="'secondary'"
           :run="run.run"
-          :mouseOn="mouseOn"
+          :mouseOn="mouseOn === run.run"
           :step="run.step"
           :error="run.containsError"
           :hidden="hidden"
@@ -61,6 +61,7 @@
         <b-tr>
           <b-td
           @click="toggleHidden"
+          @mouseover="mouseOn = 'hiddenButton'"
           class="text-center"
           colspan="7">
             <font-awesome-icon :icon="hiddenToggled ? 'angle-up' : 'angle-down'">
