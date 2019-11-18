@@ -10,48 +10,64 @@ export default {
   /**
    * Gets data from MOLGENIS database for Track and trace
    */
-  async getTrackerData ({ commit, state }: { commit: any, state: State }) {
+  async getTrackerData ({ dispatch }: { dispatch: any }) {
+    return new Promise((resolve, reject) => {
+      Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobData')])
+      .then(() => {
+        resolve()
+      })
+      .catch(() => {
+        reject('Could not retrieve Track&Trace data from MOLGENIS!')
+      })
+    })
+  },
+
+  async getRunData({ commit, state }: {commit: any, state: State}) {
+    return new Promise((resolve, reject) => {
     api.get(`/api/v2/${state.overviewTable}?num=10000`)
       .then(function (response: {items: RunDataObject[]}) {
         const tableContent = response.items
         if (tableContent.length > 0) {
           commit('setRuns', tableContent)
         }
+        resolve()
       })
       .catch(function (error: any) {
-        if (error.response) {
-          console.error(error.response.data)
-          console.error(error.response.status)
-          console.error(error.response.headers)
-        } else if (error.request) {
-          console.error(error.request)
-        } else {
-          console.error('Error', error.message)
-        }
-        console.error(error)
+        reject('Could not update runs')
       })
+    })
+  },
 
-    api.get(`/api/v2/${state.projectsTable}?num=10000`)
+  async getProjectData({ commit, state }: {commit: any, state: State}) {
+    return new Promise((resolve, reject) => {
+      api.get(`/api/v2/${state.projectsTable}?num=10000`)
       .then(function (response: {items: projectDataObject[]}) {
         const tableContent = response.items
         if (tableContent.length > 0) {
           commit('setProjects', tableContent)
         }
+        resolve()
       })
       .catch(function (error: any) {
-        return Promise.reject(error.status)
+        reject('Could not update projects')
       })
+    })
+  },
 
-    api.get(`/api/v2/${state.jobTable}?num=10000`)
+  async getJobData({ commit, state }: {commit: any, state: State}) {
+    return new Promise((resolve, reject) => {
+      api.get(`/api/v2/${state.jobTable}?num=10000`)
       .then(function (response: {items: Job[]}) {
         const tableContent = response.items
         if (tableContent.length > 0) {
           commit('setJobs', tableContent)
         }
+        resolve()
       })
       .catch(function (error: any) {
-        console.error('Failed fetching jobs! Caused by:', error)
+        reject('Could not update jobs')
       })
+    })
   },
 
   /**
@@ -200,7 +216,7 @@ export default {
     })
   },
 
-  async checkForCommentUpdates({ commit, dispatch, state }: { commit: any, dispatch: any, state: State }, {project, oldComment, newComment}: { project: string, oldComment: string, newComment: string }) {
+  async checkForCommentUpdates({ dispatch, state }: { dispatch: any, state: State }, {project, oldComment, newComment}: { project: string, oldComment: string, newComment: string }) {
     return new Promise((resolve, reject) => {
       api.get(`/api/v1/${state.projectsTable}/${project}/comment`)
       .then((result: { href: string, comment: string }) => {
