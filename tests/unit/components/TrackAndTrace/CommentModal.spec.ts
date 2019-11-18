@@ -1,4 +1,3 @@
-
 import { mount, createLocalVue} from '@vue/test-utils'
 import BootstrapVue from 'bootstrap-vue'
 import vuex from 'vuex'
@@ -7,9 +6,6 @@ import CommentModal from '@/components/Track&Trace-Components/RunTableCommentMod
 const localVue = createLocalVue()
 localVue.use(vuex)
 localVue.use(BootstrapVue)
-
-
-
 
 describe.skip('RunTableCommentModal.vue', () => {
   const comment = 'hello, this is a test!'

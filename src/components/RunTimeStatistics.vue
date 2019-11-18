@@ -146,7 +146,7 @@ export default Vue.extend({
         tooltip: {
           y: {
           
-          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w}: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineSampleCounts: Record<string, number[]> = sampleCounts) {
+          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w }: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineSampleCounts: Record<string, number[]> = sampleCounts) {
             return `${value} (hr), ${machineSampleCounts[Object.keys(machineSampleCounts)[seriesIndex]][dataPointIndex]} (samples)`
           }
   }
