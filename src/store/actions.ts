@@ -86,7 +86,7 @@ export default {
           machineSeriesGrouped[pipelineType] = [] as Serie[]
         }
         let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
-        await api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+        api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
           .then(function (response: { items: Object[] }) {
             if (response.items.length > 0) {
               machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.items, (x:any) => { return x.total_hours })))
@@ -207,7 +207,6 @@ export default {
   },
   async handleCommentSubmit ({ dispatch, commit}: { dispatch: any, commit: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }) {
     return new Promise((resolve, reject) => {
-      commit('setCommentStatusUpdatedFalse')
       if (validation) {
         dispatch('checkForCommentUpdates', { project: project, oldComment: oldComment, newComment: newComment }).then((resolveMessage: string) => { resolve(resolveMessage) }, (reason: string) => { reject(reason) })
       } else {
