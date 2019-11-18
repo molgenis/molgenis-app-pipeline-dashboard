@@ -82,7 +82,7 @@ declare module 'vue/types/vue' {
     getStatus (project: projectDataObject, jobs: Job[]): string
     findLastDateTime (projects: ProjectObject[]): number
     findStartDateTime (projects: ProjectObject[]): number
-    getTrackerData(range: number): void
+    getTrackerData(range: number): Promise<void>
     addRunToStatistics (run: string): void
   }
 }
@@ -117,7 +117,8 @@ export default Vue.extend({
       showRun: '',
       paused: false,
       loading: false,
-      graphRuns: []
+      graphRuns: [],
+      errorToastActive: false
     }
   },
   computed: {
@@ -294,8 +295,31 @@ export default Vue.extend({
      * 
      * @returns {Promise<void>}
      */
-    async getData (): Promise<void> {
+    getData () {
       this.getTrackerData(20)
+      .then(() => {
+        if (this.errorToastActive) {
+          this.$bvToast.hide('errorToast')
+          this.errorToastActive = false
+          this.$bvToast.toast('Connection to MOLGENIS restored', {
+            title: 'Updated',
+            variant: 'success',
+            toaster: 'b-toaster-bottom-right',
+          })
+        }
+      })
+      .catch((reason) => {
+        if (!this.errorToastActive) {
+          this.errorToastActive = true
+          this.$bvToast.toast(reason, {
+            id: 'errorToast',
+            title: 'Error',
+            variant: 'danger',
+            toaster: 'b-toaster-bottom-right',
+            noAutoHide: true
+          })
+        }
+      })
     },
     /**
      * Cycles the display index by 1
