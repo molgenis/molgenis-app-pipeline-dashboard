@@ -57,15 +57,6 @@ export default {
       counts: data.counts
     }
   },
-  setCommentStatusUpdatedTrue(state: State) {
-    state.CommentUpdatedStatus = true
-  },
-  setCommentStatusUpdatedFalse(state: State) {
-    state.CommentUpdatedStatus = false
-  },
-  setCommentUpdateNetworkErrorTrue(state: State) {
-    state.CommentNetworkError = true
-  },
   updateCommentOnLocalProject(state: State, {projectName , comment}: {projectName: string, comment: string}) {
     const index = state.projects.findIndex(project => project.project === projectName)
     state.projects[index].comment = comment
