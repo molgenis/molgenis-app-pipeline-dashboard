@@ -8,7 +8,7 @@
     borderless>
       <b-td v-show="mouseOn" class="align-middle">
         <b-form-checkbox
-          v-model="LocalHidden"
+          v-model="isChecked"
           :value="run"
           :id="run"
           >
@@ -78,6 +78,18 @@ export default {
       },
       set: function(value){
         this.$emit('update-hidden', value)
+      }
+    },
+    isChecked: {
+      get: function() {
+        return this.LocalHidden.includes(this.run) ? false : this.run
+      },
+      set: function(value){
+        if (value) {
+          this.LocalHidden = this.LocalHidden.filter(x =>  x !== value)
+        } else {
+          this.LocalHidden = [this.run, ...this.LocalHidden]
+        }
       }
     }
   },
