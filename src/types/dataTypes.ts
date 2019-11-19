@@ -12,7 +12,7 @@ export enum statusCode {
   other = 'other'
 }
 
-function parseStatus(statusString: string): statusCode {
+export function parseStatus(statusString: string): statusCode {
   if (statusString.match(/waiting/gi)) {
     return statusCode.waiting
   }

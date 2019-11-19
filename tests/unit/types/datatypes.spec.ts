@@ -1,17 +1,59 @@
-import {ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment, RunTimeStatistic} from '@/types/dataTypes'
+import {ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment, RunTimeStatistic, statusCode, parseStatus} from '@/types/dataTypes'
+describe('parseStatus', () => {
+  function randomCapitalization (word: string): string {
+    return word.split('').map(function(character: string) {
+      return Math.round(Math.random()) ? character.toUpperCase() : character.toLowerCase()
+    }).join('')
+  }
+
+  test('parseStatus can match waiting', () => {
+    expect(parseStatus('waiting')).toBe(statusCode.waiting)
+    expect(parseStatus('Waiting')).toBe(statusCode.waiting)
+    expect(parseStatus(randomCapitalization('waiting'))).toBe(statusCode.waiting)
+    expect(parseStatus(randomCapitalization('waiting'))).toBe(statusCode.waiting)
+    expect(parseStatus(randomCapitalization('waiting'))).toBe(statusCode.waiting)
+  })
+
+  test('parseStatus can match finished', () => {
+    expect(parseStatus('finished')).toBe(statusCode.finished)
+    expect(parseStatus('Finished')).toBe(statusCode.finished)
+    expect(parseStatus(randomCapitalization('finished'))).toBe(statusCode.finished)
+    expect(parseStatus(randomCapitalization('finished'))).toBe(statusCode.finished)
+    expect(parseStatus(randomCapitalization('finished'))).toBe(statusCode.finished)
+  })
+
+  test('parseStatus can match started', () => {
+    expect(parseStatus('started')).toBe(statusCode.started)
+    expect(parseStatus('Started')).toBe(statusCode.started)
+    expect(parseStatus(randomCapitalization('started'))).toBe(statusCode.started)
+    expect(parseStatus(randomCapitalization('started'))).toBe(statusCode.started)
+    expect(parseStatus(randomCapitalization('started'))).toBe(statusCode.started)
+  })
+
+  test('parseStatus can match error', () => {
+    expect(parseStatus('error')).toBe(statusCode.error)
+    expect(parseStatus('error')).toBe(statusCode.error)
+    expect(parseStatus(randomCapitalization('error'))).toBe(statusCode.error)
+    expect(parseStatus(randomCapitalization('error'))).toBe(statusCode.error)
+    expect(parseStatus(randomCapitalization('error'))).toBe(statusCode.error)
+  })
+
+  test('parseStatus returns other when corrupt or incorectly added', () => {
+    expect(parseStatus('not any status')).toBe(statusCode.other)
+  })
+})
 
 describe('Run', () => {
+  const runId = 'testID'
+  const projectArray: ProjectObject[] = []
+  const demultiplexing = 'finished'
+  const RawCopyState = 'started'
+  const lenght = 0
+  const error = false
+  const resultCopyState = 0
+  const run = new Run(runId, projectArray, demultiplexing, RawCopyState, lenght, error, resultCopyState)
+  
   test('run gets constructed correctly', () => {
-    const runId = 'testID'
-    const projectArray: ProjectObject[] = []
-    const demultiplexing = 'finished'
-    const RawCopyState = 'finished'
-    const lenght = 0
-    const error = false
-    const resultCopyState = 0
-
-    const run = new Run(runId, projectArray, demultiplexing, RawCopyState, lenght, error, resultCopyState)
-
     expect(run.run_id === runId).toBeTruthy()
     expect(run.projects === projectArray).toBeTruthy()
     expect(run.demultiplexing === demultiplexing).toBeTruthy()
@@ -19,6 +61,13 @@ describe('Run', () => {
     expect(run.len === lenght).toBeTruthy()
     expect(run.containsError === error).toBeTruthy()
     expect(run.copyState === resultCopyState).toBeTruthy()
+  })
+
+  test('run can correctly return demultiplexing statuscode', () => {
+    expect(run.getDemultiplexingStatus()).toBe(statusCode.finished)
+  })
+  test('run can correctly return Raw copying status code', () => {
+    expect(run.getRawDataCopyingStatus()).toBe(statusCode.started)
   })
 })
 
@@ -161,7 +210,7 @@ describe('Comment class', () => {
   })
 })
 
-describe.skip('RunTimeStatistic class', () => {
+describe('RunTimeStatistic class', () => {
   test('empty class construction returns "no data" runtimes', () => {
     const emptyRunTimeStatistics = new RunTimeStatistic([], 'test')
     const nodataRuntime = new RunTime('no data', 0)
@@ -173,23 +222,10 @@ describe.skip('RunTimeStatistic class', () => {
     expect(emptyRunTimeStatistics.ONCO).toEqual(nodataRuntime)
   })
 
-  test('project runtimes get assigned correctly', () => {
-
+  test.skip('project runtimes get assigned correctly', () => {
     class projectMock extends ProjectObject {
-      public getRunTime() {
-        const projectType = this.getProjectType()
-        switch (projectType) {
-          case pipelineType.onco:
-            return 6
-          case pipelineType.exoom:
-            return 7
-          case pipelineType.pcs:
-            return 8
-          case pipelineType.svp:
-            return 9
-          default:
-            return 10
-        }
+      getRunTime() {
+        return 5
       }
     }
     function createMockProject(name: string) {
