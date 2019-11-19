@@ -5,7 +5,7 @@
           <run-status-table
           @run-finished="addRunToStatistics"
           @cycle-next="cycleRun"
-          :total-runs="runSteps"
+          :total-runs="runStepStatusArray"
           :selected-run="showRun"
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
@@ -17,14 +17,14 @@
     <b-col class="p-2 h-100" cols="12" lg="8" >
       <b-container class="border border-primary h-100 p-0 overflow-auto" fluid>
         <run-table
-        :runID="runID"
+        :runID="selectedRunID"
         :showRun="showRun"
-        :projects="runProjects"
-        :projectCount="projectCount"
-        :containsError="containsError"
-        :currentStep="currentStep"
+        :projects="selectedProjects"
+        :projectCount="selectedProjectCount"
+        :containsError="selectedRunContainsError"
+        :currentStep="selectedRunStepNumber"
         :time="time"
-        :demultiplexing="demultiplexing"
+        :demultiplexing="selectedRunDemultiplexingStatus"
         :thresholdOnco="thresholdOnco"
         :thresholdPcs="thresholdPcs"
         :thresholdExoom="thresholdExoom"
@@ -41,7 +41,7 @@ import {mapActions, mapState} from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
-import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic } from '@/types/dataTypes'
+import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic, statusCode } from '@/types/dataTypes'
 import { countJobStatus } from '@/helpers/utils'
 
 declare module 'vue/types/vue' {
@@ -54,36 +54,36 @@ declare module 'vue/types/vue' {
     paused: boolean
     loading: boolean
     url: string
-    run: Run
-    runID: string
-    runProjects: ProjectObject[]
-    projectCount: number
-    containsError: boolean
-    demultiplexing: boolean
-    currentStep: number
-    runData: Run[]
-    runIds: string[]
-    runSteps: Step[]
+    selectedRunObject: Run
+    selectedRunID: string
+    selectedProjects: ProjectObject[]
+    selectedProjectCount: number
+    selectedRunContainsError: boolean
+    selectedRunDemultiplexingStatus: boolean
+    selectedRunStepNumber: number
+    mappedRunData: Run[]
+    runIdArray: string[]
+    runStepStatusArray: Step[]
     graphRuns: string[]
-    setCurrentIndex(index: number): void
-    sortRuns(run1: Run, run2: Run): number
-    setShowRun(run: string): void
+    setSelectedRunIndex(index: number): void
+    compareRuns(run1: Run, run2: Run): number
+    setShowRun(selectedRunObject: string): void
     timeUp(): void
     setTimer(): void
     getData(): Promise<void>
     cycleRun (): void
-    runStep (run: Run): number
+    getRunStep (selectedRunObject: Run): number
     toggleCycle (): void
-    getRunProjects (projects: projectDataObject[], run: string): projectDataObject[]
+    getRunProjects (projects: projectDataObject[], selectedRunObject: string): projectDataObject[]
     getProjectJobs (jobs: Job[], project: projectDataObject): Job[]
-    runFinished (run: Run): Boolean
+    runFinished (selectedRunObject: Run): Boolean
     countProjectFinishedCopying (projects: ProjectObject[]): number
-    constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run
+    constructRun (selectedRunObject: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run
     getStatus (project: projectDataObject, jobs: Job[]): string
     findLastDateTime (projects: ProjectObject[]): number
     findStartDateTime (projects: ProjectObject[]): number
     getTrackerData(range: number): Promise<void>
-    addRunToStatistics (run: string): void
+    addRunToStatistics (selectedRunObject: string): void
   }
 }
 
@@ -131,42 +131,36 @@ export default Vue.extend({
      * Currently selected run
      * @returns {Run}
      */
-    run (): Run {
-      const run = this.runData.find((x: Run) => { return x.run_id === this.showRun })
-      if (run) {
-        return run!
-      }
-      return new Run('', [], '', '', 0, false, 0)
+    selectedRunObject (): Run {
+      const selectedRunObject = this.mappedRunData.find((x: Run) => { return x.run_id === this.showRun })
+      return selectedRunObject ? selectedRunObject : new Run('', [], '', '', 0, false, 0)
     },
     /**
      * Currently selected run id
      * 
      * @returns {String} run id
      */
-    runID (): string {
-      const runID = this.run.run_id
-      if (!runID) {
-        return ''
-      }
-      return runID
+    selectedRunID (): string {
+      const selectedRunID = this.selectedRunObject.run_id
+      return selectedRunID ? selectedRunID : ''
     },
 
     /**
-     * Currently selected run projects
+     * Currently selected projects belonging to the selected run
      * 
      * @returns {ProjectObject[]}
      */
-    runProjects (): ProjectObject[] {
-      return this.run.projects
+    selectedProjects (): ProjectObject[] {
+      return this.selectedRunObject.projects
     },
 
     /**
-     * Currently selected run project count
+     * Currently selected project count
      * 
      * @returns {Number}
      */
-    projectCount (): number {
-      return this.run.len + 1
+    selectedProjectCount (): number {
+      return this.selectedRunObject.len + 1
     },
 
     /**
@@ -174,27 +168,26 @@ export default Vue.extend({
      * 
      * @returns {Boolean}
      */
-    containsError (): Boolean {
-      return this.run.containsError
+    selectedRunContainsError (): Boolean {
+      return this.selectedRunObject.containsError
     },
 
     /**
-     * checks if run is busy demultiplexing
+     * checks if selected run is busy demultiplexing
      * 
      * @returns {Boolean}
      */
-    demultiplexing (): Boolean {
-      const demultiplexing = this.run.demultiplexing
-
-      return demultiplexing === 'started' || demultiplexing === 'finished'
+    selectedRunDemultiplexingStatus (): Boolean {
+      const selectedRunDemultiplexingStatus = this.selectedRunObject.getDemultiplexingStatus()
+      return (selectedRunDemultiplexingStatus === statusCode.started || selectedRunDemultiplexingStatus === statusCode.finished)
     },
     /**
-     * Currently selected run step
+     * Currently selected run step number
      * 
      * @returns {Number}
      */
-    currentStep (): number {
-      return this.runStep(this.run)
+    selectedRunStepNumber (): number {
+      return this.getRunStep(this.selectedRunObject)
     },
 
     /**
@@ -202,8 +195,8 @@ export default Vue.extend({
      * 
      * @returns {Run[]}
      */
-    runData (): Run[] {
-      const data: Run[] = this.runs.map((run: RunDataObject) => this.constructRun(run, this.TotalProjects, this.jobs)).sort(this.sortRuns)
+    mappedRunData (): Run[] {
+      const data: Run[] = this.runs.map((selectedRunObject: RunDataObject) => this.constructRun(selectedRunObject, this.TotalProjects, this.jobs)).sort(this.compareRuns)
       return data
     },
 
@@ -212,26 +205,26 @@ export default Vue.extend({
      * 
      * @returns {String[]}
      */
-    runIds (): string[] {
-      const runIds: string[] = this.runData.map((run: Run) => run.run_id)
-      return runIds
+    runIdArray (): string[] {
+      const runIdArray: string[] = this.mappedRunData.map((selectedRunObject: Run) => selectedRunObject.run_id)
+      return runIdArray
     },
 
     /**
-     * creates an Array of run objects for step tracker
+     * creates an Array of Run objects for step tracker
      * 
      * @returns {Step[]}
      */
-    runSteps (): Step[] {
-      const runSteps: Step[] = this.runData.map((run) => {
+    runStepStatusArray (): Step[] {
+      const runStepStatusArray: Step[] = this.mappedRunData.map((RunObject: Run) => {
         return {
-          run: run.run_id,
-          step: this.runStep(run),
-          containsError: run.containsError,
-          len: run.len
+          run: RunObject.run_id,
+          step: this.getRunStep(RunObject),
+          containsError: RunObject.containsError,
+          len: RunObject.len
           }
         })
-      return runSteps
+      return runStepStatusArray
     }
   },
   methods: {
@@ -240,22 +233,22 @@ export default Vue.extend({
     ]),
     /**
      * changes detailed view to the given index
-     * @param {Number} index - index of current run
+     * @param {Number} index - index of current selectedRunObject
      */
-    setCurrentIndex (index: number): void {
-      this.showRun = this.runIds[index]
+    setSelectedRunIndex (index: number): void {
+      this.showRun = this.runIdArray[index]
     },
 
     /**
-     * run comparator function
-     * @param {Run} run1 - first run
-     * @param {Run} run2 - second run
+     * selectedRunObject comparator function
+     * @param {Run} run1 - first selectedRunObject
+     * @param {Run} run2 - second selectedRunObject
      * @returns Number Sort order
      */
-    sortRuns (run1: Run, run2: Run): number {
+    compareRuns (run1: Run, run2: Run): number {
       if (run1.containsError && !run2.containsError) {
         return -1
-      } else if (run2.containsError || this.runStep(run1) > this.runStep(run2)) {
+      } else if (run2.containsError || this.getRunStep(run1) > this.getRunStep(run2)) {
         return 1
       } else {
         return 0
@@ -263,12 +256,12 @@ export default Vue.extend({
     },
 
     /**
-     * pauses the run cycleRun when selecting a run
-     * @param {String} run - runID of run to select
+     * pauses the run cycle when selecting a run
+     * @param {String} runID - run id of a run to select
      */
-    setShowRun (run: string): void {
+    setShowRun (runID: string): void {
       this.paused = true
-      this.showRun = run
+      this.showRun = runID
     },
 
     /**
@@ -328,40 +321,39 @@ export default Vue.extend({
      */
     cycleRun (): void {
       if (!this.paused) {
-        let currentIndex = this.runIds.indexOf(this.showRun)
-        if (currentIndex === (this.runIds.length - 1)) {
+        let currentIndex = this.runIdArray.indexOf(this.showRun)
+        if (currentIndex === (this.runIdArray.length - 1)) {
           currentIndex = 0
         } else {
           currentIndex += 1
         }
-        this.showRun = this.runIds[currentIndex]
+        this.showRun = this.runIdArray[currentIndex]
       }
     },
 
     /**
      * finds run status step number
-     * @param {Run} run - run to check
+     * @param {Run} run - run to calculate step from
      * 
      * @returns {Number}
      */
-    runStep (run: Run): number {
-      switch (run.demultiplexing) {
-        case 'started':
+    getRunStep (run: Run): number {
+      switch (run.getDemultiplexingStatus()) {
+        case statusCode.started:
           return 0
-        case 'Waiting':
+        case statusCode.waiting:
           return -1
-
         default:
-      }
-      if (run.rawCopy === 'started') {
-        return 1
-      } else if (run.copyState === (run.len)) {
-        return 4
-        // run result copying check
-      } else if (run.copyState > 0 && this.runFinished(run)) {
-        return 3
-      } else {
-        return 2
+          if (run.getRawDataCopyingStatus() === statusCode.started) {
+            return 1
+          } else if (run.copyState === run.len) {
+            return 4
+            // selectedRunObject result copying check
+          } else if (run.copyState > 0 && this.runFinished(run)) {
+            return 3
+          } else {
+            return 2
+          }
       }
     },
 
@@ -373,14 +365,14 @@ export default Vue.extend({
     },
 
     /**
-     * filters projects that are linked to run
+     * filters projects that are linked to selectedRunObject
      * @param projects all projects
-     * @param run run to add data
+     * @param selectedRunObject selectedRunObject to add data
      * @returns filtered projects
      */
-    getRunProjects (projects: projectDataObject[], run: string): projectDataObject[] {
+    getRunProjects (projects: projectDataObject[], selectedRunObject: string): projectDataObject[] {
       return projects.filter(function (x) {
-        return x.run_id === run
+        return x.run_id === selectedRunObject
       })
     },
 
@@ -409,12 +401,12 @@ export default Vue.extend({
 
     /**
      * Checks if a run is finished with its pipelines
-     * @param {Run} run - run to check pipelines
+     * @param {Run} run - selectedRunObject to check pipelines
      * 
      * @returns {Boolean}
      */
     runFinished (run: Run): Boolean {
-      return run.projects.filter((x) => { return x.status.toLowerCase() === 'finished' }).length === run.len
+      return run.projects.filter((x) => { return x.status === statusCode.finished }).length === run.len
     },
     /**
      * returns number of finished projects
@@ -430,17 +422,17 @@ export default Vue.extend({
     },
 
     /**
-     * combines all available data into one run
-     * @param {RunDataObject} run - run to add data to
+     * combines all available data into one selectedRunObject
+     * @param {RunDataObject} selectedRunObject - selectedRunObject to add data to
      * @param {ProjectDataObject[]} projects - all projects to filter
      * @param {Job[]} jobs - all jobs to filter
      * 
      * @returns {Run}
      */
-    constructRun (run: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run {
-      const runProjects = this.getRunProjects(projects, run.run_id)
+    constructRun (selectedRunObject: RunDataObject, projects: projectDataObject[], jobs: Job[]): Run {
+      const selectedProjects = this.getRunProjects(projects, selectedRunObject.run_id)
       let errors = 0
-      const projectArray = runProjects.map((RunProject: projectDataObject) => {
+      const projectArray = selectedProjects.map((RunProject: projectDataObject) => {
         const ProjectJobs = this.getProjectJobs(jobs, RunProject)
         errors += countJobStatus(ProjectJobs, 'error')
 
@@ -453,7 +445,7 @@ export default Vue.extend({
             RunProject.comment
           )        
       })
-      return new Run(run.run_id, projectArray, run.demultiplexing, run.copy_raw_prm, projectArray.length, errors >= 1, this.countProjectFinishedCopying(projectArray))
+      return new Run(selectedRunObject.run_id, projectArray, selectedRunObject.demultiplexing, selectedRunObject.copy_raw_prm, projectArray.length, errors >= 1, this.countProjectFinishedCopying(projectArray))
     },
 
     /**
@@ -475,16 +467,16 @@ export default Vue.extend({
 
     /**
      * Creates a RunTimeStatistic object and sends it to the grah
-     * @param {String} run run to add to graph
+     * @param {String} selectedRunObject selectedRunObject to add to graph
      * 
      * @returns {void}
      */
-    addRunToStatistics (run: string): void {
-      if (!this.graphRuns.includes(run)) {
-        const runObj = this.runData.find((x: Run) => { return x.run_id === run })
-        const runTimeStats = new RunTimeStatistic(runObj!.projects, run)
+    addRunToStatistics (selectedRunObject: string): void {
+      if (!this.graphRuns.includes(selectedRunObject)) {
+        const runObj = this.mappedRunData.find((x: Run) => { return x.run_id === selectedRunObject })
+        const runTimeStats = new RunTimeStatistic(runObj!.projects, selectedRunObject)
         this.$emit('add-statistic', runTimeStats)
-        this.graphRuns.push(run)
+        this.graphRuns.push(selectedRunObject)
       }
     }
   },
