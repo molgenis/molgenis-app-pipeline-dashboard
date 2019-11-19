@@ -1,7 +1,32 @@
+import { parse } from '@fortawesome/fontawesome-svg-core';
+
 export interface RawDataObject extends RunDataObject, projectDataObject, Job{
 
 }
 
+export enum statusCode {
+  waiting = 'waiting',
+  error = 'error',
+  finished = 'finished',
+  started = 'started',
+  other = 'other'
+}
+
+function parseStatus(statusString: string): statusCode {
+  if (statusString.match(/waiting/gi)) {
+    return statusCode.waiting
+  }
+  if (statusString.match(/error/gi)) {
+    return statusCode.error
+  }
+  if (statusString.match(/finished/gi)) {
+    return statusCode.finished
+  }
+  if (statusString.match(/started/gi)) {
+    return statusCode.started
+  }
+  return statusCode.other
+}
 /**
  * Stores available Run information
  */
@@ -21,6 +46,15 @@ export class Run {
     this.len = lenght
     this.containsError = error
     this.copyState = ResultCopyState
+  }
+  getDemultiplexingStatus(): statusCode {
+    return parseStatus(this.demultiplexing)
+  }
+  getRawDataCopyingStatus(): statusCode {
+    if (this.rawCopy) {
+      return parseStatus(this.rawCopy)
+    }
+    return statusCode.finished
   }
 }
 
@@ -63,7 +97,7 @@ export class ProjectObject {
   project: string
   jobs: Job[]
   pipeline: string
-  status: string
+  status: statusCode
   resultCopyStatus?: string
   Comment?: string
   
@@ -72,7 +106,7 @@ export class ProjectObject {
     this.jobs = jobArray
     this.pipeline = pipeline
     this.resultCopyStatus = resultCopyStatusString
-    this.status = statusString
+    this.status = parseStatus(statusString)
     this.Comment = comment
   }
   /**
