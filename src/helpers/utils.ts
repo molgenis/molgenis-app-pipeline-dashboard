@@ -1,4 +1,4 @@
-import { Job } from '@/types/dataTypes';
+import { Job, ProjectObject, projectDataObject } from '@/types/dataTypes';
 
 /**
  * crops given title by the provided lenght
@@ -32,4 +32,34 @@ export function getFilteredArray (arrayToFilter: Array<any>, arrayToCheck: Array
  */
 export function countJobStatus (jobs: Job[], status: string): number {
   return jobs.filter(function (x) { return x.status === status }).length
+}
+
+/**
+ * returns number of finished projects
+ * @param {ProjectObject[]} projects - projects to check
+ * 
+ * @returns {Number}
+ */
+export function countProjectFinishedCopying (projects: ProjectObject[]): number {
+  const finishedProjects = projects.filter(function (x) {
+    return x.resultCopyStatus === 'finished'
+  })
+  return finishedProjects.length
+}
+
+/**
+ * gets the project status
+ * @param {projectDataObject} project - project
+ * @param {Job[]} jobs - project jobs
+ * 
+ * @returns {String} - status
+ */
+export function getProjectDataStatus (project: projectDataObject, jobs: Job[]): string {
+  if (project.copy_results_prm === 'finished' || countJobStatus(jobs, 'finished') === jobs.length) {
+    return 'finished'
+  } else if (countJobStatus(jobs, 'started') >= 1) {
+    return 'started'
+  } else {
+    return 'Waiting'
+  }
 }
