@@ -16,10 +16,9 @@
           rows="10"
           max-rows="30"
           :state="rejected ? false : undefined"
+          :invalid-feedback="errorMessage"
         ></b-form-textarea>
-        <b-form-invalid-feedback id='lengthError'>
-          {{errorMessage}}
-        </b-form-invalid-feedback>
+        
       </b-form-group>
       <b-button class="mt-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, newComment: placeHolderComment, oldComment: comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
       <b-button class="mt-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
@@ -84,6 +83,7 @@ export default {
       this.$bvToast.toast(reason, {
         title: 'Error updating comment',
         variant: 'danger',
+        toaster: 'b-toaster-bottom-right',
         noAutoHide: true
       })
     },
