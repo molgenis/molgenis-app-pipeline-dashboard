@@ -1,10 +1,11 @@
 import axios from 'axios'
 import { State } from './state'
-import { pipelineType, RunDataObject, projectDataObject, Job } from '@/types/dataTypes'
+import { pipelineType, RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
 import { Serie } from '@/types/graphTypes'
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
+import { countJobStatus, countProjectFinishedCopying, getProjectDataStatus } from '@/helpers/utils';
 
 export default {
   /**
@@ -14,6 +15,7 @@ export default {
     return new Promise((resolve, reject) => {
       Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobData')])
       .then(() => {
+        dispatch('convertRawData')
         resolve()
       })
       .catch(() => {
@@ -77,29 +79,32 @@ export default {
    *
    */
   async getMachineData ({ commit, state }: { commit: any, state: State }, { machines, range }: { machines: string[], range: number }) {
-    let sampleCounts: Record<string, number[]> = {}
-    let machineSeriesGrouped: Record<string, Serie[]> = {}
+    return new Promise((resolve, reject) => {
+      let sampleCounts: Record<string, number[]> = {}
+      let machineSeriesGrouped: Record<string, Serie[]> = {}
 
-    machines.forEach(async (machine: string) => {
-      state.pipelineTypes.forEach(async (pipelineType: string) => {
-        if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
-          machineSeriesGrouped[pipelineType] = [] as Serie[]
-        }
-        let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
-        api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
-          .then(function (response: { items: Object[] }) {
-            if (response.items.length > 0) {
-              machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.items, (x:any) => { return x.total_hours })))
-              sampleCounts[machine] = Array.from(response.items, (x: any) => x.numberofSamples as number).reverse()
-            }
-          })
-          .catch(function (error: any) {
-            console.error(error)
-          })
+      machines.forEach(async (machine: string) => {
+        state.pipelineTypes.forEach(async (pipelineType: string) => {
+          if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
+            machineSeriesGrouped[pipelineType] = [] as Serie[]
+          }
+          let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
+          api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+            .then(function (response: { items: Object[] }) {
+              if (response.items.length > 0) {
+                machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.items, (x:any) => { return x.total_hours })))
+                sampleCounts[machine] = Array.from(response.items, (x: any) => x.numberofSamples as number).reverse()
+              }
+            })
+            .catch(function (error: any) {
+              reject(error)
+            })
+        })
       })
-    })
-    commit('setMachineRuntimes', machineSeriesGrouped)
-    commit('setMachineSampleCounts', sampleCounts)
+      commit('setMachineRuntimes', machineSeriesGrouped)
+      commit('setMachineSampleCounts', sampleCounts)
+      resolve()
+  })
   },
 
   async getPipelineData ({ commit, state }: { commit:any, state: State }, range: number) {
@@ -125,17 +130,19 @@ export default {
    * @param {Number} range - amount of results to get
    */
   async getTimingData ({ dispatch, state }: { dispatch: any, state: State }, range: number) {
-    // Data per machine
-    api.get(`/api/v2/${state.timingTable}?aggs=x==machine;distinct==unique_id`)
-      .then(async function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
-        let machines = response.aggs.xLabels as string[]
-        machines = machines.filter((x) => { return x !== null }).sort()
-        dispatch('getMachineData', { machines: machines, range: range })
-      })
-      .catch(function (error: any) {
-        console.error(error)
-      })
-    dispatch('getPipelineData', range)
+    return new Promise((resolve, reject) => {
+      api.get(`/api/v2/${state.timingTable}?aggs=x==machine;distinct==unique_id`)
+        .then(async function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
+          let machines = response.aggs.xLabels as string[]
+          machines = machines.filter((x) => { return x !== null }).sort()
+          dispatch('getMachineData', { machines: machines, range: range })
+        })
+        .catch(function (error: any) {
+          reject(error)
+        })
+      dispatch('getPipelineData', range)
+      resolve()
+    })
   },
 
   /**
@@ -205,7 +212,7 @@ export default {
   async updateProjectComment ({ state }: { state: State }, { project, comment }: { project: string, comment: string }) {
     return api.put(`/api/v1/${state.projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
   },
-  async handleCommentSubmit ({ dispatch, commit}: { dispatch: any, commit: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }) {
+  async handleCommentSubmit ({ dispatch }: { dispatch: any, commit: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }) {
     return new Promise((resolve, reject) => {
       if (validation) {
         dispatch('checkForCommentUpdates', { project: project, oldComment: oldComment, newComment: newComment }).then((resolveMessage: string) => { resolve(resolveMessage) }, (reason: string) => { reject(reason) })
@@ -231,6 +238,48 @@ export default {
       .catch((error: any) => {
         reject('Network error occured')
       })
+    })
+  },
+
+  async convertRawData({ dispatch, commit, getters }: { dispatch: any, commit: any, getters: any }) {
+    return new Promise((resolve) => {
+      dispatch('convertProjects').then(() => {
+        dispatch('constructRunObjects').then(() => {
+          commit('updateFinishedRuns', getters.getFinishedRuns)
+          resolve()
+        })
+      })
+  })
+  },
+
+  async convertProjects({ commit, state, getters }: { commit: any, state: State, getters: any}) {
+    return new Promise((resolve) => {
+      let mappedProjects: Record<string, ProjectObject[]> = {}
+      state.projects.forEach((project: projectDataObject) => {
+        const runID = project.run_id
+        if (!(runID in mappedProjects)) {
+          mappedProjects[runID] = [] as ProjectObject[]
+        }
+        const projectJobs: Job[] = getters.getJobsByProjectID(project.project)
+        const status = getProjectDataStatus(project, projectJobs)
+        mappedProjects[runID].push(new ProjectObject(project.project, projectJobs, project.pipeline, status, project.copy_results_prm, project.comment))
+      })
+      commit('setProjectObjects', mappedProjects)
+      resolve()
+    })
+  },
+
+  async constructRunObjects({ commit, state, getters }: { commit: any, state: State, getters: any}) {
+    return new Promise((resolve) => {
+      const Runs = state.runs.map((run: RunDataObject) => {
+        const projects = getters.getProjectsByRunID(run.run_id)
+        const length = projects.length
+        const errors = projects.map((project: ProjectObject) => { return countJobStatus(project.jobs, 'error')})
+        const containsErrors = errors.reduce((accumulator: number, currentValue: number) => accumulator + currentValue) >= 1
+        return new Run(run.run_id, run.demultiplexing, run.copy_raw_prm, length, containsErrors, countProjectFinishedCopying(projects))  
+      })
+      commit('setRunObjects', Runs)
+      resolve()
     })
   }
 }

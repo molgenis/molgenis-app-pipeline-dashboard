@@ -1,5 +1,5 @@
 import { State } from './state';
-import { RunDataObject, projectDataObject, Job, ProjectObject } from '@/types/dataTypes';
+import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes';
 import { Serie } from '@/types/graphTypes';
 
 export default {
@@ -60,5 +60,19 @@ export default {
   updateCommentOnLocalProject(state: State, {projectName , comment}: {projectName: string, comment: string}) {
     const index = state.projects.findIndex(project => project.project === projectName)
     state.projects[index].comment = comment
+  },
+  setRunObjects(state: State, Runs: Run[]) {
+    state.runObjects = Runs
+  },
+  setProjectObjects(state: State, projects: Record<string, ProjectObject[]>) {
+    state.projectObjects = projects
+  },
+  updateFinishedRuns(state: State, finished: string[]) {
+    state.runObjects.forEach((run: Run, index: number) => {
+      if (run.run_id in finished) {
+        state.runObjects[index].setFinished()
+      }
+    })
+    state.rawDataConverted = true
   }
 }

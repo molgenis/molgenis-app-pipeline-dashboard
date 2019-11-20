@@ -1,4 +1,4 @@
-import {RawDataObject, projectDataObject, RunDataObject, ProjectObject, Job} from '@/types/dataTypes'
+import {RawDataObject, projectDataObject, RunDataObject, ProjectObject, Job, Run} from '@/types/dataTypes'
 import { Serie } from '@/types/graphTypes';
 export type State = {
   runs: RunDataObject[]
@@ -29,6 +29,9 @@ export type State = {
   checkedCommentStatus: boolean
   CommentUpdatedStatus: boolean
   CommentNetworkError: boolean
+  projectObjects: Record<string, ProjectObject[]>
+  runObjects: Run[]
+  rawDataConverted: boolean
 }
 
 const state: State = {
@@ -57,9 +60,12 @@ const state: State = {
   runsLoaded: false,
   projectsLoaded: false,
   jobsLoaded: false,
+  rawDataConverted: false,
   checkedCommentStatus: false,
   CommentUpdatedStatus: false,
-  CommentNetworkError: false
+  CommentNetworkError: false,
+  projectObjects: {},
+  runObjects: []
 }
 
 export default state

@@ -18,6 +18,7 @@
           :thresholdPcs="thresholdPcs"
           :thresholdExoom="thresholdExoom"
           :thresholdSvp="thresholdSvp"
+          :loadingStatus="trackingDataLoaded"
           class="h-100 mt-1"/>
       </b-col>
     </b-row>
@@ -143,10 +144,11 @@ export default Vue.extend({
     ...mapState([
       'runsLoaded',
       'projectsLoaded',
-      'jobsLoaded'
+      'jobsLoaded',
+      'rawDataConverted'
     ]),
     trackingDataLoaded () {
-      return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded].every((state) => state)
+      return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every((state) => state)
     }
   }
 })

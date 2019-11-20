@@ -32,20 +32,26 @@ export function parseStatus(statusString: string): statusCode {
  */
 export class Run {
   run_id: string
-  projects: ProjectObject[]
   demultiplexing: string
   rawCopy: string
   len: number
   containsError: Boolean
   copyState: number
-  constructor(runID: string, projectArray: ProjectObject[], Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number){
+  finished: Boolean
+  constructor(runID: string, Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number){
     this.run_id = runID
-    this.projects = projectArray
     this.demultiplexing = Demultiplexing
     this.rawCopy = RawCopyState
     this.len = lenght
     this.containsError = error
     this.copyState = ResultCopyState
+    this.finished = false
+  }
+  setFinished() {
+    this.finished = true
+  }
+  unSetFinished() {
+    this.finished = false
   }
   getDemultiplexingStatus(): statusCode {
     return parseStatus(this.demultiplexing)
@@ -56,6 +62,26 @@ export class Run {
     }
     return statusCode.finished
   }
+  getCurrentStep(): number {
+    switch (this.getDemultiplexingStatus()) {
+      case statusCode.started:
+        return 0
+      case statusCode.waiting:
+        return -1
+      default:
+        if (this.getRawDataCopyingStatus() === statusCode.started) {
+          return 1
+        } else if (this.copyState === this.len) {
+          return 4
+          // selectedRunObject result copying check
+        } else if (this.copyState > 0 && this.finished) {
+          return 3
+        } else {
+          return 2
+        }
+    }
+  }
+  
 }
 
 /**
