@@ -39,12 +39,6 @@ declare module 'vue/types/vue' {
 
 export default Vue.extend({
   name: 'run-time-statistics',
-  props: {
-    runTimes: {
-      type: Array,
-      required: true
-    }
-  },
   data () {
     return {
       selectedRange: 10,
@@ -69,21 +63,6 @@ export default Vue.extend({
         options.push({ value: pipelineType, text: pipelineType})
       })
       return options
-    },
-    /**
-     * Computed property that builds the annotations for the graph
-     * 
-     * @returns {graphAnnotation}
-     */
-    annotations (): GraphAnnotation {
-      let thresholdNumber = this.threshold as number
-      let averageNumber = this.average.ONCO
-      let outline = thresholdNumber + averageNumber
-      return {
-        xaxis: this.xAnnotations as xAnnotation[],
-        yaxis: [
-        ]
-      }
     },
     /**
      * Computed property that builds chart options
@@ -151,111 +130,11 @@ export default Vue.extend({
           }
   }
         },
-        annotations: this.annotations as GraphAnnotation
+        annotations: {} as GraphAnnotation
       }
     },
     machineSampleCounts () {
       return this.machineSampleCounts
-    },
-
-    numbersArray (): number[] {
-      const statistics = this.runTimes as RunTimeStatistic[]
-      return statistics.map((RunTimeStatistic: RunTimeStatistic): number => {
-        return RunTimeStatistic.getMax()
-      })
-
-    },
-    /**
-     * average runtime
-     * @returns average
-     */
-    average (): AverageData {
-      let onco = 0
-      let pcs = 0
-      let exoom = 0
-      let svp = 0
-      this.series.forEach((serie: Serie) => {
-        switch (serie.name) {
-          case 'ONCO':
-            onco = calculateMean(serie.data)
-            break
-          case 'PCS':
-            pcs = calculateMean(serie.data)
-            break
-          case 'Exoom':
-            exoom = calculateMean(serie.data)
-            break
-          case 'SVP':
-            svp = calculateMean(serie.data)
-            break
-          default:
-            break
-        }
-      })
-
-      return new AverageData(onco, pcs, exoom, svp)
-    },
-    /**
-     * calculates threshold for each pipeline
-     * 
-     * @returns {AverageData}
-     */
-    thresholds (): AverageData {
-      let avg = this.average
-
-      const onco = getSD(this.series[0].data, avg.ONCO)
-      const pcs = getSD(this.series[1].data, avg.PCS)
-      const exoom = getSD(this.series[2].data, avg.Exoom)
-      const svp = getSD(this.series[3].data, avg.SVP)
-
-      return new AverageData(onco + avg.ONCO, pcs + avg.PCS, exoom + avg.Exoom, svp + avg.SVP)
-    },
-    /**
-     * builds series array for graph
-     * 
-     * @returns {Serie[]}
-     */
-    series (): Serie[] {
-      const runTimeArray = this.runTimes as RunTimeStatistic[]
-      let SerieArray: Serie[] = []
-      let onco: number[] = []
-      let pcs: number[] = []
-      let exoom: number[] = []
-      let svp: number[] = []
-
-      runTimeArray.forEach((StatisticalPoint: RunTimeStatistic) => {
-        StatisticalPoint.ONCO ? onco.push(StatisticalPoint.ONCO.runtime) : onco.push(0)
-        StatisticalPoint.PCS ? pcs.push(StatisticalPoint.PCS.runtime) : pcs.push(0)
-        StatisticalPoint.Exoom ? exoom.push(StatisticalPoint.Exoom.runtime) : exoom.push(0)
-        StatisticalPoint.SVP ? svp.push(StatisticalPoint.SVP.runtime) : svp.push(0) 
-      })
-
-      SerieArray.push(new Serie('ONCO', onco))
-      SerieArray.push(new Serie('PCS', pcs))
-      SerieArray.push(new Serie('Exoom', exoom))
-      SerieArray.push(new Serie('SVP', svp))
-
-      return SerieArray
-    },
-    /**
-     * calculates the outliers in the data
-     * @todo
-     * @returns outlier array
-     */
-    outliers (): Outlier[] {
-      let outliers = [] as Outlier[]
-      return outliers
-    },
-    /**
-     * creates xAnnotations for outliers
-     * @returns {xAnnotation[]}
-     */
-    xAnnotations (): xAnnotation[] {
-      let annotations = [] as xAnnotation[]
-      this.outliers.forEach((outlier) => {
-        annotations.push(this.createXAnnotation(outlier.position, cropTitle(outlier.id, 20)))
-      })
-      return annotations
     },
     computedSeries (): Serie[] | null{
       switch (this.selectedStatistic) {
@@ -277,65 +156,7 @@ export default Vue.extend({
   methods: {
     ...mapActions([
       'getTimingData'
-    ]),
-    /**
-     * Creates xAnnotation Object
-     * @param {Number} coordinate - coordinate of annotation
-     * @param {String} name - name to put in label
-     * 
-     * @returns {xAnnotation}
-     */
-    createXAnnotation (coordinate: number, name: string): xAnnotation {
-      let labelPosition = 'top'
-      let position1 = coordinate - 0.1
-      let position2 = coordinate + 0.1
-      if (coordinate === 1) {
-        position1 += 0.1
-      } else if (coordinate === 10) {
-        position2 -= 0.1
-      }
-      return {
-        x: position1,
-        x2: position2,
-        borderColor: '#a57f01',
-        fillColor: '#e3ae00',
-        opacity: 0.7,
-        label: {
-          borderColor: '#e3ae00',
-          orientation: 'vertical',
-          position: labelPosition,
-          style: {
-            fontSize: '5mm',
-            color: '#fff',
-            background: '#e3ae00'
-          },
-          offsetX: 45,
-          offsetY: 10,
-          text: name
-        }
-      }
-    }
-  },
-  watch: {
-    /**
-     * Emits a threshold update if they change
-     * 
-     * @emits 'new-threshold-onco'
-     * @emits 'new-threshold-pcs'
-     * @emits 'new-threshold-exoom'
-     * @emits 'new-threshold-svp'
-     * 
-     * @returns {void}
-     */
-    thresholds (): void {
-      this.$emit('new-threshold-onco', this.thresholds.ONCO)
-      this.$emit('new-threshold-pcs', this.thresholds.PCS)
-      this.$emit('new-threshold-exoom', this.thresholds.Exoom)
-      this.$emit('new-threshold-svp', this.thresholds.SVP)
-    },
-    selectedRange (): void {
-      this.getTimingData(this.selectedRange)
-    }
+    ])
   },
   mounted () {
     this.getTimingData(this.selectedRange)

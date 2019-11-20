@@ -13,11 +13,6 @@
     <b-row  no-gutters class="h-50">
       <b-col class="h-100">
         <track-and-trace
-          @add-statistic="addStatistics"
-          :thresholdOnco="thresholdOnco"
-          :thresholdPcs="thresholdPcs"
-          :thresholdExoom="thresholdExoom"
-          :thresholdSvp="thresholdSvp"
           :loadingStatus="trackingDataLoaded"
           class="h-100 mt-1"/>
       </b-col>
@@ -25,11 +20,6 @@
     <b-row no-gutters class="h-50">
       <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
         <run-time-statistics
-          :run-times="runTimeArray"
-          @new-threshold-onco="setOncoMax"
-          @new-threshold-pcs="setPcsMax"
-          @new-threshold-exoom="setExoomMax"
-          @new-threshold-svp="setSvpMax"
         />
       </b-col>
       <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
@@ -66,79 +56,6 @@ export default Vue.extend({
     TrackAndTrace,
     RunTimeStatistics,
     SampleStatistics
-  },
-  data () {
-    return {
-      loading: true,
-      runTimeArray: [],
-      threshold: 20,
-      thresholdOnco: 20,
-      thresholdPcs: 20,
-      thresholdExoom: 20,
-      thresholdSvp: 20,
-      toastCount: 0
-    }
-  },
-  methods: {
-    /**
-     * Adds new runtime statistics to graph with a max lenght of 10
-     * @param {RunTimeStatistic} run - new statistic to add
-     *
-     * @returns {void}
-     */
-    addStatistics (run: RunTimeStatistic) {
-      let timeArray = this.runTimeArray
-      if (timeArray.length >= 10) {
-        timeArray.shift()
-      }
-      let currentRun = run
-      timeArray.push(run)
-
-      this.runTimeArray = timeArray
-    },
-    /**
-     * Sets maximum threshold for ONCO pipeline types
-     * @param {Number} threshold - ONCO threshold hours
-     *
-     * @returns {void}
-     */
-    setOncoMax (threshold: number): void {
-      this.thresholdOnco = threshold
-    },
-    /**
-     * Sets maximum threshold for PCS pipeline types
-     * @param {Number} threshold - PCS threshold hours
-     *
-     * @returns {void}
-     */
-    setPcsMax (threshold: number): void {
-      this.thresholdPcs = threshold
-    },
-    /**
-     * Sets maximum threshold for Exoom pipeline types
-     * @param {Number} threshold - Exoom threshold hours
-     *
-     * @returns {void}
-     */
-    setExoomMax (threshold: number):void {
-      this.thresholdExoom = threshold
-    },
-    /**
-     * Sets maximum threshold for SVP pipeline types
-     * @param {Number} threshold - SVP threshold hours
-     *
-     * @returns {void}
-     */
-    setSvpMax (threshold: number): void {
-      this.thresholdSvp = threshold
-    },
-    makeToast (append = false) {
-      this.toastCount++
-      this.$bvToast.toast(`Unable to retreive data`, {
-        title: 'Error',
-        variant: 'danger'
-      })
-    }
   },
   computed: {
     ...mapState([

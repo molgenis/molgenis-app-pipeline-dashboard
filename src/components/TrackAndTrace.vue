@@ -3,7 +3,6 @@
       <b-col  class="p-2 h-100" lg="4" cols="12">
         <b-container fluid class="border border-primary p-0 h-100">
           <run-status-table
-          @run-finished="addRunToStatistics"
           @cycle-next="cycleRun"
           :total-runs="runStepStatusArray"
           :selected-run="showRun"
@@ -24,11 +23,7 @@
         :containsError="selectedRunContainsError"
         :currentStep="selectedRunStepNumber"
         :time="time"
-        :demultiplexing="selectedRunDemultiplexingStatus"
-        :thresholdOnco="thresholdOnco"
-        :thresholdPcs="thresholdPcs"
-        :thresholdExoom="thresholdExoom"
-        :thresholdSvp="thresholdSvp">
+        :demultiplexing="selectedRunDemultiplexingStatus">
         </run-table>
       </b-container>
     </b-col>
@@ -42,14 +37,11 @@ import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
 import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic, statusCode } from '@/types/dataTypes'
-import { countJobStatus, countProjectFinishedCopying } from '@/helpers/utils'
+import { countJobStatus } from '@/helpers/utils'
 
 
 declare module 'vue/types/vue' {
   interface Vue {
-    runs: RunDataObject[]
-    jobs: Job[]
-    TotalProjects: projectDataObject[]
     time: number
     showRun: string
     paused: boolean
@@ -74,15 +66,7 @@ declare module 'vue/types/vue' {
     getData(): Promise<void>
     cycleRun (): void
     toggleCycle (): void
-    getRunProjects (projects: projectDataObject[], selectedRunObject: string): projectDataObject[]
-    getProjectJobs (jobs: Job[], project: projectDataObject): Job[]
-    runFinished (selectedRunObject: Run): Boolean
-    countProjectFinishedCopying (projects: ProjectObject[]): number
-    getStatus (project: projectDataObject, jobs: Job[]): string
-    findLastDateTime (projects: ProjectObject[]): number
-    findStartDateTime (projects: ProjectObject[]): number
     getTrackerData(range: number): Promise<void>
-    addRunToStatistics (selectedRunObject: string): void
     getRunObjectByID (runID: string): Run
     getFinishedRuns: string[]
   }
@@ -95,22 +79,6 @@ export default Vue.extend({
     RunStatusTable
   },
   props: {
-    thresholdOnco: {
-      type: Number,
-      required: true
-    },
-    thresholdPcs: {
-      type: Number,
-      required: true
-    },
-    thresholdExoom: {
-      type: Number,
-      required: true
-    },
-    thresholdSvp: {
-      type: Number,
-      required: true
-    },
     loadingStatus: {
       type: Boolean,
       required: false,
@@ -129,9 +97,6 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      runs: 'runs',
-      TotalProjects: 'projects',
-      jobs: 'jobs',
       projectObjects: 'projectObjects',
       runObjects: 'runObjects'
     }),
@@ -351,95 +316,6 @@ export default Vue.extend({
      */
     toggleCycle (): void {
       this.paused = !this.paused
-    },
-
-    /**
-     * filters projects that are linked to selectedRunObject
-     * @param projects all projects
-     * @param selectedRunObject selectedRunObject to add data
-     * @returns filtered projects
-     */
-    getRunProjects (projects: projectDataObject[], selectedRunObject: string): projectDataObject[] {
-      return projects.filter(function (x) {
-        return x.run_id === selectedRunObject
-      })
-    },
-
-    /**
-     * filters jobs that are linked to project
-     * @param {Job[]} jobs all jobs
-     * @param {projectDataObject} project project to add data to
-     * 
-     * @returns {Job[]}
-     */
-    getProjectJobs (jobs: Job[], project: projectDataObject): Job[] {
-      return jobs
-        .filter(function (x: Job) {
-          return x.project === project.project
-        })
-        .sort(function (a: Job, b: Job) {
-          if (a.job > b.job) {
-            return 1
-          } else if (a.job < b.job) {
-            return -1
-          } else {
-            return 0
-          }
-        })
-    },
-
-    /**
-     * Checks if a run is finished with its pipelines
-     * @param {Run} run - selectedRunObject to check pipelines
-     * 
-     * @returns {Boolean}
-     */
-    runFinished (run: Run): Boolean {
-      return run.run_id in this.getFinishedRuns
-    },
-    /**
-     * returns number of finished projects
-     * @param {ProjectObject[]} projects - projects to check
-     * 
-     * @returns {Number}
-     */
-    countProjectFinishedCopying (projects: ProjectObject[]): number {
-      const finishedProjects = projects.filter(function (x) {
-        return x.resultCopyStatus === 'finished'
-      })
-      return finishedProjects.length
-    },
-
-    /**
-     * gets the project status
-     * @param {projectDataObject} project - project
-     * @param {Job[]} jobs - project jobs
-     * 
-     * @returns {String} - status
-     */
-    getStatus (project: projectDataObject, jobs: Job[]): string {
-      if (project.copy_results_prm === 'finished' || countJobStatus(jobs, 'finished') === jobs.length) {
-        return 'finished'
-      } else if (countJobStatus(jobs, 'started') >= 1) {
-        return 'started'
-      } else {
-        return 'Waiting'
-      }
-    },
-
-    /**
-     * Creates a RunTimeStatistic object and sends it to the grah
-     * @param {String} selectedRunObject selectedRunObject to add to graph
-     * 
-     * @returns {void}
-     */
-    addRunToStatistics (selectedRunObject: string): void {
-      if (!this.graphRuns.includes(selectedRunObject)) {
-        const runObj = this.mappedRunData.find((x: Run) => { return x.run_id === selectedRunObject })
-        const runTimeStats = new RunTimeStatistic(this.projectObjects[runObj!.run_id], selectedRunObject)
-        this.$emit('add-statistic', runTimeStats)
-        this.graphRuns.push(selectedRunObject)
-      }
     }
   },
   watch: {

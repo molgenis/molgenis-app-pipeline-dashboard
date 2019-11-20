@@ -162,6 +162,7 @@ export default {
     },
     /**
      * Returns all chart options
+     * reference: https://apexcharts.com/docs/options/
      * @returns {Object}
      */
     chartOptions() {
@@ -210,6 +211,7 @@ export default {
     },
     /**
      * Updates year data
+     * for each month add the counts to local data
      * @param {Number} month - month of year (0-11)
      * @param {Number} count - Sample count that month
      */

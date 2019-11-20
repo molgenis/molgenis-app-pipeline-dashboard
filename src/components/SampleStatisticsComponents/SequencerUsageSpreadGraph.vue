@@ -27,6 +27,7 @@ export default {
     ]),
     /**
      * Sets the chart options & labels
+     * reference: https://apexcharts.com/docs/options/
      */
     chartOptions () {
       return {
