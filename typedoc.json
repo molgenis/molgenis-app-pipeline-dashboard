@@ -1,6 +1,7 @@
 {
   "out": "docs/documentation",
-  "mode": "file",
+  "mode": "modules",
   "plugin": "typedoc-external-module-name",
-  "target": "ES6"
+  "target": "ES6",
+  "exclude": "*/main.ts"
 }

@@ -4,8 +4,11 @@
 
 import { State } from '@/store/state';
 import { Job, ProjectObject, Run, statusCode } from '@/types/dataTypes';
-
-export default {
+/**
+ * Dashboard getters
+ * @requires Job,ProjectObject,Run,statusCode
+ */
+const getters = {
   getProjectsByRunID: (state: State) => {
     return (runID: string) => {return state.projectObjects[runID]}
   },
@@ -40,3 +43,4 @@ export default {
     })
   }
 }
+export default getters
