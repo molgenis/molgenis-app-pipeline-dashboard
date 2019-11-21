@@ -1,0 +1,6 @@
+{
+  "out": "docs/documentation",
+  "mode": "file",
+  "plugin": "typedoc-external-module-name",
+  "target": "ES6"
+}

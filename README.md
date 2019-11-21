@@ -35,6 +35,16 @@ yarn install
 yarn run serve
 ```
 
+### Running unit tests
+```
+yarn test:unit
+```
+
+### Generating code documentation for typescript files
+```
+yarn typedoc src
+```
+
 ### Data context
 ![Database model](docs/DatabaseModel.png)
 

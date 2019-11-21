@@ -1,3 +1,5 @@
+const TypeDocWebpackPlugin = require('typedoc-webpack-plugin')
+
 module.exports = {
   module: {
     rules: [
@@ -10,5 +12,16 @@ module.exports = {
         ]
       }
     ]
-  }
+  },
+  plugins: [
+    new TypeDocWebpackPlugin({
+      out: './docs/documentation',
+      module: 'commonjs',
+      target: 'es6',
+      exclude: '**/node_modules/**/*.*',
+      experimentalDecorators: true,
+      excludeExternals: false,
+      plugin: 'typedoc-plugin-external-module-name'
+    }, './src')
+  ]
 }

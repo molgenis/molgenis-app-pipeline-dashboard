@@ -46,6 +46,9 @@
     "jest-fetch-mock": "^2.1.2",
     "node-fetch": "^2.6.0",
     "ts-jest": "^23.0.0",
+    "typedoc": "^0.15.2",
+    "typedoc-plugin-external-module-name": "^2.1.0",
+    "typedoc-webpack-plugin": "^1.1.4",
     "typescript": "^3.4.3",
     "vue-template-compiler": "^2.6.10"
   },

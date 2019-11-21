@@ -1,5 +1,10 @@
-import {RawDataObject, projectDataObject, RunDataObject, ProjectObject, Job, Run} from '@/types/dataTypes'
-import { Serie } from '@/types/graphTypes';
+/**
+ * @module store
+ */
+
+import { projectDataObject, RunDataObject, ProjectObject, Job, Run} from '@/types/dataTypes'
+import { Serie } from '@/types/graphTypes'
+
 export type State = {
   runs: RunDataObject[]
   projects: projectDataObject[]

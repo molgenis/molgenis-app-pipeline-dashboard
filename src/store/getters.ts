@@ -1,4 +1,8 @@
-import { State } from './state';
+/**
+ * @module store
+ */
+
+import { State } from '@/store/state';
 import { Job, ProjectObject, Run, statusCode } from '@/types/dataTypes';
 
 export default {
