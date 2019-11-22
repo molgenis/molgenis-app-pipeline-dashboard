@@ -1,7 +1,7 @@
 import mutations from '@/store/mutations'
 import { Run, RunDataObject, projectDataObject, Job, ProjectObject} from '@/types/dataTypes';
 import { State } from '@/store/state';
-import { Serie } from '@/types/graphTypes';
+import { Serie, IdentifiedSerie } from '@/types/graphTypes';
 
 let state: State
 
@@ -34,7 +34,10 @@ beforeEach(() => {
     jobsLoaded: false,
     checkedCommentStatus: false,
     CommentUpdatedStatus: false,
-    CommentNetworkError: false
+    CommentNetworkError: false,
+    rawDataConverted: false,
+    projectObjects: {},
+    runObjects: []
   }
 })
 
@@ -151,12 +154,12 @@ describe('Setters wihtout logic', () => {
   })
 
   test('setMachineRuntimes', () => {
-    const machineRuntimes: Record<string, Serie[]> = {"test-machine": [new Serie('other', [1,2,3])]}
+    const machineRuntimes: Record<string, IdentifiedSerie[]> = {"test-machine": [new IdentifiedSerie('other', [{projectID: 'test', number: 22}, {projectID: 'test2', number: 23}])]}
     
     mutations.setMachineRuntimes(state, machineRuntimes)
 
     expect(state.machineRuntimes).toHaveProperty("test-machine")
-    expect(state.machineRuntimes["test-machine"]).toContainEqual(new Serie('other', [1,2,3]))
+    expect(state.machineRuntimes["test-machine"]).toContainEqual(new IdentifiedSerie('other', [{projectID: 'test', number: 22}, {projectID: 'test2', number: 23}]))
   })
 
   test('setMachineSampleCounts', () => {
