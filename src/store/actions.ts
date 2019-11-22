@@ -145,29 +145,45 @@ async function getMachineData ({ commit, state: {pipelineTypes, timingTable} }: 
         if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
           machineSeriesGrouped[pipelineType] = [] as IdentifiedSerie[]
         }
-        let max = 0
+        
         let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
-        api.get(`/api/v2/${timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+        await api.get(`/api/v2/${timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
           .then(function (response: { items: Object[] }) {
             if (response.items.length > 0) {
 
               let seriesData = Array.from(response.items.reverse(), (x:any) => { return { projectID: x.project, number: x.total_hours} })
-              const addedLength = range - seriesData.length
-              max = max > addedLength ? max : addedLength
-              const nullFilledArray = new Array(addedLength).fill({projectID: null, number: null})
-              let reversedSeriesData = [...nullFilledArray, ...seriesData]
-              machineSeriesGrouped[pipelineType].push(new IdentifiedSerie(machine, reversedSeriesData))
+              
+              machineSeriesGrouped[pipelineType].push(new IdentifiedSerie(machine, seriesData))
             }
           })
           .catch(function (error: any) {
             reject(error)
           })
+          machineSeriesGrouped[pipelineType] = fillToEqualLenghts(machineSeriesGrouped[pipelineType])
       })
     })
     commit('setMachineRuntimes', machineSeriesGrouped)
 
     resolve()
 })
+}
+function max(n1:number, n2:number): number {
+  return n1 > n2 ? n1 : n2
+}
+function findMax(seriesArray: IdentifiedSerie[], length: number): number {
+  if (length === 1) {
+    return seriesArray[0].getLenght()
+  }
+    return max(findMax(seriesArray, length - 1), seriesArray[length - 1].getLenght() )
+  }
+
+function fillToEqualLenghts(groupedData: IdentifiedSerie[]) {
+    const maximum = findMax(groupedData, groupedData.length)
+    const newSeries = groupedData.map((series) => {
+      const nullFilledArray = new Array(maximum - series.getLenght()).fill({projectID: null, number: null})
+      return series.getLenght() < maximum ? new IdentifiedSerie(name, [...nullFilledArray, ...series.combinedData]) : series
+    })
+  return newSeries
 }
 
 /**

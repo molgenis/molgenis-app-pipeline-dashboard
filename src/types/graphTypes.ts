@@ -129,11 +129,19 @@ export class Serie {
   }
 }
 
+/**
+ * A graph data series with a project identifier added
+ */
 export class IdentifiedSerie extends Serie {
   projectIDs: string[]
+  combinedData: {projectID: string, number: number}[]
   constructor(dataID: string, IdentifiedNumbers: {projectID: string, number: number}[]){
     super(dataID, Array.from(IdentifiedNumbers, (x) => {return x.number}))
     this.projectIDs = Array.from(IdentifiedNumbers, (x) => {return x.projectID})
+    this.combinedData = IdentifiedNumbers
+  }
+  getLenght(): number {
+    return this.data.length
   }
 }
 
