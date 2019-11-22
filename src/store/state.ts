@@ -3,8 +3,7 @@
  */
 
 import { projectDataObject, RunDataObject, ProjectObject, Job, Run} from '@/types/dataTypes'
-import { Serie } from '@/types/graphTypes'
-
+import { Serie, IdentifiedSerie } from '@/types/graphTypes';
 export type State = {
   runs: RunDataObject[]
   projects: projectDataObject[]
@@ -17,7 +16,7 @@ export type State = {
   pipelineTypes: string[]
   statistics: Serie[]
   statisticsEmpty: boolean
-  machineRuntimes: Record<string,Serie[]>
+  machineRuntimes: Record<string,IdentifiedSerie[]>
   machineSampleCounts: Record<string, number[]>
   sequencerStatisticsSeries: number[]
   sequencerStatisticsLabels: string[]

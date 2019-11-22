@@ -129,6 +129,14 @@ export class Serie {
   }
 }
 
+export class IdentifiedSerie extends Serie {
+  projectIDs: string[]
+  constructor(dataID: string, IdentifiedNumbers: {projectID: string, number: number}[]){
+    super(dataID, Array.from(IdentifiedNumbers, (x) => {return x.number}))
+    this.projectIDs = Array.from(IdentifiedNumbers, (x) => {return x.projectID})
+  }
+}
+
 /**
  * Outlier position object
  */

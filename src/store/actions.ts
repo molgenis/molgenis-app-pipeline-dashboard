@@ -4,7 +4,7 @@
 
 import { State } from '@/store/state'
 import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
-import { Serie } from '@/types/graphTypes'
+import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
@@ -18,6 +18,7 @@ import { countJobStatus, countProjectFinishedCopying, getProjectDataStatus } fro
  * [[getJobData]],
  * [[convertRawData]]
  * @event
+ * @category TrackAndTrace
  * @return {Promise<void>}
  */
 function getTrackerData ({ dispatch }: { dispatch: any }): Promise<void> {
@@ -36,6 +37,7 @@ function getTrackerData ({ dispatch }: { dispatch: any }): Promise<void> {
   /**
  * retrieves run data from overview table and commits changes to state
  * See [[getTrackerData]]
+ * @category TrackAndTrace
  * @return {Promise<void>}
  */
 async function getRunData({ commit, state }: {commit: any, state: State}): Promise<void> {
@@ -57,6 +59,7 @@ async function getRunData({ commit, state }: {commit: any, state: State}): Promi
 /**
  * retrieves project data from projects table and commits changes to state
  * See [[getTrackerData]]
+ * @category TrackAndTrace
  * @return {Promise<void>}
  */
 async function getProjectData({ commit, state }: {commit: any, state: State}): Promise<void> {
@@ -78,6 +81,7 @@ async function getProjectData({ commit, state }: {commit: any, state: State}): P
 /**
  * retrieves jobs data from job table and commits changes to state
  * See [[getTrackerData]]
+ * @category TrackAndTrace
  * @returns {Promise<void>}
  */
 async function getJobData({ commit, state }: {commit: any, state: State}): Promise<void> {
@@ -100,24 +104,22 @@ async function getJobData({ commit, state }: {commit: any, state: State}): Promi
  * retrieves the runtime data for each given machine from database and commits changes to state
  * @param machines - array of machine id's
  * @param range - number of responses to get
+ * @category Runtime
  * @return Promise: resolve when sucessful, reject when not
  */
 async function getMachineData ({ commit, state }: { commit: any, state: State }, { machines, range }: { machines: string[], range: number }): Promise<void> {
   return new Promise((resolve, reject) => {
-    let sampleCounts: Record<string, number[]> = {}
-    let machineSeriesGrouped: Record<string, Serie[]> = {}
-
+    let machineSeriesGrouped: Record<string, IdentifiedSerie[]> = {}
     machines.forEach(async (machine: string) => {
       state.pipelineTypes.forEach(async (pipelineType: string) => {
         if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
-          machineSeriesGrouped[pipelineType] = [] as Serie[]
+          machineSeriesGrouped[pipelineType] = [] as IdentifiedSerie[]
         }
         let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
         api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
           .then(function (response: { items: Object[] }) {
             if (response.items.length > 0) {
-              machineSeriesGrouped[pipelineType].push(new Serie(machine, Array.from(response.items, (x:any) => { return x.total_hours })))
-              sampleCounts[machine] = Array.from(response.items, (x: any) => x.numberofSamples as number).reverse()
+              machineSeriesGrouped[pipelineType].push(new IdentifiedSerie(machine, Array.from(response.items, (x:any) => { return { projectID: x.project, number: x.total_hours} })))
             }
           })
           .catch(function (error: any) {
@@ -126,7 +128,7 @@ async function getMachineData ({ commit, state }: { commit: any, state: State },
       })
     })
     commit('setMachineRuntimes', machineSeriesGrouped)
-    commit('setMachineSampleCounts', sampleCounts)
+
     resolve()
 })
 }
@@ -134,6 +136,7 @@ async function getMachineData ({ commit, state }: { commit: any, state: State },
 /**
  * retrieves pipeline data from timing table and commits changes to state
  * @param range - number of records to retrieve
+ * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
 async function getPipelineData ({ commit, state }: { commit:any, state: State }, range: number): Promise<void> {
@@ -155,6 +158,7 @@ async function getPipelineData ({ commit, state }: { commit:any, state: State },
 
 /**
  * retrieves sequencer statistics information from sample table
+ * @category Statistics
  */
 async function getSequencerStatistics ({ commit, state }: { commit: any, state: State }): Promise<void> {
   api.get(`/api/v2/${state.sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
@@ -175,6 +179,7 @@ async function getSequencerStatistics ({ commit, state }: { commit: any, state: 
  * See [[getPipelineData]]
  * @param  range - amount of results to get
  * @event
+ * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
 async function getTimingData ({ dispatch, state }: { dispatch: any, state: State }, range: number): Promise<void> {
@@ -197,6 +202,7 @@ async function getTimingData ({ dispatch, state }: { dispatch: any, state: State
  * retrieves sample counts within the given range
  * @typeparam [string, string] range [startdate, enddate]
  * @param range - array of length 2 whet startdate, and enddate
+ * @category Statistics
  * @return Promise with number when resolved
  */
 async function getSamplesInDateRange ({ state }: { state: State }, range: [string, string]): Promise<number> {
@@ -213,6 +219,7 @@ async function getSamplesInDateRange ({ state }: { state: State }, range: [strin
 /**
  * retrieves sample numbers for the ranges; yearly, monthly, weekly, daily
  * See [[getSamplesInDateRange]]
+ * @category Statistics
  * @return Promise
  */
 async function getSampleNumbers ({ commit, state }:{ commit: any, state: State }): Promise<void> {
@@ -230,6 +237,8 @@ async function getSampleNumbers ({ commit, state }:{ commit: any, state: State }
 
 /**
  * retrieves sample counts for the last year
+ * @param __namedParameters - Object
+ * @category Statistics
  */
 async function getLastYearSampleSequencedNumbers ({ commit, state }: { commit: any, state: State }): Promise<void> {
   const Now = new Date()
@@ -249,6 +258,7 @@ async function getLastYearSampleSequencedNumbers ({ commit, state }: { commit: a
 /**
  * retrieves comments for the given project
  * @param project - project to get comment for 
+ * @category TrackAndTrace
  * @return Promise
  */
 async function getProjectComment ({ state }: { state: State }, project: string): Promise<any> {
@@ -258,6 +268,7 @@ async function getProjectComment ({ state }: { state: State }, project: string):
  * pushes a new comment to database for the given project
  * @typeparam payload {project: project ID, comment: comment-content}
  * @param payload - project id with the new comment
+ * @category TrackAndTrace
  */
 async function updateProjectComment ({ state }: { state: State }, { project, comment }: { project: string, comment: string }): Promise<void> {
   return api.put(`/api/v1/${state.projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
@@ -267,6 +278,7 @@ async function updateProjectComment ({ state }: { state: State }, { project, com
  * See [[checkForCommentUpdates]]
  * @typeparam payload {project: project ID, oldComment: local comment, newComment: updated comment content, validation: validated ? true : false}
  * @param payload - Submit data containing project id, old comment, the updated comment and if its been validated locally
+ * @category TrackAndTrace
  * @return Promise when sucessful
  */
 async function handleCommentSubmit ({ dispatch }: { dispatch: any, commit: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }): Promise<string> {
@@ -284,6 +296,7 @@ async function handleCommentSubmit ({ dispatch }: { dispatch: any, commit: any }
  * See [[updateProjectComment]]
  * @typeparam payload {project: project ID, oldComment: local comment, newComment: updated comment content}
  * @param payload - project id, old comment, locally updated comment
+ * @category TrackAndTrace
  * @returns Promise, resolves when sucessful
  */
 async function checkForCommentUpdates({ dispatch, state }: { dispatch: any, state: State }, {project, oldComment, newComment}: { project: string, oldComment: string, newComment: string }): Promise<string> {
@@ -308,6 +321,7 @@ async function checkForCommentUpdates({ dispatch, state }: { dispatch: any, stat
 /**
  * Converts raw data from database to data objects usable by the application
  * See [[getTrackerData]]
+ * @category TrackAndTrace
  * @return Promise: resolves always, when done
  */
 async function convertRawData({ dispatch, commit, getters }: { dispatch: any, commit: any, getters: any }) {
@@ -324,6 +338,7 @@ async function convertRawData({ dispatch, commit, getters }: { dispatch: any, co
 /**
  * converts raw project data to ProjectObjects and commits them to state
  * See [[convertRawData]]
+ * @category TrackAndTrace
  * @return Promise: resolves always, when done
  */
 async function convertProjects({ commit, state, getters }: { commit: any, state: State, getters: any}) {
@@ -346,6 +361,7 @@ async function convertProjects({ commit, state, getters }: { commit: any, state:
 /**
  * converts raw run data from overview table to Run objects and commits them to state
  * See [[convertRawData]]
+ * @category TrackAndTrace
  * @return Promise: resolves always, when done
  */
 async function constructRunObjects({ commit, state, getters }: { commit: any, state: State, getters: any}) {

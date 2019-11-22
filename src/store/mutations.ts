@@ -4,7 +4,7 @@
 
 import { State } from '@/store/state';
 import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes';
-import { Serie } from '@/types/graphTypes';
+import { Serie, IdentifiedSerie } from '@/types/graphTypes';
 
 /**
  * commits raw run table data to store
@@ -52,7 +52,7 @@ function setPipelineData(state: State, statistics: Serie[]) {
  * @param state - application context
  * @param series - runtimes for each machine
  */
-function setMachineRuntimes(state: State, series: Record<string, Serie[]>) {
+function setMachineRuntimes(state: State, series: Record<string, IdentifiedSerie[]>) {
   state.machineRuntimes = series
 }
 /**

@@ -24,7 +24,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
-import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier } from '@/types/graphTypes'
+import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier, IdentifiedSerie } from '@/types/graphTypes'
 import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
 import { getSD, calculateMean } from '@/helpers/statistics'
 import { cropTitle } from '@/helpers/utils'
@@ -70,7 +70,8 @@ export default Vue.extend({
      * @returns {chartOptions}
      */
     chartOptions (): ChartOptions {
-      const sampleCounts = this.machineSampleCounts
+      const runTimes = this.machineRuntimes
+      const pipelineType = this.selectedSubStatistic
       let title = ''
       if (this.selectedStatistic === 'cluster') {
         title = `${this.selectedSubStatistic} runtime trends by ${this.selectedStatistic}`
@@ -125,16 +126,13 @@ export default Vue.extend({
         tooltip: {
           y: {
           
-          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w }: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineSampleCounts: Record<string, number[]> = sampleCounts) {
-            return `${value} (hr), ${machineSampleCounts[Object.keys(machineSampleCounts)[seriesIndex]][dataPointIndex]} (samples)`
+          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w }: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineRuntimes: Record<string, IdentifiedSerie[]> = runTimes) {
+            return `${value} (hr), ${machineRuntimes[pipelineType][seriesIndex].projectIDs[dataPointIndex]}`
           }
   }
         },
         annotations: {} as GraphAnnotation
       }
-    },
-    machineSampleCounts () {
-      return this.machineSampleCounts
     },
     computedSeries (): Serie[] | null{
       switch (this.selectedStatistic) {
@@ -147,7 +145,6 @@ export default Vue.extend({
       }
     },
     ...mapState([
-      'machineSampleCounts',
       'statistics',
       'pipelineTypes',
       'machineRuntimes'
@@ -160,6 +157,11 @@ export default Vue.extend({
   },
   mounted () {
     this.getTimingData(this.selectedRange)
+  },
+  watch: {
+    selectedRange () {
+      this.getTimingData(this.selectedRange)
+    }
   }
 })
 </script>
