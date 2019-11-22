@@ -9,6 +9,7 @@ import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
 import { countJobStatus, countProjectFinishedCopying, getProjectDataStatus } from '@/helpers/utils';
+import { max } from '@/helpers/statistics';
 
 /**
  * 
@@ -167,9 +168,12 @@ async function getMachineData ({ commit, state: {pipelineTypes, timingTable} }: 
     resolve()
 })
 }
-function max(n1:number, n2:number): number {
-  return n1 > n2 ? n1 : n2
-}
+
+/**
+ * Finds the maximum lenght of a IdentifiedSerie array
+ * @param seriesArray - array of series
+ * @param length - current array lenght
+ */
 function findMax(seriesArray: IdentifiedSerie[], length: number): number {
   if (length === 1) {
     return seriesArray[0].getLenght()
