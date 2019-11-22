@@ -1,4 +1,5 @@
 import {ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment, RunTimeStatistic, statusCode, parseStatus} from '@/types/dataTypes'
+
 describe('parseStatus', () => {
   function randomCapitalization (word: string): string {
     return word.split('').map(function(character: string) {
@@ -45,17 +46,15 @@ describe('parseStatus', () => {
 
 describe('Run', () => {
   const runId = 'testID'
-  const projectArray: ProjectObject[] = []
   const demultiplexing = 'finished'
   const RawCopyState = 'started'
   const lenght = 0
   const error = false
   const resultCopyState = 0
-  const run = new Run(runId, projectArray, demultiplexing, RawCopyState, lenght, error, resultCopyState)
+  const run = new Run(runId, demultiplexing, RawCopyState, lenght, error, resultCopyState)
   
   test('run gets constructed correctly', () => {
     expect(run.run_id === runId).toBeTruthy()
-    expect(run.projects === projectArray).toBeTruthy()
     expect(run.demultiplexing === demultiplexing).toBeTruthy()
     expect(run.rawCopy === RawCopyState).toBeTruthy()
     expect(run.len === lenght).toBeTruthy()
