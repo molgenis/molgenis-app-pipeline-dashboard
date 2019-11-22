@@ -2,7 +2,7 @@
  * @module store
  */
 
-import { State } from '@/store/state'
+import state, { State } from '@/store/state'
 import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 // @ts-ignore
@@ -13,11 +13,17 @@ import { countJobStatus, countProjectFinishedCopying, getProjectDataStatus } fro
 /**
  * 
  * Calls all actions that recieves and converts Track and trace data
- * See [[getRunData]],
- * [[getProjectData]],
- * [[getJobData]],
- * [[convertRawData]]
+ *  
+ * Waits for each table to load,  then converts to usable objects
+ * 
+ * See: 
+ * * [[getRunData]]
+ * * [[getProjectData]]
+ * * [[getJobData]]
+ * * [[convertRawData]]
  * @event
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.dispatch - call to mutations
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
@@ -35,14 +41,22 @@ function getTrackerData ({ dispatch }: { dispatch: any }): Promise<void> {
 }
 
   /**
- * retrieves run data from overview table and commits changes to state
+ * Retrieves run data from overview table and commits changes to state
+ * 
+ * Waits for response then calls mutation to update state: [[setRuns]]
+ * 
  * See [[getTrackerData]]
+ * 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - call to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.overviewTable - run table api identifier
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getRunData({ commit, state }: {commit: any, state: State}): Promise<void> {
+async function getRunData({ commit, state: {overviewTable} }: {commit: any, state: State}): Promise<void> {
   return new Promise((resolve, reject) => {
-  api.get(`/api/v2/${state.overviewTable}?num=10000`)
+  api.get(`/api/v2/${overviewTable}?num=10000`)
     .then(function (response: {items: RunDataObject[]}) {
       const tableContent = response.items
       if (tableContent.length > 0) {
@@ -59,6 +73,9 @@ async function getRunData({ commit, state }: {commit: any, state: State}): Promi
 /**
  * retrieves project data from projects table and commits changes to state
  * See [[getTrackerData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - call to mutations
+ * @param __namedParameters.state - application state
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
@@ -80,13 +97,18 @@ async function getProjectData({ commit, state }: {commit: any, state: State}): P
 
 /**
  * retrieves jobs data from job table and commits changes to state
+ * 
  * See [[getTrackerData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - call to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.jobTable - job table api identifier
  * @category TrackAndTrace
  * @returns {Promise<void>}
  */
-async function getJobData({ commit, state }: {commit: any, state: State}): Promise<void> {
+async function getJobData({ commit, state: {jobTable} }: {commit: any, state: State}): Promise<void> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${state.jobTable}?num=10000`)
+    api.get(`/api/v2/${jobTable}?num=10000`)
     .then(function (response: {items: Job[]}) {
       const tableContent = response.items
       if (tableContent.length > 0) {
@@ -102,24 +124,39 @@ async function getJobData({ commit, state }: {commit: any, state: State}): Promi
 
 /**
  * retrieves the runtime data for each given machine from database and commits changes to state
- * @param machines - array of machine id's
+ * @param __namedParameters0 - vuex instance
+ * @param __namedParameters0.commit - call to mutations
+ * @param __namedParameters0.state - application state
+ * @param __namedParameters0.state.pipelineTypes - available piplinetypes from configuration
+ * @param __namedParameters0.state.timingTable - timing table api identifier
+ * @param __namedParameters1 - function input
+ * @param __namedParameters1.machines - array of machine id's
+ * @param __namedParameters1.range - number of records to get
  * @param range - number of responses to get
+ * @requires IdentifiedSerie from types/graphTypes
  * @category Runtime
  * @return Promise: resolve when sucessful, reject when not
  */
-async function getMachineData ({ commit, state }: { commit: any, state: State }, { machines, range }: { machines: string[], range: number }): Promise<void> {
+async function getMachineData ({ commit, state: {pipelineTypes, timingTable} }: { commit: any, state: State}, { machines, range }: { machines: string[], range: number }): Promise<void> {
   return new Promise((resolve, reject) => {
     let machineSeriesGrouped: Record<string, IdentifiedSerie[]> = {}
     machines.forEach(async (machine: string) => {
-      state.pipelineTypes.forEach(async (pipelineType: string) => {
+      pipelineTypes.forEach(async (pipelineType: string) => {
         if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
           machineSeriesGrouped[pipelineType] = [] as IdentifiedSerie[]
         }
+        let max = 0
         let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
-        api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+        api.get(`/api/v2/${timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
           .then(function (response: { items: Object[] }) {
             if (response.items.length > 0) {
-              machineSeriesGrouped[pipelineType].push(new IdentifiedSerie(machine, Array.from(response.items, (x:any) => { return { projectID: x.project, number: x.total_hours} })))
+
+              let seriesData = Array.from(response.items.reverse(), (x:any) => { return { projectID: x.project, number: x.total_hours} })
+              const addedLength = range - seriesData.length
+              max = max > addedLength ? max : addedLength
+              const nullFilledArray = new Array(addedLength).fill({projectID: null, number: null})
+              let reversedSeriesData = [...nullFilledArray, ...seriesData]
+              machineSeriesGrouped[pipelineType].push(new IdentifiedSerie(machine, reversedSeriesData))
             }
           })
           .catch(function (error: any) {
@@ -135,16 +172,24 @@ async function getMachineData ({ commit, state }: { commit: any, state: State },
 
 /**
  * retrieves pipeline data from timing table and commits changes to state
+ * 
+ * When data is recieved saves it to state by calling mutation [[setPipelineData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.pipelineTypes - available pipeline types from configuration
+ * @param __namedParameters.state.timingTable - timing table identifier for api
  * @param range - number of records to retrieve
+ * @requires Serie from types/graphTypes
  * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
-async function getPipelineData ({ commit, state }: { commit:any, state: State }, range: number): Promise<void> {
+async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } }: { commit:any, state: State }, range: number): Promise<void> {
   let pipelineSeries: Serie[] = []
 
-  state.pipelineTypes.map(async (pipelineType: string) => {
+  pipelineTypes.map(async (pipelineType: string) => {
     let query = `project=like=${pipelineType};total_hours=gt=0`
-    api.get(`/api/v2/${state.timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
+    api.get(`/api/v2/${timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
       .then(function (response: {items: Object[]}) {
         const ResponseData = response.items
         pipelineSeries.push(new Serie(pipelineType, Array.from(ResponseData, (x: any) => Math.round(x.pipelineDuration / 60)).reverse()))
@@ -158,10 +203,16 @@ async function getPipelineData ({ commit, state }: { commit:any, state: State },
 
 /**
  * retrieves sequencer statistics information from sample table
+ * 
+ * when data is retrieved saves the series & labels to state by calling [[setSequencerStatisticsSeries]] & [[setSequencerStatisticsLabels]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.sampleTable - sample table identifier for api
  * @category Statistics
  */
-async function getSequencerStatistics ({ commit, state }: { commit: any, state: State }): Promise<void> {
-  api.get(`/api/v2/${state.sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
+async function getSequencerStatistics ({ commit, state: {sampleTable} }: { commit: any, state: State }): Promise<void> {
+  api.get(`/api/v2/${sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
     .then(function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
       const Aggregates = response.aggs
       commit('setSequencerStatisticsSeries', Array.from(Aggregates.matrix, (x: number[]) => x[0]))
@@ -175,16 +226,22 @@ async function getSequencerStatistics ({ commit, state }: { commit: any, state: 
 
 /**
  * retrieves the timing information from timing table for each unique machine
- * See [[getMachineData]]
- * See [[getPipelineData]]
+ * 
+ * See:
+ * * [[getMachineData]]
+ * * [[getPipelineData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.dispatch - calls to actions
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.timingTable - timing table identifier for api
  * @param  range - amount of results to get
  * @event
  * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
-async function getTimingData ({ dispatch, state }: { dispatch: any, state: State }, range: number): Promise<void> {
+async function getTimingData ({ dispatch, state: {timingTable} }: { dispatch: any, state: State }, range: number): Promise<void> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${state.timingTable}?aggs=x==machine;distinct==unique_id`)
+    api.get(`/api/v2/${timingTable}?aggs=x==machine;distinct==unique_id`)
       .then(async function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
         let machines = response.aggs.xLabels as string[]
         machines = machines.filter((x) => { return x !== null }).sort()
@@ -201,13 +258,16 @@ async function getTimingData ({ dispatch, state }: { dispatch: any, state: State
 /**
  * retrieves sample counts within the given range
  * @typeparam [string, string] range [startdate, enddate]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.sampleTable - sample table identifier for api
  * @param range - array of length 2 whet startdate, and enddate
  * @category Statistics
  * @return Promise with number when resolved
  */
-async function getSamplesInDateRange ({ state }: { state: State }, range: [string, string]): Promise<number> {
+async function getSamplesInDateRange ({ state: {sampleTable} }: { dispatch: any, state: State }, range: [string, string]): Promise<number> {
   const query = `sequencingStartDate=rng=(${range[0]}, ${range[1]})`
-  return api.get(`/api/v2/${state.sampleTable}?q=${query}&num=1`)
+  return api.get(`/api/v2/${sampleTable}?q=${query}&num=1`)
     .then(function (response: any) {
       const responseJson = response.json()
       return responseJson.total
@@ -218,33 +278,54 @@ async function getSamplesInDateRange ({ state }: { state: State }, range: [strin
 
 /**
  * retrieves sample numbers for the ranges; yearly, monthly, weekly, daily
- * See [[getSamplesInDateRange]]
+ * 
+ * See:
+ * * [[getSamplesInDateRange]]
+ * * [[setYearlySampleCount]]
+ * * [[setMonthlySampleCount]]
+ * * [[setWeeklySampleCount]]
+ * * [[setDailySampleCount]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.dispatch - calls to actions
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.sampleTable - sample table identifier for api
+ * @requires createDateRange from helpers/dates
+ * @requires dayMs from helpers/dates
  * @category Statistics
  * @return Promise
  */
-async function getSampleNumbers ({ commit, state }:{ commit: any, state: State }): Promise<void> {
-  api.get(`/api/v2/${state.sampleTable}?num=1`)
+async function getSampleNumbers ({ dispatch, commit, state: {sampleTable} }:{ dispatch: any, commit: any, state: State }): Promise<void> {
+  api.get(`/api/v2/${sampleTable}?num=1`)
     .then(function (response: any) {
       commit('setTotalSamples', response.json().total)
     })
   const now = new Date()
 
-  getSamplesInDateRange({ state: state }, createDateRange(new Date(now.getTime() - (356 * dayMs)), now)).then(function (response: number) { commit('setYearlySampleCounts', response) })
-  getSamplesInDateRange({ state: state }, createDateRange(new Date(now.getTime() - (31 * dayMs)), now)).then(function (response: number) { commit('setMonthlySampleCounts', response) })
-  getSamplesInDateRange({ state: state }, createDateRange(new Date(now.getTime() - (7 * dayMs)), now)).then(function (response: number) { commit('setWeeklySampleCounts', response) })
-  getSamplesInDateRange({ state: state }, createDateRange(new Date(now.getTime() - (dayMs)), now)).then(function (response: number) { commit('setDailySampleCounts', response) })
+  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (356 * dayMs)), now)).then(function (response: number) { commit('setYearlySampleCounts', response) }) // yearly
+  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (31 * dayMs)), now)).then(function (response: number) { commit('setMonthlySampleCounts', response) }) //monthly
+  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (7 * dayMs)), now)).then(function (response: number) { commit('setWeeklySampleCounts', response) }) // weekly
+  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (dayMs)), now)).then(function (response: number) { commit('setDailySampleCounts', response) }) //daily
 }
 
 /**
  * retrieves sample counts for the last year
- * @param __namedParameters - Object
+ * 
+ * gets sample sequenced counts from last year, then saves them to state [[setSequencedSampleNumbers]]
+ * 
+ * Uses [[formatDate]] to create a date string that complies with api
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.sampleTable - sample table identifier for api
+ * @requires formatDate from helpers/dates
  * @category Statistics
  */
-async function getLastYearSampleSequencedNumbers ({ commit, state }: { commit: any, state: State }): Promise<void> {
+async function getLastYearSampleSequencedNumbers ({ commit, state: {sampleTable} }: { commit: any, state: State }): Promise<void> {
   const Now = new Date()
   const lastYear = formatDate(new Date(Now.getTime() - (375 * dayMs)))
 
-  api.get(`/api/v2/${state.sampleTable}?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=${lastYear}`)
+  api.get(`/api/v2/${sampleTable}?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=${lastYear}`)
     .then(function (result: any) {
       let resultedData = { counts: [] as number[], labels: [] as string[] }
       resultedData.counts = Array.from(result.aggs.matrix, (nestedNumber: number[]) => nestedNumber[0])
@@ -257,31 +338,44 @@ async function getLastYearSampleSequencedNumbers ({ commit, state }: { commit: a
 }
 /**
  * retrieves comments for the given project
- * @param project - project to get comment for 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.projectsTable - projects table identifier for api
+ * @param project - project id
  * @category TrackAndTrace
- * @return Promise
+ * @return Promise with comment data
  */
-async function getProjectComment ({ state }: { state: State }, project: string): Promise<any> {
-  return api.get(`/api/v1/${state.projectsTable}/${project}/comment`)
+async function getProjectComment ({ state: {projectsTable} }: { state: State }, project: string): Promise<string> {
+  return api.get(`/api/v1/${projectsTable}/${project}/comment`)
 }
 /**
  * pushes a new comment to database for the given project
- * @typeparam payload {project: project ID, comment: comment-content}
- * @param payload - project id with the new comment
+ * @param __namedParameters0 - vuex instance
+ * @param __namedParameters0.state - application state
+ * @param __namedParameters0.state.projectsTable - projects table identifier for api
+ * @param __namedParameters1 - function arguments
+ * @param __namedParameters1.project - project id
+ * @param __namedParameters1.comment - new comment content
  * @category TrackAndTrace
  */
-async function updateProjectComment ({ state }: { state: State }, { project, comment }: { project: string, comment: string }): Promise<void> {
-  return api.put(`/api/v1/${state.projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
+async function updateProjectComment ({ state: {projectsTable} }: { state: State }, { project, comment }: { project: string, comment: string }): Promise<void> {
+  return api.put(`/api/v1/${projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
 }
 /**
  * handles new comment submit from user
- * See [[checkForCommentUpdates]]
- * @typeparam payload {project: project ID, oldComment: local comment, newComment: updated comment content, validation: validated ? true : false}
- * @param payload - Submit data containing project id, old comment, the updated comment and if its been validated locally
+ * 
+ * If comment has been validated, checks for updates in the database [[checkForCommentUpdates]]
+ * 
+ * @param __namedParameters0 - vuex instance
+ * @param __namedParameters0.dispatch - calls to actions
+ * @param __namedParameters1.project - project id
+ * @param __namedParameters1.oldComment - locally stored comment
+ * @param __namedParameters1.newComment - comment user wants to change it to
+ * @param __namedParameters1.validation - if the comment was validated by the form
  * @category TrackAndTrace
- * @return Promise when sucessful
+ * @return Promise with message
  */
-async function handleCommentSubmit ({ dispatch }: { dispatch: any, commit: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }): Promise<string> {
+async function handleCommentSubmit ({ dispatch }: { dispatch: any }, { project, oldComment, newComment, validation}: {project: string, oldComment: string, newComment: string, validation: boolean }): Promise<string> {
   return new Promise((resolve, reject) => {
     if (validation) {
       dispatch('checkForCommentUpdates', { project: project, oldComment: oldComment, newComment: newComment }).then((resolveMessage: string) => { resolve(resolveMessage) }, (reason: string) => { reject(reason) })
@@ -293,15 +387,23 @@ async function handleCommentSubmit ({ dispatch }: { dispatch: any, commit: any }
 
 /**
  * Queries database to check if the new comment was not updated by another user
+ * 
+ * If the comment is not updated in the database, new comment is pushed by calling [[updateProjectComment]]
+ * 
  * See [[updateProjectComment]]
- * @typeparam payload {project: project ID, oldComment: local comment, newComment: updated comment content}
- * @param payload - project id, old comment, locally updated comment
+ * @param __namedParameters0 - vuex instance
+ * @param __namedParameters0.dispatch - calls to actions
+ * @param __namedParameters0.state - application state
+ * @param __namedParameters.state.projectsTable - projects table identifier for api
+ * @param __namedParameters1 - function parameters
+ * @param __namedParameters1.project - project id
+ * @param __namedParameters1.oldComment - locally stored comment
+ * @param __namedParameters1.newComment - comment content user wants to change
  * @category TrackAndTrace
- * @returns Promise, resolves when sucessful
  */
-async function checkForCommentUpdates({ dispatch, state }: { dispatch: any, state: State }, {project, oldComment, newComment}: { project: string, oldComment: string, newComment: string }): Promise<string> {
+async function checkForCommentUpdates({ dispatch, state: {projectsTable} }: { dispatch: any, state: State }, {project, oldComment, newComment}: { project: string, oldComment: string, newComment: string }): Promise<string> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v1/${state.projectsTable}/${project}/comment`)
+    api.get(`/api/v1/${projectsTable}/${project}/comment`)
     .then((result: { href: string, comment: string }) => {
       console.log(result.comment, oldComment, newComment)
       if (!result.comment || result.comment === oldComment) {
@@ -320,15 +422,23 @@ async function checkForCommentUpdates({ dispatch, state }: { dispatch: any, stat
 
 /**
  * Converts raw data from database to data objects usable by the application
+ * 
+ * First converts projects by calling [[convertProjects]] then converts raw runs by calling [[constructRunObjects]] and finally updates finished status of runs [[updateFinishedRuns]]
+ * 
  * See [[getTrackerData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.dispatch - calls to actions
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.getters - state getters
+ * @param __namedParameters.getters.getFinishedRuns - string array with finished runs
  * @category TrackAndTrace
- * @return Promise: resolves always, when done
+ * @return Promise: always resolves
  */
-async function convertRawData({ dispatch, commit, getters }: { dispatch: any, commit: any, getters: any }) {
+async function convertRawData({ dispatch, commit, getters: {getFinishedRuns} }: { dispatch: any, commit: any, getters: any }) {
   return new Promise((resolve) => {
     dispatch('convertProjects').then(() => {
       dispatch('constructRunObjects').then(() => {
-        commit('updateFinishedRuns', getters.getFinishedRuns)
+        commit('updateFinishedRuns', getFinishedRuns)
         resolve()
       })
     })
@@ -336,20 +446,32 @@ async function convertRawData({ dispatch, commit, getters }: { dispatch: any, co
 }
 
 /**
- * converts raw project data to ProjectObjects and commits them to state
+ * Converts [[projectDataObject]] array in the store to [[ProjectObject]] Array and calls mutation [[setProjectObjects]]
+ * 
+ * When calld the raw data objects will be converterd to usable projectObjects. when converstion is complete saves it to the state.
+ * 
  * See [[convertRawData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.projects - raw project objects
+ * @param __namedParameters.getters - state getters
+ * @param __namedParameters.getters.getJobsByProjectID - function that returns Jobs of given projects
+ * @requires ProjectObject from types/dataTypes
+ * @requires projectDataObject from types/dataTypes
+ * @requires Job from types/dataTypes
  * @category TrackAndTrace
- * @return Promise: resolves always, when done
+ * @return Promise, always resolves
  */
-async function convertProjects({ commit, state, getters }: { commit: any, state: State, getters: any}) {
+async function convertProjects({ commit, state: { projects }, getters: { getJobsByProjectID } }: { commit: any, state: State, getters: any}) {
   return new Promise((resolve) => {
     let mappedProjects: Record<string, ProjectObject[]> = {}
-    state.projects.forEach((project: projectDataObject) => {
+    projects.forEach((project: projectDataObject) => {
       const runID = project.run_id
-      if (!(runID in mappedProjects)) {
+      if (!(runID in mappedProjects)) { // if runID doesn't have an entry, make one
         mappedProjects[runID] = [] as ProjectObject[]
       }
-      const projectJobs: Job[] = getters.getJobsByProjectID(project.project)
+      const projectJobs: Job[] = getJobsByProjectID(project.project)
       const status = getProjectDataStatus(project, projectJobs)
       mappedProjects[runID].push(new ProjectObject(project.project, projectJobs, project.pipeline, status, project.copy_results_prm, project.comment))
     })
@@ -359,19 +481,30 @@ async function convertProjects({ commit, state, getters }: { commit: any, state:
 }
 
 /**
- * converts raw run data from overview table to Run objects and commits them to state
+ * converts [[RunDataObject]] from overview table to [[Run]] object array and calls [[setRunObjects]] mutation
+ * 
+ * When conversion of run data is complete, saves them to state
+ * 
  * See [[convertRawData]]
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - calls to mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.runs - raw run objects
+ * @param __namedParameters.getters - state getters
+ * @param __namedParameters.getters.getProjectsByRunID - returns projects belonging to given run
+ * @requires countJobStatus from helpers/utils
+ * @requires Run from types/dataTypes
  * @category TrackAndTrace
- * @return Promise: resolves always, when done
+ * @return Promise: always resolves
  */
-async function constructRunObjects({ commit, state, getters }: { commit: any, state: State, getters: any}) {
+async function constructRunObjects({ commit, state: { runs }, getters: { getProjectsByRunID } }: { commit: any, state: State, getters: any}) {
   return new Promise((resolve) => {
-    const Runs = state.runs.map((run: RunDataObject) => {
-      const projects = getters.getProjectsByRunID(run.run_id)
+    const Runs = runs.map(({run_id, demultiplexing, copy_raw_prm}) => {
+      const projects = getProjectsByRunID(run_id)
       const length = projects.length
       const errors = projects.map((project: ProjectObject) => { return countJobStatus(project.jobs, 'error')})
       const containsErrors = errors.reduce((accumulator: number, currentValue: number) => accumulator + currentValue) >= 1
-      return new Run(run.run_id, run.demultiplexing, run.copy_raw_prm, length, containsErrors, countProjectFinishedCopying(projects))  
+      return new Run(run_id, demultiplexing, copy_raw_prm, length, containsErrors, countProjectFinishedCopying(projects))  
     })
     commit('setRunObjects', Runs)
     resolve()
