@@ -3,13 +3,18 @@
     <b-col class="h-100 w-100">
       <b-container class="h-100 w-100 p-0" fluid>
         <apexchart type="bar" :options="chartOptions" :series="graphSeries"></apexchart>
+        
       </b-container>
+      <div class="TotalCounts d-flex w-100 justify-content-center">
+        <p>{{sumOfSamples}} {{sumOfSamples === 1 ? "Sample" : "Samples"}}</p>
+      </div>
     </b-col>
   </b-row>
 </template>
 
 <script>
-import { formatDate, dateIsLastYear } from '../../helpers/dates'
+import { formatDate, dateIsLastYear } from '@/helpers/dates'
+import { sumArray } from '@/helpers/statistics'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -88,9 +93,14 @@ export default {
   },
   computed: {
     ...mapState([
-      'sequencedSampleNumbers'
+      'sequencedSampleNumbers',
     ]),
-
+    /**
+     * returns the current selected data sum
+     */
+    sumOfSamples () {
+      return sumArray(Object.values(this.selectedData))
+    },
     /**
      * returns the current day/month index
      * @returns {number} timeindex
@@ -316,5 +326,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.TotalCounts {
+  position: absolute; 
+  z-index: 2;
+}
 </style>
