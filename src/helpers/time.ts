@@ -1,3 +1,10 @@
+/**
+ * sets the maximum numbers for a time unit
+ * 
+ * * Hours can be infinitly large
+ * * minutes can't be longer than one hour
+ * * seconds can't be longer than one minute
+ */
 export enum timeUnit {
   hours = Infinity,
   minutes = 60,
@@ -8,6 +15,8 @@ export enum timeUnit {
  * formats a time number to a number in string form with two characters
  * @param {Number} timeNumber - number to format
  * 
+ * @throws Error when time number is not in the correct format
+ * @throws Error when time number is negative
  * @returns {String(2)}
  */
 export function formatTime(timeNumber: number, unit: timeUnit): string {
@@ -18,7 +27,7 @@ export function formatTime(timeNumber: number, unit: timeUnit): string {
     throw new Error('Number is negative')
   }
 
-  return timeNumber < 10 ? '0' + timeNumber.toString() : timeNumber.toString()
+  return timeNumber < 10 ? '0' + timeNumber.toString() : timeNumber.toString() // if single digit return '0' + number
 }
 
 /**
