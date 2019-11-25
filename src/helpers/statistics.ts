@@ -28,10 +28,19 @@ export function calculateMean (numberSeries: number[]): number {
   
   const arrayLenght = numberSeries.length
   if (arrayLenght > 0) {
-    const sum = numberSeries.reduce((total: number, number: number): number => { return total + number})
-    return sum / arrayLenght
+    return sumArray(numberSeries) / arrayLenght
   }
   return 0
+}
+
+/**
+ * Sums up array of numbers
+ * @param array - Array of numbers
+ * 
+ * @return {Number} Sum
+ */
+export function sumArray (array: number[]): number {
+  return array.reduce((total: number, number: number): number => { return total + number})
 }
 
 
