@@ -30,7 +30,7 @@
       <b-tbody>
           <run-status-table-row
             v-for="run in visibleRuns"
-            :variant="selectedRun === run.run ? 'primary' : 'light'"
+            :variant="selectedRun.run_id === run.run ? 'primary' : 'light'"
             :key="run.run"
             :run="run.run"
             :mouseOn="mouseOn === run.run"
@@ -105,7 +105,7 @@ export default Vue.extend({
     },
 
     selectedRun: {
-      type: String,
+      type: Object,
       required: false,
       default: ''
     },
@@ -214,7 +214,7 @@ export default Vue.extend({
      * @returns {void}
      */
     selectedRun: function () {
-      if (this.hidden.includes(this.selectedRun)) {
+      if (Array.from(this.hiddenRuns, x => x.run).includes(this.selectedRun.run_id)) {
         this.$emit('cycle-next')
       }
     },
