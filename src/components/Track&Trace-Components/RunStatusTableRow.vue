@@ -14,8 +14,8 @@
           >
         </b-form-checkbox>
       </b-td>
-      <b-td :colspan="mouseOn ? 6 : 2" class="text-truncate align-middle">{{run}}</b-td>
-      <b-td colspan="5" v-show="!mouseOn"  class="text-center align-middle">
+      <b-td :colspan="mouseOn ? 6 : variant === 'primary' ? 7 : 2" class="text-truncate align-middle">{{run}}</b-td>
+      <b-td colspan="5" v-show="!mouseOn && variant != 'primary'"  class="text-center align-middle">
         <progress-bar
         @progress-finish="emitFinish(run)"
         :totalSteps="5"

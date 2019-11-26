@@ -132,8 +132,12 @@ function setSequnecedSampleNumbers(state: State, data: {labels: string[], counts
 }
 /**
  * updates localy stored project comment
+ * 
+ * Finds the stored project and updates its comment acordingly
  * @param state - application state
  * @param param1 - project id and the new comment
+ * @param param1.projectName - Project ID
+ * @param param1.comment - new comment content
  */
 function updateCommentOnLocalProject(state: State, {projectName , comment}: {projectName: string, comment: string}) {
   const index = state.projects.findIndex(project => project.project === projectName)
@@ -157,6 +161,8 @@ function setProjectObjects(state: State, projects: Record<string, ProjectObject[
 }
 /**
  * updates runs that have finished
+ * 
+ * retrieves all finished runs then checks if run ID is contained in the finished runs
  * @param state - application context
  * @param finished - finished runs
  */
