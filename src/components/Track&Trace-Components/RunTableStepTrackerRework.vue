@@ -108,7 +108,7 @@ export default Vue.extend({
       }
     },
     returnColor(status: stepStatus): string {
-      return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.warning ? 'warning' : status === stepStatus.running ? 'primary' : 'success'
+      return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.warning ? 'warning' : this.currentStep === 4 ? 'success' : 'primary'
     },
     checkStepStatus(step: number): stepStatus {
       if (this.currentStep < step) {

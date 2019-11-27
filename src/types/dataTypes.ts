@@ -66,10 +66,13 @@ export class Run {
     switch (this.getDemultiplexingStatus()) {
       case statusCode.started:
         return 0
+      case statusCode.error:
+        return 0
       case statusCode.waiting:
         return -1
       default:
-        if (this.getRawDataCopyingStatus() === statusCode.started) {
+        const rawCopyStatus = this.getRawDataCopyingStatus()
+        if ( rawCopyStatus === statusCode.started || rawCopyStatus === statusCode.error) {
           return 1
         } else if (this.copyState === this.len) {
           return 4

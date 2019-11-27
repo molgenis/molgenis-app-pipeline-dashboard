@@ -517,14 +517,25 @@ async function convertProjects({ commit, state: { projects }, getters: { getJobs
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function constructRunObjects({ commit, state: { runs }, getters: { getProjectsByRunID } }: { commit: any, state: State, getters: any}) {
+async function constructRunObjects({ commit, state: { runs, projectObjects }, getters: { getProjectsByRunID } }: { commit: any, state: State, getters: any}) {
   return new Promise((resolve) => {
     const Runs = runs.map(({run_id, demultiplexing, copy_raw_prm}) => {
-      const projects = getProjectsByRunID(run_id)
+      let projects = getProjectsByRunID(run_id)
+      if (!projects) {
+        projects = []
+      }
+      function processErrors (projects: ProjectObject[], demultiplexing: string, rawDataStatus: string) {
+        const errors = projects.map((project: ProjectObject) => { return countJobStatus(project.jobs, 'error')})
+        const errorsInJobs =  errors.length > 0 ? errors.reduce((accumulator: number, currentValue: number) => accumulator + currentValue) >= 1 : false
+        const errorsInDemultiplexing = demultiplexing === 'error'
+        const errorsInRawCopy = rawDataStatus === 'error'
+        return errorsInJobs || errorsInDemultiplexing || errorsInRawCopy
+      }
       const length = projects.length
-      const errors = projects.map((project: ProjectObject) => { return countJobStatus(project.jobs, 'error')})
-      const containsErrors = errors.reduce((accumulator: number, currentValue: number) => accumulator + currentValue) >= 1
-      return new Run(run_id, demultiplexing, copy_raw_prm, length, containsErrors, countProjectFinishedCopying(projects))  
+      
+      
+
+      return new Run(run_id, demultiplexing, copy_raw_prm, length, processErrors(projects, demultiplexing, copy_raw_prm ), countProjectFinishedCopying(projects))  
     })
     commit('setRunObjects', Runs)
     resolve()
