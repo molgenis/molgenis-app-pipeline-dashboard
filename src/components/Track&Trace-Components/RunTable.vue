@@ -49,7 +49,7 @@ import Vue from 'vue'
 import RunTableProject from '@/components/Track&Trace-Components/RunTableProject.vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
-import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
+import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
 import { ProjectObject, pipelineType } from '@/types/dataTypes.ts'
 
 declare module 'vue/types/vue' {

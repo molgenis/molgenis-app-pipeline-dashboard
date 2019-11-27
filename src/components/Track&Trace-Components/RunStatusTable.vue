@@ -7,7 +7,7 @@
             <div class="d-flex justify-content-around">
               <b-button 
                 v-b-tooltip.hover 
-                :title="`${cyclePaused ? 'Unpauses' : 'Pauses'} run cycling`"
+                :title="`${cyclePaused ? 'Unpauses' : 'Pauses'} cycling`"
                 @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"><font-awesome-icon
                 v-if="cyclePaused"
                 icon="play-circle"
@@ -21,28 +21,28 @@
                 squared
                 size="sm"
                 v-b-tooltip.hover 
-                :title="`${editMode ? 'Deactivates' : 'Activates'} edit mode`" 
+                :title="`${editMode ? 'Deactivates' : 'Activates'} edit`" 
                 :variant="editMode ? 'info':'outline-info'" 
                 @click="toggleEditMode"
                 >
                   <font-awesome-icon icon="pen-square"></font-awesome-icon>
                 </b-button>
                 <b-button
+                v-b-tooltip.hover 
+                title="Show help"
                 squared
-                size="sm">
+                size="sm"
+                variant="outline-info">
                 <font-awesome-icon icon="info-circle" @click="$bvModal.show('help-modal')"></font-awesome-icon>
                 </b-button>
                 
               </div>
             
-              <b-th>Run</b-th>
+              <span><b>Run</b></span>
             
           </b-td>
-          <b-th class="text-right overflow-hidden">De- multiplex</b-th>
-          <b-th class="text-right overflow-hidden">Raw Copy</b-th>
-          <b-th class="text-right overflow-hidden">Running Projects</b-th>
-          <b-th class="text-right overflow-hidden">Result Copy</b-th>
-          <b-th class="text-right overflow-hidden">Finished</b-th>
+          <b-th colspan="5" class="text-center">Step</b-th>
+          
         </b-tr>
       </b-thead>
       <b-tbody>
@@ -92,7 +92,8 @@
     <b-modal
       id="help-modal"
       ref="modal"
-      title="Useful information"
+      title="Track and Trace visual information"
+      size="lg"
       hide-footer
       >
       <help-modal-content></help-modal-content></b-modal>

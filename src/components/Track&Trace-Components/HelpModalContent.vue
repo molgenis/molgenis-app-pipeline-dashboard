@@ -7,9 +7,12 @@
     </b-table>
     <b-table :fields="iconFields" :items="iconItems" borderless small>
       <template v-slot:cell(status)="data">
-        <font-awesome-icon :class="data.value.color" :icon="data.value.icon"></font-awesome-icon>
+        <div class="d-flex justify-content-left">
+          <font-awesome-icon :class="data.value.color" :icon="data.value.icon"></font-awesome-icon>
+        </div>
       </template>
     </b-table>
+    <b-table :fields="stepFields" :items="stepItems" borderless small></b-table>
   </b-container>
 </template>
 
@@ -31,7 +34,8 @@ export default {
         {name: 'Finished', status: {icon: 'check-circle', color: 'success'}, description: 'Success, Finished'},
         {name: 'Waiting', status: {icon: 'hourglass-start', color: 'secondary'}, description: 'Waiting, On hold, Paused'},
         {name: 'Error', status: {icon: 'exclamation-circle', color: 'danger'}, description: 'Error, Run/Project Failed'},
-        {name: 'Warning', status: {icon: 'exclamation-triangle', color: 'warning'}, description: 'Warning, Something is not right'}
+        {name: 'Warning', status: {icon: 'exclamation-triangle', color: 'warning'}, description: 'Warning, Something is not right'},
+        {name: 'Message', status: {icon: 'envelope-square', color: 'secondary'}, description: 'Comments are added to this instance'}
       ],
       colorFields: [
         {key: 'color', label: 'Color'},
@@ -44,6 +48,18 @@ export default {
         {color: 'warning', description: 'Warning, something is wrong'},
         {color: 'secondary', description: 'Not currently active, Waiting'}
       ],
+      stepFields: [
+        'step',
+        'name',
+        'description'
+      ],
+      stepItems: [
+        {step: 1, name: 'Demultiplexing', description: 'Creating FastQ files'},
+        {step: 2, name: 'Copying raw data', description: 'Copying raw data files to processing storage location'},
+        {step: 3, name: 'Running', description: 'Running the pipelines that belong to the unique run'},
+        {step: 4, name: 'Copying results', description: 'Copying pipeline results to final storage location'},
+        {step: 5, name: 'Finished', description: 'Step is reached when all results have been copied'}
+      ]
     }
   }
 }
