@@ -5,7 +5,7 @@
           <run-status-table
           @cycle-next="cycleRun"
           :total-runs="runStepStatusArray"
-          :selected-run="showRun"
+          :selected-run="selectedRunObject"
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
           :cycle-paused="paused"

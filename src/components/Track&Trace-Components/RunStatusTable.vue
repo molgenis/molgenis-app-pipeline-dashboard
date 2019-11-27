@@ -4,21 +4,39 @@
       <b-thead>
         <b-tr>
           <b-td class="text-center" colspan="2">
-            <span>
-              <font-awesome-icon
-              @click="emitPause"
-              v-if="cyclePaused"
-              icon="play-circle"
-              size="lg"
-              ></font-awesome-icon>
-              <font-awesome-icon
-              @click="emitPause"
-              v-else
-              icon="pause-circle"
-              size="lg"
-              ></font-awesome-icon>
-            </span>
-            <span> Run</span>
+            <div class="d-flex justify-content-around">
+              <b-button 
+                v-b-tooltip.hover 
+                :title="`${cyclePaused ? 'Unpauses' : 'Pauses'} run cycling`"
+                @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"><font-awesome-icon
+                v-if="cyclePaused"
+                icon="play-circle"
+                ></font-awesome-icon>
+                <font-awesome-icon
+                v-else
+                icon="pause-circle"
+                ></font-awesome-icon>
+                </b-button>
+                <b-button
+                squared
+                size="sm"
+                v-b-tooltip.hover 
+                :title="`${editMode ? 'Deactivates' : 'Activates'} edit mode`" 
+                :variant="editMode ? 'info':'outline-info'" 
+                @click="toggleEditMode"
+                >
+                  <font-awesome-icon icon="pen-square"></font-awesome-icon>
+                </b-button>
+                <b-button
+                squared
+                size="sm">
+                <font-awesome-icon icon="info-circle" @click="$bvModal.show('help-modal')"></font-awesome-icon>
+                </b-button>
+                
+              </div>
+            
+              <b-th>Run</b-th>
+            
           </b-td>
           <b-th class="text-right overflow-hidden">De- multiplex</b-th>
           <b-th class="text-right overflow-hidden">Raw Copy</b-th>
@@ -33,7 +51,7 @@
             :variant="selectedRun.run_id === run.run ? 'primary' : 'light'"
             :key="run.run"
             :run="run.run"
-            :mouseOn="mouseOn === run.run"
+            :mouseOn="editMode"
             :step="run.step"
             :error="run.containsError"
             :hidden="hidden"
@@ -46,9 +64,9 @@
           v-for="run in showHiddenRuns"
           :key="run.run"
           name="slide"
-          :variant="'secondary'"
+          :variant="editMode ? 'light' :  'secondary'"
           :run="run.run"
-          :mouseOn="mouseOn === run.run"
+          :mouseOn="editMode"
           :step="run.step"
           :error="run.containsError"
           :hidden="hidden"
@@ -64,12 +82,20 @@
           @mouseover="mouseOn = 'hiddenButton'"
           class="text-center"
           colspan="7">
-            <font-awesome-icon :icon="hiddenToggled ? 'angle-up' : 'angle-down'">
+            <font-awesome-icon v-show="!editMode" :icon="hiddenToggled ? 'angle-up' : 'angle-down'">
             </font-awesome-icon>
           </b-td>
         </b-tr>
       </b-tbody>
     </b-table-simple>
+
+    <b-modal
+      id="help-modal"
+      ref="modal"
+      title="Useful information"
+      hide-footer
+      >
+      <help-modal-content></help-modal-content></b-modal>
   </b-container>
 </template>
 
@@ -77,13 +103,15 @@
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
+import helpModalContent from '@/components/Track&Trace-Components/HelpModalContent.vue'
 import { Run, RunStatusData } from '@/types/dataTypes'
 import { getFilteredArray } from '@/helpers/utils'
 
 export default Vue.extend({
   name: 'run-status-table',
   components: {
-    RunStatusTableRow
+    RunStatusTableRow,
+    helpModalContent
 
   },
   data () {
@@ -95,7 +123,8 @@ export default Vue.extend({
       hidden: [] as string[],
       visibleRuns: [] as RunStatusData[],
       hiddenRuns: [] as RunStatusData[],
-      hiddenRunsByLength: [] as RunStatusData[]
+      hiddenRunsByLength: [] as RunStatusData[],
+      editMode: false
     }
   },
   props: {
@@ -124,6 +153,10 @@ export default Vue.extend({
   methods: {
     toggleHidden () {
       this.hiddenToggled = !this.hiddenToggled
+    },
+
+    toggleEditMode () {
+      this.editMode = ! this.editMode
     },
 
     /**
@@ -194,7 +227,7 @@ export default Vue.extend({
      * @returns {RunStatusData[]}
      */
     showHiddenRuns (): RunStatusData[] {
-      if (this.hiddenToggled) {
+      if (this.hiddenToggled || this.editMode) {
         return this.hiddenRuns
       }
       return []
