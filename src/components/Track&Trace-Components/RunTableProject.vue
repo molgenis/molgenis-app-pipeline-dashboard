@@ -122,7 +122,7 @@ export default Vue.extend({
      * @returns {Boolean}
      */
     hasNoWarning (): Boolean {
-      return !this.started || (this.thresholdToMs > (this.finishTime - this.startTime))
+      return this.finished || !this.started || (this.thresholdToMs > (this.finishTime - this.startTime))
     },
     /**
      * Converts average hours to milliseconds for timer
@@ -151,7 +151,7 @@ export default Vue.extend({
      * @returns {Number}
      */
     steps (): number {
-      if (this.resultCopy === 'finished') {
+      if (this.resultCopy === 'finished' || this.resultCopy === 'started') {
         return this.totalSteps
       }
       let jobArray = this.jobs as Job[]

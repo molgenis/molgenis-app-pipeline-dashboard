@@ -40,11 +40,14 @@ export function countJobStatus (jobs: Job[], status: string): number {
  * 
  * @returns {Number}
  */
-export function countProjectFinishedCopying (projects: ProjectObject[]): number {
+export function countProjectStartedCopying (projects: ProjectObject[]): {finished: boolean, total: number} {
   const finishedProjects = projects.filter(function (x) {
     return x.resultCopyStatus === 'finished'
   })
-  return finishedProjects.length
+  const startedProjects = projects.filter(function (x) {
+    return x.resultCopyStatus === 'started'
+  })
+  return projects.length === finishedProjects.length ? {finished: true, total: finishedProjects.length} : {finished: false, total: finishedProjects.length + startedProjects.length}  
 }
 
 /**

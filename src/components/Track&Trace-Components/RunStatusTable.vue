@@ -41,7 +41,8 @@
               <span><b>Run</b></span>
             
           </b-td>
-          <b-th colspan="5" class="text-center">Step</b-th>
+          <b-th :colspan="5" class="text-center">Step</b-th>
+          <b-th v-if="editMode" class="text-center">Status</b-th>
           
         </b-tr>
       </b-thead>
@@ -78,11 +79,12 @@
           ></run-status-table-row>
         <b-tr>
           <b-td
+          v-show="!editMode"
           @click="toggleHidden"
           @mouseover="mouseOn = 'hiddenButton'"
           class="text-center"
           colspan="7">
-            <font-awesome-icon v-show="!editMode" :icon="hiddenToggled ? 'angle-up' : 'angle-down'">
+            <font-awesome-icon :icon="hiddenToggled ? 'angle-up' : 'angle-down'">
             </font-awesome-icon>
           </b-td>
         </b-tr>

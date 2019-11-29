@@ -2,11 +2,10 @@
     <b-container class="mb-3 h-100">
         <b-row class="overflow-auto">
           <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold text-truncate">
-            <h2>{{runID}}</h2>
+            <h4>{{runID}}</h4>
           </b-col>
         </b-row>
           <step-tracker
-            :steps="['demultiplexing', 'raw data copy','running', 'results data copy', 'finished']"
             :warning="warning"
             :currentStep="currentStep"
             :error="containsError"

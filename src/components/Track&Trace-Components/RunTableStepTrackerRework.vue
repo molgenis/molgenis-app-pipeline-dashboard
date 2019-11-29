@@ -4,9 +4,13 @@
     <div class="step" id="demultiplexing">
         <font-awesome-icon :icon="demultiplexingIcon" :class="demultiplexingColor" size="2x" :spin="demultiplexingStatus === 'running'"></font-awesome-icon>
     </div>
+    <div class="border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepOneToTwoColor"></div>
     <div class="step" id="raw"><font-awesome-icon :icon="rawDataIcon" :class="rawDataColor" size="2x" :spin="rawDataStatus === 'running'"></font-awesome-icon></div>
+    <div class="border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepTwoToThreeColor"></div>
     <div class="step" id="running"><font-awesome-icon :icon="pipelinesIcon" :class="pipelinesColor" size="2x" :spin="pipelinesStatus === 'running'"></font-awesome-icon></div>
+    <div class="border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepThreeToFourColor"></div>
     <div class="step" id="results"><font-awesome-icon :icon="resultsDataIcon" :class="resultsDataColor" size="2x" :spin="resultsDataStatus === 'running'"></font-awesome-icon></div>
+    <div class="border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepFourToFiveColor"></div>
     <div class="step" id="finished"><font-awesome-icon :icon="finishedIcon" :class="finishedColor" size="2x"></font-awesome-icon></div>
   </div>
   <div class="d-flex pt-2  justify-content-center w-100">
@@ -108,7 +112,7 @@ export default Vue.extend({
       }
     },
     returnColor(status: stepStatus): string {
-      return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.warning ? 'warning' : this.currentStep === 4 ? 'success' : 'primary'
+      return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.currentStep === 4 ? 'success' :  this.warning ? 'warning' :'primary'
     },
     checkStepStatus(step: number): stepStatus {
       if (this.currentStep < step) {
@@ -118,6 +122,13 @@ export default Vue.extend({
         return this.error ? stepStatus.error : this.warning ? stepStatus.warning : stepStatus.running
       }
       return stepStatus.finished
+    },
+    getLineColor(status: stepStatus): string[] {
+      if (status === stepStatus.waiting) {
+        return []
+      }
+      const colorVariant = this.returnColor(status)
+      return [`border-${colorVariant}`, `bg-${colorVariant}`]
     }
   },
   computed: {
@@ -131,6 +142,10 @@ export default Vue.extend({
       return this.returnColor(this.demultiplexingStatus)
     },
 
+    stepOneToTwoColor(): string[] {
+      return this.getLineColor(this.rawDataStatus)
+    },
+
     rawDataStatus (): stepStatus {
       return this.checkStepStatus(1)
     },
@@ -139,6 +154,10 @@ export default Vue.extend({
     },
     rawDataColor (): string {
       return this.returnColor(this.rawDataStatus)
+    },
+
+    stepTwoToThreeColor(): string[] {
+      return this.getLineColor(this.pipelinesStatus)
     },
 
     pipelinesStatus (): stepStatus {
@@ -151,6 +170,10 @@ export default Vue.extend({
       return this.returnColor(this.pipelinesStatus)
     },
 
+    stepThreeToFourColor(): string[] {
+      return this.getLineColor(this.resultsDataStatus)
+    },
+
     resultsDataStatus (): stepStatus {
       return this.checkStepStatus(3)
     },
@@ -161,11 +184,18 @@ export default Vue.extend({
       return this.returnColor(this.resultsDataStatus)
     },
 
+    stepFourToFiveColor(): string[] {
+      return this.getLineColor(this.finishedStatus)
+    },
+
+    finishedStatus (): stepStatus {
+      return this.currentStep === 4 ? stepStatus.finished : stepStatus.waiting
+    },
     finishedIcon (): string[2]{
-      return this.returnIcon(this.currentStep === 4 ? stepStatus.finished : stepStatus.waiting)
+      return this.returnIcon(this.finishedStatus)
     },
     finishedColor () : string {
-      return this.returnColor(this.currentStep === 4 ? stepStatus.finished : stepStatus.waiting)
+      return this.returnColor(this.finishedStatus)
     },
 
     message (): string {
@@ -173,11 +203,11 @@ export default Vue.extend({
         case (steps.demultiplexing):
           return 'Demultiplexing'
         case (steps.rawData):
-          return 'Copying raw data files to processing location'
+          return 'Copying raw data files'
         case (steps.pipelines):
           return 'Running pipelines'
         case (steps.resultData):
-          return 'Copying resulting files to final location'
+          return 'Copying result files'
         case (4):
           return 'Finished all workflow steps'
         default:
@@ -185,14 +215,14 @@ export default Vue.extend({
       }
     },
     messageBorder (): string {
+      if (this.currentStep === 4) {
+        return 'border-success'
+      }
       if (this.error) {
         return 'border-danger'
       }
       if (this.warning) {
         return 'border-warning'
-      }
-      if (this.currentStep === 4) {
-        return 'border-success'
       }
       if (this.currentStep >= 0) {
         return 'border-primary'
@@ -200,14 +230,14 @@ export default Vue.extend({
       return 'border-secondary'
     },
     statusLabel (): string {
+      if (this.currentStep === 4) {
+        return 'Complete:'
+      }
       if (this.error) {
         return 'Error while'
       }
       if (this.warning) {
         return 'Longer runtime while'
-      }
-      if (this.currentStep === 4) {
-        return 'Complete:'
       }
       if (this.currentStep >= 0) {
         return 'In progress:'
@@ -232,7 +262,7 @@ export default Vue.extend({
     color: $primary
 }
 .secondary {
-    color: $secondary
+    color: $gray-300
 }
 .warning {
     color: $warning
@@ -245,5 +275,10 @@ export default Vue.extend({
   align-self: center;
   position: absolute;
   left: -10;
+}
+
+.devider {
+  border-width: 3px !important;
+  background-color: $gray-300
 }
 </style>

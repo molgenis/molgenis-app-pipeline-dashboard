@@ -38,20 +38,14 @@ export class Run {
   containsError: Boolean
   copyState: number
   finished: Boolean
-  constructor(runID: string, Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number){
+  constructor(runID: string, Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number, finished: boolean){
     this.run_id = runID
     this.demultiplexing = Demultiplexing
     this.rawCopy = RawCopyState
     this.len = lenght
     this.containsError = error
     this.copyState = ResultCopyState
-    this.finished = false
-  }
-  setFinished() {
-    this.finished = true
-  }
-  unSetFinished() {
-    this.finished = false
+    this.finished = finished
   }
   getDemultiplexingStatus(): statusCode {
     return parseStatus(this.demultiplexing)
@@ -74,11 +68,9 @@ export class Run {
         const rawCopyStatus = this.getRawDataCopyingStatus()
         if ( rawCopyStatus === statusCode.started || rawCopyStatus === statusCode.error) {
           return 1
-        } else if (this.copyState === this.len) {
-          return 4
           // selectedRunObject result copying check
-        } else if (this.copyState > 0 && this.finished) {
-          return 3
+        } else if (this.copyState > 0) {
+          return this.finished ? 4 : this.copyState === 4 ? 3 : 2 
         } else {
           return 2
         }

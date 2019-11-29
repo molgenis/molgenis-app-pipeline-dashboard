@@ -8,7 +8,7 @@ import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
-import { countJobStatus, countProjectFinishedCopying, getProjectDataStatus } from '@/helpers/utils';
+import { countJobStatus, countProjectStartedCopying, getProjectDataStatus } from '@/helpers/utils';
 import { max } from '@/helpers/statistics';
 
 /**
@@ -458,7 +458,6 @@ async function convertRawData({ dispatch, commit, getters: {getFinishedRuns} }: 
   return new Promise((resolve) => {
     dispatch('convertProjects').then(() => {
       dispatch('constructRunObjects').then(() => {
-        commit('updateFinishedRuns', getFinishedRuns)
         resolve()
       })
     })
@@ -533,9 +532,9 @@ async function constructRunObjects({ commit, state: { runs, projectObjects }, ge
       }
       const length = projects.length
       
-      
+      const resultCopyStatus = countProjectStartedCopying(projects)
 
-      return new Run(run_id, demultiplexing, copy_raw_prm, length, processErrors(projects, demultiplexing, copy_raw_prm ), countProjectFinishedCopying(projects))  
+      return new Run(run_id, demultiplexing, copy_raw_prm, length, processErrors(projects, demultiplexing, copy_raw_prm ), resultCopyStatus.total, resultCopyStatus.finished)  
     })
     commit('setRunObjects', Runs)
     resolve()

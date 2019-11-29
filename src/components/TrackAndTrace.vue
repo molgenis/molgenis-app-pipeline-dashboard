@@ -54,7 +54,7 @@ declare module 'vue/types/vue' {
     selectedRunContainsError: boolean
     selectedRunDemultiplexingStatus: boolean
     selectedRunStepNumber: number
-    mappedRunData: Run[]
+    runObjects: Run[]
     runIdArray: string[]
     runStepStatusArray: Step[]
     graphRuns: string[]
@@ -112,7 +112,7 @@ export default Vue.extend({
       const id = this.showRun
       const selectedRunObject: Run | undefined = this.getRunObjectByID(id)
       
-      return selectedRunObject ? selectedRunObject : new Run('', 'waiting', 'waiting', 0, false, 0)
+      return selectedRunObject ? selectedRunObject : new Run('', 'waiting', 'waiting', 0, false, 0, false) // if no run is found substitute with an empty one
     },
     /**
      * Currently selected run id
@@ -171,22 +171,12 @@ export default Vue.extend({
     },
 
     /**
-     * Combines all data into one object
-     * 
-     * @returns {Run[]}
-     */
-    mappedRunData (): Run[] {
-      const data: Run[] = this.runObjects.sort(this.compareRuns)
-      return data
-    },
-
-    /**
      * Creates array of runId Strings
      * 
      * @returns {String[]}
      */
     runIdArray (): string[] {
-      const runIdArray: string[] = this.mappedRunData.map((run: Run) => run.run_id)
+      const runIdArray: string[] = this.runObjects.map((run: Run) => run.run_id)
       return runIdArray
     },
 
@@ -196,7 +186,7 @@ export default Vue.extend({
      * @returns {Step[]}
      */
     runStepStatusArray (): Step[] {
-      const runStepStatusArray: Step[] = this.mappedRunData.map((RunObject: Run) => {
+      const runStepStatusArray: Step[] = this.runObjects.map((RunObject: Run) => {
         return {
           run: RunObject.run_id,
           step: RunObject.getCurrentStep(),
@@ -230,6 +220,8 @@ export default Vue.extend({
         return -1
       } else if (run2.containsError || run1.getCurrentStep() > run2.getCurrentStep()) {
         return 1
+      } else if (run1.containsError || run2.getCurrentStep() > run1.getCurrentStep()) {
+        return -1
       } else {
         return 0
       }

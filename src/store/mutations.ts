@@ -143,13 +143,40 @@ function updateCommentOnLocalProject(state: State, {projectName , comment}: {pro
   const index = state.projects.findIndex(project => project.project === projectName)
   state.projects[index].comment = comment
 }
+
 /**
  * sets the constructed Run objects
  * @param state - application state
  * @param Runs - Converted run objects
  */
 function setRunObjects(state: State, Runs: Run[]) {
-  state.runObjects = Runs
+  state.runObjects = Runs.sort((run1: Run, run2: Run): number => {
+    const run1Error = run1.containsError
+    const run2Error = run2.containsError
+
+    if (run1Error) {
+      return run2Error ? 0 : -1
+    }
+    if (run2Error) {
+      return 1
+    }
+    const run2Step = run2.getCurrentStep()
+    const run1Step = run1.getCurrentStep()
+
+    if (run1Step > run2Step) {
+      return 1
+    } 
+    if (run1Step === run2Step) {
+      return 0
+    }
+    return -1
+    
+  })
+
+  if (!state.rawDataConverted) {
+    state.rawDataConverted = true
+  }
+
 }
 /**
  * sets the converted project objects 
@@ -158,21 +185,6 @@ function setRunObjects(state: State, Runs: Run[]) {
  */
 function setProjectObjects(state: State, projects: Record<string, ProjectObject[]>) {
   state.projectObjects = projects
-}
-/**
- * updates runs that have finished
- * 
- * retrieves all finished runs then checks if run ID is contained in the finished runs
- * @param state - application context
- * @param finished - finished runs
- */
-function updateFinishedRuns(state: State, finished: string[]) {
-  state.runObjects.forEach((run: Run, index: number) => {
-    if (run.run_id in finished) {
-      state.runObjects[index].setFinished()
-    }
-  })
-  state.rawDataConverted = true
 }
 export default {
   setRuns,
@@ -189,7 +201,6 @@ export default {
   setMonthlySampleCounts,
   setYearlySampleCounts,
   setWeeklySampleCounts,
-  updateFinishedRuns,
   setRunObjects,
   setProjectObjects,
   updateCommentOnLocalProject
