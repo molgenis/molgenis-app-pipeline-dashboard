@@ -225,7 +225,7 @@ describe('Setters wihtout logic', () => {
       counts: [44, 932]
     }
 
-    mutations.setSequnecedSampleNumbers(state, data)
+    mutations.setSequencedSampleNumbers(state, data)
 
     expect(state.sequencedSampleNumbers).toEqual(data)
   })

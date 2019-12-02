@@ -51,7 +51,7 @@ describe('Run', () => {
   const lenght = 0
   const error = false
   const resultCopyState = 0
-  const run = new Run(runId, demultiplexing, RawCopyState, lenght, error, resultCopyState)
+  const run = new Run(runId, demultiplexing, RawCopyState, lenght, error, resultCopyState, false)
   
   test('run gets constructed correctly', () => {
     expect(run.run_id === runId).toBeTruthy()
@@ -60,6 +60,7 @@ describe('Run', () => {
     expect(run.len === lenght).toBeTruthy()
     expect(run.containsError === error).toBeTruthy()
     expect(run.copyState === resultCopyState).toBeTruthy()
+    expect(run.finished).toBe(false)
   })
 
   test('run can correctly return demultiplexing statuscode', () => {
