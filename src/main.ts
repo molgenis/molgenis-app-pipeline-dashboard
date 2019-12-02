@@ -28,7 +28,9 @@ import {
 import { faCircle as farCircle} from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faSyncAlt, farCircle, fasCircle, faSquare, faInfoCircle, faPenSquare, faEdit, faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle, faAngleDown, faComment, faEnvelopeSquare, faAngleUp)
+library.add(faSyncAlt, fasCircle, faSquare, faInfoCircle, faPenSquare, faEdit, faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle, faAngleDown, faComment, faEnvelopeSquare, faAngleUp)
+//@ts-ignore
+library.add(farCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('apexchart', VueApexCharts)

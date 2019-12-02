@@ -14,7 +14,7 @@
     <div class="step" id="finished"><font-awesome-icon :icon="finishedIcon" :class="finishedColor" size="2x"></font-awesome-icon></div>
   </div>
   <div class="d-flex pt-2  justify-content-center w-100">
-    <div class="border pr-2 pl-2 pt-1 pb-1" :class="messageBorder">{{statusLabel}} {{message}}</div>
+    <div class="border rounded-pill pr-2 pl-2 pt-1 pb-1" :class="messageBorder">{{statusLabel}} {{message}}</div>
   </div>
 </div>
 </template>
@@ -94,6 +94,11 @@ export default Vue.extend({
       type: Boolean,
       required: false,
       default: true
+    },
+
+    customMessage: {
+      type: String,
+      required: false
     }
   },
   methods: {
@@ -199,6 +204,9 @@ export default Vue.extend({
     },
 
     message (): string {
+      if (this.customMessage) {
+        return this.customMessage
+      }
       switch (this.currentStep) {
         case (steps.demultiplexing):
           return 'Demultiplexing'

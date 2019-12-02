@@ -124,7 +124,7 @@ function setDailySampleCounts(state: State, counts: number) {
  * @param state - application context
  * @param data - sequenced samples
  */
-function setSequnecedSampleNumbers(state: State, data: {labels: string[], counts: number[]}){
+function setSequencedSampleNumbers(state: State, data: {labels: string[], counts: number[]}){
   state.sequencedSampleNumbers = {
     labels: data.labels,
     counts: data.counts
@@ -195,7 +195,7 @@ export default {
   setMachineSampleCounts,
   setSequencerStatisticsLabels,
   setSequencerStatisticsSeries,
-  setSequnecedSampleNumbers,
+  setSequencedSampleNumbers,
   setTotalCounts,
   setDailySampleCounts,
   setMonthlySampleCounts,

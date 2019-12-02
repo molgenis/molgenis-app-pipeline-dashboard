@@ -79,7 +79,7 @@
           ></run-status-table-row>
         <b-tr>
           <b-td
-          v-show="!editMode"
+          v-show="!editMode && !hiddenRuns.length <= 0"
           @click="toggleHidden"
           @mouseover="mouseOn = 'hiddenButton'"
           class="text-center"
