@@ -186,6 +186,12 @@ function setRunObjects(state: State, Runs: Run[]) {
 function setProjectObjects(state: State, projects: Record<string, ProjectObject[]>) {
   state.projectObjects = projects
 }
+
+function clearRawData(state: State) {
+  state.runs = []
+  state.projects = []
+  state.jobs = []
+}
 export default {
   setRuns,
   setProjects,
@@ -203,5 +209,6 @@ export default {
   setWeeklySampleCounts,
   setRunObjects,
   setProjectObjects,
-  updateCommentOnLocalProject
+  updateCommentOnLocalProject,
+  clearRawData
 }

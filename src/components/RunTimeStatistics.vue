@@ -31,7 +31,10 @@ import { cropTitle } from '@/helpers/utils'
 import { State } from '../store/state'
 
 declare module 'vue/types/vue' { 
-  interface Vue extends State {
+  interface Vue {
+    pipelineTypes: string[]
+    statistics: Serie[]
+    machineRuntimes: Record<string, IdentifiedSerie[]>
     getTimingData(range: number): void
 
   }
@@ -43,7 +46,7 @@ export default Vue.extend({
     return {
       selectedRange: 10,
       selectedStatistic: 'cluster',
-      selectedSubStatistic: 'Exoom',
+      selectedSubStatistic: 'Exoom' as string,
       rangeOptions: [
         { value: 10, text: '10'},
         { value: 100, text: '100'},
@@ -134,6 +137,11 @@ export default Vue.extend({
         annotations: {} as GraphAnnotation
       }
     },
+    ...mapState([
+      'statistics',
+      'pipelineTypes',
+      'machineRuntimes'
+    ]),
     computedSeries (): Serie[] | null{
       switch (this.selectedStatistic) {
         case 'prepKit':
@@ -143,12 +151,7 @@ export default Vue.extend({
         default:
           return null
       }
-    },
-    ...mapState([
-      'statistics',
-      'pipelineTypes',
-      'machineRuntimes'
-    ])
+    }
   },
   methods: {
     ...mapActions([

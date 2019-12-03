@@ -1,5 +1,5 @@
 <template>
-  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="overflow-auto p-0 h-100 w-100">
+  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="overflow-vertical p-0 h-100 w-100">
     <b-table-simple small fixed hover class="minH">
       <b-thead>
         <b-tr>
@@ -297,5 +297,9 @@ export default Vue.extend({
 
 .minH {
   min-height: 100%
+}
+
+.overflow-vertical {
+  overflow-y: scroll
 }
 </style>

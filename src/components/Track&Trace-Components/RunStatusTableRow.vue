@@ -17,7 +17,7 @@
       <b-td :colspan="mouseOn ? 6 : variant === 'primary' ? 6 : 2" class="text-truncate align-middle">{{run}}</b-td>
       <b-td :colsoan="1" class="align-middle" v-if="mouseOn || variant === 'primary'">
         <div class="d-flex align-items-end justify-content-center h-100">
-          <font-awesome-icon :icon="finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']:['fas', 'sync-alt']" :class="finished ? 'success' : error ? 'danger': 'primary'" size="lg" :spin="!finished && !error"></font-awesome-icon>
+          <font-awesome-icon :icon="isInQueue ? ['fas', 'hourglass-start'] : finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']:['fas', 'sync-alt']" :class="isInQueue ? 'secondary-dark' : finished ? 'success' : error ? 'danger': 'primary'" size="lg" :spin="!finished && !error && !isInQueue"></font-awesome-icon>
           </div>
           </b-td>
       <b-td colspan="5" v-show="!mouseOn && variant != 'primary'"  class="text-center align-middle">
@@ -102,6 +102,9 @@ export default {
           this.LocalHidden = [this.run, ...this.LocalHidden]
         }
       }
+    },
+    isInQueue () {
+      return this.step === -1
     }
   },
   methods: {
@@ -165,6 +168,9 @@ export default {
 }
 .secondary {
     color: $gray-300
+}
+.secondary-dark {
+  color: $secondary
 }
 .warning {
     color: $warning

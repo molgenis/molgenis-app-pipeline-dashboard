@@ -31,26 +31,14 @@
 
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
 import { mapState } from 'vuex'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
 import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
-import { State } from './store/state'
 
-declare module 'vue/types/vue' {
-  interface Vue extends State{
-    runTimeArray: RunTimeStatistic[]
-    threshold: number
-    toastCount: number
-    addStatistics(run: RunTimeStatistic): void
-    setThreshold(threshold: number): void
-  }
-}
-
-export default Vue.extend({
+export default {
   name: 'app',
   components: {
     TrackAndTrace,
@@ -65,11 +53,10 @@ export default Vue.extend({
       'rawDataConverted'
     ]),
     trackingDataLoaded () {
-      return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every((state) => state)
+      return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every(state => state)
     }
   }
-})
-
+}
 </script>
 
 <style lang="scss">

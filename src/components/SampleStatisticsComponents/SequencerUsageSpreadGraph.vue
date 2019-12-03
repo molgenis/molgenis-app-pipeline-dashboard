@@ -18,6 +18,9 @@ export default {
     ]),
     updateStatistics () {
       this.getSequencerStatistics()
+      .catch(() => {
+        setTimeout(this.updateStatistics, 10000)
+      })
     }
   },
   computed: {

@@ -6,7 +6,7 @@
         
       </b-container>
       <div class="TotalCounts d-flex w-100 justify-content-center">
-        <p>{{sumOfSamples}} {{sumOfSamples === 1 ? "Sample" : "Samples"}}</p>
+        <p class="border border-primary rounded-pill p-1 pr-2 pl-2">{{sumOfSamples}} {{sumOfSamples === 1 ? "Sample" : "Samples"}}</p>
       </div>
     </b-col>
   </b-row>
@@ -149,7 +149,8 @@ export default {
      * @returns {Array<Number>}
      */
     sampleCountsInOrder() {
-      return Object.values(this.selectedData).reverse()
+      const values = Object.values(this.selectedData)
+      return [...values.slice(this.timeIndex), ...values.slice(0, this.timeIndex)]
     },
     /**
      * Returns a ordered array of labels
@@ -157,7 +158,8 @@ export default {
      * @returns {Array<String>}
      */
     orderedSampleLabels() {
-      return Object.keys(this.selectedData).reverse()
+      const labels = Object.keys(this.selectedData)
+      return [...labels.slice(this.timeIndex), ...labels.slice(0, this.timeIndex)]
     },
     /**
      * Returns a series for the graph
@@ -305,7 +307,9 @@ export default {
      */
     async getPreviousYearData () {
     
-    await this.getNumbers()
+    this.getNumbers().catch(() => {
+      setTimeout(this.getPreviousYearData, 10000)
+    })
     
     
     }

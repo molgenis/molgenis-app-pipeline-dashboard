@@ -1,8 +1,8 @@
 <template>
     <b-container class="mb-3 h-100">
-        <b-row class="overflow-auto">
+        <b-row>
           <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold text-truncate">
-            <h4>{{runID}}</h4>
+            <h4>{{parsedRunID}}</h4>
           </b-col>
         </b-row>
           <step-tracker
@@ -217,6 +217,11 @@ export default Vue.extend({
       }
     }
   },
+  computed: {
+    parsedRunID (): string {
+      return this.runID.replace(/_/g, ' ').replace(/-/g, ', ')
+    }
+  },
   watch: {
     /**
      * resets warning if new run is selected
@@ -241,4 +246,5 @@ export default Vue.extend({
 .minH {
   min-height: 100%
 }
+
 </style>

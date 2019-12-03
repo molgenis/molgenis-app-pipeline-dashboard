@@ -58,6 +58,7 @@ declare module 'vue/types/vue' {
     runIdArray: string[]
     runStepStatusArray: Step[]
     graphRuns: string[]
+    projectObjects: Record<string, ProjectObject[]>
     setSelectedRunIndex(index: number): void
     compareRuns(run1: Run, run2: Run): number
     setShowRun(selectedRunObject: string): void

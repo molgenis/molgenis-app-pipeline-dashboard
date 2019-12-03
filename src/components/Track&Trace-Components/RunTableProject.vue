@@ -33,6 +33,11 @@ import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
 import { Job } from '@/types/dataTypes.ts'
 import { countJobStatus } from '../../helpers/utils'
 
+declare module 'vue/types/vue' {
+  interface Vue {
+    jobs: Job[]
+  }
+}
 export default Vue.extend({
   name: 'project',
   props: {

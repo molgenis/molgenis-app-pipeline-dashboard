@@ -28,11 +28,14 @@ import { max } from '@/helpers/statistics';
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-function getTrackerData ({ dispatch }: { dispatch: any }): Promise<void> {
+function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): Promise<void> {
   return new Promise((resolve, reject) => {
     Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobData')])
     .then(() => {
-      dispatch('convertRawData')
+      dispatch('convertRawData').then(() => {
+        commit('clearRawData')
+      }
+      )
       resolve()
     })
     .catch(() => {
