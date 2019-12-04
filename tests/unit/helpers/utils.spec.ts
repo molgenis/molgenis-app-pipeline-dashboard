@@ -32,12 +32,8 @@ describe('countJobStatus', () => {
     jobs = jobNames.map((name): Job => {
       counter += 1
       return {
-        project_job: `test${counter}_${name}`,
-        job: name,
         project: `test${counter}`,
-        url: 'test.org',
         status: 'finished',
-        step: name,
         startedDate: `2019-09-0${counter}T08:00:00`,
         finishedDate: `2019-09-0${counter + 1}T09:00:00`
       }
@@ -84,12 +80,8 @@ describe('getProjectDataStatus', () => {
   let jobs = [] as Job[]
   for (let i = 0; i <= 10; i++) {
     jobs.push({
-      project_job: `Project_TestJob${i}`,
-      job: 'Create',
       project: 'project',
-      url: 'test.org',
-      status: 'finished',
-      step: `s0${i}`
+      status: 'finished'
     })
   }
   test('Status returns finished when project is finished', () => {
@@ -104,12 +96,8 @@ describe('getProjectDataStatus', () => {
   test('Status is started when not all jobs have finished', () => {
     project.copy_results_prm = 'waiting'
     jobs.push({
-      project_job: `Project_TestJobs12`,
-      job: 'Create',
       project: 'project',
-      url: 'test.org',
-      status: 'started',
-      step: `s012`
+      status: 'started'
     })
     expect(getProjectDataStatus(project, jobs)).toBe('started')
   })
@@ -117,12 +105,8 @@ describe('getProjectDataStatus', () => {
   test('Status is waiting when in queue', () => {
     project.copy_results_prm = 'waiting'
     expect(getProjectDataStatus(project, [{
-      project_job: `Project_TestJobs12`,
-      job: 'Create',
       project: 'project',
-      url: 'test.org',
       status: 'Waiting',
-      step: `s012`
     }])).toBe('Waiting')
   })
 })

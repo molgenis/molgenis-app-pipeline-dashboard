@@ -52,7 +52,7 @@ describe('Run', () => {
   const error = false
   const resultCopyState = 0
   const run = new Run(runId, demultiplexing, RawCopyState, lenght, error, resultCopyState, false)
-  
+
   test('run gets constructed correctly', () => {
     expect(run.run_id === runId).toBeTruthy()
     expect(run.demultiplexing === demultiplexing).toBeTruthy()
@@ -76,54 +76,34 @@ describe('ProjectObject', () => {
 
   beforeEach(() => {
     const job: Job = {
-      project_job: 'test-Exoom_test1',
-      job: 'test1',
       project: 'test-Exoom',
-      url: '',
       status: 'finished',
-      step: 'create',
       startedDate: '2019-02-09T22:50:15Z',
       finishedDate: '2019-02-10T01:09:34Z'
     }
 
     const job2: Job = {
-      project_job: 'test-Exoom_test2',
-      job: 'test2',
       project: 'test-Exoom',
-      url: '',
       status: 'finished',
-      step: 'create',
       startedDate: '2019-03-09T22:50:15Z',
       finishedDate: '2019-03-10T01:09:34Z'
     }
 
     const job3: Job = {
-      project_job: 'test-Exoom_test3',
-      job: 'test3',
       project: 'test-Exoom',
-      url: '',
       status: 'finished',
-      step: 'create',
       startedDate: '2019-04-09T22:50:15Z',
       finishedDate: '2019-04-10T01:09:34Z'
     }
 
     const job4: Job = {
-      project_job: 'test-Exoom_test4',
-      job: 'test4',
       project: 'test-Exoom',
-      url: '',
-      status: 'finished',
-      step: 'create'
+      status: 'finished'
     }
 
     const job5: Job = {
-      project_job: 'test-Exoom_test5',
-      job: 'test5',
       project: 'test-Exoom',
-      url: '',
       status: 'finished',
-      step: 'create',
       startedDate: 'fafasfafaf', // simulates error in database fill
       finishedDate: 'kesffskfaofk' // simulates error in database fill
     }

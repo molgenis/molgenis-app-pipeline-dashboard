@@ -37,7 +37,11 @@ beforeEach(() => {
     CommentNetworkError: false,
     rawDataConverted: false,
     projectObjects: {},
-    runObjects: []
+    runObjects: [],
+    jobAggregates: {},
+    completeRunDataObjectArray: [],
+    annotatedJobs: {}
+
   }
 })
 
@@ -110,12 +114,8 @@ describe('setProjects', () => {
 describe('setJobs', () => {
   const jobs: Job[] = [
     {
-      project_job: 'test1_create',
       project: 'test1',
-      job: 'create',
-      url: '',
-      status: 'Waiting',
-      step: 'create'
+      status: 'Waiting'
     }
   ]
   test('setJobs adds jobs to localJobs', () => {
@@ -123,12 +123,8 @@ describe('setJobs', () => {
 
     expect(state.jobs).toEqual([
       {
-        project_job: 'test1_create',
         project: 'test1',
-        job: 'create',
-        url: '',
         status: 'Waiting',
-        step: 'create'
       }
     ])
     expect(state.jobsLoaded).toBe(true)

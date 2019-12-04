@@ -3,6 +3,6 @@ module.exports = {
     jest: true
   },
   extends: [
-    "plugin:vue/essential"
+    'plugin:vue/essential'
   ]
 }
