@@ -14,19 +14,9 @@ const getters = {
   },
   getJobsByProjectID: (state: State) => {
     return (projectID: string) => {
-      return state.jobs
-        .filter(function (x: Job) {
-          return x.project === projectID
-        })
-        .sort(function (a: Job, b: Job) {
-          if (a.job > b.job) {
-            return 1
-          } else if (a.job < b.job) {
-            return -1
-          } else {
-            return 0
-          }
-        })
+      return state.jobs.filter(function (x: Job) {
+        return x.project === projectID
+      })
     }
   },
   getRunObjectByID: (state: State) => (id: string) => {

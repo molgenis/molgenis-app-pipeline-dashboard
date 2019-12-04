@@ -110,14 +110,15 @@ async function getProjectData ({ commit, state }: {commit: any, state: State}): 
  * @category TrackAndTrace
  * @returns {Promise<void>}
  */
-async function getJobData ({ commit, state: { jobTable } }: {commit: any, state: State}): Promise<void> {
+async function getJobData ({ commit, state: { jobTable }, dispatch }: {commit: any, state: State, dispatch: any}): Promise<void> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${jobTable}?num=10000`)
-      .then(function (response: {items: Job[]}) {
-        const tableContent = response.items
-        if (tableContent.length > 0) {
-          commit('setJobs', tableContent)
+    api.get(`/api/v2/${jobTable}?attrs=project_job,project,status,started_date,finished_date&num=10000`)
+      .then(function (response: {items: any[]}) {
+        if (response.items.length > 0) {
+          const mappedJobs = response.items.map((job) => { return { project: job.project, status: job.status, started_date: job.started_date, finished_date: job.finished_date } })
+          commit('setJobs', mappedJobs)
         }
+        dispatch('getJobAggregates')
         resolve()
       })
       .catch(function (error: any) {
@@ -432,7 +433,6 @@ async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: {
   return new Promise((resolve, reject) => {
     api.get(`/api/v1/${projectsTable}/${project}/comment`)
       .then((result: { href: string, comment: string }) => {
-        console.log(result.comment, oldComment, newComment)
         if (!result.comment || result.comment === oldComment) {
           dispatch('updateProjectComment', { project: project, comment: newComment })
           resolve('dispatched comment to database')
@@ -547,6 +547,26 @@ async function constructRunObjects ({ commit, state: { runs, projectObjects }, g
   })
 }
 
+async function getJobAggregates ({ commit, state }: {commit:any, state: State}) {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${state.jobTable}?aggs=x==status;y==project;distinct==project_job`)
+      .then((result: {aggs: {matrix: number[][], xLabels: string[], yLabels: string[]}}) => {
+        const projectCounters: Record<string, Record<string, number>> = {}
+        result.aggs.yLabels.forEach((project: string, index:number) => {
+          const statusType: Record<string, number> = {}
+          result.aggs.xLabels.forEach((status, xLabelIndex) => {
+            statusType[status] = result.aggs.matrix[xLabelIndex][index]
+          })
+          projectCounters[project] = statusType
+        })
+        commit('setJobAggregates', projectCounters)
+        resolve()
+      }).catch((error: any) => {
+        reject(error)
+      })
+  })
+}
+
 export default {
   checkForCommentUpdates,
   constructRunObjects,
@@ -565,5 +585,6 @@ export default {
   getTimingData,
   getTrackerData,
   handleCommentSubmit,
-  updateProjectComment
+  updateProjectComment,
+  getJobAggregates
 }

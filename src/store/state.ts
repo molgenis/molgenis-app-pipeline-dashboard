@@ -36,6 +36,9 @@ export type State = {
   projectObjects: Record<string, ProjectObject[]>
   runObjects: Run[]
   rawDataConverted: boolean
+  jobAggregates: Record<string, Record<string, number>>
+  completeRunDataObjectArray: Object[]
+  annotatedJobs: Record<string, Object[]>
 }
 
 const state: State = {
@@ -69,7 +72,10 @@ const state: State = {
   CommentUpdatedStatus: false,
   CommentNetworkError: false,
   projectObjects: {},
-  runObjects: []
+  runObjects: [],
+  jobAggregates: {},
+  completeRunDataObjectArray: [],
+  annotatedJobs: {}
 }
 
 export default state

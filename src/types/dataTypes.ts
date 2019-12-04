@@ -101,8 +101,8 @@ export enum pipelineType {
 }
 
 enum dateSearch {
-  started = 'started_date',
-  finished = 'finished_date'
+  started = 'startedDate',
+  finished = 'finishedDate'
 }
 
 /**
@@ -204,12 +204,8 @@ export interface projectDataObject{
  * Stores Job information
  */
 export interface Job {
-  project_job: string
-  job: string
   project: string
-  url: string
   status: string
-  step: string
   startedDate?: string
   finishedDate?: string
 }

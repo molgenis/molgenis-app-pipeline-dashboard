@@ -3,7 +3,7 @@
  */
 
 import { State } from '@/store/state'
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
+import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 
 /**
@@ -12,10 +12,10 @@ import { Serie, IdentifiedSerie } from '@/types/graphTypes'
  * @param runs - Raw run data
  */
 function setRuns (state: State, runs: RunDataObject[]) {
+  state.runs = runs
   if (!state.runsLoaded) {
     state.runsLoaded = true
   }
-  state.runs = runs
 }
 /**
  * commits raw project table data to store
@@ -23,21 +23,25 @@ function setRuns (state: State, runs: RunDataObject[]) {
  * @param projects - raw project data
  */
 function setProjects (state: State, projects: projectDataObject[]) {
+  state.projects = projects
   if (!state.projectsLoaded) {
     state.projectsLoaded = true
   }
-  state.projects = projects
+
+  projects.forEach((project) => {
+    state.annotatedJobs[project.project] = []
+  })
 }
 /**
  * commits raw job table data to store
  * @param state - application context
  * @param jobs - raw job data
  */
-function setJobs (state: State, jobs: Job[]) {
+function setJobs (state: State, jobs: {project: string, status: string, startedDate?: string, finishedDate?: string}[]) {
+  state.jobs = jobs
   if (!state.jobsLoaded) {
     state.jobsLoaded = true
   }
-  state.jobs = jobs
 }
 /**
  * sets the pipeline runtime data for visualization
@@ -189,6 +193,16 @@ function clearRawData (state: State) {
   state.runs = []
   state.projects = []
 }
+
+function setJobAggregates (state: State, aggregates: Record<string, Record<string, number>>) {
+  state.jobAggregates = aggregates
+}
+
+function annotateJobs (state: State, jobs: any[]) {
+  jobs.forEach((job) => {
+    state.annotatedJobs[job.project].push({ status: job.status, startedDate: job.startedDate, finishedDate: job.finishedDate })
+  })
+}
 export default {
   setRuns,
   setProjects,
@@ -207,5 +221,7 @@ export default {
   setRunObjects,
   setProjectObjects,
   updateCommentOnLocalProject,
-  clearRawData
+  clearRawData,
+  setJobAggregates,
+  annotateJobs
 }
