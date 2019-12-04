@@ -30,7 +30,7 @@ import { getSD, calculateMean } from '@/helpers/statistics'
 import { cropTitle } from '@/helpers/utils'
 import { State } from '../store/state'
 
-declare module 'vue/types/vue' { 
+declare module 'vue/types/vue' {
   interface Vue {
     pipelineTypes: string[]
     statistics: Serie[]
@@ -48,28 +48,28 @@ export default Vue.extend({
       selectedStatistic: 'cluster',
       selectedSubStatistic: 'Exoom' as string,
       rangeOptions: [
-        { value: 10, text: '10'},
-        { value: 100, text: '100'},
-        { value: 1000, text: '1000'}
+        { value: 10, text: '10' },
+        { value: 100, text: '100' },
+        { value: 1000, text: '1000' }
       ],
       statisticsOptions: [
-        { value: 'cluster', text: 'Cluster'},
-        { value: 'prepKit', text: 'prepKit'}
+        { value: 'cluster', text: 'Cluster' },
+        { value: 'prepKit', text: 'prepKit' }
       ],
       hover: false
     }
   },
   computed: {
-    subOptions(): Array<{value: string, text: string}>{
+    subOptions (): Array<{value: string, text: string}> {
       let options: Array<{value: string, text: string}> = []
       this.pipelineTypes.forEach((pipelineType: string) => {
-        options.push({ value: pipelineType, text: pipelineType})
+        options.push({ value: pipelineType, text: pipelineType })
       })
       return options
     },
     /**
      * Computed property that builds chart options
-     * 
+     *
      * @returns {chartOptions}
      */
     chartOptions (): ChartOptions {
@@ -105,7 +105,7 @@ export default Vue.extend({
             fontFamily: undefined
           }
         },
-        title: { 
+        title: {
           text: title,
           align: 'center'
         },
@@ -128,11 +128,11 @@ export default Vue.extend({
         },
         tooltip: {
           y: {
-          
-          formatter: function(value: number, { series , seriesIndex, dataPointIndex, w }: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineRuntimes: Record<string, IdentifiedSerie[]> = runTimes) {
-            return `${value} (hr), ${machineRuntimes[pipelineType][seriesIndex].projectIDs[dataPointIndex]}`
+
+            formatter: function (value: number, { series, seriesIndex, dataPointIndex, w }: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineRuntimes: Record<string, IdentifiedSerie[]> = runTimes) {
+              return `${value} (hr), ${machineRuntimes[pipelineType][seriesIndex].projectIDs[dataPointIndex]}`
+            }
           }
-  }
         },
         annotations: {} as GraphAnnotation
       }
@@ -177,13 +177,13 @@ export default Vue.extend({
   opacity: 0;
 }
 .graphOptions {
-  position: absolute; 
-  z-index: 2; 
+  position: absolute;
+  z-index: 2;
   margin-top: 5px;
 }
 .right {
-  right: 0; 
-  margin-right: 10px; 
+  right: 0;
+  margin-right: 10px;
 }
 .left {
   left: 0;

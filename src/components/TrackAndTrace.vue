@@ -32,13 +32,12 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {mapActions, mapState, mapGetters} from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
 import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
 import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic, statusCode } from '@/types/dataTypes'
 import { countJobStatus } from '@/helpers/utils'
-
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -112,32 +111,32 @@ export default Vue.extend({
     selectedRunObject (): Run {
       const id = this.showRun
       const selectedRunObject: Run | undefined = this.getRunObjectByID(id)
-      
-      return selectedRunObject ? selectedRunObject : new Run('', 'waiting', 'waiting', 0, false, 0, false) // if no run is found substitute with an empty one
+
+      return selectedRunObject || new Run('', 'waiting', 'waiting', 0, false, 0, false) // if no run is found substitute with an empty one
     },
     /**
      * Currently selected run id
-     * 
+     *
      * @returns {String} run id
      */
     selectedRunID (): string {
       const selectedRunID = this.selectedRunObject.run_id
-      return selectedRunID ? selectedRunID : ''
+      return selectedRunID || ''
     },
 
     /**
      * Currently selected projects belonging to the selected run
-     * 
+     *
      * @returns {ProjectObject[]}
      */
     selectedProjects (): ProjectObject[] {
       const selectedProjects = this.projectObjects[this.selectedRunID]
-      return  selectedProjects ? selectedProjects : []
+      return selectedProjects || []
     },
 
     /**
      * Currently selected project count
-     * 
+     *
      * @returns {Number}
      */
     selectedProjectCount (): number {
@@ -146,7 +145,7 @@ export default Vue.extend({
 
     /**
      * Currently selected run error status
-     * 
+     *
      * @returns {Boolean}
      */
     selectedRunContainsError (): Boolean {
@@ -155,7 +154,7 @@ export default Vue.extend({
 
     /**
      * checks if selected run is busy demultiplexing
-     * 
+     *
      * @returns {Boolean}
      */
     selectedRunDemultiplexingStatus (): Boolean {
@@ -164,7 +163,7 @@ export default Vue.extend({
     },
     /**
      * Currently selected run step number
-     * 
+     *
      * @returns {Number}
      */
     selectedRunStepNumber (): number {
@@ -173,7 +172,7 @@ export default Vue.extend({
 
     /**
      * Creates array of runId Strings
-     * 
+     *
      * @returns {String[]}
      */
     runIdArray (): string[] {
@@ -183,7 +182,7 @@ export default Vue.extend({
 
     /**
      * creates an Array of Run objects for step tracker
-     * 
+     *
      * @returns {Step[]}
      */
     runStepStatusArray (): Step[] {
@@ -193,8 +192,8 @@ export default Vue.extend({
           step: RunObject.getCurrentStep(),
           containsError: RunObject.containsError,
           len: RunObject.len
-          }
-        })
+        }
+      })
       return runStepStatusArray
     }
   },
@@ -239,7 +238,7 @@ export default Vue.extend({
 
     /**
      * increases timer by 1 second
-     * 
+     *
      * @returns {void}
      */
     timeUp (): void {
@@ -248,7 +247,7 @@ export default Vue.extend({
 
     /**
      * primes the timer for counting runtimes
-     * 
+     *
      * @returns {void}
      */
     setTimer ():void {
@@ -258,38 +257,38 @@ export default Vue.extend({
 
     /**
      * Calls data fetch action
-     * 
+     *
      * @returns {Promise<void>}
      */
     getData () {
       this.getTrackerData(20)
-      .then(() => {
-        if (this.errorToastActive) {
-          this.$bvToast.hide('errorToast')
-          this.errorToastActive = false
-          this.$bvToast.toast('Connection to MOLGENIS restored', {
-            title: 'Updated',
-            variant: 'success',
-            toaster: 'b-toaster-bottom-right',
-          })
-        }
-      })
-      .catch((reason) => {
-        if (!this.errorToastActive) {
-          this.errorToastActive = true
-          this.$bvToast.toast(reason, {
-            id: 'errorToast',
-            title: 'Error',
-            variant: 'danger',
-            toaster: 'b-toaster-bottom-right',
-            noAutoHide: true
-          })
-        }
-      })
+        .then(() => {
+          if (this.errorToastActive) {
+            this.$bvToast.hide('errorToast')
+            this.errorToastActive = false
+            this.$bvToast.toast('Connection to MOLGENIS restored', {
+              title: 'Updated',
+              variant: 'success',
+              toaster: 'b-toaster-bottom-right'
+            })
+          }
+        })
+        .catch((reason) => {
+          if (!this.errorToastActive) {
+            this.errorToastActive = true
+            this.$bvToast.toast(reason, {
+              id: 'errorToast',
+              title: 'Error',
+              variant: 'danger',
+              toaster: 'b-toaster-bottom-right',
+              noAutoHide: true
+            })
+          }
+        })
     },
     /**
      * Cycles the display index by 1
-     * 
+     *
      * @returns {void}
      */
     cycleRun (): void {

@@ -18,7 +18,7 @@
           :state="rejected ? false : undefined"
           :invalid-feedback="errorMessage"
         ></b-form-textarea>
-        
+
       </b-form-group>
       <b-button class="mt-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, newComment: placeHolderComment, oldComment: comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
       <b-button class="mt-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
@@ -58,7 +58,7 @@ export default {
       'CommentUpdatedStatus',
       'CommentNetworkError'
     ]),
-    validation() {
+    validation () {
       const comment = this.placeHolderComment
       return comment.length <= 65535
     }
@@ -71,13 +71,13 @@ export default {
     ...mapMutations([
       'updateCommentOnLocalProject'
     ]),
-    commentUpdated(message) {
+    commentUpdated (message) {
       this.rejected = false
       this.ErrorMessage = this.resetErrorMessage
-      this.updateCommentOnLocalProject({projectName: this.run, comment: this.placeHolderComment})
+      this.updateCommentOnLocalProject({ projectName: this.run, comment: this.placeHolderComment })
       this.closeModal()
     },
-    commentNotUpdated(reason) {
+    commentNotUpdated (reason) {
       this.rejected = true
       this.ErrorMessage = reason
       this.$bvToast.toast(reason, {
@@ -89,23 +89,23 @@ export default {
     },
     /**
      * Closes modal
-     * 
-     * 
+     *
+     *
      * @returns {void}
      */
-    closeModal() {
+    closeModal () {
       this.$bvModal.hide('comment-modal')
       this.rejected = false
     },
     /**
      * Opens the modal
-     * 
-     * 
+     *
+     *
      * @returns {void}
      */
-    showModal() {
+    showModal () {
       this.$bvModal.show('comment-modal')
-    },
+    }
   },
   watch: {
     /**

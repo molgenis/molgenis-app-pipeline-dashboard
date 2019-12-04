@@ -2,8 +2,8 @@
  * @module store
  */
 
-import { projectDataObject, RunDataObject, ProjectObject, Job, Run} from '@/types/dataTypes'
-import { Serie, IdentifiedSerie } from '@/types/graphTypes';
+import { projectDataObject, RunDataObject, ProjectObject, Job, Run } from '@/types/dataTypes'
+import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 export type State = {
   runs: RunDataObject[]
   projects: projectDataObject[]
@@ -16,7 +16,7 @@ export type State = {
   pipelineTypes: string[]
   statistics: Serie[]
   statisticsEmpty: boolean
-  machineRuntimes: Record<string,IdentifiedSerie[]>
+  machineRuntimes: Record<string, IdentifiedSerie[]>
   machineSampleCounts: Record<string, number[]>
   sequencerStatisticsSeries: number[]
   sequencerStatisticsLabels: string[]
@@ -60,7 +60,7 @@ const state: State = {
   monthlySampleCounts: 0,
   weeklySampleCounts: 0,
   dailySampleCounts: 0,
-  sequencedSampleNumbers: {counts: [], labels: []},
+  sequencedSampleNumbers: { counts: [], labels: [] },
   runsLoaded: false,
   projectsLoaded: false,
   jobsLoaded: false,

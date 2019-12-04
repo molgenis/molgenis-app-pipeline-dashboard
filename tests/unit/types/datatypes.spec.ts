@@ -1,8 +1,8 @@
-import {ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment, RunTimeStatistic, statusCode, parseStatus} from '@/types/dataTypes'
+import { ProjectObject, Job, pipelineType, Run, RunTime, AverageData, Comment, RunTimeStatistic, statusCode, parseStatus } from '@/types/dataTypes'
 
 describe('parseStatus', () => {
   function randomCapitalization (word: string): string {
-    return word.split('').map(function(character: string) {
+    return word.split('').map(function (character: string) {
       return Math.round(Math.random()) ? character.toUpperCase() : character.toLowerCase()
     }).join('')
   }
@@ -71,7 +71,6 @@ describe('Run', () => {
   })
 })
 
-
 describe('ProjectObject', () => {
   let projectObject: ProjectObject
 
@@ -83,8 +82,8 @@ describe('ProjectObject', () => {
       url: '',
       status: 'finished',
       step: 'create',
-      started_date: '2019-02-09T22:50:15Z',
-      finished_date: '2019-02-10T01:09:34Z'
+      startedDate: '2019-02-09T22:50:15Z',
+      finishedDate: '2019-02-10T01:09:34Z'
     }
 
     const job2: Job = {
@@ -94,8 +93,8 @@ describe('ProjectObject', () => {
       url: '',
       status: 'finished',
       step: 'create',
-      started_date: '2019-03-09T22:50:15Z',
-      finished_date: '2019-03-10T01:09:34Z'
+      startedDate: '2019-03-09T22:50:15Z',
+      finishedDate: '2019-03-10T01:09:34Z'
     }
 
     const job3: Job = {
@@ -105,8 +104,8 @@ describe('ProjectObject', () => {
       url: '',
       status: 'finished',
       step: 'create',
-      started_date: '2019-04-09T22:50:15Z',
-      finished_date: '2019-04-10T01:09:34Z'
+      startedDate: '2019-04-09T22:50:15Z',
+      finishedDate: '2019-04-10T01:09:34Z'
     }
 
     const job4: Job = {
@@ -117,7 +116,7 @@ describe('ProjectObject', () => {
       status: 'finished',
       step: 'create'
     }
-    
+
     const job5: Job = {
       project_job: 'test-Exoom_test5',
       job: 'test5',
@@ -125,8 +124,8 @@ describe('ProjectObject', () => {
       url: '',
       status: 'finished',
       step: 'create',
-      started_date: 'fafasfafaf', // simulates error in database fill
-      finished_date: 'kesffskfaofk' // simulates error in database fill
+      startedDate: 'fafasfafaf', // simulates error in database fill
+      finishedDate: 'kesffskfaofk' // simulates error in database fill
     }
     projectObject = new ProjectObject('test-Exoom', [job, job2, job3, job4, job5], 'DNA', 'finished', 'finished', '')
   })
@@ -223,19 +222,18 @@ describe('RunTimeStatistic class', () => {
   })
 
   test.skip('project runtimes get assigned correctly', () => {
-    class projectMock extends ProjectObject {
-      getRunTime() {
+    class ProjectMock extends ProjectObject {
+      getRunTime () {
         return 5
       }
     }
-    function createMockProject(name: string) {
-      const mockProject = new projectMock(name, [], 'dna', 'finished', 'finished', '')
+    function createMockProject (name: string) {
+      const mockProject = new ProjectMock(name, [], 'dna', 'finished', 'finished', '')
 
       return mockProject
     }
 
-    function returnFilledRuntimeStatistic() {
-
+    function returnFilledRuntimeStatistic () {
       const projects = [
         createMockProject('test-ONCO'),
         createMockProject('test-Exoom'),
@@ -246,9 +244,8 @@ describe('RunTimeStatistic class', () => {
 
       return new RunTimeStatistic(projects, 'test-run')
     }
-    
+
     const mockedStatisticsObject = returnFilledRuntimeStatistic()
     console.log(mockedStatisticsObject)
   })
 })
-

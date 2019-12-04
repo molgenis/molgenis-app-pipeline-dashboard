@@ -1,4 +1,4 @@
-import { Job, ProjectObject, projectDataObject } from '@/types/dataTypes';
+import { Job, ProjectObject, projectDataObject } from '@/types/dataTypes'
 
 /**
  * crops given title by the provided lenght
@@ -7,7 +7,6 @@ import { Job, ProjectObject, projectDataObject } from '@/types/dataTypes';
  * @returns {String}
  */
 export function cropTitle (title: string, length: number): string {
-  
   if (title.length > length) {
     return title.substring(0, length) + '...'
   }
@@ -17,9 +16,9 @@ export function cropTitle (title: string, length: number): string {
 
 /**
  * returns array of items that is not in the other array
- * 
- * @param arrayToFilter 
- * @param arrayToCheck 
+ *
+ * @param arrayToFilter
+ * @param arrayToCheck
  */
 export function getFilteredArray (arrayToFilter: Array<any>, arrayToCheck: Array<any>): Array<any> {
   return arrayToFilter.filter((item) => { return !arrayToCheck.includes(item) })
@@ -37,7 +36,7 @@ export function countJobStatus (jobs: Job[], status: string): number {
 /**
  * returns number of finished projects
  * @param {ProjectObject[]} projects - projects to check
- * 
+ *
  * @returns {Number}
  */
 export function countProjectStartedCopying (projects: ProjectObject[]): {finished: boolean, total: number} {
@@ -47,14 +46,14 @@ export function countProjectStartedCopying (projects: ProjectObject[]): {finishe
   const startedProjects = projects.filter(function (x) {
     return x.resultCopyStatus === 'started'
   })
-  return projects.length === finishedProjects.length ? {finished: true, total: finishedProjects.length} : {finished: false, total: finishedProjects.length + startedProjects.length}  
+  return projects.length === finishedProjects.length ? { finished: true, total: finishedProjects.length } : { finished: false, total: finishedProjects.length + startedProjects.length }
 }
 
 /**
  * gets the project status
  * @param {projectDataObject} project - project
  * @param {Job[]} jobs - project jobs
- * 
+ *
  * @returns {String} - status
  */
 export function getProjectDataStatus (project: projectDataObject, jobs: Job[]): string {

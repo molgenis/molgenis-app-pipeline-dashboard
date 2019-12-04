@@ -1,4 +1,4 @@
-import {formatDate, dayMs, dateIsLastYear, createDateRange} from '@/helpers/dates'
+import { formatDate, dayMs, dateIsLastYear, createDateRange } from '@/helpers/dates'
 
 describe('formatDate', () => {
   test('formats the given date with a single digit month and double digit day', () => {
@@ -30,7 +30,7 @@ describe('dateIsLastYear', () => {
   startDate.setMonth(4)
   startDate.setDate(2)
   startDate.setFullYear(2018)
-  
+
   const endDate = new Date()
   endDate.setDate(5)
   endDate.setMonth(7)
@@ -42,7 +42,7 @@ describe('dateIsLastYear', () => {
   })
 
   test('throws error when dates are reversed', () => {
-    function reversedDates() {
+    function reversedDates () {
       createDateRange(endDate, startDate)
     }
 
@@ -56,9 +56,9 @@ describe('dateIsLastYear', () => {
   const dateOutsideLastYear = new Date(now.getTime() - (dayMs * 500))
   const edgeCaseOutside = new Date(now.getTime() - 3600 - (dayMs * 365))
   const edgeCaseInside = new Date(now.getTime() + 3600 - (dayMs * 365))
-  const edgeCaseExact = new Date(now.getTime()- (dayMs * 365))
+  const edgeCaseExact = new Date(now.getTime() - (dayMs * 365))
 
-  it ('Correctly confirms date is within last year', () => {
+  it('Correctly confirms date is within last year', () => {
     expect(dateIsLastYear(dateWithinLastYear, now)).toBeTruthy()
     expect(dateIsLastYear(edgeCaseInside, now)).toBeTruthy()
   })
@@ -71,5 +71,4 @@ describe('dateIsLastYear', () => {
   test('handles exactly 1 year ago as true', () => {
     expect(dateIsLastYear(edgeCaseExact, now)).toBeTruthy()
   })
-  
 })

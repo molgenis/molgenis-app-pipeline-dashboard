@@ -5,8 +5,8 @@
         <b-tr>
           <b-td class="text-center" colspan="2">
             <div class="d-flex justify-content-around">
-              <b-button 
-                v-b-tooltip.hover 
+              <b-button
+                v-b-tooltip.hover
                 :title="`${cyclePaused ? 'Unpauses' : 'Pauses'} cycling`"
                 @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"><font-awesome-icon
                 v-if="cyclePaused"
@@ -20,30 +20,30 @@
                 <b-button
                 squared
                 size="sm"
-                v-b-tooltip.hover 
-                :title="`${editMode ? 'Deactivates' : 'Activates'} edit`" 
-                :variant="editMode ? 'info':'outline-info'" 
+                v-b-tooltip.hover
+                :title="`${editMode ? 'Deactivates' : 'Activates'} edit`"
+                :variant="editMode ? 'info':'outline-info'"
                 @click="toggleEditMode"
                 >
                   <font-awesome-icon icon="pen-square"></font-awesome-icon>
                 </b-button>
                 <b-button
-                v-b-tooltip.hover 
+                v-b-tooltip.hover
                 title="Show help"
                 squared
                 size="sm"
                 variant="outline-info">
                 <font-awesome-icon icon="info-circle" @click="$bvModal.show('help-modal')"></font-awesome-icon>
                 </b-button>
-                
+
               </div>
-            
+
               <span><b>Run</b></span>
-            
+
           </b-td>
           <b-th :colspan="5" class="text-center">Step</b-th>
           <b-th v-if="editMode" class="text-center">Status</b-th>
-          
+
         </b-tr>
       </b-thead>
       <b-tbody>
@@ -139,7 +139,7 @@ export default Vue.extend({
     selectedRun: {
       type: Object,
       required: false,
-      default: ''
+      default: () => { return {} as Run }
     },
 
     cyclePaused: {
@@ -159,13 +159,13 @@ export default Vue.extend({
     },
 
     toggleEditMode () {
-      this.editMode = ! this.editMode
+      this.editMode = !this.editMode
     },
 
     /**
      * emit selected run
      * @param {String} run - Run to select
-     * 
+     *
      * @emits 'select-run'
      * @returns {void}
      */
@@ -175,7 +175,7 @@ export default Vue.extend({
 
     /**
      * emit pause to stop cycling runs
-     * 
+     *
      * @emits 'toggle-cycle'
      * @returns {void}
      */
@@ -186,7 +186,7 @@ export default Vue.extend({
     /**
     *  emit finish to save run as finished
     * @param {String} run - run id string
-    * 
+    *
     * @emits 'run-finished'
     * @returns {void}
     */
@@ -197,7 +197,7 @@ export default Vue.extend({
     /**
      * Updates hidden parameter
      * @param {String[]} hidden - hidden values array
-     * 
+     *
      * @returns {void}
      */
     updateHidden (hidden: string[]): void {
@@ -226,7 +226,7 @@ export default Vue.extend({
 
     /**
      * When hidden is toggled true return hidden array for display
-     * 
+     *
      * @returns {RunStatusData[]}
      */
     showHiddenRuns (): RunStatusData[] {
@@ -238,14 +238,14 @@ export default Vue.extend({
 
     hiddenObjects (): RunStatusData[] {
       const totalRuns = this.totalRuns as RunStatusData[]
-      return totalRuns.filter((run) => { return this.hidden.includes(run.run)})
+      return totalRuns.filter((run) => { return this.hidden.includes(run.run) })
     }
   },
   watch: {
     /**
      * When selected run changes check if it is hidden
      * if it is hidden cycle to the next run
-     * 
+     *
      * @emits 'cycle-next'
      * @returns {void}
      */
@@ -254,10 +254,10 @@ export default Vue.extend({
         this.$emit('cycle-next')
       }
     },
-    
+
     /**
      * when hidden v-model changes makes sure the visible runs does not extend the maximum show value
-     * 
+     *
      * @returns {void}
      */
     hidden: {
@@ -265,18 +265,18 @@ export default Vue.extend({
       handler () {
         const totalRuns = this.totalRuns as RunStatusData[]
         let notHidden: RunStatusData[] = getFilteredArray(totalRuns, this.hiddenObjects)
-                
+
         if (notHidden.length > this.show) {
-          this.visibleRuns  = notHidden.slice(0, this.show)
+          this.visibleRuns = notHidden.slice(0, this.show)
           this.hiddenRunsByLength = getFilteredArray(notHidden, this.visibleRuns)
         } else {
           this.visibleRuns = notHidden
         }
-        
+
         this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns)
       }
     },
-    
+
     totalRuns: function () {
       if (this.hidden.length === 0) {
         this.hidden = []

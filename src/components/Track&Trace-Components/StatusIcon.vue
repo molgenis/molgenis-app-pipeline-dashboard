@@ -12,18 +12,18 @@
 
 <script>
 export default {
-    name: 'status-icon',
-    props: {
-        status: {
-            type: String,
-            required: true
-        },
-        comment: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
+  name: 'status-icon',
+  props: {
+    status: {
+      type: String,
+      required: true
+    },
+    comment: {
+      type: Boolean,
+      required: false,
+      default: false
     }
+  }
 }
 </script>
 

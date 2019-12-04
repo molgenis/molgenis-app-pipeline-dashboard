@@ -1,4 +1,4 @@
-import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit} from '@/helpers/time'
+import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit } from '@/helpers/time'
 
 describe('formatTime', () => {
   test('formats a single digit number to double digit', () => {
@@ -7,10 +7,10 @@ describe('formatTime', () => {
   })
 
   test('throws error when digit is not in time format', () => {
-    function largeNumber() {
+    function largeNumber () {
       formatTime(123, timeUnit.minutes)
     }
-    function negativeNumber() {
+    function negativeNumber () {
       formatTime(-1, timeUnit.minutes)
     }
 

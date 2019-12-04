@@ -23,30 +23,30 @@ export default {
   components: {
     StatusIcon
   },
-  data() {
+  data () {
     return {
       iconFields: [
-        {key: 'status', label: 'Icon'},
+        { key: 'status', label: 'Icon' },
         'name',
         'description'
       ],
       iconItems: [
-        {name: 'Finished', status: {icon: 'check-circle', color: 'success'}, description: 'Success, Finished'},
-        {name: 'Waiting', status: {icon: 'hourglass-start', color: 'secondary'}, description: 'Waiting, On hold, Paused'},
-        {name: 'Error', status: {icon: 'exclamation-circle', color: 'danger'}, description: 'Error, Run/Project Failed'},
-        {name: 'Warning', status: {icon: 'exclamation-triangle', color: 'warning'}, description: 'Warning, Something is not right'},
-        {name: 'Message', status: {icon: 'envelope-square', color: 'secondary'}, description: 'Comments are added to this instance'}
+        { name: 'Finished', status: { icon: 'check-circle', color: 'success' }, description: 'Success, Finished' },
+        { name: 'Waiting', status: { icon: 'hourglass-start', color: 'secondary' }, description: 'Waiting, On hold, Paused' },
+        { name: 'Error', status: { icon: 'exclamation-circle', color: 'danger' }, description: 'Error, Run/Project Failed' },
+        { name: 'Warning', status: { icon: 'exclamation-triangle', color: 'warning' }, description: 'Warning, Something is not right' },
+        { name: 'Message', status: { icon: 'envelope-square', color: 'secondary' }, description: 'Comments are added to this instance' }
       ],
       colorFields: [
-        {key: 'color', label: 'Color'},
+        { key: 'color', label: 'Color' },
         'description'
       ],
       colorItems: [
-        {color: 'primary', description: 'Selected or Running'},
-        {color: 'danger', description: 'Error, somthing has crashed or stopped working'},
-        {color: 'success', description: 'Finished, Complete, Done'},
-        {color: 'warning', description: 'Warning, something is wrong'},
-        {color: 'secondary', description: 'Not currently active, Waiting'}
+        { color: 'primary', description: 'Selected or Running' },
+        { color: 'danger', description: 'Error, somthing has crashed or stopped working' },
+        { color: 'success', description: 'Finished, Complete, Done' },
+        { color: 'warning', description: 'Warning, something is wrong' },
+        { color: 'secondary', description: 'Not currently active, Waiting' }
       ],
       stepFields: [
         'step',
@@ -54,11 +54,11 @@ export default {
         'description'
       ],
       stepItems: [
-        {step: 1, name: 'Demultiplexing', description: 'Creating FastQ files'},
-        {step: 2, name: 'Copying raw data', description: 'Copying raw data files to processing storage location'},
-        {step: 3, name: 'Running', description: 'Running the pipelines that belong to the unique run'},
-        {step: 4, name: 'Copying results', description: 'Copying pipeline results to final storage location'},
-        {step: 5, name: 'Finished', description: 'Step is reached when all results have been copied'}
+        { step: 1, name: 'Demultiplexing', description: 'Creating FastQ files' },
+        { step: 2, name: 'Copying raw data', description: 'Copying raw data files to processing storage location' },
+        { step: 3, name: 'Running', description: 'Running the pipelines that belong to the unique run' },
+        { step: 4, name: 'Copying results', description: 'Copying pipeline results to final storage location' },
+        { step: 5, name: 'Finished', description: 'Step is reached when all results have been copied' }
       ]
     }
   }

@@ -12,7 +12,7 @@ Vue.use(Vuex)
  * contains vuex Store
  * @requires actions,mutations,getters,state
  */
- const Store = new Vuex.Store({
+const Store = new Vuex.Store({
   state,
   mutations,
   actions,

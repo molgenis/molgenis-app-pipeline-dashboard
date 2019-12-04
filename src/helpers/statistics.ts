@@ -1,11 +1,11 @@
 /**
  * Calculates Standard deviation
- * 
+ *
  * calculates sum of numbers first then calculates sd
- * 
+ *
  * @param {Number[]} numberSeries - Array with numbers
  * @param {Number} mean - average
- * 
+ *
  * @returns {Number} - Standard deviation
  */
 export function getSD (numberSeries: number[], mean: number): number {
@@ -21,11 +21,10 @@ export function getSD (numberSeries: number[], mean: number): number {
 /**
  * Calculates mean of numeric array
  * @param {Number} numberSeries - array of numbers to calculate average
- * 
+ *
  * @return numberSeries mean
  */
 export function calculateMean (numberSeries: number[]): number {
-  
   const arrayLenght = numberSeries.length
   if (arrayLenght > 0) {
     return sumArray(numberSeries) / arrayLenght
@@ -36,13 +35,12 @@ export function calculateMean (numberSeries: number[]): number {
 /**
  * Sums up array of numbers
  * @param array - Array of numbers
- * 
+ *
  * @return {Number} Sum
  */
 export function sumArray (array: number[]): number {
-  return array.reduce((total: number, number: number): number => { return total + number})
+  return array.reduce((total: number, number: number): number => { return total + number })
 }
-
 
 /**
  * Calculates mean of numeric array excluding outliers
@@ -51,7 +49,6 @@ export function sumArray (array: number[]): number {
  * @returns {Number}
  */
 export function calculateMeanWithoutOutliers (numberSeries: number[], standardDeviations = 1): number {
-
   const mean = calculateMean(numberSeries)
   const SD = getSD(numberSeries, mean)
 
@@ -73,6 +70,6 @@ export function calculateMeanWithoutOutliers (numberSeries: number[], standardDe
  * @param n1 - number 1
  * @param n2 - number 2
  */
-export function max(n1:number, n2:number): number {
+export function max (n1:number, n2:number): number {
   return n1 > n2 ? n1 : n2
 }

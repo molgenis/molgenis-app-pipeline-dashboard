@@ -123,7 +123,7 @@ export default Vue.extend({
   computed: {
     /**
      * Check for long runtime
-     * 
+     *
      * @returns {Boolean}
      */
     hasNoWarning (): Boolean {
@@ -131,7 +131,7 @@ export default Vue.extend({
     },
     /**
      * Converts average hours to milliseconds for timer
-     * 
+     *
      * @returns {Number}
      */
     thresholdToMs (): number {
@@ -235,8 +235,8 @@ export default Vue.extend({
       let runtime = 0
       let jobArray = this.jobs as Job[]
       jobArray.forEach(job => {
-        if (job.started_date && job.finished_date) {
-          runtime += new Date(job.started_date!).getTime() - new Date(job.finished_date!).getTime()
+        if (job.startedDate && job.finishedDate) {
+          runtime += new Date(job.startedDate!).getTime() - new Date(job.finishedDate!).getTime()
         }
       })
       return runtime
@@ -260,28 +260,25 @@ export default Vue.extend({
   },
   methods: {
     /**
-     * emits job to open the modal
-     * 
+     * emits job to open the modalc
      * @emits 'open-modal'
      * @returns {void}
      */
     toggleLogBox (): void {
-     this.$emit('open-modal', this.project, this.comment) 
+      this.$emit('open-modal', this.project, this.comment)
     },
     /**
      * Checks if the project contains warnings
-     * 
      * @emits 'project-warning'
      * @returns {void}
      */
-    checkForWarnings(): void {
+    checkForWarnings (): void {
       if (!this.hasNoWarning) {
         this.$emit('project-warning', !this.hasNoWarning)
       }
     },
     /**
      * emits finished when called
-     * 
      * @emits 'finished'
      * @returns {void}
      */
@@ -295,8 +292,8 @@ export default Vue.extend({
      * @returns {Number} sort order
      */
     SortJobsByTime (job1: Job, job2: Job): number {
-      const job1StartedDate = job1.started_date
-      const job2StartedDate = job2.started_date
+      const job1StartedDate = job1.startedDate
+      const job2StartedDate = job2.startedDate
 
       if ((job1StartedDate === '' && job2StartedDate === '') || (!job1StartedDate && !job2StartedDate)) {
         return 0
@@ -319,7 +316,6 @@ export default Vue.extend({
   mounted () {
     this.checkForWarnings()
     setInterval(this.checkForWarnings, 30000)
-    
   }
 })
 </script>

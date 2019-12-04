@@ -1,7 +1,7 @@
 import mutations from '@/store/mutations'
-import { Run, RunDataObject, projectDataObject, Job, ProjectObject} from '@/types/dataTypes';
-import { State } from '@/store/state';
-import { Serie, IdentifiedSerie } from '@/types/graphTypes';
+import { Run, RunDataObject, projectDataObject, Job, ProjectObject } from '@/types/dataTypes'
+import { State } from '@/store/state'
+import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 
 let state: State
 
@@ -28,7 +28,7 @@ beforeEach(() => {
     monthlySampleCounts: 0,
     weeklySampleCounts: 0,
     dailySampleCounts: 0,
-    sequencedSampleNumbers: {counts: [], labels: []},
+    sequencedSampleNumbers: { counts: [], labels: [] },
     runsLoaded: false,
     projectsLoaded: false,
     jobsLoaded: false,
@@ -85,7 +85,6 @@ describe('setProjects', () => {
     }
   ]
   test('setProjects adds projects to localProjects', () => {
-    
     mutations.setProjects(state, projects)
 
     expect(state.projects).toEqual([
@@ -146,32 +145,32 @@ describe('setJobs', () => {
 
 describe('Setters wihtout logic', () => {
   test('setPipelineData', () => {
-    const data: Serie[] = [new Serie('other', [1,2,3])]
+    const data: Serie[] = [new Serie('other', [1, 2, 3])]
 
     mutations.setPipelineData(state, data)
 
-    expect(state.statistics).toContainEqual(new Serie('other', [1,2,3]))
+    expect(state.statistics).toContainEqual(new Serie('other', [1, 2, 3]))
   })
 
   test('setMachineRuntimes', () => {
-    const machineRuntimes: Record<string, IdentifiedSerie[]> = {"test-machine": [new IdentifiedSerie('other', [{projectID: 'test', number: 22}, {projectID: 'test2', number: 23}])]}
-    
+    const machineRuntimes: Record<string, IdentifiedSerie[]> = { 'test-machine': [new IdentifiedSerie('other', [{ projectID: 'test', number: 22 }, { projectID: 'test2', number: 23 }])] }
+
     mutations.setMachineRuntimes(state, machineRuntimes)
 
-    expect(state.machineRuntimes).toHaveProperty("test-machine")
-    expect(state.machineRuntimes["test-machine"]).toContainEqual(new IdentifiedSerie('other', [{projectID: 'test', number: 22}, {projectID: 'test2', number: 23}]))
+    expect(state.machineRuntimes).toHaveProperty('test-machine')
+    expect(state.machineRuntimes['test-machine']).toContainEqual(new IdentifiedSerie('other', [{ projectID: 'test', number: 22 }, { projectID: 'test2', number: 23 }]))
   })
 
   test('setMachineSampleCounts', () => {
-    const sampleCountsRecord: Record<string, number[]> = {'test-machine': [653, 222, 31]}
+    const sampleCountsRecord: Record<string, number[]> = { 'test-machine': [653, 222, 31] }
 
     mutations.setMachineSampleCounts(state, sampleCountsRecord)
-    expect(state.machineSampleCounts).toHaveProperty("test-machine")
-    expect(state.machineSampleCounts["test-machine"]).toEqual([653, 222, 31])
+    expect(state.machineSampleCounts).toHaveProperty('test-machine')
+    expect(state.machineSampleCounts['test-machine']).toEqual([653, 222, 31])
   })
 
   test('setSequencerStatisticsSeries', () => {
-    const sequencerStatistics = [1,2,3]
+    const sequencerStatistics = [1, 2, 3]
     mutations.setSequencerStatisticsSeries(state, sequencerStatistics)
 
     expect(state.sequencerStatisticsSeries).toEqual(sequencerStatistics)
@@ -233,13 +232,13 @@ describe('Setters wihtout logic', () => {
 
 describe('updateCommentOnLocalProject', () => {
   test('finds the correct project, and updates comment', () => {
-    const projectArray: projectDataObject[] = [{project: 'test-project1', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: ''}, {project: 'test-project2', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'did not change'}]
+    const projectArray: projectDataObject[] = [{ project: 'test-project1', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: '' }, { project: 'test-project2', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'did not change' }]
 
     mutations.setProjects(state, projectArray)
 
-    mutations.updateCommentOnLocalProject(state, {projectName: 'test-project1', comment: 'updated'})
+    mutations.updateCommentOnLocalProject(state, { projectName: 'test-project1', comment: 'updated' })
 
-    expect(state.projects).toContainEqual({project: 'test-project1', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'updated'})
-    expect(state.projects).toContainEqual({project: 'test-project2', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'did not change'})
+    expect(state.projects).toContainEqual({ project: 'test-project1', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'updated' })
+    expect(state.projects).toContainEqual({ project: 'test-project2', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'did not change' })
   })
 })

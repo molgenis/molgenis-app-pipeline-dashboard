@@ -67,7 +67,7 @@ export default Vue.extend({
         waiting: ['far', 'circle'],
         running: ['fas', 'sync-alt'],
         error: ['fas', 'exclamation-circle'],
-        warning: ['fas', 'exclamation-circle'],
+        warning: ['fas', 'exclamation-circle']
       }
     }
   },
@@ -102,7 +102,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    returnIcon(status: stepStatus): string[2] {
+    returnIcon (status: stepStatus): string[2] {
       switch (status) {
         case stepStatus.waiting:
           return this.iconTypes.waiting
@@ -116,10 +116,10 @@ export default Vue.extend({
           return this.iconTypes.done
       }
     },
-    returnColor(status: stepStatus): string {
-      return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.currentStep === 4 ? 'success' :  this.warning ? 'warning' :'primary'
+    returnColor (status: stepStatus): string {
+      return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.currentStep === 4 ? 'success' : this.warning ? 'warning' : 'primary'
     },
-    checkStepStatus(step: number): stepStatus {
+    checkStepStatus (step: number): stepStatus {
       if (this.currentStep < step) {
         return stepStatus.waiting
       }
@@ -128,7 +128,7 @@ export default Vue.extend({
       }
       return stepStatus.finished
     },
-    getLineColor(status: stepStatus): string[] {
+    getLineColor (status: stepStatus): string[] {
       if (status === stepStatus.waiting) {
         return []
       }
@@ -137,7 +137,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    demultiplexingStatus (): stepStatus{
+    demultiplexingStatus (): stepStatus {
       return this.checkStepStatus(0)
     },
     demultiplexingIcon (): string[2] {
@@ -147,7 +147,7 @@ export default Vue.extend({
       return this.returnColor(this.demultiplexingStatus)
     },
 
-    stepOneToTwoColor(): string[] {
+    stepOneToTwoColor (): string[] {
       return this.getLineColor(this.rawDataStatus)
     },
 
@@ -161,7 +161,7 @@ export default Vue.extend({
       return this.returnColor(this.rawDataStatus)
     },
 
-    stepTwoToThreeColor(): string[] {
+    stepTwoToThreeColor (): string[] {
       return this.getLineColor(this.pipelinesStatus)
     },
 
@@ -175,7 +175,7 @@ export default Vue.extend({
       return this.returnColor(this.pipelinesStatus)
     },
 
-    stepThreeToFourColor(): string[] {
+    stepThreeToFourColor (): string[] {
       return this.getLineColor(this.resultsDataStatus)
     },
 
@@ -189,14 +189,14 @@ export default Vue.extend({
       return this.returnColor(this.resultsDataStatus)
     },
 
-    stepFourToFiveColor(): string[] {
+    stepFourToFiveColor (): string[] {
       return this.getLineColor(this.finishedStatus)
     },
 
     finishedStatus (): stepStatus {
       return this.currentStep === 4 ? stepStatus.finished : stepStatus.waiting
     },
-    finishedIcon (): string[2]{
+    finishedIcon (): string[2] {
       return this.returnIcon(this.finishedStatus)
     },
     finishedColor () : string {
@@ -250,12 +250,12 @@ export default Vue.extend({
       if (this.currentStep >= 0) {
         return 'In progress:'
       }
-      
+
       return 'In Queue'
     }
 
   }
-  
+
 })
 </script>
 

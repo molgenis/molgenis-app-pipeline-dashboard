@@ -2,9 +2,9 @@
  * @module store
  */
 
-import { State } from '@/store/state';
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes';
-import { Serie, IdentifiedSerie } from '@/types/graphTypes';
+import { State } from '@/store/state'
+import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
+import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 
 /**
  * commits raw run table data to store
@@ -44,7 +44,7 @@ function setJobs (state: State, jobs: Job[]) {
  * @param state - application context
  * @param statistics - pipeline series data
  */
-function setPipelineData(state: State, statistics: Serie[]) {
+function setPipelineData (state: State, statistics: Serie[]) {
   state.statistics = statistics
 }
 /**
@@ -52,7 +52,7 @@ function setPipelineData(state: State, statistics: Serie[]) {
  * @param state - application context
  * @param series - runtimes for each machine
  */
-function setMachineRuntimes(state: State, series: Record<string, IdentifiedSerie[]>) {
+function setMachineRuntimes (state: State, series: Record<string, IdentifiedSerie[]>) {
   state.machineRuntimes = series
 }
 /**
@@ -60,7 +60,7 @@ function setMachineRuntimes(state: State, series: Record<string, IdentifiedSerie
  * @param state - application context
  * @param sampleCounts - sample counts per machine
  */
-function setMachineSampleCounts(state: State, sampleCounts: Record<string, number[]>) {
+function setMachineSampleCounts (state: State, sampleCounts: Record<string, number[]>) {
   state.machineSampleCounts = sampleCounts
 }
 /**
@@ -68,7 +68,7 @@ function setMachineSampleCounts(state: State, sampleCounts: Record<string, numbe
  * @param state - application context
  * @param series - sequencer series data
  */
-function setSequencerStatisticsSeries(state: State, series: number[]) {
+function setSequencerStatisticsSeries (state: State, series: number[]) {
   state.sequencerStatisticsSeries = series
 }
 /**
@@ -76,7 +76,7 @@ function setSequencerStatisticsSeries(state: State, series: number[]) {
  * @param state - application context
  * @param labels - labels paired to sequencer series data
  */
-function setSequencerStatisticsLabels(state: State, labels: string[]) {
+function setSequencerStatisticsLabels (state: State, labels: string[]) {
   state.sequencerStatisticsLabels = labels
 }
 /**
@@ -84,7 +84,7 @@ function setSequencerStatisticsLabels(state: State, labels: string[]) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setTotalCounts(state: State, counts: number) {
+function setTotalCounts (state: State, counts: number) {
   state.totalSampleCounts = counts
 }
 /**
@@ -92,7 +92,7 @@ function setTotalCounts(state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setYearlySampleCounts(state: State, counts: number) {
+function setYearlySampleCounts (state: State, counts: number) {
   state.yearlySampleCounts = counts
 }
 /**
@@ -100,7 +100,7 @@ function setYearlySampleCounts(state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setMonthlySampleCounts(state: State, counts: number) {
+function setMonthlySampleCounts (state: State, counts: number) {
   state.monthlySampleCounts = counts
 }
 /**
@@ -108,7 +108,7 @@ function setMonthlySampleCounts(state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setWeeklySampleCounts(state: State, counts: number) {
+function setWeeklySampleCounts (state: State, counts: number) {
   state.weeklySampleCounts = counts
 }
 /**
@@ -116,7 +116,7 @@ function setWeeklySampleCounts(state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setDailySampleCounts(state: State, counts: number) {
+function setDailySampleCounts (state: State, counts: number) {
   state.dailySampleCounts = counts
 }
 /**
@@ -124,7 +124,7 @@ function setDailySampleCounts(state: State, counts: number) {
  * @param state - application context
  * @param data - sequenced samples
  */
-function setSequencedSampleNumbers(state: State, data: {labels: string[], counts: number[]}){
+function setSequencedSampleNumbers (state: State, data: {labels: string[], counts: number[]}) {
   state.sequencedSampleNumbers = {
     labels: data.labels,
     counts: data.counts
@@ -132,14 +132,14 @@ function setSequencedSampleNumbers(state: State, data: {labels: string[], counts
 }
 /**
  * updates localy stored project comment
- * 
+ *
  * Finds the stored project and updates its comment acordingly
  * @param state - application state
  * @param param1 - project id and the new comment
  * @param param1.projectName - Project ID
  * @param param1.comment - new comment content
  */
-function updateCommentOnLocalProject(state: State, {projectName , comment}: {projectName: string, comment: string}) {
+function updateCommentOnLocalProject (state: State, { projectName, comment }: {projectName: string, comment: string}) {
   const index = state.projects.findIndex(project => project.project === projectName)
   state.projects[index].comment = comment
 }
@@ -149,7 +149,7 @@ function updateCommentOnLocalProject(state: State, {projectName , comment}: {pro
  * @param state - application state
  * @param Runs - Converted run objects
  */
-function setRunObjects(state: State, Runs: Run[]) {
+function setRunObjects (state: State, Runs: Run[]) {
   state.runObjects = Runs.sort((run1: Run, run2: Run): number => {
     const run1Error = run1.containsError
     const run2Error = run2.containsError
@@ -165,32 +165,29 @@ function setRunObjects(state: State, Runs: Run[]) {
 
     if (run1Step > run2Step) {
       return 1
-    } 
+    }
     if (run1Step === run2Step) {
       return 0
     }
     return -1
-    
   })
 
   if (!state.rawDataConverted) {
     state.rawDataConverted = true
   }
-
 }
 /**
- * sets the converted project objects 
+ * sets the converted project objects
  * @param state - application state
  * @param projects - converted project objects
  */
-function setProjectObjects(state: State, projects: Record<string, ProjectObject[]>) {
+function setProjectObjects (state: State, projects: Record<string, ProjectObject[]>) {
   state.projectObjects = projects
 }
 
-function clearRawData(state: State) {
+function clearRawData (state: State) {
   state.runs = []
   state.projects = []
-  state.jobs = []
 }
 export default {
   setRuns,

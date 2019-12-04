@@ -70,7 +70,7 @@ export default {
       type: Array,
       required: true
     },
-    
+
     variant: {
       type: String,
       required: false,
@@ -84,20 +84,20 @@ export default {
   },
   computed: {
     LocalHidden: {
-      get: function() {
+      get: function () {
         return this.hidden
       },
-      set: function(value){
+      set: function (value) {
         this.$emit('update-hidden', value)
       }
     },
     isChecked: {
-      get: function() {
+      get: function () {
         return this.LocalHidden.includes(this.run) ? false : this.run
       },
-      set: function(value){
+      set: function (value) {
         if (value) {
-          this.LocalHidden = this.LocalHidden.filter(x =>  x !== value)
+          this.LocalHidden = this.LocalHidden.filter(x => x !== value)
         } else {
           this.LocalHidden = [this.run, ...this.LocalHidden]
         }
@@ -111,22 +111,22 @@ export default {
     /**
      * Changes the selected run
      * @param {String} run - run Id to select
-     * 
+     *
      * @emits 'select-run'
      * @returns {void}
      */
-    selectRun(run) {
+    selectRun (run) {
       this.$emit('select-run', run)
     },
 
     /**
      * Noitifys run as finished
      * @param {String} run - run to pass on with status finished
-     * 
+     *
      * @emits 'progress-finish'
      * @returns {void}
      */
-    emitFinish(run) {
+    emitFinish (run) {
       this.finished = true
       this.$emit('progress-finish', run)
     },
@@ -135,21 +135,21 @@ export default {
      * Calculates diffrence between two arrays
      * @param {Array} array1 - 1st array
      * @param {Array} array2 - 2nd array
-     * 
+     *
      * @returns {Array} difference
      */
     arrayDifference (array1, array2) {
       return array1.filter((item) => { return array2.indexOf(item) < 0 })
     },
-    
+
     /**
      * Change run where mouse is on
      * @param {String} run - the new run
-     * 
+     *
      * @emits 'mouse-on'
      * @returns {void}
      */
-    setMouseOn(run) {
+    setMouseOn (run) {
       this.$emit('mouse-on', run)
     }
   }

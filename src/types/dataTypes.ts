@@ -1,4 +1,4 @@
-import { parse } from '@fortawesome/fontawesome-svg-core';
+import { parse } from '@fortawesome/fontawesome-svg-core'
 
 export interface RawDataObject extends RunDataObject, projectDataObject, Job{
 
@@ -12,7 +12,7 @@ export enum statusCode {
   other = 'other'
 }
 
-export function parseStatus(statusString: string): statusCode {
+export function parseStatus (statusString: string): statusCode {
   if (statusString.match(/waiting/gi)) {
     return statusCode.waiting
   }
@@ -38,7 +38,7 @@ export class Run {
   containsError: Boolean
   copyState: number
   finished: Boolean
-  constructor(runID: string, Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number, finished: boolean){
+  constructor (runID: string, Demultiplexing: string, RawCopyState: string, lenght: number, error: Boolean, ResultCopyState: number, finished: boolean) {
     this.run_id = runID
     this.demultiplexing = Demultiplexing
     this.rawCopy = RawCopyState
@@ -47,16 +47,16 @@ export class Run {
     this.copyState = ResultCopyState
     this.finished = finished
   }
-  getDemultiplexingStatus(): statusCode {
+  getDemultiplexingStatus (): statusCode {
     return parseStatus(this.demultiplexing)
   }
-  getRawDataCopyingStatus(): statusCode {
+  getRawDataCopyingStatus (): statusCode {
     if (this.rawCopy) {
       return parseStatus(this.rawCopy)
     }
     return statusCode.finished
   }
-  getCurrentStep(): number {
+  getCurrentStep (): number {
     switch (this.getDemultiplexingStatus()) {
       case statusCode.started:
         return 0
@@ -66,17 +66,16 @@ export class Run {
         return -1
       default:
         const rawCopyStatus = this.getRawDataCopyingStatus()
-        if ( rawCopyStatus === statusCode.started || rawCopyStatus === statusCode.error) {
+        if (rawCopyStatus === statusCode.started || rawCopyStatus === statusCode.error) {
           return 1
           // selectedRunObject result copying check
         } else if (this.copyState > 0) {
-          return this.finished ? 4 : this.copyState === 4 ? 3 : 2 
+          return this.finished ? 4 : this.copyState === 4 ? 3 : 2
         } else {
           return 2
         }
     }
   }
-  
 }
 
 /**
@@ -101,7 +100,6 @@ export enum pipelineType {
   other = 'OTHER'
 }
 
-
 enum dateSearch {
   started = 'started_date',
   finished = 'finished_date'
@@ -121,8 +119,8 @@ export class ProjectObject {
   status: statusCode
   resultCopyStatus?: string
   Comment?: string
-  
-  constructor(projectName: string, jobArray: Job[], pipeline: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined){
+
+  constructor (projectName: string, jobArray: Job[], pipeline: string, statusString: string, resultCopyStatusString: string | undefined, comment: string | undefined) {
     this.project = projectName
     this.jobs = jobArray
     this.pipeline = pipeline
@@ -136,10 +134,10 @@ export class ProjectObject {
    * @param date date
    * @param dateKey started date or finished date
    */
-  private checkDateOfJob(dateToCheck: string, date: number, dateKey: string): number {
+  private checkDateOfJob (dateToCheck: string, date: number, dateKey: string): number {
     if (dateToCheck) {
       let CurrentJobDate = new Date(dateToCheck!).getTime()
-      if (!isNaN(CurrentJobDate)){
+      if (!isNaN(CurrentJobDate)) {
         if (dateKey === dateSearch.finished && date < CurrentJobDate) {
           date = CurrentJobDate
         } else if (dateKey === dateSearch.started && date > CurrentJobDate) {
@@ -151,29 +149,29 @@ export class ProjectObject {
   }
   /**
    * Gets the date that belongs to the calculation using the date key
-   * 
+   *
    * @param date - value to compare date to
-   * @param dateKey - which job collumn to search ( started_date or finished_date ) 
+   * @param dateKey - which job collumn to search ( started_date or finished_date )
    */
   private getRelevantDate (date: number, dateKey: string) {
     this.jobs.forEach((job: Job) => {
-      //@ts-ignore
+      // @ts-ignore
       const dateToCheck = job[dateKey]
 
       date = this.checkDateOfJob(dateToCheck, date, dateKey)
     })
     return date
   }
-  public getProjectType(): pipelineType {
+  public getProjectType (): pipelineType {
     if (this.project.match(new RegExp('ONCO.*'))) {
       return pipelineType.onco
     }
-    if (this.project.match(new RegExp('Exoom.*'))){
+    if (this.project.match(new RegExp('Exoom.*'))) {
       return pipelineType.exoom
     }
     if (this.project.match(new RegExp('PCS.*'))) {
       return pipelineType.pcs
-    } 
+    }
     if (this.project.match(new RegExp('S[VP]{2}.*'))) {
       return pipelineType.svp
     }
@@ -185,10 +183,9 @@ export class ProjectObject {
   public findStartDateTime (): number {
     return this.getRelevantDate(Infinity, dateSearch.started)
   }
-  public getRunTime(): number {
+  public getRunTime (): number {
     return this.findLastDateTime() - this.findStartDateTime()
   }
-
 }
 
 /**
@@ -213,8 +210,8 @@ export interface Job {
   url: string
   status: string
   step: string
-  started_date?: string
-  finished_date?: string
+  startedDate?: string
+  finishedDate?: string
 }
 
 /**
@@ -235,7 +232,7 @@ export interface Step {
 export class RunTime {
   runId: string
   runtime: number
-  constructor(id: string, time: number) {
+  constructor (id: string, time: number) {
     this.runId = id
     this.runtime = Math.round(((time / 1000) / 3600) * 10) / 10
   }
@@ -251,7 +248,7 @@ export class RunTimeStatistic {
   PCS = new RunTime('no data', 0)
   SVP = new RunTime('no data', 0)
   other: RunTime[] = []
-  constructor(projects: ProjectObject[], runId: string) {
+  constructor (projects: ProjectObject[], runId: string) {
     projects.forEach((project: ProjectObject) => {
       let runTimeObject = new RunTime(runId, project.getRunTime())
 
@@ -273,22 +270,22 @@ export class RunTimeStatistic {
       }
     })
   }
-  private setOnco(runtime: RunTime) {
+  private setOnco (runtime: RunTime) {
     this.ONCO = runtime
   }
-  private setExoom(runtime: RunTime) {
+  private setExoom (runtime: RunTime) {
     this.Exoom = runtime
   }
-  private setPcs(runtime: RunTime) {
+  private setPcs (runtime: RunTime) {
     this.PCS = runtime
   }
-  private setSvp(runtime: RunTime) {
+  private setSvp (runtime: RunTime) {
     this.SVP = runtime
   }
-  private updateOtherRuntimes(runtime: RunTime) {
+  private updateOtherRuntimes (runtime: RunTime) {
     this.other.push(runtime)
   }
-  private compareNums(max: number, current: number) {
+  private compareNums (max: number, current: number) {
     return max > current ? max : current
   }
   public getOncoRuntime () {
@@ -304,7 +301,7 @@ export class RunTimeStatistic {
     return this.SVP.runtime
   }
 
-  public getMax(): number {
+  public getMax (): number {
     return this.compareNums(this.getOncoRuntime(), this.compareNums(this.getExoomRuntime(), this.compareNums(this.getPcsRuntime(), this.getSvpRuntime())))
   }
 }
@@ -320,8 +317,8 @@ export interface responseJSON {
 export class Comment {
   name: string
   comment: string
-  constructor(name: string, text: string) {
-    this.name = name,
+  constructor (name: string, text: string) {
+    this.name = name
     this.comment = text
   }
 }

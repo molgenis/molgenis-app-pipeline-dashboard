@@ -6,7 +6,6 @@ const localVue = createLocalVue()
 
 localVue.use(BootstrapVue)
 
-
 describe('ProgressBar.vue', () => {
   test('renders a bootstrap progress bar when passed', () => {
     const step = 44
@@ -23,7 +22,7 @@ describe('ProgressBar.vue', () => {
     const totalSteps = 2
     const wrapper = mount(ProgressBar, {
       localVue,
-      propsData: {step, totalSteps}
+      propsData: { step, totalSteps }
     })
     expect(wrapper.emitted('progress-finish')).toBeTruthy()
   })
@@ -33,12 +32,12 @@ describe('ProgressBar.vue', () => {
     const totalSteps = 3
     const wrapper = mount(ProgressBar, {
       localVue,
-      propsData: {step, totalSteps}
+      propsData: { step, totalSteps }
     })
 
     expect(Object.keys(wrapper.emitted())).not.toContain('progress-finish')
     step = totalSteps
-    wrapper.setProps({step, totalSteps})
+    wrapper.setProps({ step, totalSteps })
 
     expect(Object.keys(wrapper.emitted())).toContain('progress-finish')
   })

@@ -57,13 +57,13 @@ export default {
   methods: {
     /**
      * Cycles visible Graph by 1 index
-     * 
+     *
      * @returns {void}
      */
-    cycle() {
+    cycle () {
       const index = this.selectAble.indexOf(this.selected)
       const length = this.selectAble.length
-      if (!this.paused){
+      if (!this.paused) {
         if ((index + 1) === length || (index + 1) >= length) {
           this.selected = this.selectAble[0]
         } else {
@@ -74,10 +74,10 @@ export default {
     /**
      * find the correct return tyle
      * @param {String} select - selected string
-     * 
+     *
      * @returns {String}
      */
-    returnType(select) {
+    returnType (select) {
       switch (select) {
         case 'weekly':
           return 'WEEK'

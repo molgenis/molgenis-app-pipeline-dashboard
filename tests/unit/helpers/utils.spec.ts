@@ -1,4 +1,4 @@
-import { cropTitle, getFilteredArray, countJobStatus, countProjectStartedCopying, getProjectDataStatus} from '@/helpers/utils'
+import { cropTitle, getFilteredArray, countJobStatus, countProjectStartedCopying, getProjectDataStatus } from '@/helpers/utils'
 import { Job, ProjectObject, projectDataObject } from '@/types/dataTypes'
 
 describe('cropTitle', () => {
@@ -20,7 +20,7 @@ describe('getFilteredArray', () => {
     const array1 = ['test1', 'test2', 'test3']
     const array2 = ['test2', 'test3']
 
-    expect(getFilteredArray(array1, array2)).not.toContain(['test2','test3'])
+    expect(getFilteredArray(array1, array2)).not.toContain(['test2', 'test3'])
   })
 })
 
@@ -38,8 +38,8 @@ describe('countJobStatus', () => {
         url: 'test.org',
         status: 'finished',
         step: name,
-        started_date: `2019-09-0${counter}T08:00:00`,
-        finished_date: `2019-09-0${counter + 1}T09:00:00`,
+        startedDate: `2019-09-0${counter}T08:00:00`,
+        finishedDate: `2019-09-0${counter + 1}T09:00:00`
       }
     })
   })
@@ -57,18 +57,18 @@ describe('countProjectStartedCopying', () => {
   for (let i = 0; i <= 10; i++) {
     projects.push(new ProjectObject(`project${i}`, [], 'dna', 'finished', 'finished', ''))
     projectsFinished.push(new ProjectObject(`project${i}`, [], 'dna', 'finished', 'finished', ''))
-    projects.push(new ProjectObject(`project${i}${i*20}`, [], 'dna', 'finished', 'started', ''))
+    projects.push(new ProjectObject(`project${i}${i * 20}`, [], 'dna', 'finished', 'started', ''))
     projectsNotFinished.push(new ProjectObject(`project${i}`, [], 'dna', 'running', 'waiting', ''))
   }
 
   test('projects started and finished counts correctly', () => {
-    expect(countProjectStartedCopying(projects)).toEqual({finished: false, total: 22})
+    expect(countProjectStartedCopying(projects)).toEqual({ finished: false, total: 22 })
   })
-  test('projects finished all annotates and counts correctly', ()=> {
-    expect(countProjectStartedCopying(projectsFinished)).toEqual({finished: true, total: 11})
+  test('projects finished all annotates and counts correctly', () => {
+    expect(countProjectStartedCopying(projectsFinished)).toEqual({ finished: true, total: 11 })
   })
   test('no projects done annotates and counts correctly', () => {
-    expect(countProjectStartedCopying(projectsNotFinished)).toEqual({finished: false, total: 0})
+    expect(countProjectStartedCopying(projectsNotFinished)).toEqual({ finished: false, total: 0 })
   })
 })
 
@@ -125,5 +125,4 @@ describe('getProjectDataStatus', () => {
       step: `s012`
     }])).toBe('Waiting')
   })
-
 })

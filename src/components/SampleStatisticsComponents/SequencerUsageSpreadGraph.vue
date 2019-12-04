@@ -18,9 +18,9 @@ export default {
     ]),
     updateStatistics () {
       this.getSequencerStatistics()
-      .catch(() => {
-        setTimeout(this.updateStatistics, 10000)
-      })
+        .catch(() => {
+          setTimeout(this.updateStatistics, 10000)
+        })
     }
   },
   computed: {
@@ -54,9 +54,9 @@ export default {
       }
     }
   },
-  mounted() { 
+  mounted () {
     this.updateStatistics()
-  },
+  }
 }
 </script>
 
