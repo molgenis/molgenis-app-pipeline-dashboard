@@ -1,0 +1,8 @@
+{
+  "name": "MOLGENIS pipeline dashboard",
+  "out": "docs/documentation",
+  "mode": "modules",
+  "plugin": "typedoc-external-module-name",
+  "target": "ES6",
+  "exclude": "*/main.ts"
+}
