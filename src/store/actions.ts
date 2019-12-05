@@ -115,7 +115,7 @@ async function getJobData ({ commit, state: { jobTable }, dispatch }: {commit: a
     api.get(`/api/v2/${jobTable}?attrs=project_job,project,status,started_date,finished_date&num=10000`)
       .then(function (response: {items: any[]}) {
         if (response.items.length > 0) {
-          const mappedJobs = response.items.map((job) => { return { project: job.project, status: job.status, started_date: job.started_date, finished_date: job.finished_date } })
+          const mappedJobs = response.items.map((job) => { return { project: job.project, status: job.status, startedDate: job.started_date, finishedDate: job.finished_date } })
           commit('setJobs', mappedJobs)
         }
         dispatch('getJobAggregates')

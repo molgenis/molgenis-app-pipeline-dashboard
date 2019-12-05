@@ -219,7 +219,8 @@ export default Vue.extend({
         return this.hidden
       },
       set: function (updatedHidden: string[]) {
-        this.hidden = updatedHidden
+        const totalRuns = this.totalRuns as RunStatusData[]
+        this.hidden = [...updatedHidden, ...Array.from(totalRuns.filter((runStatusData) => {return runStatusData.step === 4 && !updatedHidden.includes(runStatusData.run) }), x => x.run)]
       }
 
     },
@@ -265,14 +266,7 @@ export default Vue.extend({
       handler () {
         const totalRuns = this.totalRuns as RunStatusData[]
         let notHidden: RunStatusData[] = getFilteredArray(totalRuns, this.hiddenObjects)
-
-        if (notHidden.length > this.show) {
-          this.visibleRuns = notHidden.slice(0, this.show)
-          this.hiddenRunsByLength = getFilteredArray(notHidden, this.visibleRuns)
-        } else {
           this.visibleRuns = notHidden
-        }
-
         this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns)
       }
     },
