@@ -1,5 +1,5 @@
 {
-  "name": "@molgenis-ui/molgenis-app-app-pipeline-dashboard",
+  "name": "@molgenis-ui/molgenis-app-pipeline-dashboard",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.html",
