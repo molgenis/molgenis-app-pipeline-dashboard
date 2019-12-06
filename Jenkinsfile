@@ -14,7 +14,7 @@ pipeline {
                     script {
                         env.TUNNEL_IDENTIFIER = sh(script: 'echo ${GIT_COMMIT}-${BUILD_NUMBER}', returnStdout: true)
                         env.GITHUB_TOKEN = sh(script: 'vault read -field=value secret/ops/token/github', returnStdout: true)
-                        env.CODECOV_TOKEN = sh(script: 'vault read -field=molgenis-app-app-pipeline-dashboard secret/ops/token/codecov', returnStdout: true)
+                        env.CODECOV_TOKEN = sh(script: 'vault read -field=molgenis-app-pipeline-dashboard secret/ops/token/codecov', returnStdout: true)
                         env.NPM_TOKEN = sh(script: 'vault read -field=value secret/ops/token/npm', returnStdout: true)
                     }
                 }
