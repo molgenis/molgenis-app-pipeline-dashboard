@@ -9,8 +9,12 @@ module.exports = {
     host: process.env.JENKINS_AGENT_NAME || 'localhost',
     proxy: process.env.NODE_ENV === 'production' ? undefined : {
       '^/api': {
-        'target': 'https://molgenis96.gcc.rug.nl',
-        'keepOrigin': true
+        target: 'https://molgenis96.gcc.rug.nl',
+        changeOrigin: true
+      },
+      '^/login': {
+        target: 'https://molgenis96.gcc.rug.nl',
+        changeOrigin: true
       }
     }
   },
