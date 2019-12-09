@@ -21,6 +21,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { Step, StraightStep, IncrementalStep } from '@/types/steps'
+import { statusCode } from '../../types/dataTypes'
+import { mapState } from 'vuex'
 
 interface iconTypes {
   done: string[2]
@@ -30,11 +33,11 @@ interface iconTypes {
   warning: string[2]
 }
 enum steps {
-  demultiplexing = 0,
-  rawData = 1,
-  pipelines = 2,
-  resultData = 3,
-  finished = 4
+  demultiplexing,
+  rawData,
+  pipelines,
+  resultData,
+  finished,
 }
 enum stepStatus {
   waiting = 'waiting',

@@ -2,12 +2,14 @@
  * @module store
  */
 
-import { projectDataObject, RunDataObject, ProjectObject, Job, Run } from '@/types/dataTypes'
+import { projectDataObject, RunDataObject, ProjectObject, Job, Run, statusCode } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
+import { JobCounts, JobCounter, RunData, ProjectData } from '@/types/Run';
+
+
 export type State = {
   runs: RunDataObject[]
   projects: projectDataObject[]
-  jobs: Job[]
   overviewTable: string
   projectsTable: string
   jobTable: string
@@ -33,18 +35,18 @@ export type State = {
   checkedCommentStatus: boolean
   CommentUpdatedStatus: boolean
   CommentNetworkError: boolean
-  projectObjects: Record<string, ProjectObject[]>
+  projectObjects: Record<string, ProjectData[]>
   runObjects: Run[]
   rawDataConverted: boolean
-  jobAggregates: Record<string, Record<string, number>>
+  jobAggregates: Record<string, JobCounts>
   completeRunDataObjectArray: Object[]
-  annotatedJobs: Record<string, Object[]>
+  annotatedJobs: Record<string, Object[]>,
+  runV2: RunData[],
+  projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
 }
-
 const state: State = {
   runs: [],
   projects: [],
-  jobs: [],
   overviewTable: 'status_overview',
   projectsTable: 'status_projects',
   jobTable: 'status_jobs',
@@ -75,7 +77,9 @@ const state: State = {
   runObjects: [],
   jobAggregates: {},
   completeRunDataObjectArray: [],
-  annotatedJobs: {}
+  annotatedJobs: {},
+  runV2: [],
+  projectDates: {}
 }
 
 export default state

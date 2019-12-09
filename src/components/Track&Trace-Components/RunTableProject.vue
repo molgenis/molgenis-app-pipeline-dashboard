@@ -2,7 +2,7 @@
 <b-row @click="toggleLogBox">
   <b-col cols="4" class="text-center"><p class="text-truncate fontvw">{{project}}</p></b-col>
   <b-col cols="4" class="text-center pt-1">
-    <status-icon :status="status" :comment="comment.length > 0"/>
+    <status-icon :status="status" :comment="comment.length > 0" :warning="currentWarningStatus"/>
   </b-col>
     <b-col :cols="running ? 2 : 4" class="text-center float-left">
       <project-timer
@@ -30,12 +30,12 @@ import Vue from 'vue'
 import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
-import { Job } from '@/types/dataTypes.ts'
-import { countJobStatus } from '../../helpers/utils'
+import { Job, statusCode } from '@/types/dataTypes.ts'
+import { JobCounts } from '../../types/Run'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    jobs: Job[]
+    jobs: JobCounts
   }
 }
 export default Vue.extend({
@@ -65,17 +65,13 @@ export default Vue.extend({
     },
 
     jobs: {
-      type: Array,
+      type: Object,
       required: true
     },
-    startedDate: {
-      type: Number,
-      required: false
-    },
-
-    finishedDate: {
-      type: Number,
-      required: false
+    projectDates: {
+      type: Object,
+      required: false,
+      default: () => {return {startedDate: new Date(), finishedDate: new Date()}}
     },
 
     runID: {
@@ -139,19 +135,6 @@ export default Vue.extend({
     },
 
     /**
-     * Filters jobs that are not completed sorted by start date
-     * @returns {Job[]}
-     */
-    remainingJobs (): Job[] {
-      let jobArray: Job[] = this.jobs
-      return jobArray
-        .filter(function (job: Job) {
-          return job.status !== 'finished'
-        })
-        .sort(this.SortJobsByTime)
-    },
-
-    /**
      * calculates finished step count
      * @returns {Number}
      */
@@ -159,8 +142,8 @@ export default Vue.extend({
       if (this.resultCopy === 'finished' || this.resultCopy === 'started') {
         return this.totalSteps
       }
-      let jobArray = this.jobs as Job[]
-      return countJobStatus(jobArray, 'finished')
+      
+      return this.jobs.finished
     },
 
     /**
@@ -168,27 +151,16 @@ export default Vue.extend({
      * @returns {Number}
      */
     totalSteps (): number {
-      return this.jobs.length
+      const jobs: JobCounts = this.jobs
+      return jobs.waiting + jobs.started + jobs.finished + jobs.error
     },
 
     /**
      * Finds status of project and sets variant
      * @returns {String}
      */
-    status (): string {
-      if (this.finished) {
-        return 'finished'
-      } else if (countJobStatus(this.remainingJobs, 'error') >= 1) {
-        return 'error'
-      } else if (!this.hasNoWarning) {
-        return 'warning'
-      } else if (
-        countJobStatus(this.remainingJobs, 'started') >= 1
-      ) {
-        return 'running'
-      } else {
-        return 'waiting'
-      }
+    status (): statusCode {
+      return this.jobs.getStatus()
     },
     /**
      * Sets the correct color variant
@@ -196,16 +168,16 @@ export default Vue.extend({
      */
     variant (): string {
       switch (this.status) {
-        case 'finished':
+        case statusCode.finished:
           return 'success'
-        case 'error':
+        case statusCode.error:
           return 'danger'
-        case 'warning':
-          return 'warning'
-        case 'running':
-          return 'primary'
+        case statusCode.started:
+          return this.currentWarningStatus ? 'warning' : 'primary'
+        case statusCode.waiting:
+          return 'secondary'
         default:
-          return 'waiting'
+          return 'warning'
       }
     },
 
@@ -214,7 +186,7 @@ export default Vue.extend({
      * @returns {Boolean}
      */
     started (): boolean {
-      return this.steps > 0 || countJobStatus(this.jobs, 'started') > 0
+      return this.status === statusCode.started || this.status === statusCode.finished || this.status === statusCode.error
     },
 
     /**
@@ -247,7 +219,7 @@ export default Vue.extend({
      * @returns {Number} (milliseconds)
      */
     finishTime (): number {
-      return this.finished ? this.finishedDate : this.time
+      return this.projectDates.finishedDate ? this.projectDates.finishedDate.getTime() : this.time
     },
 
     /**
@@ -255,7 +227,7 @@ export default Vue.extend({
      * @returns {Number} (milliseconds)
      */
     startTime (): number {
-      return this.startedDate
+      return this.projectDates.startedDate ? this.projectDates.startedDate.getTime() : NaN
     }
   },
   methods: {

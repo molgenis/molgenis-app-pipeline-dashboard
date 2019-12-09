@@ -9,7 +9,7 @@
     </b-progress>
     </div>
   </div>
-  <b-container :key="'dashboard'" v-show="trackingDataLoaded" id="dashboard" class="h-100" fluid>
+  <b-container :key="'dashboard'" v-else id="dashboard" class="h-100" fluid>
     <b-row  no-gutters class="h-50">
       <b-col class="h-100">
         <track-and-trace
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
@@ -40,10 +40,51 @@ import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
 
 export default {
   name: 'app',
+  data () {
+    return {
+      errorToastActive: false
+    }
+  },
   components: {
     TrackAndTrace,
     RunTimeStatistics,
     SampleStatistics
+  },
+  methods: {
+    ...mapActions({
+      refresh: 'getTrackerData'
+    }),
+     /**
+     * Calls data fetch action
+     *
+     * @returns {Promise<void>}
+     */
+    getData () {
+      this.refresh(20)
+        .then(() => {
+          if (this.errorToastActive) {
+            this.$bvToast.hide('errorToast')
+            this.errorToastActive = false
+            this.$bvToast.toast('Connection to MOLGENIS restored', {
+              title: 'Updated',
+              variant: 'success',
+              toaster: 'b-toaster-bottom-right'
+            })
+          }
+        })
+        .catch((reason) => {
+          if (!this.errorToastActive) {
+            this.errorToastActive = true
+            this.$bvToast.toast(reason, {
+              id: 'errorToast',
+              title: 'Error',
+              variant: 'danger',
+              toaster: 'b-toaster-bottom-right',
+              noAutoHide: true
+            })
+          }
+        })
+    }
   },
   computed: {
     ...mapState([
@@ -55,6 +96,11 @@ export default {
     trackingDataLoaded () {
       return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every(state => state)
     }
+  },
+  async mounted () {
+    await this.getData()
+    setInterval(this.getData, 10000)
+
   }
 }
 </script>

@@ -3,13 +3,14 @@
  */
 
 import state, { State } from '@/store/state'
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
+import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus, statusCode, dateSearch } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
 import { countJobStatus, countProjectStartedCopying, getProjectDataStatus } from '@/helpers/utils'
 import { max } from '@/helpers/statistics'
+import {dateGetter, RunData, Project, ProjectData, JobCounter, JobCounts, constructSteps, runTimeDates} from '@/types/Run'
 
 /**
  *
@@ -30,7 +31,7 @@ import { max } from '@/helpers/statistics'
  */
 function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): Promise<void> {
   return new Promise((resolve, reject) => {
-    Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobData')])
+    Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobAggregates')])
       .then(() => {
         dispatch('convertRawData').then(() => {
           commit('clearRawData')
@@ -463,7 +464,7 @@ async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: {
 async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } }: { dispatch: any, commit: any, getters: any }) {
   return new Promise((resolve) => {
     dispatch('convertProjects').then(() => {
-      dispatch('constructRunObjects').then(() => {
+      Promise.all([dispatch('constructRunObjects'), dispatch('getProjectDates')]).then(() => {
         resolve()
       })
     })
@@ -488,17 +489,16 @@ async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } 
  * @category TrackAndTrace
  * @return Promise, always resolves
  */
-async function convertProjects ({ commit, state: { projects }, getters: { getJobsByProjectID } }: { commit: any, state: State, getters: any}) {
+async function convertProjects ({ commit, state: { projects } }: { commit: any, state: State}) {
   return new Promise((resolve) => {
-    let mappedProjects: Record<string, ProjectObject[]> = {}
+    let mappedProjects: Record<string, ProjectData[]> = {}
     projects.forEach((project: projectDataObject) => {
       const runID = project.run_id
       if (!(runID in mappedProjects)) { // if runID doesn't have an entry, make one
-        mappedProjects[runID] = [] as ProjectObject[]
+        mappedProjects[runID] = [] as ProjectData[]
       }
-      const projectJobs: Job[] = getJobsByProjectID(project.project)
-      const status = getProjectDataStatus(project, projectJobs)
-      mappedProjects[runID].push(new ProjectObject(project.project, projectJobs, project.pipeline, status, project.copy_results_prm, project.comment))
+      
+      mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), state.jobAggregates[project.project]))
     })
     commit('setProjectObjects', mappedProjects)
     resolve()
@@ -522,27 +522,39 @@ async function convertProjects ({ commit, state: { projects }, getters: { getJob
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function constructRunObjects ({ commit, state: { runs, projectObjects }, getters: { getProjectsByRunID } }: { commit: any, state: State, getters: any}) {
+async function constructRunObjects ({ commit, state: { runs, projectObjects} }: { commit: any, state: State}) {
   return new Promise((resolve) => {
-    const Runs = runs.map(({ run_id, demultiplexing, copy_raw_prm }) => {
-      let projects = getProjectsByRunID(run_id)
-      if (!projects) {
-        projects = []
-      }
-      function processErrors (projects: ProjectObject[], demultiplexing: string, rawDataStatus: string) {
-        const errors = projects.map((project: ProjectObject) => { return countJobStatus(project.jobs, 'error') })
-        const errorsInJobs = errors.length > 0 ? errors.reduce((accumulator: number, currentValue: number) => accumulator + currentValue) >= 1 : false
-        const errorsInDemultiplexing = demultiplexing === 'error'
-        const errorsInRawCopy = rawDataStatus === 'error'
-        return errorsInJobs || errorsInDemultiplexing || errorsInRawCopy
-      }
-      const length = projects.length
+    let RunsV2: Record<string, RunData> = {}
+    runs.forEach(({ run_id, demultiplexing, copy_raw_prm }) => {
+      
+      const projectData = projectObjects[run_id] ? projectObjects[run_id] : []
+      const running = {finished: 0, started: 0, waiting: 0}
+      const copying = {finished: 0, started: 0, waiting: 0}
+      projectData.forEach(project => {
+        const status = project.getStatus()
+        if (status === statusCode.finished) {
+          running.finished += 1
+        } else if (status === statusCode.started || status === statusCode.error) {
+          running.started += 1
+        } else {
+          running.waiting += 1
+        }
+        const resultsCopyStatus = project.resultCopyStatus
+        if (resultsCopyStatus === statusCode.finished) {
+          copying.finished += 1
+        } else if (resultsCopyStatus === statusCode.started || resultsCopyStatus === statusCode.error) {
+          copying.started += 1
+        } else {
+          copying.waiting += 1
+        }
+      })
 
-      const resultCopyStatus = countProjectStartedCopying(projects)
-
-      return new Run(run_id, demultiplexing, copy_raw_prm, length, processErrors(projects, demultiplexing, copy_raw_prm), resultCopyStatus.total, resultCopyStatus.finished)
+      const finished = {
+        total: projectData.length, finished: copying.finished
+      }
+      RunsV2[run_id] = new RunData(projectData, constructSteps(parseStatus(demultiplexing), parseStatus(copy_raw_prm), running, copying, finished)) 
     })
-    commit('setRunObjects', Runs)
+    commit('setRunV2s', RunsV2)
     resolve()
   })
 }
@@ -551,11 +563,11 @@ async function getJobAggregates ({ commit, state }: {commit:any, state: State}) 
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${state.jobTable}?aggs=x==status;y==project;distinct==project_job`)
       .then((result: {aggs: {matrix: number[][], xLabels: string[], yLabels: string[]}}) => {
-        const projectCounters: Record<string, Record<string, number>> = {}
+        const projectCounters: Record<string, JobCounts> = {}
         result.aggs.yLabels.forEach((project: string, index:number) => {
-          const statusType: Record<string, number> = {}
+          const statusType: JobCounter = new JobCounter({waiting: 0, started: 0 ,finished: 0 ,error: 0})
           result.aggs.xLabels.forEach((status, xLabelIndex) => {
-            statusType[status] = result.aggs.matrix[xLabelIndex][index]
+            statusType[parseStatus(status)] = result.aggs.matrix[xLabelIndex][index]
           })
           projectCounters[project] = statusType
         })
@@ -564,6 +576,36 @@ async function getJobAggregates ({ commit, state }: {commit:any, state: State}) 
       }).catch((error: any) => {
         reject(error)
       })
+  })
+}
+
+async function getDate({state: {jobTable}}: {state: State}, {projectID, type}: {projectID: string, type: dateSearch}): Promise<Date> {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${jobTable}?attrs=project_job,${type}&sort=${type}:${type === dateSearch.started ? 'asc' : 'desc'}&num=1&q=project=='${projectID}';${type}!=''`).then((result: {items: {started_date: string, finished_date: string}[]}) => {
+      if (result.items.length == 0) {
+        resolve(undefined)
+      }
+      const date = result.items[0][type]
+      resolve(date ? new Date(date) : undefined)
+    }).catch((error: any) => {
+      reject(error)
+    })
+  })
+}
+
+async function getProjectDates({state: {jobAggregates}, dispatch, commit} : {state: State, dispatch: any, commit: any}){
+  Object.keys(jobAggregates).forEach((projectID) => {
+    const jobs = jobAggregates[projectID]
+    if (jobs.getStatus() === statusCode.finished) {
+      Promise.all([dispatch('getDate', {projectID: projectID, type: dateSearch.started}), dispatch('getDate', {projectID: projectID, type: dateSearch.finished})]).then(
+        (result) => { commit('updateProjectDates', {projectID: projectID, startedDate: result[0], finishedDate: result[1]})}
+      )
+    } else if (jobs.getStatus() === statusCode.started || jobs.getStatus() === statusCode.error) {
+      dispatch('getDate', {projectID: projectID, type: dateSearch.started}).then(
+        (result: Date) => {commit('updateProjectDates', {projectID: projectID, startedDate: result, finishedDate: undefined})}
+      )
+
+    }
   })
 }
 
@@ -586,5 +628,7 @@ export default {
   getTrackerData,
   handleCommentSubmit,
   updateProjectComment,
-  getJobAggregates
+  getJobAggregates,
+  getDate,
+  getProjectDates
 }

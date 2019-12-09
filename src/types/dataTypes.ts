@@ -1,4 +1,5 @@
 import { parse } from '@fortawesome/fontawesome-svg-core'
+import { getProjectDataStatus } from '@/helpers/utils';
 
 export interface RawDataObject extends RunDataObject, projectDataObject, Job{
 
@@ -12,8 +13,8 @@ export enum statusCode {
   other = 'other'
 }
 
-export function parseStatus (statusString: string): statusCode {
-  if (statusString.match(/waiting/gi)) {
+export function parseStatus (statusString: string | undefined): statusCode {
+  if (!statusString || statusString.match(/waiting/gi)) {
     return statusCode.waiting
   }
   if (statusString.match(/error/gi)) {
@@ -27,6 +28,11 @@ export function parseStatus (statusString: string): statusCode {
   }
   return statusCode.other
 }
+export interface RunRedesign {
+  runID: string
+  steps: Step[]
+}
+
 /**
  * Stores available Run information
  */
@@ -100,9 +106,9 @@ export enum pipelineType {
   other = 'OTHER'
 }
 
-enum dateSearch {
-  started = 'startedDate',
-  finished = 'finishedDate'
+export enum dateSearch {
+  started = 'started_date',
+  finished = 'finished_date'
 }
 
 /**

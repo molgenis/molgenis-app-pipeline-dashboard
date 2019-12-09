@@ -19,17 +19,15 @@
 
                 :currentWarningStatus="warning"
                 :running="currentStep === 2"
-                :threshold="getThreshold(project)"
-                :key="project.project"
+                :key="project.projectID"
                 :resultCopy="project.resultCopyStatus"
-                :project="project.project"
+                :project="project.projectID"
                 :jobs="project.jobs" :header="false"
-                :startedDate="project.findStartDateTime()"
-                :finishedDate="project.findLastDateTime()"
+                :projectDates="projectDates[project.projectID]"
                 :runID="runID"
                 :projectCount="projectCount"
                 :time="time"
-                :comment="project.Comment"
+                :comment="''"
 
                 class="project-row">
               </run-table-project>
@@ -50,13 +48,15 @@ import CommentModal from '@/components/Track&Trace-Components/RunTableCommentMod
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
 import { ProjectObject, pipelineType } from '@/types/dataTypes.ts'
+import { ProjectData } from '@/types/Run'
+import { mapState } from 'vuex'
 
 declare module 'vue/types/vue' {
   interface Vue {
     warning: boolean
     selectedProject: string
     comment: string
-    projects: ProjectObject[]
+    projects: ProjectData[]
     thresholdOnco: number
     thresholdExoom: number
     thresholdPcs: number
@@ -189,8 +189,7 @@ export default Vue.extend({
      */
     updateLocalcomment (project: string, comment: string): void {
       for (let i = 0; i < this.projects.length; i++) {
-        if (this.projects[i].project === project) {
-          this.projects[i].Comment = comment
+        if (this.projects[i].projectID === project) {
           break
         }
       }
@@ -218,6 +217,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapState([
+      'projectDates'
+    ]),
     parsedRunID (): string {
       return this.runID.replace(/_/g, ' ').replace(/-/g, ', ')
     }

@@ -22,7 +22,6 @@ export function constructSteps(demultiplexing: statusCode, raw: statusCode, runn
   const stepFour = new counterStep('copying result files', copying.waiting + copying.started + copying.finished)
   const stepFive = new DualStateStep('Finished worlflow', finished.total)
 
-  console.log(demultiplexing, raw, running, copying, finished)
   if (finished.total === finished.finished) {
     stepOne.setFinished()
     stepTwo.setFinished()
@@ -85,9 +84,7 @@ export class RunData implements Run {
     return statusCode.waiting
   }
   getCurrentStep() {
-    const currentStep = this.steps.reduce((prev, step) => prev += step.getStatus() === statusCode.finished ? 1 : 0, 0) - 1
-    console.log(this, `Step: ${currentStep}`)
-    return currentStep
+    return this.steps.reduce((prev, step) => prev += step.getStatus() === statusCode.finished ? 1 : 0, 0) - 1
   }
 
   
@@ -101,6 +98,9 @@ export interface Project {
   getFinishedCount(): number
   getRunningCount(): number
   getWaitingCount(): number
+  getStatus(): statusCode
+  findStartDateTime(): number
+  findLastDateTime(): number
   /**
    * 
    * @param dateGetter Data retrieval function
@@ -109,7 +109,7 @@ export interface Project {
   
 }
 
-export interface runTimeDates {startedDate: Date | null, finishedDate: Date | null}
+export interface runTimeDates {startedDate: Date, finishedDate: Date}
 
 /**
  * date api caller function
@@ -121,25 +121,33 @@ export interface dateGetter {
 
 export class ProjectData implements Project{
   projectID: string
+  resultCopyStatus: statusCode
   jobs: JobCounts
   comment = false
+  private startedDate = 0
+  private finishedDate = 0
   async getDates(dateGetter: dateGetter): Promise<runTimeDates> {
     return new Promise((resolve, reject) => {
     if (this.jobs.getStatus() === statusCode.started || this.jobs.getStatus() === statusCode.finished) {
       dateGetter(this.projectID)
       .then((result) => {
-        resolve(result)
+        this.finishedDate = result.finishedDate.getTime()
+        this.startedDate = result.startedDate.getTime()
       }).catch((error) => {
         reject(error)
       })
     } else {
-      resolve({startedDate: null, finishedDate: null})
+      resolve()
     }
     })
   }
-  constructor(projectID: string, jobs: JobCounts) {
+  constructor(projectID: string, resultCopyStatus: statusCode, jobs: JobCounts) {
+    this.resultCopyStatus = resultCopyStatus
     this.projectID = projectID
     this.jobs = jobs ? jobs : new JobCounter({ waiting: 0, started: 0, finished: 0, error: 0 })
+    if (resultCopyStatus === statusCode.started || resultCopyStatus === statusCode.finished) {
+      this.jobs.setFinished()
+    }
   }
   getErrorCount(): number {
     return this.jobs.error
@@ -153,6 +161,15 @@ export class ProjectData implements Project{
   getWaitingCount(): number {
     return this.jobs.waiting
   }
+  findStartDateTime(): number {
+    return this.startedDate
+  }
+  findLastDateTime(): number {
+    return this.finishedDate
+  }
+  getStatus() {
+    return this.jobs.getStatus()
+  }
 }
 
 export interface JobCounts {
@@ -162,6 +179,7 @@ export interface JobCounts {
   error: number
   other?: number
   getStatus(): statusCode
+  setFinished(): void
 }
 
 export class JobCounter implements JobCounts {
@@ -174,10 +192,17 @@ export class JobCounter implements JobCounts {
     if (this.error > 0) {
       return statusCode.error
     }
-    if (this.started < 1) {
-      return this.waiting === 0 ? statusCode.finished : statusCode.waiting
+    if (this.finished > 0) {
+      return this.started > 0 || this.waiting > 0? statusCode.started : statusCode.finished
     }
-    return statusCode.started
+    return statusCode.waiting
+  }
+  setFinished() {
+    const sum = this.waiting + this.started + this.finished + this.error
+    this.waiting = 0
+    this.started = 0
+    this.error = 0
+    this.finished = sum
   }
   constructor({waiting, started, finished, error} : {waiting: number, started: number, finished: number, error: number}) {
     this.waiting = waiting

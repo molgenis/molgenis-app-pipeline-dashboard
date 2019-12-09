@@ -2,7 +2,7 @@
   <b-row no-gutters class="h-100">
     <b-col class="h-100">
       <b-container class=" p-0 h-100" fluid>
-        <apexchart type="donut" :options="chartOptions" :series="sequencerStatisticsSeries"></apexchart>
+        <apexchart type="pie" :options="chartOptions" :series="sequencerStatisticsSeries"></apexchart>
       </b-container>
     </b-col>
   </b-row>
@@ -35,7 +35,7 @@ export default {
     chartOptions () {
       return {
         chart: {
-          type: 'donut',
+          type: 'pie',
           height: '100%',
           width: '100%',
           toolbar: {

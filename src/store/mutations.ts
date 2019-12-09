@@ -5,6 +5,7 @@
 import { State } from '@/store/state'
 import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
+import { JobCounts, RunData, ProjectData } from '@/types/Run';
 
 /**
  * commits raw run table data to store
@@ -32,17 +33,7 @@ function setProjects (state: State, projects: projectDataObject[]) {
     state.annotatedJobs[project.project] = []
   })
 }
-/**
- * commits raw job table data to store
- * @param state - application context
- * @param jobs - raw job data
- */
-function setJobs (state: State, jobs: {project: string, status: string, startedDate?: string, finishedDate?: string}[]) {
-  state.jobs = jobs
-  if (!state.jobsLoaded) {
-    state.jobsLoaded = true
-  }
-}
+
 /**
  * sets the pipeline runtime data for visualization
  * @param state - application context
@@ -185,7 +176,7 @@ function setRunObjects (state: State, Runs: Run[]) {
  * @param state - application state
  * @param projects - converted project objects
  */
-function setProjectObjects (state: State, projects: Record<string, ProjectObject[]>) {
+function setProjectObjects (state: State, projects: Record<string, ProjectData[]>) {
   state.projectObjects = projects
 }
 
@@ -194,19 +185,26 @@ function clearRawData (state: State) {
   state.projects = []
 }
 
-function setJobAggregates (state: State, aggregates: Record<string, Record<string, number>>) {
+function setJobAggregates (state: State, aggregates: Record<string, JobCounts>) {
+  if (!state.jobsLoaded) {
+    state.jobsLoaded = true
+  }
   state.jobAggregates = aggregates
 }
 
-function annotateJobs (state: State, jobs: any[]) {
-  jobs.forEach((job) => {
-    state.annotatedJobs[job.project].push({ status: job.status, startedDate: job.startedDate, finishedDate: job.finishedDate })
-  })
+function setRunV2s(state: State, runs: RunData[]) {
+  if (!state.rawDataConverted) {
+    state.rawDataConverted = true
+  }
+  state.runV2 = runs
+}
+
+function updateProjectDates(state: State, entry: {projectID: string, startedDate: Date, finishedDate?: Date}) {
+  state.projectDates[entry.projectID] = {startedDate: entry.startedDate, finishedDate: entry.finishedDate}
 }
 export default {
   setRuns,
   setProjects,
-  setJobs,
   setPipelineData,
   setMachineRuntimes,
   setMachineSampleCounts,
@@ -223,5 +221,6 @@ export default {
   updateCommentOnLocalProject,
   clearRawData,
   setJobAggregates,
-  annotateJobs
+  setRunV2s,
+  updateProjectDates
 }
