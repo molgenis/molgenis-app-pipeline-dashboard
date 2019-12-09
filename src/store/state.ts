@@ -36,11 +36,8 @@ export type State = {
   CommentUpdatedStatus: boolean
   CommentNetworkError: boolean
   projectObjects: Record<string, ProjectData[]>
-  runObjects: Run[]
   rawDataConverted: boolean
   jobAggregates: Record<string, JobCounts>
-  completeRunDataObjectArray: Object[]
-  annotatedJobs: Record<string, Object[]>,
   runV2: RunData[],
   projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
 }
@@ -74,10 +71,7 @@ const state: State = {
   CommentUpdatedStatus: false,
   CommentNetworkError: false,
   projectObjects: {},
-  runObjects: [],
   jobAggregates: {},
-  completeRunDataObjectArray: [],
-  annotatedJobs: {},
   runV2: [],
   projectDates: {}
 }

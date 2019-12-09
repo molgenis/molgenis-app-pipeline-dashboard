@@ -28,10 +28,6 @@ function setProjects (state: State, projects: projectDataObject[]) {
   if (!state.projectsLoaded) {
     state.projectsLoaded = true
   }
-
-  projects.forEach((project) => {
-    state.annotatedJobs[project.project] = []
-  })
 }
 
 /**
@@ -140,38 +136,6 @@ function updateCommentOnLocalProject (state: State, { projectName, comment }: {p
 }
 
 /**
- * sets the constructed Run objects
- * @param state - application state
- * @param Runs - Converted run objects
- */
-function setRunObjects (state: State, Runs: Run[]) {
-  state.runObjects = Runs.sort((run1: Run, run2: Run): number => {
-    const run1Error = run1.containsError
-    const run2Error = run2.containsError
-
-    if (run1Error) {
-      return run2Error ? 0 : -1
-    }
-    if (run2Error) {
-      return 1
-    }
-    const run2Step = run2.getCurrentStep()
-    const run1Step = run1.getCurrentStep()
-
-    if (run1Step > run2Step) {
-      return 1
-    }
-    if (run1Step === run2Step) {
-      return 0
-    }
-    return -1
-  })
-
-  if (!state.rawDataConverted) {
-    state.rawDataConverted = true
-  }
-}
-/**
  * sets the converted project objects
  * @param state - application state
  * @param projects - converted project objects
@@ -216,7 +180,6 @@ export default {
   setMonthlySampleCounts,
   setYearlySampleCounts,
   setWeeklySampleCounts,
-  setRunObjects,
   setProjectObjects,
   updateCommentOnLocalProject,
   clearRawData,
