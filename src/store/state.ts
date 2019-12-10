@@ -13,6 +13,7 @@ export type State = {
   jobTable: string
   timingTable: string
   sampleTable: string
+  clusterTable: string
   pipelineTypes: string[]
   statistics: Serie[]
   statisticsEmpty: boolean
@@ -36,7 +37,8 @@ export type State = {
   rawDataConverted: boolean
   jobAggregates: Record<string, JobCounts>
   runV2: RunData[],
-  projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
+  projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>,
+  clusterPings: Record<string, Date>
 }
 
 const state: State = {
@@ -45,6 +47,7 @@ const state: State = {
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
+  clusterTable: 'aaaac3wwfsa676qwhzjo7ayaae',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   MainInfoStatus: false,
   statistics: [],
@@ -68,7 +71,8 @@ const state: State = {
   CommentNetworkError: false,
   jobAggregates: {},
   runV2: [],
-  projectDates: {}
+  projectDates: {},
+  clusterPings: {}
 }
 
 export default state

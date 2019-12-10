@@ -129,6 +129,11 @@ function projectsLoaded(state: State) {
 function jobsLoaded(state: State) {
   state.jobsLoaded = true
 }
+function updateClusterPings(state: State, clusters: {cluster_name: string, latest_ping_timestamp: string}[]) {
+  clusters.forEach((cluster) => {
+    state.clusterPings[cluster.cluster_name] = new Date(cluster.latest_ping_timestamp)
+  })
+}
 export default {
   setPipelineData,
   setMachineRuntimes,
@@ -146,5 +151,6 @@ export default {
   updateProjectDates,
   runsLoaded,
   projectsLoaded,
-  jobsLoaded
+  jobsLoaded,
+  updateClusterPings
 }

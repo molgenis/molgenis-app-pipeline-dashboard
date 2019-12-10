@@ -31,13 +31,11 @@ import {dateGetter, RunData, Project, ProjectData, JobCounter, JobCounts, constr
  */
 function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): Promise<void> {
   return new Promise((resolve, reject) => {
-    Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobAggregates')])
+    Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobAggregates'), dispatch('getClusterPings')])
       .then((results) => {
         dispatch('convertRawData', {runs: results[0], projects: results[1]}).then(() => {
-          commit('clearRawData')
-        }
-        )
-        resolve()
+          resolve()
+        })
       })
       .catch(() => {
         reject('Could not retrieve Track&Trace data from MOLGENIS!')
@@ -428,7 +426,7 @@ async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: {
  */
 async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } }: { dispatch: any, commit: any, getters: any }, {runs, projects} : {runs: RunDataObject[], projects: projectDataObject[]}) {
   return new Promise((resolve) => {
-    convertProjects(projects).then((result: Record<string, ProjectData[]>) => {
+    dispatch('convertProjects', projects).then((result: Record<string, ProjectData[]>) => {
       Promise.all([dispatch('constructRunObjects', {runs: runs, projects: result}), dispatch('getProjectDates', result)]).then(() => {
         resolve()
       })
@@ -454,7 +452,7 @@ async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } 
  * @category TrackAndTrace
  * @return Promise, always resolves
  */
-async function convertProjects (projects: projectDataObject[]): Promise<Record<string, ProjectData[]>> {
+async function convertProjects ({state: {jobAggregates}}:{state: State}, projects: projectDataObject[]): Promise<Record<string, ProjectData[]>> {
   return new Promise((resolve) => {
     let mappedProjects: Record<string, ProjectData[]> = {}
     projects.forEach((project: projectDataObject) => {
@@ -463,7 +461,7 @@ async function convertProjects (projects: projectDataObject[]): Promise<Record<s
         mappedProjects[runID] = [] as ProjectData[]
       }
       
-      mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), state.jobAggregates[project.project]))
+      mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), jobAggregates[project.project]))
     })
     
     resolve(mappedProjects)
@@ -585,6 +583,17 @@ async function getComment({state: {projectsTable}}: {state: State}, projectID: s
 })
 }
 
+async function getClusterPings({state: {clusterTable}, commit}: {state: State, commit: any}) {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${clusterTable}`).then((result: {items: {cluster_name: string, latest_ping_timestamp: string}[]}) => {
+      commit('updateClusterPings', result.items)
+      resolve()
+    }).catch((error: any) => {
+      reject(error)
+    })
+})
+}
+
 export default {
   checkForCommentUpdates,
   constructRunObjects,
@@ -605,5 +614,6 @@ export default {
   updateProjectComment,
   getJobAggregates,
   getDate,
-  getProjectDates
+  getProjectDates,
+  getClusterPings
 }

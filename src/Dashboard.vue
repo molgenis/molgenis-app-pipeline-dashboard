@@ -52,7 +52,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      refresh: 'getTrackerData'
+      refresh: 'getTrackerData',
+      clusterPings: 'getClusterPings'
     }),
      /**
      * Calls data fetch action
@@ -99,7 +100,9 @@ export default {
   },
   async mounted () {
     await this.getData()
+    this.clusterPings
     setInterval(this.getData, 10000)
+    setInterval(this.clusterPings, 30000)
 
   }
 }
@@ -108,6 +111,20 @@ export default {
 <style lang="scss">
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
+
+body {
+  font-size: 1em;
+
+  @media(min-width: 85.375em) {
+    font-size: 1.2em;
+  }
+  @media(min-width: 120em) {
+    font-size: 1.4em;
+  }
+  @media(min-width: 160em) {
+    font-size: 2em;
+  }
+}
 
 .h-45 {
 height: 45%;

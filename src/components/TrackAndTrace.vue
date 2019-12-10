@@ -1,6 +1,6 @@
 <template>
     <b-row id="track-and-trace" no-gutters class="h-100">
-      <b-col  class="p-2 h-100" lg="4" cols="12">
+      <b-col  class="p-2 h-100" lg="4" cols="12" >
         <b-container fluid class="border border-primary p-0 h-100">
           <run-status-table
           @cycle-next="cycleRun"
@@ -13,8 +13,8 @@
           </run-status-table>
         </b-container>
       </b-col>
-    <b-col class="p-2 h-100" cols="12" lg="8" >
-      <b-container class="border border-primary h-100 p-0 overflow-auto" fluid>
+    <b-col class="d-flex flex-column p-2 h-100" style="width: 100%;" cols="12" lg="8" >
+      <b-container class="flex-grow-1 border border-primary p-0 w-100 mb-1" fluid>
         <run-table
         :runID="selectedRunID"
         :showRun="showRun"
@@ -25,6 +25,16 @@
         :time="time"
         :demultiplexing="selectedRunDemultiplexingStatus">
         </run-table>
+      </b-container>
+      <b-container class="d-flex align-items-center justify-content-around border border-primary p-1 mt-1" fluid>
+        <div class="d-flex align-items-center justify-content-around" v-for="cluster in clusters" :key="cluster.ID">
+          <b class="flex-grow-1 mr-2">{{cluster.ID}}</b>
+          <font-awesome-icon :icon="cluster.error ? ['fas', 'times-circle'] : ['fas', 'check-circle']" :class="cluster.error ? 'error' : 'success'" size="lg" />
+          <b class="ml-2 success" v-if="!cluster.error">Online</b>
+          <b class="ml-2 error" v-else-if="cluster.lastPingMinutes < 60">{{cluster.lastPingMinutes}} Minutes ago</b>
+          <b class="ml-2 error" v-else-if="cluster.lastPingMinutes / 60 < 24">{{Math.floor(cluster.lastPingMinutes / 60)}} Hours ago</b>
+          <b class="ml-2 error" v-else>{{Math.floor((cluster.lastPingMinutes / 60) / 24)}} Days ago</b>
+        </div>
       </b-container>
     </b-col>
     </b-row>
@@ -71,6 +81,7 @@ declare module 'vue/types/vue' {
     getTrackerData(range: number): Promise<void>
     getRunObjectByID (runID: string): Run
     getFinishedRuns: string[]
+    clusterPings: Record<string, Date>
   }
 }
 
@@ -99,8 +110,7 @@ export default Vue.extend({
   computed: {
     ...mapState({
       runV2: 'runV2',
-      projectObjects: 'projectObjects',
-      runObjects: 'runObjects'
+      clusterPings: 'clusterPings'
     }),
     ...mapGetters([
       'getRunObjectByID',
@@ -200,6 +210,20 @@ export default Vue.extend({
         stepArray.push(currentStepObject)
       }
       return stepArray
+    },
+
+    clusters (): {ID: string, lastPingMinutes: number, error: boolean}[] {
+      const clusterData: Record<string, Date> = this.clusterPings
+      let clusters = [] as {ID: string, lastPingMinutes: number, error: boolean}[]
+      Object.keys(clusterData).forEach((cluster) => {
+        const lastPing = Math.round((((Date.now() - clusterData[cluster].getTime()) / 60000)))
+        clusters.push({
+          ID: cluster,
+          lastPingMinutes: lastPing,
+          error: lastPing > 5
+        })
+      })
+      return clusters
     }
   },
   methods: {
@@ -313,6 +337,12 @@ export default Vue.extend({
   border: 2px solid $secondary;
 }
 
+.success {
+    color: $success;
+}
+.error {
+  color: $danger;
+}
 .height60 {
   height: 100%;
 }

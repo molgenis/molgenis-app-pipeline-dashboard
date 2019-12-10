@@ -22,7 +22,8 @@ import {
   faInfoCircle,
   faSquare,
   faCircle as fasCircle,
-  faSyncAlt } from '@fortawesome/free-solid-svg-icons'
+  faSyncAlt,
+  faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 
 import { faCircle as farCircle } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -30,7 +31,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-library.add(faSyncAlt, fasCircle, faSquare, faInfoCircle, faPenSquare, faEdit, faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle, faAngleDown, faComment, faEnvelopeSquare, faAngleUp)
+library.add(faTimesCircle, faSyncAlt, fasCircle, faSquare, faInfoCircle, faPenSquare, faEdit, faCheckCircle, faExclamationCircle, faArrowAltCircleRight, faHourglassStart, faExclamationTriangle, faPlayCircle, faPauseCircle, faAngleDown, faComment, faEnvelopeSquare, faAngleUp)
 // @ts-ignore
 library.add(farCircle)
 
