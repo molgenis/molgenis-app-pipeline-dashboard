@@ -1,7 +1,7 @@
 <template>
 <b-row @click="toggleLogBox">
-  <b-col cols="4" class="text-center"><p class="text-truncate fontvw">{{project}}</p></b-col>
-  <b-col cols="4" class="text-center pt-1">
+  <b-col cols="4" class="d-flex align-items-center justify-content-center text-center"><p class="text-truncate fontvw m-0">{{project}}</p></b-col>
+  <b-col cols="4" class="d-flex align-items-center justify-content-center text-center pt-0 pb-0">
     <status-icon :status="status" :comment="comment.length > 0" :warning="currentWarningStatus"/>
   </b-col>
     <b-col :cols="running ? 2 : 4" class="text-center float-left">
@@ -19,7 +19,7 @@
         :noWarning="hasNoWarning"
         :error="false"
         :animated="true"
-        class="w-100 mt-1"
+        class="w-100"
       ></progress-bar>
     </b-col>
   </b-row>
@@ -293,7 +293,5 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.fontvw {
-  font-size: '150%';
-}
+
 </style>

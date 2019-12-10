@@ -1,8 +1,5 @@
 <template>
-    <span
-    v-if="started" class="align-middle">{{hours}}:{{minutes}}:{{seconds}}</span>
-    <span v-else-if="waiting && countdown" class="align-middle">--:--:--</span>
-    <span v-else class="align-middle">Not Started</span>
+  <span>{{display}}</span>
 </template>
 
 <script>
@@ -33,6 +30,21 @@ export default {
     }
   },
   computed: {
+    display () {
+      if (isNaN(this.time)) {
+        return '--:--:--'
+      }
+      if (this.started) {
+        return this.timer
+      }
+      if (this.waiting && this.countdown) {
+        return '--:--:--'
+      }
+      return 'Not Started'
+    },
+    timer () {
+      return `${this.hours}:${this.minutes}:${this.seconds}`
+    },
     /**
          * calculates timediffrence
          *

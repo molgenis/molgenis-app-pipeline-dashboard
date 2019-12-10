@@ -1,22 +1,22 @@
 <template>
-    <b-container class="mb-3 h-100">
-        <b-row>
-          <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold text-truncate">
-            <h4>{{parsedRunID}}</h4>
-          </b-col>
-        </b-row>
-          <step-tracker
-            :warning="warning"
-            :currentStep="currentStep"
-            :error="containsError"
-            :started="demultiplexing"
-            class="mb-4">
-          </step-tracker>
-          <template v-for="project in projects">
+    <b-container class="mb-3 h-100 d-flex flex-column m-0 p-0 justify-content-around" fluid>
+          <div class="d-flex justify-content-center align-items-center">
+            <h4 class="m-0 p-0">{{parsedRunID}}</h4>
+          </div>
+          <div class="flex-schrink-1 pr-2 pl-2">
+            <step-tracker
+              :warning="warning"
+              :currentStep="currentStep"
+              :error="containsError"
+              :started="demultiplexing"
+              class="mb-4">
+            </step-tracker>
+          </div>
+          <b-container class=" d-flex flex-column d-flex-shrink-1 p-1 overflow-auto" fluid>
+          <div v-for="project in projects" :key="project.projectID" class="pt-0 pb-0 mt-0 mb-0 flex-shrink-1 mpx">
               <run-table-project
                 @project-warning="setRunWarning"
                 @open-modal="openModal"
-
                 :currentWarningStatus="warning"
                 :running="currentStep === 2"
                 :key="project.projectID"
@@ -29,9 +29,10 @@
                 :time="time"
                 :comment="''"
 
-                class="project-row">
+                class="project-row p-0 mb-0">
               </run-table-project>
-          </template>
+          </div>
+          </b-container>
 
           <comment-modal
             :run="selectedProject"
@@ -240,7 +241,14 @@ export default Vue.extend({
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
-
+.mpx {
+  margin-top: 0.1px;
+  margin-bottom: 0.1px;
+}
+.margin-lesspixel-left-right {
+  margin-left: 0.5px;
+  margin-right: 0.5px;
+}
 .project-row:hover {
   background-color: $light;
 }

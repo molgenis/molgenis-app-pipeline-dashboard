@@ -13,9 +13,10 @@
 </template>
 
 <script>
-import { formatDate, dateIsLastYear } from '@/helpers/dates'
+import { formatDate, dateIsLastYear, dayMs } from '@/helpers/dates'
 import { sumArray } from '@/helpers/statistics'
 import { mapActions, mapState } from 'vuex'
+import { getDateLabel } from '../../helpers/time'
 
 export default {
   name: 'sample-counts-graph',
@@ -150,7 +151,10 @@ export default {
      */
     sampleCountsInOrder () {
       const values = Object.values(this.selectedData)
-      return [...values.slice(this.timeIndex), ...values.slice(0, this.timeIndex)]
+      if (this.type === 'YEAR' || this.type === 'WEEK') {
+        return [...values.slice(this.timeIndex), ...values.slice(0, this.timeIndex)]
+      }
+      return values.reverse()
     },
     /**
      * Returns a ordered array of labels
@@ -159,7 +163,10 @@ export default {
      */
     orderedSampleLabels () {
       const labels = Object.keys(this.selectedData)
-      return [...labels.slice(this.timeIndex), ...labels.slice(0, this.timeIndex)]
+      if (this.type === 'YEAR' || this.type === 'WEEK') {
+        return [...labels.slice(this.timeIndex), ...labels.slice(0, this.timeIndex)]
+      }
+      return labels.map((label) => {return this.dateMap[label]})
     },
     /**
      * Returns a series for the graph
@@ -205,6 +212,41 @@ export default {
             text: 'Samples Processed'
           }
         }
+      }
+    },
+    dateMap() {
+      const now = new Date()
+      return {
+        '30': getDateLabel(1),
+        '29': getDateLabel(2),
+        '28': getDateLabel(3),
+        '27': getDateLabel(4),
+        '26': getDateLabel(5),
+        '25': getDateLabel(6),
+        '24': getDateLabel(7),
+        '23': getDateLabel(8),
+        '22': getDateLabel(9),
+        '21': getDateLabel(10),
+        '20': getDateLabel(11),
+        '19': getDateLabel(12),
+        '18': getDateLabel(13),
+        '17': getDateLabel(14),
+        '16': getDateLabel(15),
+        '15': getDateLabel(16),
+        '14': getDateLabel(17),
+        '13': getDateLabel(18),
+        '12': getDateLabel(19),
+        '11': getDateLabel(20),
+        '10': getDateLabel(21),
+        '9': getDateLabel(22),
+        '8': getDateLabel(23),
+        '7': getDateLabel(24),
+        '6': getDateLabel(25),
+        '5': getDateLabel(26),
+        '4': getDateLabel(27),
+        '3': getDateLabel(28),
+        '2': getDateLabel(29),
+        '1': getDateLabel(30)
       }
     }
   },
