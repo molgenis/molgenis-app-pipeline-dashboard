@@ -3,32 +3,9 @@
  */
 
 import { State } from '@/store/state'
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 import { JobCounts, RunData, ProjectData } from '@/types/Run';
 
-/**
- * commits raw run table data to store
- * @param state - application context
- * @param runs - Raw run data
- */
-function setRuns (state: State, runs: RunDataObject[]) {
-  state.runs = runs
-  if (!state.runsLoaded) {
-    state.runsLoaded = true
-  }
-}
-/**
- * commits raw project table data to store
- * @param state - application context
- * @param projects - raw project data
- */
-function setProjects (state: State, projects: projectDataObject[]) {
-  state.projects = projects
-  if (!state.projectsLoaded) {
-    state.projectsLoaded = true
-  }
-}
 
 /**
  * sets the pipeline runtime data for visualization
@@ -121,33 +98,9 @@ function setSequencedSampleNumbers (state: State, data: {labels: string[], count
     counts: data.counts
   }
 }
-/**
- * updates localy stored project comment
- *
- * Finds the stored project and updates its comment acordingly
- * @param state - application state
- * @param param1 - project id and the new comment
- * @param param1.projectName - Project ID
- * @param param1.comment - new comment content
- */
-function updateCommentOnLocalProject (state: State, { projectName, comment }: {projectName: string, comment: string}) {
-  const index = state.projects.findIndex(project => project.project === projectName)
-  state.projects[index].comment = comment
-}
 
-/**
- * sets the converted project objects
- * @param state - application state
- * @param projects - converted project objects
- */
-function setProjectObjects (state: State, projects: Record<string, ProjectData[]>) {
-  state.projectObjects = projects
-}
 
-function clearRawData (state: State) {
-  state.runs = []
-  state.projects = []
-}
+
 
 function setJobAggregates (state: State, aggregates: Record<string, JobCounts>) {
   if (!state.jobsLoaded) {
@@ -166,9 +119,17 @@ function setRunV2s(state: State, runs: RunData[]) {
 function updateProjectDates(state: State, entry: {projectID: string, startedDate: Date, finishedDate?: Date}) {
   state.projectDates[entry.projectID] = {startedDate: entry.startedDate, finishedDate: entry.finishedDate}
 }
+
+function runsLoaded(state: State) {
+  state.runsLoaded = true
+}
+function projectsLoaded(state: State) {
+  state.projectsLoaded = true
+}
+function jobsLoaded(state: State) {
+  state.jobsLoaded = true
+}
 export default {
-  setRuns,
-  setProjects,
   setPipelineData,
   setMachineRuntimes,
   setMachineSampleCounts,
@@ -180,10 +141,10 @@ export default {
   setMonthlySampleCounts,
   setYearlySampleCounts,
   setWeeklySampleCounts,
-  setProjectObjects,
-  updateCommentOnLocalProject,
-  clearRawData,
   setJobAggregates,
   setRunV2s,
-  updateProjectDates
+  updateProjectDates,
+  runsLoaded,
+  projectsLoaded,
+  jobsLoaded
 }

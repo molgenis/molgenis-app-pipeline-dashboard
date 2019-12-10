@@ -8,8 +8,6 @@ import { JobCounts, JobCounter, RunData, ProjectData } from '@/types/Run';
 
 
 export type State = {
-  runs: RunDataObject[]
-  projects: projectDataObject[]
   overviewTable: string
   projectsTable: string
   jobTable: string
@@ -35,15 +33,13 @@ export type State = {
   checkedCommentStatus: boolean
   CommentUpdatedStatus: boolean
   CommentNetworkError: boolean
-  projectObjects: Record<string, ProjectData[]>
   rawDataConverted: boolean
   jobAggregates: Record<string, JobCounts>
   runV2: RunData[],
   projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
 }
+
 const state: State = {
-  runs: [],
-  projects: [],
   overviewTable: 'status_overview',
   projectsTable: 'status_projects',
   jobTable: 'status_jobs',
@@ -70,7 +66,6 @@ const state: State = {
   checkedCommentStatus: false,
   CommentUpdatedStatus: false,
   CommentNetworkError: false,
-  projectObjects: {},
   jobAggregates: {},
   runV2: [],
   projectDates: {}

@@ -32,8 +32,8 @@ import {dateGetter, RunData, Project, ProjectData, JobCounter, JobCounts, constr
 function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): Promise<void> {
   return new Promise((resolve, reject) => {
     Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobAggregates')])
-      .then(() => {
-        dispatch('convertRawData').then(() => {
+      .then((results) => {
+        dispatch('convertRawData', {runs: results[0], projects: results[1]}).then(() => {
           commit('clearRawData')
         }
         )
@@ -59,15 +59,12 @@ function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): 
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getRunData ({ commit, state: { overviewTable } }: {commit: any, state: State}): Promise<void> {
+async function getRunData ({ commit, state: { overviewTable } }: {commit: any, state: State}): Promise<RunDataObject[]> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${overviewTable}?num=10000`)
       .then(function (response: {items: RunDataObject[]}) {
-        const tableContent = response.items
-        if (tableContent.length > 0) {
-          commit('setRuns', tableContent)
-        }
-        resolve()
+        commit('runsLoaded')
+        resolve(response.items)
       })
       .catch(function (error: any) {
         reject('Could not update runs')
@@ -84,50 +81,18 @@ async function getRunData ({ commit, state: { overviewTable } }: {commit: any, s
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getProjectData ({ commit, state }: {commit: any, state: State}): Promise<void> {
+async function getProjectData ({ commit, state }: {commit: any, state: State}): Promise<projectDataObject[]> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${state.projectsTable}?num=10000`)
       .then(function (response: {items: projectDataObject[]}) {
-        const tableContent = response.items
-        if (tableContent.length > 0) {
-          commit('setProjects', tableContent)
-        }
-        resolve()
+        commit('projectsLoaded')
+        resolve(response.items)
       })
       .catch(function (error: any) {
         reject('Could not update projects')
       })
   })
 }
-
-/**
- * retrieves jobs data from job table and commits changes to state
- *
- * See [[getTrackerData]]
- * @param __namedParameters - vuex instance
- * @param __namedParameters.commit - call to mutations
- * @param __namedParameters.state - application state
- * @param __namedParameters.state.jobTable - job table api identifier
- * @category TrackAndTrace
- * @returns {Promise<void>}
- */
-async function getJobData ({ commit, state: { jobTable }, dispatch }: {commit: any, state: State, dispatch: any}): Promise<void> {
-  return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${jobTable}?attrs=project_job,project,status,started_date,finished_date&num=10000`)
-      .then(function (response: {items: any[]}) {
-        if (response.items.length > 0) {
-          const mappedJobs = response.items.map((job) => { return { project: job.project, status: job.status, startedDate: job.started_date, finishedDate: job.finished_date } })
-          commit('setJobs', mappedJobs)
-        }
-        dispatch('getJobAggregates')
-        resolve()
-      })
-      .catch(function (error: any) {
-        reject('Could not update jobs')
-      })
-  })
-}
-
 /**
  * retrieves the runtime data for each given machine from database and commits changes to state
  * @param __namedParameters0 - vuex instance
@@ -461,10 +426,10 @@ async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: {
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } }: { dispatch: any, commit: any, getters: any }) {
+async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } }: { dispatch: any, commit: any, getters: any }, {runs, projects} : {runs: RunDataObject[], projects: projectDataObject[]}) {
   return new Promise((resolve) => {
-    dispatch('convertProjects').then(() => {
-      Promise.all([dispatch('constructRunObjects'), dispatch('getProjectDates')]).then(() => {
+    convertProjects(projects).then((result: Record<string, ProjectData[]>) => {
+      Promise.all([dispatch('constructRunObjects', {runs: runs, projects: result}), dispatch('getProjectDates', result)]).then(() => {
         resolve()
       })
     })
@@ -489,7 +454,7 @@ async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } 
  * @category TrackAndTrace
  * @return Promise, always resolves
  */
-async function convertProjects ({ commit, state: { projects } }: { commit: any, state: State}) {
+async function convertProjects (projects: projectDataObject[]): Promise<Record<string, ProjectData[]>> {
   return new Promise((resolve) => {
     let mappedProjects: Record<string, ProjectData[]> = {}
     projects.forEach((project: projectDataObject) => {
@@ -500,8 +465,8 @@ async function convertProjects ({ commit, state: { projects } }: { commit: any, 
       
       mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), state.jobAggregates[project.project]))
     })
-    commit('setProjectObjects', mappedProjects)
-    resolve()
+    
+    resolve(mappedProjects)
   })
 }
 
@@ -522,12 +487,12 @@ async function convertProjects ({ commit, state: { projects } }: { commit: any, 
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function constructRunObjects ({ commit, state: { runs, projectObjects} }: { commit: any, state: State}) {
+async function constructRunObjects ({ commit }: { commit: any}, {runs, projects}:{runs: RunDataObject[], projects: Record<string,ProjectData[]>}) {
   return new Promise((resolve) => {
     let RunsV2: Record<string, RunData> = {}
     runs.forEach(({ run_id, demultiplexing, copy_raw_prm }) => {
       
-      const projectData = projectObjects[run_id] ? projectObjects[run_id] : []
+      const projectData = projects[run_id] ? projects[run_id] : []
       const running = {finished: 0, started: 0, waiting: 0}
       const copying = {finished: 0, started: 0, waiting: 0}
       projectData.forEach(project => {
@@ -609,12 +574,22 @@ async function getProjectDates({state: {jobAggregates}, dispatch, commit} : {sta
   })
 }
 
+async function getComment({state: {projectsTable}}: {state: State}, projectID: string) {
+  return new Promise((resolve, reject) => {
+  api.get(`/api/v2/${projectsTable}?attrs=comment&q=project=='${projectID}'&num=1`).then((result: {items: projectDataObject[]}) => {
+    const comment = result.items[0].comment
+    resolve(comment ? comment : '')
+  }).catch((error: any) => {
+    reject(error)
+  })
+})
+}
+
 export default {
   checkForCommentUpdates,
   constructRunObjects,
   convertProjects,
   convertRawData,
-  getJobData,
   getLastYearSampleSequencedNumbers,
   getMachineData,
   getPipelineData,

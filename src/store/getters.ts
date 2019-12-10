@@ -10,8 +10,5 @@ import { ProjectData } from '@/types/Run';
  * @requires Job,ProjectObject,Run,statusCode
  */
 const getters = {
-  getProjectsByRunID: (state: State) => {
-    return (runID: string) => { return state.projectObjects[runID] }
-  }
 }
 export default getters
