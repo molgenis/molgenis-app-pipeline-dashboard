@@ -3,7 +3,7 @@
  */
 
 import { projectDataObject, RunDataObject, ProjectObject, Job, Run, statusCode } from '@/types/dataTypes'
-import { Serie, IdentifiedSerie } from '@/types/graphTypes'
+import { Serie, IdentifiedSerie, durationStatisticsStorage } from '@/types/graphTypes'
 import { JobCounts, JobCounter, RunData, ProjectData } from '@/types/Run';
 
 
@@ -39,6 +39,7 @@ export type State = {
   runV2: RunData[],
   projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>,
   clusterPings: Record<string, Date>
+  durations: Record<string, durationStatisticsStorage>
 }
 
 const state: State = {
@@ -72,7 +73,8 @@ const state: State = {
   jobAggregates: {},
   runV2: [],
   projectDates: {},
-  clusterPings: {}
+  clusterPings: {},
+  durations: {}
 }
 
 export default state

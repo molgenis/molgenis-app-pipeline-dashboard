@@ -19,8 +19,7 @@
     </b-row>
     <b-row no-gutters class="h-50">
       <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
-        <run-time-statistics
-        />
+        <timing-statistics></timing-statistics>
       </b-col>
       <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
         <sample-statistics></sample-statistics>
@@ -36,6 +35,7 @@ import { mapState, mapActions } from 'vuex'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
 import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
+import TimingStatistics from '@/components/TimingStatistics.vue'
 import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
 
 export default {
@@ -48,7 +48,8 @@ export default {
   components: {
     TrackAndTrace,
     RunTimeStatistics,
-    SampleStatistics
+    SampleStatistics,
+    TimingStatistics
   },
   methods: {
     ...mapActions({

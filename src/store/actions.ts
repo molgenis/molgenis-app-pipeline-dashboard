@@ -10,6 +10,7 @@ import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
 import { countJobStatus, countProjectStartedCopying, getProjectDataStatus } from '@/helpers/utils'
 import { max } from '@/helpers/statistics'
+import { rawDurationStatistics, durationStatisticsStorage} from '@/types/graphTypes'
 import {dateGetter, RunData, Project, ProjectData, JobCounter, JobCounts, constructSteps, runTimeDates} from '@/types/Run'
 
 /**
@@ -461,7 +462,7 @@ async function convertProjects ({state: {jobAggregates}}:{state: State}, project
         mappedProjects[runID] = [] as ProjectData[]
       }
       
-      mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), jobAggregates[project.project]))
+      mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), jobAggregates[project.project], project.comment ? true : false))
     })
     
     resolve(mappedProjects)
@@ -594,6 +595,30 @@ async function getClusterPings({state: {clusterTable}, commit}: {state: State, c
 })
 }
 
+async function getDurationStatistics({state: {timingTable}, commit} : {state: State, commit: any}) {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${timingTable}?attrs=unique_id,total_min,copyProjectDataToPrmTiming,pipelineDuration,copyRawDataToPrmDuration&q=total_min=gt=0&num=10000`)
+    .then((result: {items: rawDurationStatistics[]}) => {
+      const pipelineTypeIDRegex = /-[a-zA-Z]+_[vV]\d+/g
+      const isolatedPipelineTypeRegEx = /[a-z]+/i
+      let durationStatistics: Record<string, durationStatisticsStorage> = {}
+      
+      result.items.forEach(({unique_id, copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming}) => {
+        const pipelineType = unique_id.match(pipelineTypeIDRegex)![0].match(isolatedPipelineTypeRegEx)![0]
+        console.log(unique_id)
+        if (!durationStatistics[pipelineType]) {
+          durationStatistics[pipelineType] = new durationStatisticsStorage()
+        }
+        durationStatistics[pipelineType].addStatistic(copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming)
+      })
+      commit('setDurationStatistics', durationStatistics)
+      resolve()
+    }).catch((error: any) => {
+      reject(error)
+    })
+  })
+}
+
 export default {
   checkForCommentUpdates,
   constructRunObjects,
@@ -615,5 +640,6 @@ export default {
   getJobAggregates,
   getDate,
   getProjectDates,
-  getClusterPings
+  getClusterPings,
+  getDurationStatistics
 }

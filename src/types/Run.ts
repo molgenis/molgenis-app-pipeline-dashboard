@@ -141,13 +141,14 @@ export class ProjectData implements Project{
     }
     })
   }
-  constructor(projectID: string, resultCopyStatus: statusCode, jobs: JobCounts) {
+  constructor(projectID: string, resultCopyStatus: statusCode, jobs: JobCounts, comment: boolean) {
     this.resultCopyStatus = resultCopyStatus
     this.projectID = projectID
     this.jobs = jobs ? jobs : new JobCounter({ waiting: 0, started: 0, finished: 0, error: 0 })
     if (resultCopyStatus === statusCode.started || resultCopyStatus === statusCode.finished) {
       this.jobs.setFinished()
     }
+    this.comment = comment
   }
   getErrorCount(): number {
     return this.jobs.error
