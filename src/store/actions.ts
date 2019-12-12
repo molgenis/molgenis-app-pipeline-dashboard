@@ -3,7 +3,7 @@
  */
 
 import state, { State } from '@/store/state'
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus, statusCode, dateSearch } from '@/types/dataTypes'
+import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus, statusCode, dateSearch, sampleResponse, Sample } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie } from '@/types/graphTypes'
 // @ts-ignore
 import api from '@molgenis/molgenis-api-client'
@@ -573,14 +573,31 @@ async function getProjectDates({state: {jobAggregates}, dispatch, commit} : {sta
   })
 }
 
-async function getComment({state: {projectsTable}}: {state: State}, projectID: string) {
+/**
+ * Loads Extra project details when needed
+ * @param param0 - state data
+ * @param param0.projectsTable - project table location
+ * @param param0.sampleTable - Sample stable location
+ * @param projectID - Project to get the info for
+ * @returns project comment and samples
+ */
+async function getExtraProjectInfo({state: {projectsTable, sampleTable}, commit}: {state: State, commit:any}, projectID: string) {
   return new Promise((resolve, reject) => {
-  api.get(`/api/v2/${projectsTable}?attrs=comment&q=project=='${projectID}'&num=1`).then((result: {items: projectDataObject[]}) => {
-    const comment = result.items[0].comment
-    resolve(comment ? comment : '')
-  }).catch((error: any) => {
-    reject(error)
-  })
+  const comment = api.get(`/api/v2/${projectsTable}/${projectID}?attrs=comment`)
+  const samples = api.get(`/api/v2/${sampleTable}?attrs=lane,sequencer,Gender,archiveLocation&q=project=='${projectID}'`)
+
+  Promise.all([comment, samples]).then(
+    (results: [{comment?: string}, {items: sampleResponse[]}]) => {
+      const comment = results[0].comment ? results[0].comment : ''
+      const sampleInfo = results[1].items.map((sample) => {
+        return new Sample(sample)
+      })
+      commit('addNewProjectInfo', {project: projectID, comment: comment, samples: sampleInfo})
+      resolve()
+    })
+    .catch((error) => {
+      reject(error)
+    })
 })
 }
 
@@ -597,27 +614,40 @@ async function getClusterPings({state: {clusterTable}, commit}: {state: State, c
 
 async function getDurationStatistics({state: {timingTable}, commit} : {state: State, commit: any}) {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${timingTable}?attrs=unique_id,total_min,copyProjectDataToPrmTiming,pipelineDuration,copyRawDataToPrmDuration&q=total_min=gt=0&num=10000`)
+    api.get(`/api/v2/${timingTable}?attrs=unique_id,total_min,copyProjectDataToPrmTiming,pipelineDuration,copyRawDataToPrmDuration,finishedTime&q=total_min=gt=0&num=10000&sort=finishedTime:asc`)
     .then((result: {items: rawDurationStatistics[]}) => {
       const pipelineTypeIDRegex = /-[a-zA-Z]+_[vV]\d+/g
       const isolatedPipelineTypeRegEx = /[a-z]+/i
       let durationStatistics: Record<string, durationStatisticsStorage> = {}
+      let TimeSeries: Record<string, Record<string, number>> = {}
       
-      result.items.forEach(({unique_id, copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming}) => {
+      result.items.forEach(({unique_id, copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming, finishedTime}) => {
         const pipelineType = unique_id.match(pipelineTypeIDRegex)![0].match(isolatedPipelineTypeRegEx)![0]
-        console.log(unique_id)
+        console.log(finishedTime)
+        const date = formatDate(new Date(finishedTime))
+        if (!TimeSeries[date]) {
+          TimeSeries[date] = {}
+        }
+        if (!TimeSeries[date][pipelineType]) {
+          TimeSeries[date][pipelineType] = 0
+          TimeSeries[date][pipelineType + 'Times'] = 0
+        }
+        TimeSeries[date][pipelineType] += pipelineDuration
+        TimeSeries[date][pipelineType + 'Times'] += 1
         if (!durationStatistics[pipelineType]) {
           durationStatistics[pipelineType] = new durationStatisticsStorage()
         }
         durationStatistics[pipelineType].addStatistic(copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming)
       })
       commit('setDurationStatistics', durationStatistics)
+      commit('setTimingStatistics', TimeSeries)
       resolve()
     }).catch((error: any) => {
       reject(error)
     })
   })
 }
+
 
 export default {
   checkForCommentUpdates,
@@ -641,5 +671,6 @@ export default {
   getDate,
   getProjectDates,
   getClusterPings,
-  getDurationStatistics
+  getDurationStatistics,
+  getExtraProjectInfo
 }

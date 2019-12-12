@@ -2,7 +2,7 @@
  * @module store
  */
 
-import { projectDataObject, RunDataObject, ProjectObject, Job, Run, statusCode } from '@/types/dataTypes'
+import { projectDataObject, RunDataObject, ProjectObject, Job, Run, statusCode, Sample } from '@/types/dataTypes'
 import { Serie, IdentifiedSerie, durationStatisticsStorage } from '@/types/graphTypes'
 import { JobCounts, JobCounter, RunData, ProjectData } from '@/types/Run';
 
@@ -37,9 +37,11 @@ export type State = {
   rawDataConverted: boolean
   jobAggregates: Record<string, JobCounts>
   runV2: RunData[],
-  projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>,
+  projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
   clusterPings: Record<string, Date>
   durations: Record<string, durationStatisticsStorage>
+  loadedProjectInfo: Record<string, {comment: string, samples: Sample[]}>
+  timeSeries: Record<string, Record<string, number>>
 }
 
 const state: State = {
@@ -74,7 +76,9 @@ const state: State = {
   runV2: [],
   projectDates: {},
   clusterPings: {},
-  durations: {}
+  durations: {},
+  loadedProjectInfo: {},
+  timeSeries: {}
 }
 
 export default state

@@ -5,6 +5,7 @@
 import { State } from '@/store/state'
 import { Serie, IdentifiedSerie, durationStatisticsStorage } from '@/types/graphTypes'
 import { JobCounts, RunData, ProjectData } from '@/types/Run';
+import { Sample } from '@/types/dataTypes';
 
 
 /**
@@ -137,6 +138,13 @@ function updateClusterPings(state: State, clusters: {cluster_name: string, lates
 function setDurationStatistics(state: State, durationStatistics: Record<string, durationStatisticsStorage>) {
   state.durations = durationStatistics
 }
+function addNewProjectInfo(state: State, {project, comment, samples} : {project: string, comment: string, samples: Sample[]}) {
+  state.loadedProjectInfo[project] = {comment: comment, samples: samples}
+}
+
+function setTimingStatistics(state: State, TimeSeries: Record<string, Record<string, number>>) {
+  state.timeSeries = TimeSeries
+}
 export default {
   setPipelineData,
   setMachineRuntimes,
@@ -156,5 +164,7 @@ export default {
   projectsLoaded,
   jobsLoaded,
   updateClusterPings,
-  setDurationStatistics
+  setDurationStatistics,
+  addNewProjectInfo,
+  setTimingStatistics
 }
