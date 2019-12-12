@@ -1,8 +1,11 @@
 <template>
   <b-container class="p-2 h-100" fluid>
     <b-row class="h-100" no-gutters>
-      <b-col class="h-100 border border-primary">
-        <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
+      <b-col v-if="selected === 'Runtimes'" class="h-100 border border-primary">
+        <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
+      </b-col>
+      <b-col v-else class="border border-primary">
+        <apexchart type="area" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
       </b-col>
     </b-row>
   </b-container>
@@ -19,13 +22,16 @@ declare module 'vue/types/vue' {
     axis: {series: {name: string, data: number[]}[], xcategories: string[]}
     series: {name: string, data: number[]}[]
     xaxis: {type: string, categories: string[]}
+    timeSeries: Record<string, Record<string, number>>
     getDurationStatistics(): Promise<void>
+    getData(): Promise<void>
   }
 }
 export default Vue.extend({
   name: 'timing-chart',
   data () {
     return {
+      selected: 'Runtsdimes'
     }
   },
   props: {
@@ -43,7 +49,8 @@ export default Vue.extend({
   },
   computed: {
     ...mapState([
-      'durations'
+      'durations',
+      'timeSeries'
     ]),
     axis (): {series: {name: string, data: number[]}[], xcategories: Array<string | null>} {
       const series = ['rawDataDuration', 'pipelineDuration', 'resultCopyDuration'].map((serieName) => {
@@ -63,20 +70,21 @@ export default Vue.extend({
       })
       return {series: series, xcategories: categories}
     },
-    series (): {name: string, data: number[]}[] {
+    seriesBar (): {name: string, data: number[]}[] {
       //@ts-ignore
       return this.axis.series
     },
   xaxis (): {type: string, categories: string[], title: {text: string}} {
     return {
       type: 'string',
+      //@ts-ignore
       categories: this.axis.xcategories,
       title: {
         text: 'PrepKit'
       }
     }
   },
-  chartOptions (): any {
+  chartOptionsBar (): any {
     return {
       chart: {
         height: '100%',
@@ -122,9 +130,59 @@ export default Vue.extend({
         opacity: 1
       }
     }
+  },
+  chartOptionsTiming (): any {
+    return {
+      chart: {
+       height: '100%',
+      },
+      title: {
+          text: 'Runtime',
+          align: 'center'
+        },
+      plotOptions: {
+      },
+      xaxis: {
+        type: "datetime"
+      },
+      yaxis: {
+          title: {
+            text: 'Pipeline Duration (Minutes)'
+          },
+          min: 0,
+        },
+        fill: {
+          opacity: 1
+        }
+    }
+  },
+  xaxisRuntimes (): {type: string, categories: string[], title: {text: string}} {
+    return {
+      type: 'date',
+      categories: Object.keys(this.timeSeries),
+      title: {
+        text: 'Day'
+      }
+    }
+  },
+  seriesRuntimes () {
+    return Object.keys(this.durations).map((pipelineType) => {
+      const data = this.timeSeries
+      const dates = Object.keys(data)
+      return {
+        name: pipelineType,
+        data: dates.map((dateKey: string) => {
+          return {
+            y: data[dateKey][pipelineType] ? Math.round(((data[dateKey][pipelineType] / data[dateKey][pipelineType + 'Times']) / 60) * 10) / 10 : null,
+            x: dateKey
+            }
+        })
+      }
+    })
   }
   },
   async mounted () {
+    //@ts-ignore
     await this.getData()
   }
 })

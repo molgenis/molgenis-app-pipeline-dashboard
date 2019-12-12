@@ -18,11 +18,14 @@
       </b-col>
     </b-row>
     <b-row no-gutters class="h-50">
-      <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
+      <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">
         <timing-statistics></timing-statistics>
       </b-col>
-      <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
+      <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">
         <sample-statistics></sample-statistics>
+      </b-col>
+      <b-col cols="2">
+        <server-status></server-status>
       </b-col>
     </b-row>
   </b-container>
@@ -37,6 +40,7 @@ import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
 import TimingStatistics from '@/components/TimingStatistics.vue'
 import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
+import ServerStatus from '@/components/ServerStatus'
 
 export default {
   name: 'app',
@@ -49,7 +53,8 @@ export default {
     TrackAndTrace,
     RunTimeStatistics,
     SampleStatistics,
-    TimingStatistics
+    TimingStatistics,
+    ServerStatus
   },
   methods: {
     ...mapActions({
@@ -113,19 +118,7 @@ export default {
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
 
-body {
-  font-size: 1em;
 
-  @media(min-width: 85.375em) {
-    font-size: 1.2em;
-  }
-  @media(min-width: 120em) {
-    font-size: 1.4em;
-  }
-  @media(min-width: 160em) {
-    font-size: 2em;
-  }
-}
 
 .h-45 {
 height: 45%;

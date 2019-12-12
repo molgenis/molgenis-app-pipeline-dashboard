@@ -159,6 +159,7 @@ export interface rawDurationStatistics {
   pipelineDuration: number,
   copyProjectDataToPrmTiming: number,
   total_min: number
+  finishedTime: string
 }
 
 export class durationStatisticsStorage {

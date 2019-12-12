@@ -347,3 +347,31 @@ export interface RunStatusData {
   run: string
   step: number
 }
+
+export enum Gender {
+  Male,
+  Female,
+  Unknown
+}
+export interface sampleResponse {
+  sequencer: string,
+  lane: number,
+  Gender?: string,
+  archiveLocation: string
+}
+export function parseGender(gender: string | undefined): Gender {
+  return gender ? Gender.Unknown : gender === 'Male' ? Gender.Male : Gender.Female
+}
+
+export class Sample {
+  sequencer: string
+  lane: number
+  gender: Gender
+  archive: string
+  constructor(response: sampleResponse) {
+    this.sequencer = response.sequencer
+    this.lane = response.lane
+    this.gender = parseGender(response.Gender)
+    this.archive = response.archiveLocation
+  }
+}
