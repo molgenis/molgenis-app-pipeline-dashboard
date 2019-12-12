@@ -12,7 +12,7 @@
               class="mb-4">
             </step-tracker>
           </div>
-          <b-container class=" d-flex flex-column d-flex-shrink-1 p-1 overflow-auto" fluid>
+          <b-container class=" d-flex flex-column d-flex-shrink-1 p-1 overflow-vertical" fluid>
           <div v-for="project in projects" :key="project.projectID" class="pt-0 pb-0 mt-0 mb-0 flex-shrink-1 mpx">
               <run-table-project
                 @project-warning="setRunWarning"
@@ -37,7 +37,7 @@
           <comment-modal
             :run="selectedProject"
             :comment="comment"
-            @comment-updated="updateLocalcomment">
+            :samples="samples">
           </comment-modal>
     </b-container>
 </template>
@@ -48,9 +48,9 @@ import RunTableProject from '@/components/Track&Trace-Components/RunTableProject
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
-import { ProjectObject, pipelineType } from '@/types/dataTypes.ts'
+import { ProjectObject, pipelineType, Sample } from '@/types/dataTypes.ts'
 import { ProjectData } from '@/types/Run'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -62,6 +62,11 @@ declare module 'vue/types/vue' {
     thresholdExoom: number
     thresholdPcs: number
     thresholdSvp: number
+    samples: Sample[]
+    loadedProjectInfo: Record<string, {comment: string, samples: Sample[]}>
+    getExtraProjectInfo(projectID: string): Promise<void>
+
+
   }
 
 }
@@ -139,7 +144,8 @@ export default Vue.extend({
     return {
       warning: false,
       selectedProject: '',
-      comment: ''
+      comment: '',
+      samples: [] as Sample[]
     }
   },
   components: {
@@ -148,6 +154,9 @@ export default Vue.extend({
     CommentModal
   },
   methods: {
+    ...mapActions([
+      'getExtraProjectInfo'
+    ]),
     /**
      * sets Warning status for run
      * @param {Boolean} warning - warning status to set
@@ -165,7 +174,17 @@ export default Vue.extend({
      */
     openModal (project: string, comment: string): void {
       this.selectedProject = project
-      this.comment = comment
+      if (this.loadedProjectInfo[project]) {
+        const info = this.loadedProjectInfo[project]
+        this.comment = info.comment
+        this.samples = info.samples
+      }else {
+      this.getExtraProjectInfo(project).then(() => {
+        const info = this.loadedProjectInfo[project]
+        this.comment = info.comment
+        this.samples = info.samples
+      })
+      }
       this.$bvModal.show('comment-modal')
     },
 
@@ -219,7 +238,8 @@ export default Vue.extend({
   },
   computed: {
     ...mapState([
-      'projectDates'
+      'projectDates',
+      'loadedProjectInfo'
     ]),
     parsedRunID (): string {
       return this.runID.replace(/_/g, ' ').replace(/-/g, ', ')
@@ -251,6 +271,9 @@ export default Vue.extend({
 }
 .project-row:hover {
   background-color: $light;
+}
+.overflow-vertical {
+  overflow-y: auto;
 }
 
 .minH {

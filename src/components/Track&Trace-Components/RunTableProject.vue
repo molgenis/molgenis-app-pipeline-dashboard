@@ -1,7 +1,8 @@
 <template>
 <b-row @click="toggleLogBox">
   <b-col cols="4" class="d-flex align-items-center justify-content-center text-center"><p class="text-truncate fontvw m-0">{{project}}</p></b-col>
-  <b-col cols="4" class="d-flex align-items-center justify-content-center text-center pt-0 pb-0">
+  <b-col v-if="comment" cols="2" class="d-flex align-items-center justify-content-center text-center"><font-awesome-icon :icon="['fas', 'envelope-square']" class="secondary"/> </b-col>
+  <b-col :cols="comment ? 2 : 4" class="d-flex align-items-center justify-content-center text-center pt-0 pb-0">
     <status-icon :status="status" :comment="comment.length > 0" :warning="currentWarningStatus"/>
   </b-col>
     <b-col :cols="running ? 2 : 4" class="text-center float-left">
@@ -64,6 +65,12 @@ export default Vue.extend({
       required: true
     },
 
+    comment: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     jobs: {
       type: Object,
       required: true
@@ -99,11 +106,6 @@ export default Vue.extend({
       type: Number,
       required: false,
       default: 15
-    },
-    comment: {
-      type: String,
-      required: false,
-      default: ''
     }
   },
   components: {
@@ -292,6 +294,16 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
+
+.secondary {
+  color: $secondary;
+}
+
+p {
+  font-size: 1vw;
+}
 
 </style>

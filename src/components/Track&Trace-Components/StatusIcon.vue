@@ -1,9 +1,9 @@
 <template>
-    <font-awesome-icon class="complete" v-if="status === 'finished'" icon="check-circle" ></font-awesome-icon>
-    <font-awesome-icon class="error" v-else-if="status === 'error'" icon="exclamation-circle"></font-awesome-icon>
-    <font-awesome-icon class="warning" v-else-if="warning" icon="exclamation-triangle" ></font-awesome-icon>
-    <font-awesome-icon class="running" v-else-if="status === 'started'" icon="sync-alt" ></font-awesome-icon>
-    <font-awesome-icon class="waiting" v-else-if="status === 'waiting'" icon="hourglass-start" ></font-awesome-icon>
+    <font-awesome-icon class="complete icons" v-if="status === 'finished'" icon="check-circle" ></font-awesome-icon>
+    <font-awesome-icon class="error icons" v-else-if="status === 'error'" icon="exclamation-circle"></font-awesome-icon>
+    <font-awesome-icon class="warning icons" v-else-if="warning" icon="exclamation-triangle" ></font-awesome-icon>
+    <font-awesome-icon class="running icons" v-else-if="status === 'started'" icon="sync-alt" ></font-awesome-icon>
+    <font-awesome-icon class="waiting icons" v-else-if="status === 'waiting'" icon="hourglass-start" ></font-awesome-icon>
 </template>
 
 <script>
@@ -35,6 +35,10 @@ export default {
 
 font-awesome-icon {
     margin: 0;
+}
+.icons {
+  height: 1vw;
+  width: 1vw;
 }
 
 .complete {
