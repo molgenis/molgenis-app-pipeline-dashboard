@@ -94,5 +94,8 @@ export default {
 </script>
 
 <style scoped>
+span {
+  font-size: 1vw;
+}
 
 </style>
