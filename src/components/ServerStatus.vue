@@ -1,11 +1,10 @@
 <template>
   <div class="p-2 h-100">
-    <b-list-group class="h-100 overflow-hiddenq">
-      <b-list-group-item class="d-flex justify-content-between align-items-center" v-for="cluster in sortedClusters" :key="cluster.ID" :disabled="cluster.error">
-        {{cluster.ID}}
-        <b-badge :variant="cluster.error ? 'danger' : 'success'" pill>{{cluster.error ? calculateMessage(cluster.lastPingMinutes) : 'Online'}}</b-badge>
-      </b-list-group-item>
-    </b-list-group>
+    <b-table-lite class="border border-primary h-100 table" :items="tableParsedClusters" :fields="fields" small borderless>
+      <template v-slot:cell(status)="data">
+          <b-badge :variant="data.value.error ? 'danger' : 'success'" pill>{{data.value.error ? calculateMessage(data.value.ping) : 'Online'}}</b-badge>
+      </template>
+    </b-table-lite>
   </div>
 </template>
 
@@ -15,7 +14,11 @@ export default {
   name: 'server-status',
   data () {
     return {
-      now: 0
+      now: 0,
+      fields: [
+        'cluster',
+        {key: 'status', label: 'Status'}
+      ]
     }
   },
   methods: {
@@ -42,6 +45,11 @@ export default {
       const clusters = this.clusters
       clusters.sort((a, b) => { return a.lastPingMinutes <= b.lastPingMinutes ? -1 : 1})
       return clusters
+    },
+    tableParsedClusters () {
+      return this.sortedClusters.map((cluster) => {
+        return {cluster: cluster.ID, status: {ping: cluster.lastPingMinutes, error: cluster.error}}
+      })
     },
     /**
      * @returns {{ID: string, lastPingMinutes: number, error: boolean}[]}
@@ -81,5 +89,8 @@ b {
 }
 .error {
   color: $danger;
+}
+.table {
+  font-size: 1vw;
 }
 </style>
