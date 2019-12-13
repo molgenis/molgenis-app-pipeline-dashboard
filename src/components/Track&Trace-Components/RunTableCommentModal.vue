@@ -58,8 +58,7 @@ export default {
     },
     comment: {
       type: String,
-      required: false,
-      default: ''
+      required: true
     },
     samples: {
       type: Array,
@@ -144,12 +143,9 @@ export default {
      * If run changes put the correct comment
      * @returns {void}
      */
-    run: {
-      immediate: true,
-      handler () {
+    run () {
         this.placeHolderComment = this.comment
         this.submitStatus = true
-      }
     }
   }
 }

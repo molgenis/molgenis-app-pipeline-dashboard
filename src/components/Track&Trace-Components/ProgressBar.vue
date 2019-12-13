@@ -4,7 +4,8 @@
   :variant="variant"
   :max="totalSteps"
   show-progress
-  :animated="animated">
+  :animated="animated"
+  height="1vw">
     <b-progress-bar :value="step">
       <strong>{{ step }} / {{ totalSteps }}</strong>
     </b-progress-bar>
@@ -79,6 +80,11 @@ export default {
 .progress-middle {
     margin-top: auto;
     margin-bottom: auto;
+    
+}
+
+strong {
+  font-size: 1vw;
 }
 
 </style>

@@ -1,22 +1,12 @@
 <template>
   <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="overflow-vertical p-0 h-100 w-100">
-    <b-table-simple small fixed hover class="minH">
-      <b-thead>
-        <b-tr>
-          <b-td class="text-center" colspan="2">
-            <div class="d-flex justify-content-around">
+    <div class="d-flex justify-content-around mt-1 mb-1">
               <b-button
                 v-b-tooltip.hover
                 :title="`${cyclePaused ? 'Unpauses' : 'Pauses'} cycling`"
-                @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"><font-awesome-icon
-                v-if="cyclePaused"
-                icon="play-circle"
-                ></font-awesome-icon>
-                <font-awesome-icon
-                v-else
-                icon="pause-circle"
-                ></font-awesome-icon>
-                </b-button>
+                @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"
+                class="button">
+                {{cyclePaused ? 'Interactive' : 'Auto'}}</b-button>
                 <b-button
                 squared
                 size="sm"
@@ -24,20 +14,26 @@
                 :title="`${editMode ? 'Deactivates' : 'Activates'} edit`"
                 :variant="editMode ? 'info':'outline-info'"
                 @click="toggleEditMode"
+                class="button"
                 >
-                  <font-awesome-icon icon="pen-square"></font-awesome-icon>
+                  Hide/Unhide
                 </b-button>
                 <b-button
                 v-b-tooltip.hover
                 title="Show help"
                 squared
                 size="sm"
-                variant="outline-info">
-                <font-awesome-icon icon="info-circle" @click="$bvModal.show('help-modal')"></font-awesome-icon>
+                variant="outline-info"
+                @click="$bvModal.show('help-modal')"
+                class="button">
+                Help
                 </b-button>
 
               </div>
-
+    <b-table-simple small fixed hover class="minH">
+      <b-thead>
+        <b-tr>
+          <b-td class="text-center" colspan="2">
               <span><b>Run</b></span>
 
           </b-td>
@@ -49,7 +45,7 @@
       <b-tbody>
           <run-status-table-row
             v-for="run in visibleRuns"
-            :variant="selectedRun.run_id === run.run ? 'primary' : 'light'"
+            :variant="selectedRunID === run.run ? 'primary' : 'light'"
             :key="run.run"
             :run="run.run"
             :mouseOn="editMode"
@@ -140,6 +136,11 @@ export default Vue.extend({
       type: Object,
       required: false,
       default: () => { return {} as Run }
+    },
+    selectedRunID: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     cyclePaused: {
@@ -290,10 +291,14 @@ export default Vue.extend({
 }
 
 .minH {
-  min-height: 100%
+  min-height: 100%;
+  font-size: 1vw;
 }
 
 .overflow-vertical {
   overflow-y: scroll
+}
+.button {
+  font-size: 1vw;
 }
 </style>

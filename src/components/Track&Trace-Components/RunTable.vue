@@ -274,10 +274,14 @@ export default Vue.extend({
 }
 .overflow-vertical {
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .minH {
   min-height: 100%
 }
 
+h4 {
+  font-size: 2vw;
+}
 </style>

@@ -14,15 +14,17 @@
       <b-col class="h-100">
         <track-and-trace
           :loadingStatus="trackingDataLoaded"
-          class="h-100 mt-1"/>
+          :paused="paused"
+          class="h-100 mt-1"
+          @toggle-interactive-mode="togglePaused"/>
       </b-col>
     </b-row>
     <b-row no-gutters class="h-50">
       <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">
-        <timing-statistics></timing-statistics>
+        <timing-statistics :paused="paused"></timing-statistics>
       </b-col>
       <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">
-        <sample-statistics></sample-statistics>
+        <sample-statistics :paused="paused"></sample-statistics>
       </b-col>
       <b-col cols="2">
         <server-status></server-status>
@@ -46,7 +48,8 @@ export default {
   name: 'app',
   data () {
     return {
-      errorToastActive: false
+      errorToastActive: false,
+      paused: false,
     }
   },
   components: {
@@ -61,6 +64,14 @@ export default {
       refresh: 'getTrackerData',
       clusterPings: 'getClusterPings'
     }),
+    togglePaused() {
+      this.paused = !this.paused
+    },
+    resumeAutoMode() {
+      if (this.paused) {
+        this.paused = false
+      }
+    },
      /**
      * Calls data fetch action
      *
@@ -109,6 +120,7 @@ export default {
     this.clusterPings
     setInterval(this.getData, 10000)
     setInterval(this.clusterPings, 30000)
+    setInterval(this.resumeAutoMode, 120000)
 
   }
 }

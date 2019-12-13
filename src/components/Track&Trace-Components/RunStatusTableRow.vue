@@ -14,10 +14,10 @@
           >
         </b-form-checkbox>
       </b-td>
-      <b-td :colspan="mouseOn ? 6 : variant === 'primary' ? 6 : 2" class="text-truncate align-middle">{{run}}</b-td>
+      <b-td :colspan="mouseOn ? 6 : variant === 'primary' ? 6 : 2" class="text-truncate align-middle runID">{{run}}</b-td>
       <b-td :colsoan="1" class="align-middle" v-if="mouseOn || variant === 'primary'">
         <div class="d-flex align-items-end justify-content-center h-100">
-          <font-awesome-icon :icon="isInQueue ? ['fas', 'hourglass-start'] : finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']:['fas', 'sync-alt']" :class="isInQueue ? 'secondary-dark' : finished ? 'success' : error ? 'danger': 'primary'" size="lg" :spin="!finished && !error && !isInQueue"></font-awesome-icon>
+          <font-awesome-icon class="icons" :icon="isInQueue ? ['fas', 'hourglass-start'] : finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']:['fas', 'sync-alt']" :class="isInQueue ? 'secondary-dark' : finished ? 'success' : error ? 'danger': 'primary'" size="lg" :spin="!finished && !error && !isInQueue"></font-awesome-icon>
           </div>
           </b-td>
       <b-td colspan="5" v-show="!mouseOn && variant != 'primary'"  class="text-center align-middle">
@@ -159,6 +159,15 @@ export default {
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
+
+.icons {
+  height: 1vw;
+  width: 1vw;
+}
+
+.runID {
+  font-size: 1vw;
+}
 
 .success {
     color: $success;

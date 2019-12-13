@@ -14,7 +14,7 @@
     <div class="step" id="finished"><font-awesome-icon class="step-icon" :icon="finishedIcon" :class="finishedColor" size="2x"></font-awesome-icon></div>
   </div>
   <div class="d-flex pt-2  justify-content-center w-100">
-    <div class="border rounded-pill pr-2 pl-2 pt-1 pb-1" :class="messageBorder">{{statusLabel}} {{message}}</div>
+    <div class="border rounded-pill pr-2 pl-2 pt-1 pb-1 message" :class="messageBorder">{{statusLabel}} {{message}}</div>
   </div>
 </div>
 </template>
@@ -294,7 +294,13 @@ export default Vue.extend({
 }
 
 .step-icon {
-  height: 3vw;
-  width: 3vw;
+  height: 2.5vw;
+  width: 2.5vw;
 }
+
+.message {
+  font-size: 1.3vw;
+  border-width: 0.1vw !important;
+}
+
 </style>
