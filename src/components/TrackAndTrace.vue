@@ -6,6 +6,7 @@
           @cycle-next="cycleRun"
           :total-runs="runStepStatusArray"
           :selected-run="selectedRunObject"
+          :selectedRunID="selectedRunID"
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
           :cycle-paused="paused"
@@ -86,13 +87,17 @@ export default Vue.extend({
       type: Boolean,
       required: false,
       default: true
+    },
+    paused: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {
     return {
       time: 0,
       showRun: '',
-      paused: false,
       loading: false,
       graphRuns: []
     }
@@ -238,7 +243,9 @@ export default Vue.extend({
      * @param {String} runID - run id of a run to select
      */
     setShowRun (runID: string): void {
-      this.paused = true
+      if (!this.paused) {
+        this.$emit('toggle-interactive-mode')
+      }
       this.showRun = runID
     },
 
@@ -281,7 +288,7 @@ export default Vue.extend({
      * pause or resume cycling of detailed view
      */
     toggleCycle (): void {
-      this.paused = !this.paused
+      this.$emit('toggle-interactive-mode')
     }
   },
   watch: {

@@ -12,9 +12,9 @@
                 toggle-class="nav-link-custom"
                 class="active"
                 right>
-                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly'; paused = true">7 days</b-dropdown-item-button>
-                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly'; paused = true">30 days</b-dropdown-item-button>
-                  <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly'; paused = true">12 months</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly';">7 days</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly';">30 days</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly';">12 months</b-dropdown-item-button>
                 </b-nav-item-dropdown>
             </b-nav>
           </b-col>
@@ -51,7 +51,13 @@ export default {
     return {
       selected: 'sequencer',
       selectAble: ['sequencer', 'weekly', 'monthly', 'yearly'],
-      paused: false
+    }
+  },
+  props: {
+    paused: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   methods: {

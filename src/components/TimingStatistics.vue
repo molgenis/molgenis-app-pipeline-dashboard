@@ -1,20 +1,27 @@
 <template>
-  <b-container class="p-2 h-100" fluid>
-    <b-row class="h-100" no-gutters>
-      <b-col v-if="selected === 'Runtimes'" class="h-100 border border-primary">
+  <b-container class="p-2 h-100"  fluid>
+    <b-row class="h-100" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
+      <b-col v-show="selected === 'runtimes'" class="h-100 border border-primary chart">
         <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
       </b-col>
-      <b-col v-else class="border border-primary">
-        <apexchart type="area" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
+      <b-col v-show="selected === 'timing'" class="border border-primary chart">
+        <apexchart type="line" ref="areaTimingChart" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
       </b-col>
+      <div class="cycleDisplay d-flex w-100 justify-content-center position-absolute" v-show="stepDisplay">
+        <div class="d-flex justify-content-around w-50" @click="selected = chartType" v-for="chartType in chartArray" :key="chartType">
+          <font-awesome-icon :icon="[selected === chartType ? 'fas' : 'far', 'circle']" size="lg" style="height: 1vw; width: 1vw" :class="selected === chartType ? 'primary' : 'secondary'"></font-awesome-icon>
+        </div>
+    </div>
     </b-row>
+    
   </b-container>
+  
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
-import { durationStatisticsStorage } from '../types/graphTypes'
+import { durationStatisticsStorage, Serie } from '../types/graphTypes'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -23,18 +30,39 @@ declare module 'vue/types/vue' {
     series: {name: string, data: number[]}[]
     xaxis: {type: string, categories: string[]}
     timeSeries: Record<string, Record<string, number>>
+    selected: chartTypes
+    seriesRuntimes: Serie[]
+    selectedTypeIndex: number
+    types: string[]
     getDurationStatistics(): Promise<void>
     getData(): Promise<void>
+    cycleTimingChart(): void
+    changeChart(): void
+
   }
 }
+
+enum chartTypes {
+  timing = 'timing',
+  runtimes = 'runtimes'
+}
+
 export default Vue.extend({
   name: 'timing-chart',
   data () {
     return {
-      selected: 'Runtsdimes'
+      selected: chartTypes.timing,
+      selectedTypeIndex: 0,
+      chartArray: ["runtimes", "timing"],
+      stepDisplay: false
     }
   },
   props: {
+    paused: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   methods: {
     ...mapActions([
@@ -45,13 +73,24 @@ export default Vue.extend({
       .catch((error) => {
         setTimeout(this.getData, 5000)
       })
+    },
+    changeChart() {
+      if (!this.paused){
+        this.selected = this.selected === chartTypes.timing ? chartTypes.runtimes : chartTypes.timing
+      }
     }
+
   },
   computed: {
     ...mapState([
       'durations',
       'timeSeries'
     ]),
+    types () {
+      return this.seriesRuntimes.map((type) => {
+        return type.name
+      })
+    },
     axis (): {series: {name: string, data: number[]}[], xcategories: Array<string | null>} {
       const series = ['rawDataDuration', 'pipelineDuration', 'resultCopyDuration'].map((serieName) => {
         return {
@@ -87,7 +126,7 @@ export default Vue.extend({
   chartOptionsBar (): any {
     return {
       chart: {
-        height: '100%',
+        width: '100%',
         stacked: true,
         toolbar: {
           show: false
@@ -100,16 +139,6 @@ export default Vue.extend({
           text: 'Median runtime per workflow step',
           align: 'center'
         },
-      responsive: [{
-        breakpoint: 480,
-        options: {
-          legend: {
-            position: 'bottom',
-            offsetX: -10,
-            offsetY: 0
-          }
-        }
-      }],
       plotOptions: {
         bar: {
           horizontal: false,
@@ -123,7 +152,10 @@ export default Vue.extend({
       },
       yaxis: {
           title: {
-            text: 'Runtime (minutes)'
+            text: 'Runtime (minutes)',
+            style: {
+              fontSize: '0.8vw'
+            }
           },
         },
       fill: {
@@ -134,7 +166,17 @@ export default Vue.extend({
   chartOptionsTiming (): any {
     return {
       chart: {
-       height: '100%',
+       width: '100%',
+       toolbar: {
+         show: false
+       },
+      },
+      stroke: {
+        curve: 'straight',
+        dashArray: [2, 4, 6, 8, 10, 12, 14]
+      },
+      markers: {
+        size: 6
       },
       title: {
           text: 'Runtime',
@@ -143,13 +185,22 @@ export default Vue.extend({
       plotOptions: {
       },
       xaxis: {
-        type: "datetime"
+        type: "datetime",
+        labels: {
+          style: {
+            fontSize: '0.8vw'
+          }
+        }
       },
       yaxis: {
           title: {
-            text: 'Pipeline Duration (Minutes)'
+            text: 'Pipeline Duration (Hours)',
+            style: {
+              fontSize: '1vw'
+            }
+            
           },
-          min: 0,
+          min: 0
         },
         fill: {
           opacity: 1
@@ -184,6 +235,29 @@ export default Vue.extend({
   async mounted () {
     //@ts-ignore
     await this.getData()
+    //@ts-ignore
+    setInterval(this.changeChart, 20000)
   }
 })
 </script>
+
+<style lang="scss" scoped>
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
+
+
+.chart {
+  font-size: 0.5vw;
+}
+.cycleDisplay {
+  z-index: 2;
+  position: absolute;
+  bottom: 10px;
+}
+.primary {
+    color: $primary
+}
+.secondary {
+    color: $secondary
+}
+</style>
