@@ -27,7 +27,7 @@
                 :runID="runID"
                 :projectCount="projectCount"
                 :time="time"
-                :comment="''"
+                :comment="project.comment"
 
                 class="project-row p-0 mb-0">
               </run-table-project>
@@ -172,20 +172,28 @@ export default Vue.extend({
      *
      * @returns {void}
      */
-    openModal (project: string, comment: string): void {
+    openModal (project: string): void {
       this.selectedProject = project
       if (this.loadedProjectInfo[project]) {
         const info = this.loadedProjectInfo[project]
         this.comment = info.comment
         this.samples = info.samples
+        this.$bvModal.show('comment-modal')
       }else {
       this.getExtraProjectInfo(project).then(() => {
-        const info = this.loadedProjectInfo[project]
+        let info = this.loadedProjectInfo[project]
         this.comment = info.comment
         this.samples = info.samples
+        this.$bvModal.show('comment-modal')
+      }).catch(() => {
+        this.$bvToast.toast('Loading of extra project infromation failed', {
+              title: 'Request failed',
+              variant: 'danger',
+              toaster: 'b-toaster-bottom-right'
+            })
       })
       }
-      this.$bvModal.show('comment-modal')
+      
     },
 
     /**

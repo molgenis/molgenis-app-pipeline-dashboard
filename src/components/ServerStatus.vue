@@ -24,11 +24,11 @@ export default {
   methods: {
     calculateMessage(minutes) {
       if (minutes < 60) {
-        return `${minutes} Minutes ago`
+        return `${minutes} minutes ago`
       }
       const hours = Math.round(minutes / 60)
       if (hours < 24) {
-        return `${hours}`
+        return `${hours} hours ago`
       }
       return `${Math.round(minutes / 60 / 24)} Days ago`
       

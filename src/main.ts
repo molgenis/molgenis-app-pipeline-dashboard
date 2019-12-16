@@ -40,7 +40,7 @@ Vue.component('apexchart', VueApexCharts)
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
-
+console.log('Vue version: ',Vue.version)
 new Vue({
   store,
   render: h => h(Dashboard)

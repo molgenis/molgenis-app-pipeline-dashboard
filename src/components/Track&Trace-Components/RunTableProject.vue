@@ -3,7 +3,7 @@
   <b-col cols="4" class="d-flex align-items-center justify-content-center text-center"><p class="text-truncate fontvw m-0">{{project}}</p></b-col>
   <b-col v-if="comment" cols="2" class="d-flex align-items-center justify-content-center text-center"><font-awesome-icon :icon="['fas', 'envelope-square']" class="secondary icons"/> </b-col>
   <b-col :cols="comment ? 2 : 4" class="d-flex align-items-center justify-content-center text-center pt-0 pb-0">
-    <status-icon :status="status" :comment="comment.length > 0" :warning="currentWarningStatus"/>
+    <status-icon :status="status" :comment="comment" :warning="currentWarningStatus"/>
   </b-col>
     <b-col :cols="running ? 2 : 4" class="text-center float-left">
       <project-timer
@@ -239,7 +239,7 @@ export default Vue.extend({
      * @returns {void}
      */
     toggleLogBox (): void {
-      this.$emit('open-modal', this.project, this.comment)
+      this.$emit('open-modal', this.project)
     },
     /**
      * Checks if the project contains warnings
