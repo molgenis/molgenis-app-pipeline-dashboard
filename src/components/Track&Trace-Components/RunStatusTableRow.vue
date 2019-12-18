@@ -14,18 +14,19 @@
           >
         </b-form-checkbox>
       </b-td>
-      <b-td :colspan="mouseOn ? 6 : variant === 'primary' ? 6 : 2" class="text-truncate align-middle runID">{{run}}</b-td>
-      <b-td :colsoan="1" class="align-middle" v-if="mouseOn || variant === 'primary'">
+      <b-td :colspan="mouseOn ? 6 : selected ? 6 : 2" class="text-truncate align-middle runID">{{run}}</b-td>
+      <b-td :colsoan="1" class="align-middle" v-if="mouseOn || selected">
         <div class="d-flex align-items-end justify-content-center h-100">
-          <font-awesome-icon class="icons" :icon="isInQueue ? ['fas', 'hourglass-start'] : finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']:['fas', 'sync-alt']" :class="isInQueue ? 'secondary-dark' : finished ? 'success' : error ? 'danger': 'primary'" size="lg" :spin="!finished && !error && !isInQueue"></font-awesome-icon>
+          <font-awesome-icon class="icons" :icon="isInQueue ? ['fas', 'hourglass-start'] : finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']: hasWarning ? ['fas', 'exclamation-triangle'] : ['fas', 'sync-alt']" :class="isInQueue ? 'secondary-dark' : finished ? 'success' : error ? 'danger': hasWarning ? 'warning' : 'primary'" size="lg" :spin="!finished && !error && !isInQueue && !hasWarning"></font-awesome-icon>
           </div>
           </b-td>
-      <b-td colspan="5" v-show="!mouseOn && variant != 'primary'"  class="text-center align-middle">
+      <b-td colspan="5" v-show="!mouseOn && !selected"  class="text-center align-middle">
         <progress-bar
         @progress-finish="emitFinish(run)"
         :totalSteps="5"
-        :variant="error ? 'danger' : step === 4 ? 'success' : 'primary'"
+        :variant="error ? 'danger' : hasWarning ? 'warning': step === 4 ? 'success' : 'primary'"
         :animated="step !== 4 && !error"
+        :noWarning="!hasWarning"
         class="mt-1" :step="step + 1">
         </progress-bar>
       </b-td>
@@ -35,6 +36,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
+import { mapState } from 'vuex'
+import { RunData, Project } from '../../types/Run'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -47,15 +50,16 @@ declare module 'vue/types/vue' {
     finished: boolean;
     LocalHidden: string[];
     isChecked: boolean;
+    runsV2: Record<string, RunData>
+    projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
   }
 }
+
 export default Vue.extend({
   name: 'run-status-table-row',
-
   components: {
     ProgressBar
   },
-
   props: {
     run: {
       type: String,
@@ -85,15 +89,17 @@ export default Vue.extend({
       default: (): string[] => {return [] as string[]}
     },
 
-    variant: {
-      type: String,
+    selected: {
+      type: Boolean,
       required: false,
-      default: 'light'
-    }
+      default: false
+    },
+
   },
   data () {
     return {
       finished: false,
+      threshold: 4
     }
   },
   methods: {
@@ -133,6 +139,16 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapState([
+      'runV2',
+      'projectDates'
+    ]),
+    variant (): string {
+      if (this.selected) {
+        return this.error ? 'danger' : this.hasWarning ? 'warning': this.step === 4 ? 'success' : 'primary'
+      }
+      return 'light'
+    },
     LocalHidden: {
       get: function (): string[] {
         return this.hidden
@@ -154,8 +170,25 @@ export default Vue.extend({
         }
       }
     },
-    isInQueue () {
+    isInQueue (): boolean {
       return this.step === -1
+    },
+    hasWarning (): boolean {
+      const projects: string[] = this.runV2[this.run].projects.map((project: Project) => {return project.projectID})
+      let warning = false
+      projects.forEach((project) => {
+        const dates: {startedDate: Date, finishedDate?: Date} = this.projectDates[project]
+        
+        if (dates && !warning) {
+          if (!dates.finishedDate) {
+            if ((Date.now() - dates.startedDate.getTime()) / 3600 > this.threshold) {
+              warning = true
+              console.log(project, 'has warning')
+            }
+          }
+        }
+      })
+      return warning
     }
   }
 })
@@ -191,5 +224,8 @@ export default Vue.extend({
 }
 .danger {
     color: $danger
+}
+.warning {
+  color: $warning
 }
 </style>

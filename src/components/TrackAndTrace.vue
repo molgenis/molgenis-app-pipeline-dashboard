@@ -36,7 +36,7 @@ import Vue from 'vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
-import { Step, statusCode } from '@/types/dataTypes'
+import { Step, statusCode, RunStatusData } from '@/types/dataTypes'
 import { RunData, Project } from '@/types/Run'
 
 declare module 'vue/types/vue' {
@@ -185,10 +185,10 @@ export default Vue.extend({
      *
      * @returns {Step[]}
      */
-    runStepStatusArray (): Step[] {
-      const stepArray: Step[] = []
+    runStepStatusArray (): RunStatusData[] {
+      const stepArray: RunStatusData[] = []
       for (const [key, value] of Object.entries(this.runV2)) {
-        const currentStepObject: Step = {
+        const currentStepObject: RunStatusData = {
           run: key,
           step: value.getCurrentStep(),
           containsError: value.getErrorCount() > 0,

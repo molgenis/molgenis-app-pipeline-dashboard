@@ -106,7 +106,7 @@ function setJobAggregates (state: State, aggregates: Record<string, JobCounts>):
   state.jobAggregates = aggregates
 }
 
-function setRunV2s (state: State, runs: RunData[]): void{
+function setRunV2s (state: State, runs: Record<string, RunData>): void{
   if (!state.rawDataConverted) {
     state.rawDataConverted = true
   }

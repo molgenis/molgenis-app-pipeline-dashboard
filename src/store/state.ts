@@ -35,7 +35,7 @@ export type State = {
   CommentNetworkError: boolean;
   rawDataConverted: boolean;
   jobAggregates: Record<string, JobCounts>;
-  runV2: RunData[];
+  runV2: Record<string, RunData>;
   projectDates: Record<string, {startedDate: Date; finishedDate?: Date}>;
   clusterPings: Record<string, Date>;
   durations: Record<string, DurationStatisticsStorage>;
@@ -50,7 +50,7 @@ const state: State = {
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
-  clusterTable: 'aaaac3wwfsa676qwhzjo7ayaae',
+  clusterTable: 'aaaac3xt5gchiascvqjaabqaae',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   MainInfoStatus: false,
   statistics: [],
@@ -73,7 +73,7 @@ const state: State = {
   CommentUpdatedStatus: false,
   CommentNetworkError: false,
   jobAggregates: {},
-  runV2: [],
+  runV2: {},
   projectDates: {},
   clusterPings: {},
   durations: {},

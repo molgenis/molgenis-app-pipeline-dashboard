@@ -45,7 +45,7 @@
       <b-tbody>
           <run-status-table-row
             v-for="run in visibleRuns"
-            :variant="selectedRunID === run.run ? 'primary' : 'light'"
+            :selected="selectedRunID === run.run"
             :key="run.run"
             :run="run.run"
             :mouseOn="editMode"
@@ -117,7 +117,7 @@ declare module 'vue/types/vue' {
     hiddenRuns: RunStatusData[];
     hiddenRunsByLength: RunStatusData[];
     editMode: boolean;
-    totalRuns: string[];
+    totalRuns: RunStatusData[];
     selectedRun: RunData;
     selectedRunID: string;
     cyclePaused: boolean;
@@ -131,7 +131,6 @@ declare module 'vue/types/vue' {
     emitPaused(): void;
     emitFinish(run: string): void;
     updateHidden(hidden: string[]): void;
-
   }
 }
 
@@ -140,7 +139,6 @@ export default Vue.extend({
   components: {
     RunStatusTableRow,
     helpModalContent
-
   },
   data () {
     return {
@@ -295,8 +293,8 @@ export default Vue.extend({
       immediate: true,
       handler (): void {
         const totalRuns = this.totalRuns as RunStatusData[]
-        const notHidden = getFilteredArray(totalRuns, this.hiddenObjects)
-        this.visibleRuns = notHidden as RunStatusData[]
+        const notHidden = getFilteredArray(totalRuns, this.hiddenObjects) as RunStatusData[]
+        this.visibleRuns = notHidden.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? -1 : b.step === 4 ? 1 : a.containsError ? 1 : b.containsError ? -1 : (b.step + 1) - (a.step + 1) })
         this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns) as RunStatusData[]
       }
     },
