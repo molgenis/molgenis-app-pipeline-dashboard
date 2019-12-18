@@ -8,15 +8,28 @@
   </b-row>
 </template>
 
-<script >
+<script lang="ts">
+import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
-export default {
+import { ChartOptions } from '../../types/graphTypes'
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    sequencerStatisticsSeries: number[];
+    sequencerStatisticsLabels: string[];
+    chartOptions: ChartOptions;
+    getSequencerStatistics(): Promise<void>;
+    updateStatistics(): void;
+  }
+}
+
+export default Vue.extend({
   name: 'sequencer-spread-graph',
   methods: {
     ...mapActions([
       'getSequencerStatistics'
     ]),
-    updateStatistics () {
+    updateStatistics (): void {
       this.getSequencerStatistics()
         .catch(() => {
           setTimeout(this.updateStatistics, 10000)
@@ -32,7 +45,7 @@ export default {
      * Sets the chart options & labels
      * reference: https://apexcharts.com/docs/options/
      */
-    chartOptions () {
+    chartOptions (): ChartOptions {
       return {
         chart: {
           type: 'pie',
@@ -54,10 +67,10 @@ export default {
       }
     }
   },
-  mounted () {
+  mounted (): void {
     this.updateStatistics()
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

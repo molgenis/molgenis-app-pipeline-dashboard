@@ -31,12 +31,12 @@ import Vue from 'vue'
 import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
-import { Job, statusCode } from '@/types/dataTypes.ts'
+import { statusCode } from '@/types/dataTypes.ts'
 import { JobCounts } from '../../types/Run'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    jobs: JobCounts
+    jobs: JobCounts;
   }
 }
 export default Vue.extend({
@@ -78,7 +78,7 @@ export default Vue.extend({
     projectDates: {
       type: Object,
       required: false,
-      default: () => {return {startedDate: new Date(), finishedDate: new Date()}}
+      default: (): {startedDate: Date; finishedDate: Date} => { return { startedDate: new Date(), finishedDate: new Date() } }
     },
 
     runID: {
@@ -124,7 +124,7 @@ export default Vue.extend({
      *
      * @returns {Boolean}
      */
-    hasNoWarning (): Boolean {
+    hasNoWarning (): boolean {
       return this.finished || !this.started || (this.thresholdToMs > (this.finishTime - this.startTime))
     },
     /**
@@ -144,7 +144,7 @@ export default Vue.extend({
       if (this.resultCopy === 'finished' || this.resultCopy === 'started') {
         return this.totalSteps
       }
-      
+
       return this.jobs.finished
     },
 
@@ -202,26 +202,11 @@ export default Vue.extend({
     },
 
     /**
-     * Sums up all job runtimes
-     * @returns {Number}
-     */
-    runtime (): number {
-      let runtime = 0
-      let jobArray = this.jobs as Job[]
-      jobArray.forEach(job => {
-        if (job.startedDate && job.finishedDate) {
-          runtime += new Date(job.startedDate!).getTime() - new Date(job.finishedDate!).getTime()
-        }
-      })
-      return runtime
-    },
-
-    /**
      * Gets finished time, if not finished returns now()
      * @returns {Number} (milliseconds)
      */
     finishTime (): number {
-      return this.projectDates.finishedDate ? this.projectDates.finishedDate.getTime() : this.finished ? NaN : this.time 
+      return this.projectDates.finishedDate ? this.projectDates.finishedDate.getTime() : this.finished ? NaN : this.time
     },
 
     /**
@@ -250,41 +235,6 @@ export default Vue.extend({
       if (!this.hasNoWarning) {
         this.$emit('project-warning', !this.hasNoWarning)
       }
-    },
-    /**
-     * emits finished when called
-     * @emits 'finished'
-     * @returns {void}
-     */
-    projectFinished (): void {
-      this.$emit('finished', this.runtime)
-    },
-    /**
-     * Comperator function for job sorting by time
-     * @param {Job} Job1 - first job
-     * @param {Job} Job2 - second job
-     * @returns {Number} sort order
-     */
-    SortJobsByTime (job1: Job, job2: Job): number {
-      const job1StartedDate = job1.startedDate
-      const job2StartedDate = job2.startedDate
-
-      if ((job1StartedDate === '' && job2StartedDate === '') || (!job1StartedDate && !job2StartedDate)) {
-        return 0
-      } else if ((job1StartedDate !== '' && job2StartedDate === '') || !job1StartedDate) {
-        return 1
-      } else if ((job2StartedDate !== '' && job1StartedDate === '') || !job2StartedDate) {
-        return -1
-      }
-
-      const job1Date = new Date(job1StartedDate!).getTime()
-      const job2Date = new Date(job2StartedDate!).getTime()
-
-      if (job1Date > job2Date) {
-        return 1
-      } else if (job1Date < job2Date) {
-        return -1
-      } else return 0
     }
   },
   mounted () {

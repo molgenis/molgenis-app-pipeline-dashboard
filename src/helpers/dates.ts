@@ -1,3 +1,9 @@
+
+/**
+ * Milliseconds in a day
+ */
+export const dayMs = 24 * 60 * 60 * 1000
+
 /**
  * Formats a Date object to yyyy-mm-dd
  *
@@ -44,7 +50,3 @@ export function dateIsLastYear (date: Date, now: Date): boolean {
   return date >= lastYear
 }
 
-/**
- * Milliseconds in a day
- */
-export const dayMs = 24 * 60 * 60 * 1000

@@ -13,32 +13,32 @@
         </div>
     </div>
     </b-row>
-    
+
   </b-container>
-  
+
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
-import { durationStatisticsStorage, Serie } from '../types/graphTypes'
+import { DurationStatisticsStorage, Serie, ChartOptions } from '../types/graphTypes'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    durations: Record<string, durationStatisticsStorage>
-    axis: {series: {name: string, data: number[]}[], xcategories: string[]}
-    series: {name: string, data: number[]}[]
-    xaxis: {type: string, categories: string[]}
-    timeSeries: Record<string, Record<string, number>>
-    selected: chartTypes
-    seriesRuntimes: Serie[]
-    selectedTypeIndex: number
-    types: string[]
-    getDurationStatistics(): Promise<void>
-    getData(): Promise<void>
-    cycleTimingChart(): void
-    changeChart(): void
-
+    durations: Record<string, DurationStatisticsStorage>;
+    axis: {series: {name: string; data: number[]}[]; xcategories: string[]};
+    series: {name: string; data: number[]}[];
+    xaxis: {type: string; categories: string[]; title: {text: string}};
+    timeSeries: Record<string, Record<string, number>>;
+    selected: string;
+    seriesRuntimes: Serie[];
+    selectedTypeIndex: number;
+    types: string[];
+    paused: boolean;
+    getDurationStatistics(): Promise<void>;
+    getData(): Promise<void>;
+    cycleTimingChart(): void;
+    changeChart(): void;
   }
 }
 
@@ -53,7 +53,7 @@ export default Vue.extend({
     return {
       selected: chartTypes.timing,
       selectedTypeIndex: 0,
-      chartArray: ["runtimes", "timing"],
+      chartArray: ['runtimes', 'timing'],
       stepDisplay: false
     }
   },
@@ -68,14 +68,15 @@ export default Vue.extend({
     ...mapActions([
       'getDurationStatistics'
     ]),
-    async getData() {
+    getData(): void {
       this.getDurationStatistics()
-      .catch((error) => {
-        setTimeout(this.getData, 5000)
-      })
+        .catch((error) => {
+          console.warn(error, 'Retrieing')
+          setTimeout(this.getData, 5000)
+        })
     },
-    changeChart() {
-      if (!this.paused){
+    changeChart (): void {
+      if (!this.paused) {
         this.selected = this.selected === chartTypes.timing ? chartTypes.runtimes : chartTypes.timing
       }
     }
@@ -86,20 +87,19 @@ export default Vue.extend({
       'durations',
       'timeSeries'
     ]),
-    types () {
+    types (): string[] {
       return this.seriesRuntimes.map((type) => {
         return type.name
       })
     },
-    axis (): {series: {name: string, data: number[]}[], xcategories: Array<string | null>} {
+    axis (): {series: {name: string; data: number[]}[]; xcategories: Array<string | null>} {
       const series = ['rawDataDuration', 'pipelineDuration', 'resultCopyDuration'].map((serieName) => {
         return {
           name: serieName,
           data: [] as number[]
         }
       })
-      //@ts-ignore
-      const durations: Record<string, durationStatisticsStorage> = this.durations
+      const durations: Record<string, DurationStatisticsStorage> = this.durations
       const categories = Object.keys(this.durations).map((pipelineType: string) => {
         const data = durations[pipelineType]
         series[0].data.push(Math.round(data.getRawMedian()))
@@ -107,135 +107,131 @@ export default Vue.extend({
         series[2].data.push(Math.round(data.getResultMedian()))
         return pipelineType
       })
-      return {series: series, xcategories: categories}
+      return { series: series, xcategories: categories }
     },
-    seriesBar (): {name: string, data: number[]}[] {
-      //@ts-ignore
+    seriesBar (): {name: string; data: number[]}[] {
       return this.axis.series
     },
-  xaxis (): {type: string, categories: string[], title: {text: string}} {
-    return {
-      type: 'string',
-      //@ts-ignore
-      categories: this.axis.xcategories,
-      title: {
-        text: 'PrepKit'
-      }
-    }
-  },
-  chartOptionsBar (): any {
-    return {
-      chart: {
-        width: '100%',
-        stacked: true,
-        toolbar: {
-          show: false
-        },
-        zoom: {
-          enabled: false
+    xaxis (): {type: string; categories: string[]; title: {text: string}} {
+      return {
+        type: 'string',
+        categories: this.axis.xcategories,
+        title: {
+          text: 'PrepKit'
         }
-      },
-      title: {
+      }
+    },
+    chartOptionsBar (): ChartOptions {
+      return {
+        chart: {
+          width: '100%',
+          stacked: true,
+          toolbar: {
+            show: false
+          },
+          zoom: {
+            enabled: false
+          }
+        },
+        title: {
           text: 'Median runtime per workflow step',
           align: 'center'
         },
-      plotOptions: {
-        bar: {
-          horizontal: false,
+        plotOptions: {
+          bar: {
+            horizontal: false
+          }
         },
-      },
-      xaxis: this.xaxis,
-      
-      legend: {
-        position: 'right',
-        offsetY: 40
-      },
-      yaxis: {
+        xaxis: this.xaxis,
+
+        legend: {
+          position: 'right',
+          offsetY: 40
+        },
+        yaxis: {
           title: {
             text: 'Runtime (minutes)',
             style: {
               fontSize: '0.8vw'
             }
-          },
+          }
         },
-      fill: {
-        opacity: 1
+        fill: {
+          opacity: 1
+        }
       }
-    }
-  },
-  chartOptionsTiming (): any {
-    return {
-      chart: {
-       width: '100%',
-       toolbar: {
-         show: false
-       },
-      },
-      stroke: {
-        curve: 'straight',
-        dashArray: [2, 4, 6, 8, 10, 12, 14]
-      },
-      markers: {
-        size: 6
-      },
-      title: {
+    },
+    chartOptionsTiming (): ChartOptions {
+      return {
+        chart: {
+          width: '100%',
+          toolbar: {
+            show: false
+          }
+        },
+        stroke: {
+          curve: 'straight',
+          dashArray: [2, 4, 6, 8, 10, 12, 14]
+        },
+        markers: {
+          size: 6
+        },
+        title: {
           text: 'Runtime',
           align: 'center'
         },
-      plotOptions: {
-      },
-      xaxis: {
-        type: "datetime",
-        labels: {
-          style: {
-            fontSize: '0.8vw'
+        plotOptions: {
+        },
+        xaxis: {
+          type: 'datetime',
+          labels: {
+            style: {
+              fontSize: '0.8vw'
+            }
           }
-        }
-      },
-      yaxis: {
+        },
+        yaxis: {
           title: {
             text: 'Pipeline Duration (Hours)',
             style: {
               fontSize: '1vw'
             }
-            
+
           },
           min: 0
         },
         fill: {
           opacity: 1
         }
-    }
-  },
-  xaxisRuntimes (): {type: string, categories: string[], title: {text: string}} {
-    return {
-      type: 'date',
-      categories: Object.keys(this.timeSeries),
-      title: {
-        text: 'Day'
       }
-    }
-  },
-  seriesRuntimes () {
-    return Object.keys(this.durations).map((pipelineType) => {
-      const data = this.timeSeries
-      const dates = Object.keys(data)
+    },
+    xaxisRuntimes (): {type: string; categories: string[]; title: {text: string}} {
       return {
-        name: pipelineType,
-        data: dates.map((dateKey: string) => {
-          return {
-            y: data[dateKey][pipelineType] ? Math.round(((data[dateKey][pipelineType] / data[dateKey][pipelineType + 'Times']) / 60) * 10) / 10 : null,
-            x: dateKey
-            }
-        })
+        type: 'date',
+        categories: Object.keys(this.timeSeries),
+        title: {
+          text: 'Day'
+        }
       }
-    })
-  }
+    },
+    seriesRuntimes (): {name: string; data: {y: number | null; x: string}[]}[] {
+      return Object.keys(this.durations).map((pipelineType) => {
+        const data = this.timeSeries as Record<string,Record<string, number>>
+        const dates = Object.keys(data)
+        return {
+          name: pipelineType,
+          data: dates.map((dateKey: string) => {
+            return {
+              y: data[dateKey][pipelineType] ? Math.round(((data[dateKey][pipelineType] / data[dateKey][pipelineType + 'Times']) / 60) * 10) / 10 : null,
+              x: dateKey
+            }
+          })
+        }
+      })
+    }
   },
-  async mounted () {
-    //@ts-ignore
-    await this.getData()
-    //@ts-ignore
+  mounted (): void {
+    this.getData()
     setInterval(this.changeChart, 20000)
   }
 })
@@ -244,7 +240,6 @@ export default Vue.extend({
 <style lang="scss" scoped>
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
-
 
 .chart {
   font-size: 0.5vw;

@@ -35,22 +35,31 @@
 </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import SequencerUsageSpreadGraph from '@/components/SampleStatisticsComponents/SequencerUsageSpreadGraph.vue'
-import SampleCountsDisplay from '@/components/SampleStatisticsComponents/SampleCountsDisplay.vue'
 import SampleCountsGraph from '@/components/SampleStatisticsComponents/SampleCountsGraph.vue'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    selected: string;
+    selectable: string[];
+    paused: boolean;
+    cycle(): void;
+    returnType(select: string): string;
+  }
+}
+
+export default Vue.extend({
   name: 'sample-statistics',
   components: {
     SequencerUsageSpreadGraph,
-    SampleCountsDisplay,
     SampleCountsGraph
   },
   data () {
     return {
       selected: 'sequencer',
-      selectAble: ['sequencer', 'weekly', 'monthly', 'yearly'],
+      selectAble: ['sequencer', 'weekly', 'monthly', 'yearly']
     }
   },
   props: {
@@ -66,7 +75,7 @@ export default {
      *
      * @returns {void}
      */
-    cycle () {
+    cycle (): void {
       const index = this.selectAble.indexOf(this.selected)
       const length = this.selectAble.length
       if (!this.paused) {
@@ -83,7 +92,7 @@ export default {
      *
      * @returns {String}
      */
-    returnType (select) {
+    returnType (select: string): string {
       switch (select) {
         case 'weekly':
           return 'WEEK'
@@ -96,10 +105,10 @@ export default {
       }
     }
   },
-  mounted () {
+  mounted (): void {
     setInterval(this.cycle, 15000)
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

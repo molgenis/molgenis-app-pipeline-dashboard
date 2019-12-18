@@ -3,17 +3,16 @@
  */
 
 import { State } from '@/store/state'
-import { Serie, IdentifiedSerie, durationStatisticsStorage } from '@/types/graphTypes'
-import { JobCounts, RunData, ProjectData } from '@/types/Run';
-import { Sample } from '@/types/dataTypes';
-
+import { Serie, IdentifiedSerie, DurationStatisticsStorage } from '@/types/graphTypes'
+import { JobCounts, RunData } from '@/types/Run'
+import { Sample } from '@/types/dataTypes'
 
 /**
  * sets the pipeline runtime data for visualization
  * @param state - application context
  * @param statistics - pipeline series data
  */
-function setPipelineData (state: State, statistics: Serie[]) {
+function setPipelineData (state: State, statistics: Serie[]): void{
   state.statistics = statistics
 }
 /**
@@ -21,7 +20,7 @@ function setPipelineData (state: State, statistics: Serie[]) {
  * @param state - application context
  * @param series - runtimes for each machine
  */
-function setMachineRuntimes (state: State, series: Record<string, IdentifiedSerie[]>) {
+function setMachineRuntimes (state: State, series: Record<string, IdentifiedSerie[]>): void{
   state.machineRuntimes = series
 }
 /**
@@ -29,7 +28,7 @@ function setMachineRuntimes (state: State, series: Record<string, IdentifiedSeri
  * @param state - application context
  * @param sampleCounts - sample counts per machine
  */
-function setMachineSampleCounts (state: State, sampleCounts: Record<string, number[]>) {
+function setMachineSampleCounts (state: State, sampleCounts: Record<string, number[]>): void{
   state.machineSampleCounts = sampleCounts
 }
 /**
@@ -37,7 +36,7 @@ function setMachineSampleCounts (state: State, sampleCounts: Record<string, numb
  * @param state - application context
  * @param series - sequencer series data
  */
-function setSequencerStatisticsSeries (state: State, series: number[]) {
+function setSequencerStatisticsSeries (state: State, series: number[]): void{
   state.sequencerStatisticsSeries = series
 }
 /**
@@ -45,7 +44,7 @@ function setSequencerStatisticsSeries (state: State, series: number[]) {
  * @param state - application context
  * @param labels - labels paired to sequencer series data
  */
-function setSequencerStatisticsLabels (state: State, labels: string[]) {
+function setSequencerStatisticsLabels (state: State, labels: string[]): void{
   state.sequencerStatisticsLabels = labels
 }
 /**
@@ -53,7 +52,7 @@ function setSequencerStatisticsLabels (state: State, labels: string[]) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setTotalCounts (state: State, counts: number) {
+function setTotalCounts (state: State, counts: number): void{
   state.totalSampleCounts = counts
 }
 /**
@@ -61,7 +60,7 @@ function setTotalCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setYearlySampleCounts (state: State, counts: number) {
+function setYearlySampleCounts (state: State, counts: number): void{
   state.yearlySampleCounts = counts
 }
 /**
@@ -69,7 +68,7 @@ function setYearlySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setMonthlySampleCounts (state: State, counts: number) {
+function setMonthlySampleCounts (state: State, counts: number): void{
   state.monthlySampleCounts = counts
 }
 /**
@@ -77,7 +76,7 @@ function setMonthlySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setWeeklySampleCounts (state: State, counts: number) {
+function setWeeklySampleCounts (state: State, counts: number): void{
   state.weeklySampleCounts = counts
 }
 /**
@@ -85,7 +84,7 @@ function setWeeklySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setDailySampleCounts (state: State, counts: number) {
+function setDailySampleCounts (state: State, counts: number): void{
   state.dailySampleCounts = counts
 }
 /**
@@ -93,56 +92,53 @@ function setDailySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param data - sequenced samples
  */
-function setSequencedSampleNumbers (state: State, data: {labels: string[], counts: number[]}) {
+function setSequencedSampleNumbers (state: State, data: {labels: string[]; counts: number[]}): void{
   state.sequencedSampleNumbers = {
     labels: data.labels,
     counts: data.counts
   }
 }
 
-
-
-
-function setJobAggregates (state: State, aggregates: Record<string, JobCounts>) {
+function setJobAggregates (state: State, aggregates: Record<string, JobCounts>): void{
   if (!state.jobsLoaded) {
     state.jobsLoaded = true
   }
   state.jobAggregates = aggregates
 }
 
-function setRunV2s(state: State, runs: RunData[]) {
+function setRunV2s (state: State, runs: RunData[]): void{
   if (!state.rawDataConverted) {
     state.rawDataConverted = true
   }
   state.runV2 = runs
 }
 
-function updateProjectDates(state: State, entry: {projectID: string, startedDate: Date, finishedDate?: Date}) {
-  state.projectDates[entry.projectID] = {startedDate: entry.startedDate, finishedDate: entry.finishedDate}
+function updateProjectDates (state: State, entry: {projectID: string; startedDate: Date; finishedDate?: Date}): void{
+  state.projectDates[entry.projectID] = { startedDate: entry.startedDate, finishedDate: entry.finishedDate }
 }
 
-function runsLoaded(state: State) {
+function runsLoaded (state: State): void{
   state.runsLoaded = true
 }
-function projectsLoaded(state: State) {
+function projectsLoaded (state: State): void{
   state.projectsLoaded = true
 }
-function jobsLoaded(state: State) {
+function jobsLoaded (state: State): void{
   state.jobsLoaded = true
 }
-function updateClusterPings(state: State, clusters: {cluster_name: string, latest_ping_timestamp: string}[]) {
+function updateClusterPings (state: State, clusters: {cluster_name: string; latest_ping_timestamp: string}[]): void{
   clusters.forEach((cluster) => {
     state.clusterPings[cluster.cluster_name] = new Date(cluster.latest_ping_timestamp)
   })
 }
-function setDurationStatistics(state: State, durationStatistics: Record<string, durationStatisticsStorage>) {
+function setDurationStatistics (state: State, durationStatistics: Record<string, DurationStatisticsStorage>): void{
   state.durations = durationStatistics
 }
-function addNewProjectInfo(state: State, {project, comment, samples} : {project: string, comment: string, samples: Sample[]}) {
-  state.loadedProjectInfo[project] = {comment: comment, samples: samples}
+function addNewProjectInfo (state: State, { project, comment, samples }: {project: string; comment: string; samples: Sample[]}): void{
+  state.loadedProjectInfo[project] = { comment: comment, samples: samples }
 }
 
-function setTimingStatistics(state: State, TimeSeries: Record<string, Record<string, number>>) {
+function setTimingStatistics (state: State, TimeSeries: Record<string, Record<string, number>>): void {
   state.timeSeries = TimeSeries
 }
 export default {

@@ -1,9 +1,11 @@
 <template>
+  <div class="p-0 m-0">
     <font-awesome-icon class="complete icons" v-if="status === 'finished'" icon="check-circle" ></font-awesome-icon>
     <font-awesome-icon class="error icons" v-else-if="status === 'error'" icon="exclamation-circle"></font-awesome-icon>
     <font-awesome-icon class="warning icons" v-else-if="warning" icon="exclamation-triangle" ></font-awesome-icon>
     <font-awesome-icon class="running icons" v-else-if="status === 'started'" icon="sync-alt" ></font-awesome-icon>
     <font-awesome-icon class="waiting icons" v-else-if="status === 'waiting'" icon="hourglass-start" ></font-awesome-icon>
+  </div>
 </template>
 
 <script>
@@ -20,9 +22,9 @@ export default {
       default: false
     },
     warning: {
-        type: Boolean,
-        required: false,
-        default: false
+      type: Boolean,
+      required: false,
+      default: false
     }
   }
 }

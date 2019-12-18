@@ -32,11 +32,24 @@
 </b-tr>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
-import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    run: string;
+    mouseOn: string;
+    step: number;
+    error: boolean;
+    hidden: string[];
+    variant: string;
+    finished: boolean;
+    LocalHidden: string[];
+    isChecked: boolean;
+  }
+}
+export default Vue.extend({
   name: 'run-status-table-row',
 
   components: {
@@ -68,7 +81,8 @@ export default {
 
     hidden: {
       type: Array,
-      required: true
+      required: false,
+      default: (): string[] => {return [] as string[]}
     },
 
     variant: {
@@ -79,32 +93,7 @@ export default {
   },
   data () {
     return {
-      finished: false
-    }
-  },
-  computed: {
-    LocalHidden: {
-      get: function () {
-        return this.hidden
-      },
-      set: function (value) {
-        this.$emit('update-hidden', value)
-      }
-    },
-    isChecked: {
-      get: function () {
-        return this.LocalHidden.includes(this.run) ? false : this.run
-      },
-      set: function (value) {
-        if (value) {
-          this.LocalHidden = this.LocalHidden.filter(x => x !== value)
-        } else {
-          this.LocalHidden = [this.run, ...this.LocalHidden]
-        }
-      }
-    },
-    isInQueue () {
-      return this.step === -1
+      finished: false,
     }
   },
   methods: {
@@ -115,7 +104,7 @@ export default {
      * @emits 'select-run'
      * @returns {void}
      */
-    selectRun (run) {
+    selectRun (run: string): void {
       this.$emit('select-run', run)
     },
 
@@ -126,21 +115,11 @@ export default {
      * @emits 'progress-finish'
      * @returns {void}
      */
-    emitFinish (run) {
+    emitFinish (run: string): void {
       this.finished = true
       this.$emit('progress-finish', run)
     },
 
-    /**
-     * Calculates diffrence between two arrays
-     * @param {Array} array1 - 1st array
-     * @param {Array} array2 - 2nd array
-     *
-     * @returns {Array} difference
-     */
-    arrayDifference (array1, array2) {
-      return array1.filter((item) => { return array2.indexOf(item) < 0 })
-    },
 
     /**
      * Change run where mouse is on
@@ -149,11 +128,37 @@ export default {
      * @emits 'mouse-on'
      * @returns {void}
      */
-    setMouseOn (run) {
+    setMouseOn (run: string): void {
       this.$emit('mouse-on', run)
     }
+  },
+  computed: {
+    LocalHidden: {
+      get: function (): string[] {
+        return this.hidden
+      },
+      set: function(value: string): void{
+        this.$emit('update-hidden', value)
+      }
+    },
+
+    isChecked: {
+      get: function(): boolean | string {
+        return this.LocalHidden.includes(this.run) ? false : this.run
+      },
+      set: function (value: string): void {
+        if (value) {
+          this.LocalHidden = this.LocalHidden.filter((x: string) => x !== value)
+        } else {
+          this.LocalHidden = [this.run, ...this.LocalHidden]
+        }
+      }
+    },
+    isInQueue () {
+      return this.step === -1
+    }
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

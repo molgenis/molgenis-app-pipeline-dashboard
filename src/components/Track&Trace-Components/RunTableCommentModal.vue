@@ -24,7 +24,7 @@
             ></b-form-textarea>
 
           </b-form-group>
-          <div class="d-flex justify-content-between w-100"> 
+          <div class="d-flex justify-content-between w-100">
             <b-button class="mt-2 mr-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, newComment: placeHolderComment, oldComment: comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
             <b-button class="mt-2 ml-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
           </div>
@@ -33,7 +33,7 @@
       <b-col cols="6" class="overflow-auto p-0 pr-1">
         <h5>Project Samples</h5>
         <b-table hover sticky-header show-empty :fields="fields" :items="samples">
-          <template v-slot:empty="scope">
+          <template v-slot:empty>
             <h3>No samples found</h3>
           </template>
           <template v-slot:cell(gender)="data">
@@ -46,10 +46,29 @@
 </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { mapState, mapActions, mapMutations } from 'vuex'
-import { Gender } from '@/types/dataTypes.ts'
-export default {
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    name: string;
+    placeHolderComment: string;
+    rejected: boolean;
+    resetErrorMessage: string;
+    errorMessage: string;
+    fields: { key: string; label: string }[];
+    updateCommentOnLocalProject(params: { projectName: string; comment: string }): Promise<void>;
+    commentUpdated(): void;
+    commentNotUpdated(reason: string): void;
+    showModal(): void;
+    closeModal(): void;
+    handleCommentSubmit(): Promise<void>;
+    getExtraProjectInfo(): Promise<void>;
+  }
+}
+
+export default Vue.extend({
   name: 'comment-modal',
   props: {
     run: {
@@ -63,22 +82,21 @@ export default {
     samples: {
       type: Array,
       required: false,
-      default: []
+      default: (): object[] => { return [] }
     }
   },
   data () {
     return {
       name: '',
       placeHolderComment: '',
-      submitStatus: true,
       rejected: false,
       resetErrorMessage: 'Could not update comment',
       errorMessage: '',
       fields: [
-        {key: 'sequencer', label: 'Sequencer'},
-        {key: 'lane', label: 'Lane'},
-        {key: 'gender', label: 'Gender'},
-        {key: 'archive', label: 'Archive'},
+        { key: 'sequencer', label: 'Sequencer' },
+        { key: 'lane', label: 'Lane' },
+        { key: 'gender', label: 'Gender' },
+        { key: 'archive', label: 'Archive' }
       ]
     }
   },
@@ -88,7 +106,7 @@ export default {
       'CommentUpdatedStatus',
       'CommentNetworkError'
     ]),
-    validation () {
+    validation (): boolean {
       const comment = this.placeHolderComment
       return comment.length <= 65535
     }
@@ -102,15 +120,15 @@ export default {
     ...mapMutations([
       'updateCommentOnLocalProject'
     ]),
-    commentUpdated (message) {
+    commentUpdated (): void {
       this.rejected = false
-      this.ErrorMessage = this.resetErrorMessage
+      this.errorMessage = this.resetErrorMessage
       this.updateCommentOnLocalProject({ projectName: this.run, comment: this.placeHolderComment })
       this.closeModal()
     },
-    commentNotUpdated (reason) {
+    commentNotUpdated (reason: string): void {
       this.rejected = true
-      this.ErrorMessage = reason
+      this.errorMessage = reason
       this.$bvToast.toast(reason, {
         title: 'Error updating comment',
         variant: 'danger',
@@ -124,7 +142,7 @@ export default {
      *
      * @returns {void}
      */
-    closeModal () {
+    closeModal (): void {
       this.$bvModal.hide('comment-modal')
       this.rejected = false
     },
@@ -134,7 +152,7 @@ export default {
      *
      * @returns {void}
      */
-    showModal () {
+    showModal (): void {
       this.$bvModal.show('comment-modal')
     }
   },
@@ -143,12 +161,11 @@ export default {
      * If run changes put the correct comment
      * @returns {void}
      */
-    run () {
-        this.placeHolderComment = this.comment
-        this.submitStatus = true
+    run (): void {
+      this.placeHolderComment = this.comment
     }
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

@@ -46,26 +46,24 @@
 import Vue from 'vue'
 import RunTableProject from '@/components/Track&Trace-Components/RunTableProject.vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
-import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
-import { ProjectObject, pipelineType, Sample } from '@/types/dataTypes.ts'
+import { Sample } from '@/types/dataTypes.ts'
 import { ProjectData } from '@/types/Run'
 import { mapState, mapActions } from 'vuex'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    warning: boolean
-    selectedProject: string
-    comment: string
-    projects: ProjectData[]
-    thresholdOnco: number
-    thresholdExoom: number
-    thresholdPcs: number
-    thresholdSvp: number
-    samples: Sample[]
-    loadedProjectInfo: Record<string, {comment: string, samples: Sample[]}>
-    getExtraProjectInfo(projectID: string): Promise<void>
-
+    warning: boolean;
+    selectedProject: string;
+    comment: string;
+    projects: ProjectData[];
+    thresholdOnco: number;
+    thresholdExoom: number;
+    thresholdPcs: number;
+    thresholdSvp: number;
+    samples: Sample[];
+    loadedProjectInfo: Record<string, {comment: string; samples: Sample[]}>;
+    getExtraProjectInfo(projectID: string): Promise<void>;
 
   }
 
@@ -179,21 +177,20 @@ export default Vue.extend({
         this.comment = info.comment
         this.samples = info.samples
         this.$bvModal.show('comment-modal')
-      }else {
-      this.getExtraProjectInfo(project).then(() => {
-        let info = this.loadedProjectInfo[project]
-        this.comment = info.comment
-        this.samples = info.samples
-        this.$bvModal.show('comment-modal')
-      }).catch(() => {
-        this.$bvToast.toast('Loading of extra project infromation failed', {
-              title: 'Request failed',
-              variant: 'danger',
-              toaster: 'b-toaster-bottom-right'
-            })
-      })
+      } else {
+        this.getExtraProjectInfo(project).then(() => {
+          const info = this.loadedProjectInfo[project]
+          this.comment = info.comment
+          this.samples = info.samples
+          this.$bvModal.show('comment-modal')
+        }).catch(() => {
+          this.$bvToast.toast('Loading of extra project infromation failed', {
+            title: 'Request failed',
+            variant: 'danger',
+            toaster: 'b-toaster-bottom-right'
+          })
+        })
       }
-      
     },
 
     /**
@@ -216,32 +213,7 @@ export default Vue.extend({
      * @returns {void}
      */
     updateLocalcomment (project: string, comment: string): void {
-      for (let i = 0; i < this.projects.length; i++) {
-        if (this.projects[i].projectID === project) {
-          break
-        }
-      }
-    },
-
-    /**
-     * Gets the correct threshold for each pipeline type
-     * @param {ProjectObject} project - project
-     *
-     * @returns {Number} threshold number
-     */
-    getThreshold (project: ProjectObject): number {
-      switch (project.getProjectType()) {
-        case pipelineType.onco:
-          return this.thresholdOnco
-        case pipelineType.exoom:
-          return this.thresholdExoom
-        case pipelineType.pcs:
-          return this.thresholdPcs
-        case pipelineType.svp:
-          return this.thresholdSvp
-        default:
-          return 15
-      }
+      this.loadedProjectInfo[project] ? this.loadedProjectInfo[project].comment = comment : this.loadedProjectInfo[project] = {samples: [], comment: comment}
     }
   },
   computed: {

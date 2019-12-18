@@ -36,43 +36,37 @@ import Vue from 'vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
-import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
-import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic, statusCode } from '@/types/dataTypes'
-import { countJobStatus } from '@/helpers/utils'
-import {RunData, ProjectData, Project} from '@/types/Run'
+import { Step, statusCode } from '@/types/dataTypes'
+import { RunData, Project } from '@/types/Run'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    time: number
-    showRun: string
-    paused: boolean
-    loading: boolean
-    url: string
-    selectedRunObject: RunData
-    selectedRunID: string
-    selectedProjects: Project[]
-    selectedProjectCount: number
-    selectedRunContainsError: boolean
-    selectedRunDemultiplexingStatus: boolean
-    selectedRunStepNumber: number
-    runObjects: Run[]
-    runIdArray: string[]
-    runStepStatusArray: Step[]
-    runV2: Record<string, RunData>
-    graphRuns: string[]
-    projectObjects: Record<string, ProjectObject[]>
-    setSelectedRunIndex(index: number): void
-    compareRuns(run1: Run, run2: Run): number
-    setShowRun(selectedRunObject: string): void
-    timeUp(): void
-    setTimer(): void
-    getData(): Promise<void>
-    cycleRun (): void
-    toggleCycle (): void
-    getTrackerData(range: number): Promise<void>
-    getRunObjectByID (runID: string): Run
-    getFinishedRuns: string[]
-    clusterPings: Record<string, Date>
+    time: number;
+    showRun: string;
+    paused: boolean;
+    loading: boolean;
+    url: string;
+    selectedRunObject: RunData;
+    selectedRunID: string;
+    selectedProjects: Project[];
+    selectedProjectCount: number;
+    selectedRunContainsError: boolean;
+    selectedRunDemultiplexingStatus: boolean;
+    selectedRunStepNumber: number;
+    runIdArray: string[];
+    runStepStatusArray: Step[];
+    runV2: Record<string, RunData>;
+    graphRuns: string[];
+    setSelectedRunIndex(index: number): void;
+    setShowRun(selectedRunObject: string): void;
+    timeUp(): void;
+    setTimer(): void;
+    getData(): Promise<void>;
+    cycleRun (): void;
+    toggleCycle (): void;
+    getTrackerData(range: number): Promise<void>;
+    getFinishedRuns: string[];
+    clusterPings: Record<string, Date>;
   }
 }
 
@@ -96,10 +90,9 @@ export default Vue.extend({
   },
   data () {
     return {
-      time: 0,
-      showRun: '',
-      loading: false,
-      graphRuns: []
+      time: 0 as number,
+      showRun: '' as string,
+      loading: false as boolean
     }
   },
   computed: {
@@ -154,7 +147,7 @@ export default Vue.extend({
      *
      * @returns {Boolean}
      */
-    selectedRunContainsError (): Boolean {
+    selectedRunContainsError (): boolean {
       return this.selectedRunObject.getErrorCount() > 0
     },
 
@@ -163,9 +156,9 @@ export default Vue.extend({
      *
      * @returns {Boolean}
      */
-    selectedRunDemultiplexingStatus (): Boolean {
+    selectedRunDemultiplexingStatus (): boolean {
       const selectedRunDemultiplexingStatus = this.selectedRunObject.steps.find(step => step.stepID === 'demultiplexing')
-      
+
       return selectedRunDemultiplexingStatus ? (selectedRunDemultiplexingStatus.getStatus() === statusCode.started || selectedRunDemultiplexingStatus.getStatus() === statusCode.finished) : false
     },
     /**
@@ -195,7 +188,7 @@ export default Vue.extend({
     runStepStatusArray (): Step[] {
       const stepArray: Step[] = []
       for (const [key, value] of Object.entries(this.runV2)) {
-          let currentStepObject: Step = {
+        const currentStepObject: Step = {
           run: key,
           step: value.getCurrentStep(),
           containsError: value.getErrorCount() > 0,
@@ -204,9 +197,8 @@ export default Vue.extend({
         stepArray.push(currentStepObject)
       }
       return stepArray
-    },
+    }
 
-    
   },
   methods: {
     ...mapActions([
@@ -218,24 +210,6 @@ export default Vue.extend({
      */
     setSelectedRunIndex (index: number): void {
       this.showRun = this.runIdArray[index]
-    },
-
-    /**
-     * selectedRunObject comparator function
-     * @param {Run} run1 - first selectedRunObject
-     * @param {Run} run2 - second selectedRunObject
-     * @returns Number Sort order
-     */
-    compareRuns (run1: Run, run2: Run): number {
-      if (run1.containsError && !run2.containsError) {
-        return -1
-      } else if (run2.containsError || run1.getCurrentStep() > run2.getCurrentStep()) {
-        return 1
-      } else if (run1.containsError || run2.getCurrentStep() > run1.getCurrentStep()) {
-        return -1
-      } else {
-        return 0
-      }
     },
 
     /**
@@ -263,7 +237,7 @@ export default Vue.extend({
      *
      * @returns {void}
      */
-    setTimer ():void {
+    setTimer (): void {
       this.time = new Date().getTime()
       setInterval(this.timeUp, 1000)
     },
@@ -292,12 +266,11 @@ export default Vue.extend({
     }
   },
   watch: {
-    loadingStatus () {
+    loadingStatus (): void {
       this.setSelectedRunIndex(0)
     }
   },
   async mounted (): Promise<void> {
-    
     this.setTimer()
     this.cycleRun()
 
@@ -330,7 +303,5 @@ export default Vue.extend({
 .height60 {
   height: 100%;
 }
-
-
 
 </style>

@@ -21,16 +21,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Step, StraightStep, IncrementalStep } from '@/types/steps'
-import { statusCode } from '../../types/dataTypes'
-import { mapState } from 'vuex'
 
-interface iconTypes {
-  done: string[2]
-  waiting: string[2]
-  running: string[2]
-  error: string[2]
-  warning: string[2]
+interface IconTypes {
+  done: string[2];
+  waiting: string[2];
+  running: string[2];
+  error: string[2];
+  warning: string[2];
 }
 enum steps {
   demultiplexing,
@@ -48,12 +45,12 @@ enum stepStatus {
 }
 declare module 'vue/types/vue' {
   interface Vue {
-    runningDemultiplexing: boolean
-    rawDataCopy: boolean
-    runningProjects: boolean
-    resultDataCopy: boolean
-    pipelineFinished: boolean
-    iconTypes: iconTypes
+    runningDemultiplexing: boolean;
+    rawDataCopy: boolean;
+    runningProjects: boolean;
+    resultDataCopy: boolean;
+    pipelineFinished: boolean;
+    iconTypes: IconTypes;
   }
 }
 export default Vue.extend({
@@ -202,7 +199,7 @@ export default Vue.extend({
     finishedIcon (): string[2] {
       return this.returnIcon(this.finishedStatus)
     },
-    finishedColor () : string {
+    finishedColor (): string {
       return this.returnColor(this.finishedStatus)
     },
 
@@ -289,17 +286,17 @@ export default Vue.extend({
 }
 
 .devider {
-  border-width: 0.3vw !important;
+  border-width: 0.2vw !important;
   background-color: $gray-300
 }
 
 .step-icon {
-  height: 2.5vw;
-  width: 2.5vw;
+  height: 2vw;
+  width: 2vw;
 }
 
 .message {
-  font-size: 1.3vw;
+  font-size: 1vw;
   border-width: 0.1vw !important;
 }
 

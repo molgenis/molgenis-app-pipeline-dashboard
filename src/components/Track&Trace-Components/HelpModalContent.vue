@@ -16,14 +16,21 @@
   </b-container>
 </template>
 
-<script>
-import StatusIcon from '@/components/Track&Trace-Components/StatusIcon'
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    iconFields: Array<string | {key: string; label: string}>;
+    iconItems: {name: string; status: {icon: string; color: string}; description: string}[];
+    colorFields: Array<string | {key: string; label: string}>;
+    stepFields: string[];
+    stepItems: {step: number; name: string; description: string}[];
+  }
+}
+export default Vue.extend({
   name: 'help-modal-content',
-  components: {
-    StatusIcon
-  },
-  data () {
+  data (): object {
     return {
       iconFields: [
         { key: 'status', label: 'Icon' },
@@ -62,7 +69,7 @@ export default {
       ]
     }
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

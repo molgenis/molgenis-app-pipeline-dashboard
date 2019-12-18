@@ -100,11 +100,40 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
 import helpModalContent from '@/components/Track&Trace-Components/HelpModalContent.vue'
-import { Run, RunStatusData } from '@/types/dataTypes'
+import { RunStatusData } from '@/types/dataTypes'
 import { getFilteredArray } from '@/helpers/utils'
+import { RunData } from '@/types/Run'
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    checkbox: boolean;
+    mouse: string;
+    hiddenToggled: boolean;
+    show: number;
+    hidden: string[];
+    visibleRuns: RunStatusData[];
+    hiddenRuns: RunStatusData[];
+    hiddenRunsByLength: RunStatusData[];
+    editMode: boolean;
+    totalRuns: string[];
+    selectedRun: RunData;
+    selectedRunID: string;
+    cyclePaused: boolean;
+    statusVariant: string;
+    mouseOn: string;
+    localHidden: string[];
+    showHiddenRuns: RunStatusData[];
+    hiddenObjects: RunStatusData[];
+    toggleHidden(): void;
+    toggleEditMode(): void;
+    emitPaused(): void;
+    emitFinish(run: string): void;
+    updateHidden(hidden: string[]): void;
+
+  }
+}
 
 export default Vue.extend({
   name: 'run-status-table',
@@ -135,7 +164,7 @@ export default Vue.extend({
     selectedRun: {
       type: Object,
       required: false,
-      default: () => { return {} as Run }
+      default: (): RunData => { return {} as RunData }
     },
     selectedRunID: {
       type: String,
@@ -155,11 +184,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    toggleHidden () {
+    toggleHidden (): void {
       this.hiddenToggled = !this.hiddenToggled
     },
 
-    toggleEditMode () {
+    toggleEditMode (): void {
       this.editMode = !this.editMode
     },
 
@@ -219,9 +248,9 @@ export default Vue.extend({
       get: function (): string[] {
         return this.hidden
       },
-      set: function (updatedHidden: string[]) {
+      set: function (updatedHidden: string[]): void {
         const totalRuns = this.totalRuns as RunStatusData[]
-        this.hidden = [...updatedHidden, ...Array.from(totalRuns.filter((runStatusData) => {return runStatusData.step === 4 && !updatedHidden.includes(runStatusData.run) }), x => x.run)]
+        this.hidden = [...updatedHidden, ...Array.from(totalRuns.filter((runStatusData) => { return runStatusData.step === 4 && !updatedHidden.includes(runStatusData.run) }), x => x.run)]
       }
 
     },
@@ -251,7 +280,7 @@ export default Vue.extend({
      * @emits 'cycle-next'
      * @returns {void}
      */
-    selectedRun: function () {
+    selectedRun: function (): void {
       if (Array.from(this.hiddenRuns, x => x.run).includes(this.selectedRun.run_id)) {
         this.$emit('cycle-next')
       }
@@ -264,15 +293,15 @@ export default Vue.extend({
      */
     hidden: {
       immediate: true,
-      handler () {
+      handler (): void {
         const totalRuns = this.totalRuns as RunStatusData[]
-        let notHidden: RunStatusData[] = getFilteredArray(totalRuns, this.hiddenObjects)
-          this.visibleRuns = notHidden
-        this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns)
+        const notHidden = getFilteredArray(totalRuns, this.hiddenObjects)
+        this.visibleRuns = notHidden as RunStatusData[]
+        this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns) as RunStatusData[]
       }
     },
 
-    totalRuns: function () {
+    totalRuns: function (): void {
       if (this.hidden.length === 0) {
         this.hidden = []
       }

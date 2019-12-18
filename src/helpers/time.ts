@@ -1,4 +1,4 @@
-import { dayMs } from './dates';
+import { dayMs } from './dates'
 
 /**
  * sets the maximum numbers for a time unit
@@ -63,7 +63,6 @@ export function calculateSeconds (milliseconds: number): number {
 
 export function getDateLabel (days: number): string {
   const now = new Date()
-  const d = new Date(now.getTime() - dayMs * days) 
+  const d = new Date(now.getTime() - dayMs * days)
   return `${d.getDate()}/${d.getMonth() + 1}`
 }
-

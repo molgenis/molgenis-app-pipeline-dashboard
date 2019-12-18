@@ -35,50 +35,58 @@
 
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
-import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
 import TimingStatistics from '@/components/TimingStatistics.vue'
-import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
-import ServerStatus from '@/components/ServerStatus'
+import ServerStatus from '@/components/ServerStatus.vue'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    runsLoaded: boolean;
+    projectsLoaded: boolean;
+    jobsLoaded: boolean;
+    rawDataConverted: boolean;
+    getTrackerData(): Promise<void>;
+    getClusterPings(): Promise<void>;
+  }
+}
+export default Vue.extend({
   name: 'app',
   data () {
     return {
       errorToastActive: false,
-      paused: false,
+      paused: false
     }
   },
   components: {
     TrackAndTrace,
-    RunTimeStatistics,
     SampleStatistics,
     TimingStatistics,
     ServerStatus
   },
   methods: {
-    ...mapActions({
-      refresh: 'getTrackerData',
-      clusterPings: 'getClusterPings'
-    }),
-    togglePaused() {
+    ...mapActions([
+      'getTrackerData',
+      'getClusterPings'
+    ]),
+    togglePaused (): void {
       this.paused = !this.paused
     },
-    resumeAutoMode() {
+    resumeAutoMode (): void {
       if (this.paused) {
         this.paused = false
       }
     },
-     /**
+    /**
      * Calls data fetch action
      *
      * @returns {Promise<void>}
      */
-    getData () {
-      this.refresh(20)
+    getData (): void {
+      this.getTrackerData()
         .then(() => {
           if (this.errorToastActive) {
             this.$bvToast.hide('errorToast')
@@ -93,7 +101,7 @@ export default {
         .catch((reason) => {
           if (!this.errorToastActive) {
             this.errorToastActive = true
-            this.$bvToast.toast(reason, {
+            this.$bvToast.toast('Failed connecting to MOLGENIS database...', {
               id: 'errorToast',
               title: 'Error',
               variant: 'danger',
@@ -111,26 +119,22 @@ export default {
       'jobsLoaded',
       'rawDataConverted'
     ]),
-    trackingDataLoaded () {
+    trackingDataLoaded (): boolean {
       return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every(state => state)
     }
   },
-  async mounted () {
-    await this.getData()
-    this.clusterPings
+  mounted (): void {
+    this.getData()
     setInterval(this.getData, 10000)
-    setInterval(this.clusterPings, 30000)
+    setInterval(this.getClusterPings, 30000)
     setInterval(this.resumeAutoMode, 120000)
-
   }
-}
+})
 </script>
 
 <style lang="scss">
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
-
-
 
 .h-45 {
 height: 45%;

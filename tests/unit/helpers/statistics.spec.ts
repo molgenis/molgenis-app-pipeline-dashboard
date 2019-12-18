@@ -1,4 +1,4 @@
-import { getSD, calculateMean, calculateMeanWithoutOutliers } from '@/helpers/statistics'
+import { getSD, calculateMean, calculateMeanWithoutOutliers } from '../../../src//helpers/statistics'
 
 describe('getSD', () => {
   test('Calculates standard deviation', () => {

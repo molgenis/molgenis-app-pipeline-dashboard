@@ -8,21 +8,40 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { mapState } from 'vuex'
-export default {
+
+interface ClusterContainer {
+  ID: string;
+  lastPingMinutes: number;
+  error: boolean;
+}
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    now: number;
+    fields: {key: string; label: string}[];
+    clusters: ClusterContainer[];
+    sortedClusters: ClusterContainer[];
+    calculateMessage(minutes: number): string;
+    setNow(): void;
+
+  }
+}
+export default Vue.extend({
   name: 'server-status',
   data () {
     return {
       now: 0,
       fields: [
-        'cluster',
-        {key: 'status', label: 'Status'}
+        { key: 'cluster', label: 'Cluster'},
+        { key: 'status', label: 'Status' }
       ]
     }
   },
   methods: {
-    calculateMessage(minutes) {
+    calculateMessage (minutes: number): string {
       if (minutes < 60) {
         return `${minutes} minutes ago`
       }
@@ -31,9 +50,8 @@ export default {
         return `${hours} hours ago`
       }
       return `${Math.round(minutes / 60 / 24)} Days ago`
-      
     },
-    setNow() {
+    setNow (): void {
       this.now = Date.now()
     }
   },
@@ -41,22 +59,22 @@ export default {
     ...mapState([
       'clusterPings'
     ]),
-    sortedClusters () {
+    sortedClusters (): ClusterContainer[] {
       const clusters = this.clusters
-      clusters.sort((a, b) => { return a.lastPingMinutes <= b.lastPingMinutes ? -1 : 1})
+      clusters.sort((a, b) => { return a.lastPingMinutes <= b.lastPingMinutes ? -1 : 1 })
       return clusters
     },
-    tableParsedClusters () {
+    tableParsedClusters (): {cluster: string; status: { ping: number; error: boolean }}[] {
       return this.sortedClusters.map((cluster) => {
-        return {cluster: cluster.ID, status: {ping: cluster.lastPingMinutes, error: cluster.error}}
+        return { cluster: cluster.ID, status: { ping: cluster.lastPingMinutes, error: cluster.error } }
       })
     },
     /**
      * @returns {{ID: string, lastPingMinutes: number, error: boolean}[]}
      */
-    clusters () {
+    clusters (): ClusterContainer[] {
       const clusterData = this.clusterPings
-      let clusters = []
+      const clusters = [] as ClusterContainer[]
       Object.keys(clusterData).forEach((cluster) => {
         const lastPing = Math.round((((this.now - clusterData[cluster].getTime()) / 60000)))
         clusters.push({
@@ -68,11 +86,11 @@ export default {
       return clusters
     }
   },
-  mounted() {
+  mounted (): void {
     this.setNow()
     setInterval(this.setNow, 60000)
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>
