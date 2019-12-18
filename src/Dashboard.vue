@@ -20,7 +20,7 @@
       </b-col>
     </b-row>
     <b-row no-gutters class="h-50">
-      <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">
+      <b-col cols="12" lg="5" class="h-100 d-none p-2 d-lg-block">
         <timing-statistics :paused="paused"></timing-statistics>
       </b-col>
       <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">

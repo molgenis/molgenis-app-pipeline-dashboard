@@ -1,17 +1,25 @@
 <template>
-  <b-container class="p-2 h-100"  fluid>
+
+  <b-container class="h-100 border border-primary" fluid>
+    <b-row>
+          <b-col>
+            <b-nav tabs align="center">
+                <b-nav-item :active="selected === 'runtimes'" @click="selected = 'runtimes'">Median runtimes</b-nav-item>
+                <b-nav-item :active="selected === 'timing'" @click="selected = 'timing'">Timeline</b-nav-item>
+                <b-nav-item :active="selected === 'overall'" @click="selected = 'overall'">Recent Statistics</b-nav-item>
+            </b-nav>
+          </b-col>
+        </b-row>
     <b-row class="h-100" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
-      <b-col v-show="selected === 'runtimes'" class="h-100 border border-primary chart">
+      <b-col v-show="selected === 'runtimes'" class="h-100 pb-1 chart">
         <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
       </b-col>
-      <b-col v-show="selected === 'timing'" class="border border-primary chart">
+      <b-col v-show="selected === 'timing'" class="border pb-1 chart">
         <apexchart type="line" ref="areaTimingChart" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
       </b-col>
-      <div class="cycleDisplay d-flex w-100 justify-content-center position-absolute" v-show="stepDisplay">
-        <div class="d-flex justify-content-around w-50" @click="selected = chartType" v-for="chartType in chartArray" :key="chartType">
-          <font-awesome-icon :icon="[selected === chartType ? 'fas' : 'far', 'circle']" size="lg" style="height: 1vw; width: 1vw" :class="selected === chartType ? 'primary' : 'secondary'"></font-awesome-icon>
-        </div>
-    </div>
+      <b-col v-show="selected === 'overall'" class="border h-100 pb-1 chart">
+        <run-time-statistics></run-time-statistics>
+      </b-col>
     </b-row>
 
   </b-container>
@@ -22,6 +30,7 @@
 import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
 import { DurationStatisticsStorage, Serie, ChartOptions } from '../types/graphTypes'
+import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -44,11 +53,15 @@ declare module 'vue/types/vue' {
 
 enum chartTypes {
   timing = 'timing',
-  runtimes = 'runtimes'
+  runtimes = 'runtimes',
+  overall = 'overall'
 }
 
 export default Vue.extend({
   name: 'timing-chart',
+  components: {
+    RunTimeStatistics
+  },
   data () {
     return {
       selected: chartTypes.timing,

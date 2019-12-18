@@ -1,5 +1,5 @@
 <template>
-  <b-container class="h-100 p-2" fluid @mouseover="hover = true" @mouseleave="hover = false">
+  <b-container class="h-100" fluid @mouseover="hover = true" @mouseleave="hover = false">
     <b-row no-gutters class="h-100">
       <b-col class="h-100">
         <transition-group name="fade">
@@ -13,7 +13,7 @@
             </div>
           </template>
         </transition-group>
-        <b-container class="border border-primary p-0 h-100" fluid >
+        <b-container class="h-100" fluid >
           <apexchart type="line" :options="chartOptions" :series="computedSeries"></apexchart>
         </b-container>
       </b-col>
@@ -86,7 +86,7 @@ export default Vue.extend({
 
       return {
         chart: {
-          height: '100%',
+          width: '100%',
           id: 'run-time-graph',
           toolbar: {
             show: false,
