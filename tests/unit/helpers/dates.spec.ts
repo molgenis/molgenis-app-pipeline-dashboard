@@ -1,4 +1,4 @@
-import { formatDate, dayMs, dateIsLastYear, createDateRange } from '@/helpers/dates'
+import { formatDate, dayMs, dateIsLastYear, createDateRange } from '../../../src/helpers/dates'
 
 describe('formatDate', () => {
   test('formats the given date with a single digit month and double digit day', () => {

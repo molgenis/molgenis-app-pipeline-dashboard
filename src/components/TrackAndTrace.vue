@@ -1,20 +1,21 @@
 <template>
     <b-row id="track-and-trace" no-gutters class="h-100">
-      <b-col  class="p-2 h-100" lg="4" cols="12">
+      <b-col  class="p-2 h-100" lg="4" cols="12" >
         <b-container fluid class="border border-primary p-0 h-100">
           <run-status-table
           @cycle-next="cycleRun"
           :total-runs="runStepStatusArray"
           :selected-run="selectedRunObject"
+          :selectedRunID="selectedRunID"
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
           :cycle-paused="paused"
-          class="w-100">
+          class="w-100 h-100">
           </run-status-table>
         </b-container>
       </b-col>
-    <b-col class="p-2 h-100" cols="12" lg="8" >
-      <b-container class="border border-primary h-100 p-0 overflow-auto" fluid>
+    <b-col class="d-flex flex-column p-2 h-100" style="width: 100%;" cols="12" lg="8" >
+      <b-container id="run-table-container" class="flex-grow-1 border border-primary p-0 w-100 mb-1 h-100" fluid>
         <run-table
         :runID="selectedRunID"
         :showRun="showRun"
@@ -35,40 +36,37 @@ import Vue from 'vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
-import projectComponent from '@/components/Track&Trace-Components/RunTableProject.vue'
-import { RawDataObject, Run, RunDataObject, ProjectObject, projectDataObject, Job, Step, RunTimeStatistic, statusCode } from '@/types/dataTypes'
-import { countJobStatus } from '@/helpers/utils'
+import { Step, statusCode, RunStatusData } from '@/types/dataTypes'
+import { RunData, Project } from '@/types/Run'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    time: number
-    showRun: string
-    paused: boolean
-    loading: boolean
-    url: string
-    selectedRunObject: Run
-    selectedRunID: string
-    selectedProjects: ProjectObject[]
-    selectedProjectCount: number
-    selectedRunContainsError: boolean
-    selectedRunDemultiplexingStatus: boolean
-    selectedRunStepNumber: number
-    runObjects: Run[]
-    runIdArray: string[]
-    runStepStatusArray: Step[]
-    graphRuns: string[]
-    projectObjects: Record<string, ProjectObject[]>
-    setSelectedRunIndex(index: number): void
-    compareRuns(run1: Run, run2: Run): number
-    setShowRun(selectedRunObject: string): void
-    timeUp(): void
-    setTimer(): void
-    getData(): Promise<void>
-    cycleRun (): void
-    toggleCycle (): void
-    getTrackerData(range: number): Promise<void>
-    getRunObjectByID (runID: string): Run
-    getFinishedRuns: string[]
+    time: number;
+    showRun: string;
+    paused: boolean;
+    loading: boolean;
+    url: string;
+    selectedRunObject: RunData;
+    selectedRunID: string;
+    selectedProjects: Project[];
+    selectedProjectCount: number;
+    selectedRunContainsError: boolean;
+    selectedRunDemultiplexingStatus: boolean;
+    selectedRunStepNumber: number;
+    runIdArray: string[];
+    runStepStatusArray: Step[];
+    runV2: Record<string, RunData>;
+    graphRuns: string[];
+    setSelectedRunIndex(index: number): void;
+    setShowRun(selectedRunObject: string): void;
+    timeUp(): void;
+    setTimer(): void;
+    getData(): Promise<void>;
+    cycleRun (): void;
+    toggleCycle (): void;
+    getTrackerData(range: number): Promise<void>;
+    getFinishedRuns: string[];
+    clusterPings: Record<string, Date>;
   }
 }
 
@@ -83,22 +81,23 @@ export default Vue.extend({
       type: Boolean,
       required: false,
       default: true
+    },
+    paused: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {
     return {
-      time: 0,
-      showRun: '',
-      paused: false,
-      loading: false,
-      graphRuns: [],
-      errorToastActive: false
+      time: 0 as number,
+      showRun: '' as string,
+      loading: false as boolean
     }
   },
   computed: {
     ...mapState({
-      projectObjects: 'projectObjects',
-      runObjects: 'runObjects'
+      runV2: 'runV2'
     }),
     ...mapGetters([
       'getRunObjectByID',
@@ -108,11 +107,11 @@ export default Vue.extend({
      * Currently selected run
      * @returns {Run}
      */
-    selectedRunObject (): Run {
+    selectedRunObject (): RunData {
       const id = this.showRun
-      const selectedRunObject: Run | undefined = this.getRunObjectByID(id)
+      const selectedRunObject: RunData | undefined = this.runV2[id]
 
-      return selectedRunObject || new Run('', 'waiting', 'waiting', 0, false, 0, false) // if no run is found substitute with an empty one
+      return selectedRunObject || new RunData([], []) // if no run is found substitute with an empty one
     },
     /**
      * Currently selected run id
@@ -120,7 +119,7 @@ export default Vue.extend({
      * @returns {String} run id
      */
     selectedRunID (): string {
-      const selectedRunID = this.selectedRunObject.run_id
+      const selectedRunID = this.showRun
       return selectedRunID || ''
     },
 
@@ -129,8 +128,8 @@ export default Vue.extend({
      *
      * @returns {ProjectObject[]}
      */
-    selectedProjects (): ProjectObject[] {
-      const selectedProjects = this.projectObjects[this.selectedRunID]
+    selectedProjects (): Project[] {
+      const selectedProjects = this.selectedRunObject.projects
       return selectedProjects || []
     },
 
@@ -140,7 +139,7 @@ export default Vue.extend({
      * @returns {Number}
      */
     selectedProjectCount (): number {
-      return this.selectedRunObject.len + 1
+      return this.selectedRunObject.getSize()
     },
 
     /**
@@ -148,8 +147,8 @@ export default Vue.extend({
      *
      * @returns {Boolean}
      */
-    selectedRunContainsError (): Boolean {
-      return this.selectedRunObject.containsError
+    selectedRunContainsError (): boolean {
+      return this.selectedRunObject.getErrorCount() > 0
     },
 
     /**
@@ -157,9 +156,10 @@ export default Vue.extend({
      *
      * @returns {Boolean}
      */
-    selectedRunDemultiplexingStatus (): Boolean {
-      const selectedRunDemultiplexingStatus = this.selectedRunObject.getDemultiplexingStatus()
-      return (selectedRunDemultiplexingStatus === statusCode.started || selectedRunDemultiplexingStatus === statusCode.finished)
+    selectedRunDemultiplexingStatus (): boolean {
+      const selectedRunDemultiplexingStatus = this.selectedRunObject.steps.find(step => step.stepID === 'demultiplexing')
+
+      return selectedRunDemultiplexingStatus ? (selectedRunDemultiplexingStatus.getStatus() === statusCode.started || selectedRunDemultiplexingStatus.getStatus() === statusCode.finished) : false
     },
     /**
      * Currently selected run step number
@@ -176,7 +176,7 @@ export default Vue.extend({
      * @returns {String[]}
      */
     runIdArray (): string[] {
-      const runIdArray: string[] = this.runObjects.map((run: Run) => run.run_id)
+      const runIdArray: string[] = Object.keys(this.runV2)
       return runIdArray
     },
 
@@ -185,17 +185,20 @@ export default Vue.extend({
      *
      * @returns {Step[]}
      */
-    runStepStatusArray (): Step[] {
-      const runStepStatusArray: Step[] = this.runObjects.map((RunObject: Run) => {
-        return {
-          run: RunObject.run_id,
-          step: RunObject.getCurrentStep(),
-          containsError: RunObject.containsError,
-          len: RunObject.len
+    runStepStatusArray (): RunStatusData[] {
+      const stepArray: RunStatusData[] = []
+      for (const [key, value] of Object.entries(this.runV2)) {
+        const currentStepObject: RunStatusData = {
+          run: key,
+          step: value.getCurrentStep(),
+          containsError: value.getErrorCount() > 0,
+          len: value.getSize()
         }
-      })
-      return runStepStatusArray
+        stepArray.push(currentStepObject)
+      }
+      return stepArray
     }
+
   },
   methods: {
     ...mapActions([
@@ -210,29 +213,13 @@ export default Vue.extend({
     },
 
     /**
-     * selectedRunObject comparator function
-     * @param {Run} run1 - first selectedRunObject
-     * @param {Run} run2 - second selectedRunObject
-     * @returns Number Sort order
-     */
-    compareRuns (run1: Run, run2: Run): number {
-      if (run1.containsError && !run2.containsError) {
-        return -1
-      } else if (run2.containsError || run1.getCurrentStep() > run2.getCurrentStep()) {
-        return 1
-      } else if (run1.containsError || run2.getCurrentStep() > run1.getCurrentStep()) {
-        return -1
-      } else {
-        return 0
-      }
-    },
-
-    /**
      * pauses the run cycle when selecting a run
      * @param {String} runID - run id of a run to select
      */
     setShowRun (runID: string): void {
-      this.paused = true
+      if (!this.paused) {
+        this.$emit('toggle-interactive-mode')
+      }
       this.showRun = runID
     },
 
@@ -250,41 +237,9 @@ export default Vue.extend({
      *
      * @returns {void}
      */
-    setTimer ():void {
+    setTimer (): void {
       this.time = new Date().getTime()
       setInterval(this.timeUp, 1000)
-    },
-
-    /**
-     * Calls data fetch action
-     *
-     * @returns {Promise<void>}
-     */
-    getData () {
-      this.getTrackerData(20)
-        .then(() => {
-          if (this.errorToastActive) {
-            this.$bvToast.hide('errorToast')
-            this.errorToastActive = false
-            this.$bvToast.toast('Connection to MOLGENIS restored', {
-              title: 'Updated',
-              variant: 'success',
-              toaster: 'b-toaster-bottom-right'
-            })
-          }
-        })
-        .catch((reason) => {
-          if (!this.errorToastActive) {
-            this.errorToastActive = true
-            this.$bvToast.toast(reason, {
-              id: 'errorToast',
-              title: 'Error',
-              variant: 'danger',
-              toaster: 'b-toaster-bottom-right',
-              noAutoHide: true
-            })
-          }
-        })
     },
     /**
      * Cycles the display index by 1
@@ -307,21 +262,19 @@ export default Vue.extend({
      * pause or resume cycling of detailed view
      */
     toggleCycle (): void {
-      this.paused = !this.paused
+      this.$emit('toggle-interactive-mode')
     }
   },
   watch: {
-    loadingStatus () {
+    loadingStatus (): void {
       this.setSelectedRunIndex(0)
     }
   },
-
   async mounted (): Promise<void> {
-    await this.getData()
     this.setTimer()
     this.cycleRun()
+
     setInterval(this.cycleRun, 10000)
-    setInterval(this.getData, 10000)
   }
 })
 
@@ -341,6 +294,12 @@ export default Vue.extend({
   border: 2px solid $secondary;
 }
 
+.success {
+    color: $success;
+}
+.error {
+  color: $danger;
+}
 .height60 {
   height: 100%;
 }

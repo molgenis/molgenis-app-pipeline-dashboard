@@ -4,16 +4,29 @@
   :variant="variant"
   :max="totalSteps"
   show-progress
-  :animated="animated">
+  :animated="animated"
+  height="1vw">
     <b-progress-bar :value="step">
       <strong>{{ step }} / {{ totalSteps }}</strong>
     </b-progress-bar>
   </b-progress>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    step: number;
+    totalSteps: number;
+    noWarning: boolean;
+    varaint: string;
+    animated: boolean;
+    checkProgress(): void;
+  }
+}
+
+export default Vue.extend({
   name: 'progress-bar',
   props: {
     step: {
@@ -51,7 +64,7 @@ export default {
          * @emits 'progress-finish'
          * @returns {void}
          */
-    checkProgress () {
+    checkProgress (): void {
       if (this.step === this.totalSteps) {
         this.$emit('progress-finish')
       }
@@ -63,15 +76,15 @@ export default {
          *
          * @returns {void}
          */
-    step () {
+    step (): void {
       this.checkProgress()
     }
   },
-  mounted () {
+  mounted (): void {
     this.checkProgress()
   }
 
-}
+})
 
 </script>
 
@@ -79,6 +92,11 @@ export default {
 .progress-middle {
     margin-top: auto;
     margin-bottom: auto;
+
+}
+
+strong {
+  font-size: 1vw;
 }
 
 </style>

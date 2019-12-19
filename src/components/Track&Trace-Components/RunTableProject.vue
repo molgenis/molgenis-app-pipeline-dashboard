@@ -1,8 +1,9 @@
 <template>
 <b-row @click="toggleLogBox">
-  <b-col cols="4" class="text-center"><p class="text-truncate fontvw">{{project}}</p></b-col>
-  <b-col cols="4" class="text-center pt-1">
-    <status-icon :status="status" :comment="comment.length > 0"/>
+  <b-col cols="4" class="d-flex align-items-center justify-content-center text-center"><p class="text-truncate fontvw m-0">{{project}}</p></b-col>
+  <b-col v-if="comment" cols="2" class="d-flex align-items-center justify-content-center text-center"><font-awesome-icon :icon="['fas', 'envelope-square']" class="secondary icons"/> </b-col>
+  <b-col :cols="comment ? 2 : 4" class="d-flex align-items-center justify-content-center text-center pt-0 pb-0">
+    <status-icon :status="status" :comment="comment" :warning="currentWarningStatus"/>
   </b-col>
     <b-col :cols="running ? 2 : 4" class="text-center float-left">
       <project-timer
@@ -19,7 +20,7 @@
         :noWarning="hasNoWarning"
         :error="false"
         :animated="true"
-        class="w-100 mt-1"
+        class="w-100"
       ></progress-bar>
     </b-col>
   </b-row>
@@ -30,12 +31,12 @@ import Vue from 'vue'
 import progressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 import StatusIcon from '@/components/Track&Trace-Components/StatusIcon.vue'
-import { Job } from '@/types/dataTypes.ts'
-import { countJobStatus } from '../../helpers/utils'
+import { statusCode } from '@/types/dataTypes.ts'
+import { JobCounts } from '../../types/Run'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    jobs: Job[]
+    jobs: JobCounts;
   }
 }
 export default Vue.extend({
@@ -64,18 +65,20 @@ export default Vue.extend({
       required: true
     },
 
-    jobs: {
-      type: Array,
-      required: true
-    },
-    startedDate: {
-      type: Number,
-      required: false
+    comment: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
-    finishedDate: {
-      type: Number,
-      required: false
+    jobs: {
+      type: Object,
+      required: true
+    },
+    projectDates: {
+      type: Object,
+      required: false,
+      default: (): {startedDate: Date; finishedDate: Date} => { return { startedDate: new Date(), finishedDate: new Date() } }
     },
 
     runID: {
@@ -102,12 +105,7 @@ export default Vue.extend({
     threshold: {
       type: Number,
       required: false,
-      default: 15
-    },
-    comment: {
-      type: String,
-      required: false,
-      default: ''
+      default: 4
     }
   },
   components: {
@@ -126,7 +124,7 @@ export default Vue.extend({
      *
      * @returns {Boolean}
      */
-    hasNoWarning (): Boolean {
+    hasNoWarning (): boolean {
       return this.finished || !this.started || (this.thresholdToMs > (this.finishTime - this.startTime))
     },
     /**
@@ -139,19 +137,6 @@ export default Vue.extend({
     },
 
     /**
-     * Filters jobs that are not completed sorted by start date
-     * @returns {Job[]}
-     */
-    remainingJobs (): Job[] {
-      let jobArray: Job[] = this.jobs
-      return jobArray
-        .filter(function (job: Job) {
-          return job.status !== 'finished'
-        })
-        .sort(this.SortJobsByTime)
-    },
-
-    /**
      * calculates finished step count
      * @returns {Number}
      */
@@ -159,8 +144,8 @@ export default Vue.extend({
       if (this.resultCopy === 'finished' || this.resultCopy === 'started') {
         return this.totalSteps
       }
-      let jobArray = this.jobs as Job[]
-      return countJobStatus(jobArray, 'finished')
+
+      return this.jobs.finished
     },
 
     /**
@@ -168,27 +153,16 @@ export default Vue.extend({
      * @returns {Number}
      */
     totalSteps (): number {
-      return this.jobs.length
+      const jobs: JobCounts = this.jobs
+      return jobs.waiting + jobs.started + jobs.finished + jobs.error
     },
 
     /**
      * Finds status of project and sets variant
      * @returns {String}
      */
-    status (): string {
-      if (this.finished) {
-        return 'finished'
-      } else if (countJobStatus(this.remainingJobs, 'error') >= 1) {
-        return 'error'
-      } else if (!this.hasNoWarning) {
-        return 'warning'
-      } else if (
-        countJobStatus(this.remainingJobs, 'started') >= 1
-      ) {
-        return 'running'
-      } else {
-        return 'waiting'
-      }
+    status (): statusCode {
+      return this.jobs.getStatus()
     },
     /**
      * Sets the correct color variant
@@ -196,16 +170,16 @@ export default Vue.extend({
      */
     variant (): string {
       switch (this.status) {
-        case 'finished':
+        case statusCode.finished:
           return 'success'
-        case 'error':
+        case statusCode.error:
           return 'danger'
-        case 'warning':
-          return 'warning'
-        case 'running':
-          return 'primary'
+        case statusCode.started:
+          return this.currentWarningStatus ? 'warning' : 'primary'
+        case statusCode.waiting:
+          return 'secondary'
         default:
-          return 'waiting'
+          return 'warning'
       }
     },
 
@@ -214,7 +188,7 @@ export default Vue.extend({
      * @returns {Boolean}
      */
     started (): boolean {
-      return this.steps > 0 || countJobStatus(this.jobs, 'started') > 0
+      return this.status === statusCode.started || this.status === statusCode.finished || this.status === statusCode.error
     },
 
     /**
@@ -228,26 +202,11 @@ export default Vue.extend({
     },
 
     /**
-     * Sums up all job runtimes
-     * @returns {Number}
-     */
-    runtime (): number {
-      let runtime = 0
-      let jobArray = this.jobs as Job[]
-      jobArray.forEach(job => {
-        if (job.startedDate && job.finishedDate) {
-          runtime += new Date(job.startedDate!).getTime() - new Date(job.finishedDate!).getTime()
-        }
-      })
-      return runtime
-    },
-
-    /**
      * Gets finished time, if not finished returns now()
      * @returns {Number} (milliseconds)
      */
     finishTime (): number {
-      return this.finished ? this.finishedDate : this.time
+      return this.projectDates.finishedDate ? this.projectDates.finishedDate.getTime() : this.finished ? NaN : this.time
     },
 
     /**
@@ -255,7 +214,7 @@ export default Vue.extend({
      * @returns {Number} (milliseconds)
      */
     startTime (): number {
-      return this.startedDate
+      return this.projectDates.startedDate ? this.projectDates.startedDate.getTime() : NaN
     }
   },
   methods: {
@@ -265,7 +224,7 @@ export default Vue.extend({
      * @returns {void}
      */
     toggleLogBox (): void {
-      this.$emit('open-modal', this.project, this.comment)
+      this.$emit('open-modal', this.project)
     },
     /**
      * Checks if the project contains warnings
@@ -276,41 +235,6 @@ export default Vue.extend({
       if (!this.hasNoWarning) {
         this.$emit('project-warning', !this.hasNoWarning)
       }
-    },
-    /**
-     * emits finished when called
-     * @emits 'finished'
-     * @returns {void}
-     */
-    projectFinished (): void {
-      this.$emit('finished', this.runtime)
-    },
-    /**
-     * Comperator function for job sorting by time
-     * @param {Job} Job1 - first job
-     * @param {Job} Job2 - second job
-     * @returns {Number} sort order
-     */
-    SortJobsByTime (job1: Job, job2: Job): number {
-      const job1StartedDate = job1.startedDate
-      const job2StartedDate = job2.startedDate
-
-      if ((job1StartedDate === '' && job2StartedDate === '') || (!job1StartedDate && !job2StartedDate)) {
-        return 0
-      } else if ((job1StartedDate !== '' && job2StartedDate === '') || !job1StartedDate) {
-        return 1
-      } else if ((job2StartedDate !== '' && job1StartedDate === '') || !job2StartedDate) {
-        return -1
-      }
-
-      const job1Date = new Date(job1StartedDate!).getTime()
-      const job2Date = new Date(job2StartedDate!).getTime()
-
-      if (job1Date > job2Date) {
-        return 1
-      } else if (job1Date < job2Date) {
-        return -1
-      } else return 0
     }
   },
   mounted () {
@@ -320,8 +244,21 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
-.fontvw {
-  font-size: '150%';
+<style lang="scss" scoped>
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index.scss';
+
+.icons {
+  height: 1vw;
+  width: 1vw;
 }
+
+.secondary {
+  color: $secondary;
+}
+
+p {
+  font-size: 1vw;
+}
+
 </style>

@@ -51,6 +51,4 @@ describe('StepTracker.vue', () => {
 
     expect(wrapper.text()).toContain('Finished all workflow steps')
   })
-
-  describe
 })

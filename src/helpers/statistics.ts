@@ -19,6 +19,16 @@ export function getSD (numberSeries: number[], mean: number): number {
 }
 
 /**
+ * Sums up array of numbers
+ * @param array - Array of numbers
+ *
+ * @return {Number} Sum
+ */
+export function sumArray (array: number[]): number {
+  return array.reduce((total: number, number: number): number => { return total + number })
+}
+
+/**
  * Calculates mean of numeric array
  * @param {Number} numberSeries - array of numbers to calculate average
  *
@@ -32,15 +42,7 @@ export function calculateMean (numberSeries: number[]): number {
   return 0
 }
 
-/**
- * Sums up array of numbers
- * @param array - Array of numbers
- *
- * @return {Number} Sum
- */
-export function sumArray (array: number[]): number {
-  return array.reduce((total: number, number: number): number => { return total + number })
-}
+
 
 /**
  * Calculates mean of numeric array excluding outliers
@@ -70,6 +72,6 @@ export function calculateMeanWithoutOutliers (numberSeries: number[], standardDe
  * @param n1 - number 1
  * @param n2 - number 2
  */
-export function max (n1:number, n2:number): number {
+export function max (n1: number, n2: number): number {
   return n1 > n2 ? n1 : n2
 }

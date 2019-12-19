@@ -12,12 +12,63 @@
   </b-row>
 </template>
 
-<script>
-import { formatDate, dateIsLastYear } from '@/helpers/dates'
+<script lang="ts">
+import Vue from 'vue'
+import { dateIsLastYear } from '@/helpers/dates'
 import { sumArray } from '@/helpers/statistics'
 import { mapActions, mapState } from 'vuex'
+import { getDateLabel } from '@/helpers/time'
+import { ChartOptions, Serie } from '../../types/graphTypes'
 
-export default {
+interface Week {
+  'sunday': number;
+  'monday': number;
+  'tuesday': number;
+  'wednesday': number;
+  'thursday': number;
+  'friday': number;
+  'saturday': number;
+}
+
+interface Year {
+  january: number;
+  february: number;
+  march: number;
+  april: number;
+  may: number;
+  june: number;
+  july: number;
+  august: number;
+  september: number;
+  october: number;
+  november: number;
+  december: number;
+}
+declare module 'vue/types/vue' {
+  interface Vue {
+    type: string;
+    month: Record<string, number>;
+    year: Year;
+    week: Record<string, number>;
+    initialWeek: Week;
+    initialYear: Year;
+    initialMonth: Record<string, number>;
+    selectedData: Year | Record<string, number>;
+    timeIndex: number;
+    dateMap: Record<string, string>;
+    sampleCountsInOrder: number[];
+    orderedSampleLabels: string[];
+    sequencedSampleNumbers: { counts: number[]; labels: string[] };
+    title: string;
+    resetData(): void;
+    updateYear(month: number, count: number): void;
+    fillData(formattedDate: string[], sampleCount: number): void;
+    getNumbers(): Promise<void>;
+
+  }
+}
+
+export default Vue.extend({
   name: 'sample-counts-graph',
   props: {
     type: {
@@ -27,7 +78,7 @@ export default {
     }
   },
   data () {
-    const initialWeek = {
+    const initialWeek: Record<string, number> = {
       sunday: 0,
       monday: 0,
       tuesday: 0,
@@ -36,7 +87,7 @@ export default {
       friday: 0,
       saturday: 0
     }
-    const initialYear = {
+    const initialYear: Year = {
       january: 0,
       february: 0,
       march: 0,
@@ -50,7 +101,7 @@ export default {
       november: 0,
       december: 0
     }
-    const initialMonth = {
+    const initialMonth: Record<string, number> = {
       '30': 0,
       '29': 0,
       '28': 0,
@@ -98,14 +149,14 @@ export default {
     /**
      * returns the current selected data sum
      */
-    sumOfSamples () {
+    sumOfSamples (): number {
       return sumArray(Object.values(this.selectedData))
     },
     /**
      * returns the current day/month index
      * @returns {number} timeindex
      */
-    timeIndex () {
+    timeIndex (): number {
       if (this.type === 'YEAR') {
         const date = new Date()
         return date.getMonth()
@@ -119,7 +170,7 @@ export default {
      * returns the visible data
      * @returns {Object} sample counts per date
      */
-    selectedData () {
+    selectedData (): Record<string, number> | Week | Year {
       switch (this.type) {
         case 'WEEK':
           return this.week
@@ -133,7 +184,7 @@ export default {
      * Returns the correct title for the graph
      * @returns {string} title
      */
-    title () {
+    title (): string {
       switch (this.type) {
         case 'WEEK':
           return 'Samples Sequenced last 7 days'
@@ -148,25 +199,31 @@ export default {
      * Ordered by wich date it is currently
      * @returns {Array<Number>}
      */
-    sampleCountsInOrder () {
+    sampleCountsInOrder (): number[] {
       const values = Object.values(this.selectedData)
-      return [...values.slice(this.timeIndex), ...values.slice(0, this.timeIndex)]
+      if (this.type === 'YEAR' || this.type === 'WEEK') {
+        return [...values.slice(this.timeIndex), ...values.slice(0, this.timeIndex)]
+      }
+      return values.reverse()
     },
     /**
      * Returns a ordered array of labels
      * Ordered by wich date it is currently
      * @returns {Array<String>}
      */
-    orderedSampleLabels () {
+    orderedSampleLabels (): string[] {
       const labels = Object.keys(this.selectedData)
-      return [...labels.slice(this.timeIndex), ...labels.slice(0, this.timeIndex)]
+      if (this.type === 'YEAR' || this.type === 'WEEK') {
+        return [...labels.slice(this.timeIndex), ...labels.slice(0, this.timeIndex)]
+      }
+      return labels.map((label) => { return this.dateMap[label] })
     },
     /**
      * Returns a series for the graph
      *
      * @returns {Array<Serie>}
      */
-    graphSeries () {
+    graphSeries (): Serie[] {
       return [{
         name: 'Samples',
         data: this.sampleCountsInOrder
@@ -177,7 +234,7 @@ export default {
      * reference: https://apexcharts.com/docs/options/
      * @returns {Object}
      */
-    chartOptions () {
+    chartOptions (): ChartOptions {
       return {
         chart: {
           type: 'bar',
@@ -206,6 +263,40 @@ export default {
           }
         }
       }
+    },
+    dateMap (): Record<string, string> {
+      return {
+        '30': getDateLabel(1),
+        '29': getDateLabel(2),
+        '28': getDateLabel(3),
+        '27': getDateLabel(4),
+        '26': getDateLabel(5),
+        '25': getDateLabel(6),
+        '24': getDateLabel(7),
+        '23': getDateLabel(8),
+        '22': getDateLabel(9),
+        '21': getDateLabel(10),
+        '20': getDateLabel(11),
+        '19': getDateLabel(12),
+        '18': getDateLabel(13),
+        '17': getDateLabel(14),
+        '16': getDateLabel(15),
+        '15': getDateLabel(16),
+        '14': getDateLabel(17),
+        '13': getDateLabel(18),
+        '12': getDateLabel(19),
+        '11': getDateLabel(20),
+        '10': getDateLabel(21),
+        '9': getDateLabel(22),
+        '8': getDateLabel(23),
+        '7': getDateLabel(24),
+        '6': getDateLabel(25),
+        '5': getDateLabel(26),
+        '4': getDateLabel(27),
+        '3': getDateLabel(28),
+        '2': getDateLabel(29),
+        '1': getDateLabel(30)
+      }
     }
   },
   methods: {
@@ -215,7 +306,7 @@ export default {
     /**
      * Resets data to 0 for refilling
      */
-    resetData () {
+    resetData (): void {
       this.week = this.initialWeek
       this.month = this.initialMonth
       this.year = this.initialYear
@@ -226,7 +317,7 @@ export default {
      * @param {Number} month - month of year (0-11)
      * @param {Number} count - Sample count that month
      */
-    updateYear (month, count) {
+    updateYear (month: number, count: number): void {
       switch (month) {
         case 0:
           this.year.january += count
@@ -274,7 +365,7 @@ export default {
      *
      * @returns {void}
      */
-    fillData (formattedDate, sampleCount) {
+    fillData (formattedDate: string[], sampleCount: number): void {
       const now = new Date()
 
       const dayMs = 24 * 60 * 60 * 1000
@@ -289,14 +380,15 @@ export default {
         this.updateYear(date.getMonth(), sampleCount)
       }
 
-      let timeDifference = Math.abs(now - date)
-      let dayDifference = Math.ceil(timeDifference / dayMs)
+      const timeDifference = Math.abs(now.getTime() - date.getTime())
+      const dayDifference = Math.ceil(timeDifference / dayMs)
 
       if (dayDifference <= 30) {
         this.month[dayDifference.toString()] = sampleCount
       }
       if (dayDifference <= 7) {
-        this.week[Object.keys(this.week)[date.getDay()]] = sampleCount
+        const day = Object.keys(this.week)[date.getDay()]
+        this.week[day] = sampleCount
       }
     },
     /**
@@ -304,25 +396,25 @@ export default {
      *
      * @returns {void}
      */
-    async getPreviousYearData () {
+    getPreviousYearData (): void {
       this.getNumbers().catch(() => {
         setTimeout(this.getPreviousYearData, 10000)
       })
     }
   },
   watch: {
-    sequencedSampleNumbers () {
+    sequencedSampleNumbers (): void {
       this.resetData()
       for (let index = 0; index < this.sequencedSampleNumbers.labels.length; index++) {
         this.fillData(this.sequencedSampleNumbers.labels[index].split('-'), this.sequencedSampleNumbers.counts[index])
       }
     }
   },
-  mounted () {
+  mounted (): void {
     this.getNumbers()
     setInterval(this.getNumbers, 3600000)
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

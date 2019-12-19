@@ -12,9 +12,9 @@
                 toggle-class="nav-link-custom"
                 class="active"
                 right>
-                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly'; paused = true">7 days</b-dropdown-item-button>
-                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly'; paused = true">30 days</b-dropdown-item-button>
-                  <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly'; paused = true">12 months</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'weekly'" @click="selected = 'weekly';">7 days</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'monthly'" @click="selected = 'monthly';">30 days</b-dropdown-item-button>
+                  <b-dropdown-item-button :active="selected === 'yearly'" @click="selected = 'yearly';">12 months</b-dropdown-item-button>
                 </b-nav-item-dropdown>
             </b-nav>
           </b-col>
@@ -35,23 +35,38 @@
 </b-container>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import SequencerUsageSpreadGraph from '@/components/SampleStatisticsComponents/SequencerUsageSpreadGraph.vue'
-import SampleCountsDisplay from '@/components/SampleStatisticsComponents/SampleCountsDisplay.vue'
 import SampleCountsGraph from '@/components/SampleStatisticsComponents/SampleCountsGraph.vue'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    selected: string;
+    selectable: string[];
+    paused: boolean;
+    cycle(): void;
+    returnType(select: string): string;
+  }
+}
+
+export default Vue.extend({
   name: 'sample-statistics',
   components: {
     SequencerUsageSpreadGraph,
-    SampleCountsDisplay,
     SampleCountsGraph
   },
   data () {
     return {
       selected: 'sequencer',
-      selectAble: ['sequencer', 'weekly', 'monthly', 'yearly'],
-      paused: false
+      selectAble: ['sequencer', 'weekly', 'monthly', 'yearly']
+    }
+  },
+  props: {
+    paused: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   methods: {
@@ -60,7 +75,7 @@ export default {
      *
      * @returns {void}
      */
-    cycle () {
+    cycle (): void {
       const index = this.selectAble.indexOf(this.selected)
       const length = this.selectAble.length
       if (!this.paused) {
@@ -77,7 +92,7 @@ export default {
      *
      * @returns {String}
      */
-    returnType (select) {
+    returnType (select: string): string {
       switch (select) {
         case 'weekly':
           return 'WEEK'
@@ -90,10 +105,10 @@ export default {
       }
     }
   },
-  mounted () {
+  mounted (): void {
     setInterval(this.cycle, 15000)
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>

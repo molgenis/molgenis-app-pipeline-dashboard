@@ -1,13 +1,26 @@
 <template>
-    <span
-    v-if="started" class="align-middle">{{hours}}:{{minutes}}:{{seconds}}</span>
-    <span v-else-if="waiting && countdown" class="align-middle">--:--:--</span>
-    <span v-else class="align-middle">Not Started</span>
+  <span>{{display}}</span>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit } from '@/helpers/time'
-export default {
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    startTime: number;
+    finishTime: number;
+    started: boolean;
+    countdown: boolean;
+    time: number;
+    timer: string;
+    hours: string;
+    minutes: string;
+    seconds: string;
+  }
+}
+
+export default Vue.extend({
   name: 'project-timer',
   props: {
     startTime: {
@@ -33,12 +46,27 @@ export default {
     }
   },
   computed: {
+    display (): string {
+      if (isNaN(this.time)) {
+        return '--:--:--'
+      }
+      if (this.started) {
+        return this.timer
+      }
+      if (this.countdown) {
+        return '--:--:--'
+      }
+      return 'Not Started'
+    },
+    timer (): string {
+      return `${this.hours}:${this.minutes}:${this.seconds}`
+    },
     /**
          * calculates timediffrence
          *
          * @returns {Number} - milliseconds
          */
-    time () {
+    time (): number {
       return this.finishTime - this.startTime
     },
 
@@ -47,7 +75,7 @@ export default {
          *
          * @returns {String}
          */
-    seconds () {
+    seconds (): string {
       return formatTime(calculateSeconds(this.time), timeUnit.seconds)
     },
 
@@ -55,7 +83,7 @@ export default {
          * Calculates the minutes counter
          * @returns {String}
          */
-    minutes () {
+    minutes (): string {
       return formatTime(calculateMinutes(this.time), timeUnit.minutes)
     },
 
@@ -64,23 +92,16 @@ export default {
          *
          * @returns {String}
          */
-    hours () {
+    hours (): string {
       return formatTime(calculateHours(this.time), timeUnit.hours)
-    },
-
-    /**
-         * Checks if project is on hold
-         *
-         * @returns {Boolean}
-         */
-    waiting () {
-      return (!this.started)
     }
-
   }
-}
+})
 </script>
 
 <style scoped>
+span {
+  font-size: 1vw;
+}
 
 </style>

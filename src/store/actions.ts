@@ -2,14 +2,15 @@
  * @module store
  */
 
-import state, { State } from '@/store/state'
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run } from '@/types/dataTypes'
-import { Serie, IdentifiedSerie } from '@/types/graphTypes'
-// @ts-ignore
+import  { State } from '@/store/state'
+import { RunDataObject, ProjectDataObject, parseStatus, statusCode, dateSearch, SampleResponse, Sample } from '@/types/dataTypes'
+import { Serie, IdentifiedSerie, RawDurationStatistics, DurationStatisticsStorage } from '@/types/graphTypes'
+
 import api from '@molgenis/molgenis-api-client'
 import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
-import { countJobStatus, countProjectStartedCopying, getProjectDataStatus } from '@/helpers/utils'
 import { max } from '@/helpers/statistics'
+
+import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/types/Run'
 
 /**
  *
@@ -28,20 +29,24 @@ import { max } from '@/helpers/statistics'
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): Promise<void> {
+function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: object) => Promise<RunDataObject[]> }): Promise<void> {
   return new Promise((resolve, reject) => {
-    Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobData')])
-      .then(() => {
-        dispatch('convertRawData').then(() => {
-          commit('clearRawData')
-        }
-        )
-        resolve()
+    dispatch('getRunData').then((result: RunDataObject[]) => {
+      const runs = result.map((run) => {
+        return `'${run.run_id}'`
       })
-      .catch(() => {
-        reject('Could not retrieve Track&Trace data from MOLGENIS!')
-      })
+      Promise.all([dispatch('getProjectData', {runIDs: runs}), dispatch('getJobAggregates'), dispatch('getClusterPings')])
+      .then((results) => {
+        dispatch('convertRawData', { runs: result, projects: results[0] }).then(() => {
+          resolve()
+        })
+    }).catch(() => {
+      reject(new Error('Could not retrieve Track&Trace data from MOLGENIS!')) 
+    })
+  }).catch(() => {
+    reject(new Error('Could not retrieve Track&Trace data from MOLGENIS!'))
   })
+})
 }
 
 /**
@@ -58,18 +63,18 @@ function getTrackerData ({ commit, dispatch }: { commit: any, dispatch: any }): 
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getRunData ({ commit, state: { overviewTable } }: {commit: any, state: State}): Promise<void> {
+async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutation: string) => void; state: State}): Promise<RunDataObject[]> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${overviewTable}?num=10000`)
+    let date = new Date()
+    date.setMonth(date.getMonth() - 1)
+    const dateQuery = formatDate(date)
+    api.get(`/api/v2/${overviewTable}?num=10000&q=date=gt=${dateQuery}`)
       .then(function (response: {items: RunDataObject[]}) {
-        const tableContent = response.items
-        if (tableContent.length > 0) {
-          commit('setRuns', tableContent)
-        }
-        resolve()
+        commit('runsLoaded')
+        resolve(response.items)
       })
-      .catch(function (error: any) {
-        reject('Could not update runs')
+      .catch(() => {
+        reject(new Error(`Failed to retrieve runs from ${overviewTable}`))
       })
   })
 }
@@ -83,48 +88,42 @@ async function getRunData ({ commit, state: { overviewTable } }: {commit: any, s
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getProjectData ({ commit, state }: {commit: any, state: State}): Promise<void> {
+async function getProjectData ({ commit, state: { projectsTable } }: {commit: (mutation: string) => void; state: State}, params: {runIDs: string[]}): Promise<ProjectDataObject[]> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${state.projectsTable}?num=10000`)
-      .then(function (response: {items: projectDataObject[]}) {
-        const tableContent = response.items
-        if (tableContent.length > 0) {
-          commit('setProjects', tableContent)
-        }
-        resolve()
+    api.get(`/api/v2/${projectsTable}?num=10000&q=run_id=in=(${params.runIDs.join(',')})`)
+      .then(function (response: {items: ProjectDataObject[]}) {
+        commit('projectsLoaded')
+        resolve(response.items)
       })
-      .catch(function (error: any) {
-        reject('Could not update projects')
+      .catch(() => {
+        reject(new Error(`Failed to retrieve projects from ${projectsTable}`))
       })
   })
 }
 
 /**
- * retrieves jobs data from job table and commits changes to state
- *
- * See [[getTrackerData]]
- * @param __namedParameters - vuex instance
- * @param __namedParameters.commit - call to mutations
- * @param __namedParameters.state - application state
- * @param __namedParameters.state.jobTable - job table api identifier
- * @category TrackAndTrace
- * @returns {Promise<void>}
+ * Finds the maximum lenght of a IdentifiedSerie array
+ * @param seriesArray - array of series
+ * @param length - current array lenght
  */
-async function getJobData ({ commit, state: { jobTable }, dispatch }: {commit: any, state: State, dispatch: any}): Promise<void> {
-  return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${jobTable}?attrs=project_job,project,status,started_date,finished_date&num=10000`)
-      .then(function (response: {items: any[]}) {
-        if (response.items.length > 0) {
-          const mappedJobs = response.items.map((job) => { return { project: job.project, status: job.status, startedDate: job.started_date, finishedDate: job.finished_date } })
-          commit('setJobs', mappedJobs)
-        }
-        dispatch('getJobAggregates')
-        resolve()
-      })
-      .catch(function (error: any) {
-        reject('Could not update jobs')
-      })
+function findMax (seriesArray: IdentifiedSerie[], length: number): number {
+  if (length === 1) {
+    return seriesArray[0].getLenght()
+  }
+  return max(findMax(seriesArray, length - 1), seriesArray[length - 1].getLenght())
+}
+
+/**
+ * fills a new series to keep proportions right in the graph
+ * @param groupedData series with unique ids
+ */
+function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedSerie[] {
+  const maximum = findMax(groupedData, groupedData.length)
+  const newSeries = groupedData.map((series) => {
+    const nullFilledArray = new Array(maximum - series.getLenght()).fill({ projectID: null, number: null })
+    return series.getLenght() < maximum ? new IdentifiedSerie(name, [...nullFilledArray, ...series.combinedData]) : series
   })
+  return newSeries
 }
 
 /**
@@ -142,26 +141,26 @@ async function getJobData ({ commit, state: { jobTable }, dispatch }: {commit: a
  * @category Runtime
  * @return Promise: resolve when sucessful, reject when not
  */
-async function getMachineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: any, state: State}, { machines, range }: { machines: string[], range: number }): Promise<void> {
+async function getMachineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: (mutation: string, params: object) => void; state: State}, { machines, range }: { machines: string[]; range: number }): Promise<void> {
   return new Promise((resolve, reject) => {
-    let machineSeriesGrouped: Record<string, IdentifiedSerie[]> = {}
+    const machineSeriesGrouped: Record<string, IdentifiedSerie[]> = {}
     machines.forEach(async (machine: string) => {
       pipelineTypes.forEach(async (pipelineType: string) => {
         if (!Object.keys(machineSeriesGrouped).includes(pipelineType)) {
           machineSeriesGrouped[pipelineType] = [] as IdentifiedSerie[]
         }
 
-        let query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
+        const query = `machine==${machine};total_hours=gt=0;project=like=${pipelineType}`
         await api.get(`/api/v2/${timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
-          .then(function (response: { items: Object[] }) {
+          .then(function (response: { items: {project: string; total_hours: number}[] }) {
             if (response.items.length > 0) {
-              let seriesData = Array.from(response.items.reverse(), (x:any) => { return { projectID: x.project, number: x.total_hours } })
+              const seriesData = Array.from(response.items.reverse(), (x) => { return { projectID: x.project, number: x.total_hours } })
 
               machineSeriesGrouped[pipelineType].push(new IdentifiedSerie(machine, seriesData))
             }
           })
-          .catch(function (error: any) {
-            reject(error)
+          .catch(() => {
+            reject(new Error(`Failed to get machine run times from ${timingTable}`))
           })
         machineSeriesGrouped[pipelineType] = fillToEqualLenghts(machineSeriesGrouped[pipelineType])
       })
@@ -172,26 +171,7 @@ async function getMachineData ({ commit, state: { pipelineTypes, timingTable } }
   })
 }
 
-/**
- * Finds the maximum lenght of a IdentifiedSerie array
- * @param seriesArray - array of series
- * @param length - current array lenght
- */
-function findMax (seriesArray: IdentifiedSerie[], length: number): number {
-  if (length === 1) {
-    return seriesArray[0].getLenght()
-  }
-  return max(findMax(seriesArray, length - 1), seriesArray[length - 1].getLenght())
-}
 
-function fillToEqualLenghts (groupedData: IdentifiedSerie[]) {
-  const maximum = findMax(groupedData, groupedData.length)
-  const newSeries = groupedData.map((series) => {
-    const nullFilledArray = new Array(maximum - series.getLenght()).fill({ projectID: null, number: null })
-    return series.getLenght() < maximum ? new IdentifiedSerie(name, [...nullFilledArray, ...series.combinedData]) : series
-  })
-  return newSeries
-}
 
 /**
  * retrieves pipeline data from timing table and commits changes to state
@@ -207,18 +187,18 @@ function fillToEqualLenghts (groupedData: IdentifiedSerie[]) {
  * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
-async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } }: { commit:any, state: State }, range: number): Promise<void> {
-  let pipelineSeries: Serie[] = []
+async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: (mutation: string, params: object) => void; state: State }, range: number): Promise<void> {
+  const pipelineSeries: Serie[] = []
 
   pipelineTypes.map(async (pipelineType: string) => {
-    let query = `project=like=${pipelineType};total_hours=gt=0`
+    const query = `project=like=${pipelineType};total_hours=gt=0`
     api.get(`/api/v2/${timingTable}?num=${range}&sort=finishedTime:desc&q=${query}`)
-      .then(function (response: {items: Object[]}) {
+      .then(function (response: {items: {pipelineDuration: number}[]}) {
         const ResponseData = response.items
-        pipelineSeries.push(new Serie(pipelineType, Array.from(ResponseData, (x: any) => Math.round(x.pipelineDuration / 60)).reverse()))
+        pipelineSeries.push(new Serie(pipelineType, Array.from(ResponseData, (x: {pipelineDuration: number}) => Math.round(x.pipelineDuration / 60)).reverse()))
       })
-      .catch(function (error: any) {
-        console.error(error)
+      .catch(() => {
+        throw new Error('Failed retrieving pipelineTypes')
       })
   })
   commit('setPipelineData', pipelineSeries)
@@ -234,17 +214,17 @@ async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } 
  * @param __namedParameters.state.sampleTable - sample table identifier for api
  * @category Statistics
  */
-async function getSequencerStatistics ({ commit, state: { sampleTable } }: { commit: any, state: State }): Promise<void> {
+async function getSequencerStatistics ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
-      .then(function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
+      .then(function (response: { aggs: { matrix: Array<number[]>; xLabels: string[] } }) {
         const Aggregates = response.aggs
         commit('setSequencerStatisticsSeries', Array.from(Aggregates.matrix, (x: number[]) => x[0]))
         commit('setSequencerStatisticsLabels', Aggregates.xLabels)
         resolve()
       })
-      .catch(function (error: any) {
-        reject(error)
+      .catch(() => {
+        reject(new Error(`Failed retieving sequencer statistics from ${sampleTable}`))
       })
   })
 }
@@ -264,16 +244,16 @@ async function getSequencerStatistics ({ commit, state: { sampleTable } }: { com
  * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
-async function getTimingData ({ dispatch, state: { timingTable } }: { dispatch: any, state: State }, range: number): Promise<void> {
+async function getTimingData ({ dispatch, state: { timingTable } }: { dispatch: (action: string, params: object | number) => void; state: State }, range: number): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${timingTable}?aggs=x==machine;distinct==unique_id`)
-      .then(async function (response: { aggs: { matrix: Array<number[]>, xLabels: string[] } }) {
+      .then(async function (response: { aggs: { matrix: Array<number[]>; xLabels: string[] } }) {
         let machines = response.aggs.xLabels as string[]
         machines = machines.filter((x) => { return x !== null }).sort()
         dispatch('getMachineData', { machines: machines, range: range })
       })
-      .catch(function (error: any) {
-        reject(error)
+      .catch(() => {
+        reject(new Error(`Failed retrieving machineData from ${timingTable}`))
       })
     dispatch('getPipelineData', range)
     resolve()
@@ -290,14 +270,13 @@ async function getTimingData ({ dispatch, state: { timingTable } }: { dispatch: 
  * @category Statistics
  * @return Promise with number when resolved
  */
-async function getSamplesInDateRange ({ state: { sampleTable } }: { dispatch: any, state: State }, range: [string, string]): Promise<number> {
+async function getSamplesInDateRange ({ state: { sampleTable } }: { state: State }, range: [string, string]): Promise<number> {
   const query = `sequencingStartDate=rng=(${range[0]}, ${range[1]})`
   return api.get(`/api/v2/${sampleTable}?q=${query}&num=1`)
-    .then(function (response: any) {
-      const responseJson = response.json()
-      return responseJson.total
-    }).catch(function (error: any) {
-      return Promise.reject(error)
+    .then(function (response: {total: number}) {
+      return response.total
+    }).catch(() => {
+      return Promise.reject(new Error(`Failed retrieving data within ranges ${range[0]} - ${range[1]} from ${sampleTable}`))
     })
 }
 
@@ -320,10 +299,10 @@ async function getSamplesInDateRange ({ state: { sampleTable } }: { dispatch: an
  * @category Statistics
  * @return Promise
  */
-async function getSampleNumbers ({ dispatch, commit, state: { sampleTable } }:{ dispatch: any, commit: any, state: State }): Promise<void> {
+async function getSampleNumbers ({ dispatch, commit, state: { sampleTable } }: { dispatch: (action: string, params: object) => Promise<number>; commit: (mutation: string, params: number) => void; state: State }): Promise<void> {
   api.get(`/api/v2/${sampleTable}?num=1`)
-    .then(function (response: any) {
-      commit('setTotalSamples', response.json().total)
+    .then(function (response: {total: number}) {
+      commit('setTotalSamples', response.total)
     })
   const now = new Date()
 
@@ -346,21 +325,21 @@ async function getSampleNumbers ({ dispatch, commit, state: { sampleTable } }:{ 
  * @requires formatDate from helpers/dates
  * @category Statistics
  */
-async function getLastYearSampleSequencedNumbers ({ commit, state: { sampleTable } }: { commit: any, state: State }): Promise<void> {
+async function getLastYearSampleSequencedNumbers ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
   return new Promise((resolve, reject) => {
     const Now = new Date()
     const lastYear = formatDate(new Date(Now.getTime() - (375 * dayMs)))
 
     api.get(`/api/v2/${sampleTable}?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=${lastYear}`)
-      .then(function (result: any) {
-        let resultedData = { counts: [] as number[], labels: [] as string[] }
+      .then(function (result: {aggs: {matrix: number[][]; xLabels: string[]}}) {
+        const resultedData = { counts: [] as number[], labels: [] as string[] }
         resultedData.counts = Array.from(result.aggs.matrix, (nestedNumber: number[]) => nestedNumber[0])
         resultedData.labels = result.aggs.xLabels
         commit('setSequencedSampleNumbers', resultedData)
         resolve()
       })
-      .catch(function (error: any) {
-        reject(error)
+      .catch(() => {
+        reject(new Error(`Failed retrieving last years sequenced sample numbers from ${sampleTable}`))
       })
   })
 }
@@ -386,7 +365,7 @@ async function getProjectComment ({ state: { projectsTable } }: { state: State }
  * @param __namedParameters1.comment - new comment content
  * @category TrackAndTrace
  */
-async function updateProjectComment ({ state: { projectsTable } }: { state: State }, { project, comment }: { project: string, comment: string }): Promise<void> {
+async function updateProjectComment ({ state: { projectsTable } }: { state: State }, { project, comment }: { project: string; comment: string }): Promise<void> {
   return api.put(`/api/v1/${projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
 }
 /**
@@ -403,12 +382,12 @@ async function updateProjectComment ({ state: { projectsTable } }: { state: Stat
  * @category TrackAndTrace
  * @return Promise with message
  */
-async function handleCommentSubmit ({ dispatch }: { dispatch: any }, { project, oldComment, newComment, validation }: {project: string, oldComment: string, newComment: string, validation: boolean }): Promise<string> {
+async function handleCommentSubmit ({ dispatch }: { dispatch: (action: string, params: object) => Promise<string> }, { project, oldComment, newComment, validation }: {project: string; oldComment: string; newComment: string; validation: boolean }): Promise<string> {
   return new Promise((resolve, reject) => {
     if (validation) {
       dispatch('checkForCommentUpdates', { project: project, oldComment: oldComment, newComment: newComment }).then((resolveMessage: string) => { resolve(resolveMessage) }, (reason: string) => { reject(reason) })
     } else {
-      reject('Comment is invalid')
+      reject(new Error('Comment is invalid'))
     }
   })
 }
@@ -429,19 +408,21 @@ async function handleCommentSubmit ({ dispatch }: { dispatch: any }, { project, 
  * @param __namedParameters1.newComment - comment content user wants to change
  * @category TrackAndTrace
  */
-async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: { dispatch: any, state: State }, { project, oldComment, newComment }: { project: string, oldComment: string, newComment: string }): Promise<string> {
+async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTable, loadedProjectInfo } }: { commit: (mutation: string, params: object) => void, dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v1/${projectsTable}/${project}/comment`)
-      .then((result: { href: string, comment: string }) => {
+      .then((result: { href: string; comment: string }) => {
         if (!result.comment || result.comment === oldComment) {
-          dispatch('updateProjectComment', { project: project, comment: newComment })
+          dispatch('updateProjectComment', { project: project, comment: newComment }).then(() => {
+            commit('addNewProjectInfo', {comment: newComment, project: project, samples: loadedProjectInfo[project] ? loadedProjectInfo[project].samples : [] as Sample[]})
+          })
           resolve('dispatched comment to database')
         } else {
-          reject('Could not update comment, updated by other user')
+          reject(new Error('Could not update comment, updated by other user'))
         }
       })
-      .catch((error: any) => {
-        reject('Network error occured')
+      .catch(() => {
+        reject(new Error('Network error occured'))
       })
   })
 }
@@ -460,10 +441,10 @@ async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: {
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } }: { dispatch: any, commit: any, getters: any }) {
+async function convertRawData ({ dispatch }: { dispatch: (action: string, params: object) => Promise<Record<string, ProjectData[]>> }, { runs, projects }: {runs: RunDataObject[]; projects: ProjectDataObject[]}): Promise<void> {
   return new Promise((resolve) => {
-    dispatch('convertProjects').then(() => {
-      dispatch('constructRunObjects').then(() => {
+    dispatch('convertProjects', projects).then((result: Record<string, ProjectData[]>) => {
+      Promise.all([dispatch('constructRunObjects', { runs: runs, projects: result }), dispatch('getProjectDates', result)]).then(() => {
         resolve()
       })
     })
@@ -488,20 +469,19 @@ async function convertRawData ({ dispatch, commit, getters: { getFinishedRuns } 
  * @category TrackAndTrace
  * @return Promise, always resolves
  */
-async function convertProjects ({ commit, state: { projects }, getters: { getJobsByProjectID } }: { commit: any, state: State, getters: any}) {
+async function convertProjects ({ state: { jobAggregates } }: {state: State}, projects: ProjectDataObject[]): Promise<Record<string, ProjectData[]>> {
   return new Promise((resolve) => {
-    let mappedProjects: Record<string, ProjectObject[]> = {}
-    projects.forEach((project: projectDataObject) => {
+    const mappedProjects: Record<string, ProjectData[]> = {}
+    projects.forEach((project: ProjectDataObject) => {
       const runID = project.run_id
       if (!(runID in mappedProjects)) { // if runID doesn't have an entry, make one
-        mappedProjects[runID] = [] as ProjectObject[]
+        mappedProjects[runID] = [] as ProjectData[]
       }
-      const projectJobs: Job[] = getJobsByProjectID(project.project)
-      const status = getProjectDataStatus(project, projectJobs)
-      mappedProjects[runID].push(new ProjectObject(project.project, projectJobs, project.pipeline, status, project.copy_results_prm, project.comment))
+
+      mappedProjects[runID].push(new ProjectData(project.project, parseStatus(project.copy_results_prm), jobAggregates[project.project], !!project.comment))
     })
-    commit('setProjectObjects', mappedProjects)
-    resolve()
+
+    resolve(mappedProjects)
   })
 }
 
@@ -522,46 +502,164 @@ async function convertProjects ({ commit, state: { projects }, getters: { getJob
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function constructRunObjects ({ commit, state: { runs, projectObjects }, getters: { getProjectsByRunID } }: { commit: any, state: State, getters: any}) {
+async function constructRunObjects ({ commit }: { commit: (mutation: string, params: object) => void}, { runs, projects }: {runs: RunDataObject[]; projects: Record<string, ProjectData[]>}): Promise<void> {
   return new Promise((resolve) => {
-    const Runs = runs.map(({ run_id, demultiplexing, copy_raw_prm }) => {
-      let projects = getProjectsByRunID(run_id)
-      if (!projects) {
-        projects = []
-      }
-      function processErrors (projects: ProjectObject[], demultiplexing: string, rawDataStatus: string) {
-        const errors = projects.map((project: ProjectObject) => { return countJobStatus(project.jobs, 'error') })
-        const errorsInJobs = errors.length > 0 ? errors.reduce((accumulator: number, currentValue: number) => accumulator + currentValue) >= 1 : false
-        const errorsInDemultiplexing = demultiplexing === 'error'
-        const errorsInRawCopy = rawDataStatus === 'error'
-        return errorsInJobs || errorsInDemultiplexing || errorsInRawCopy
-      }
-      const length = projects.length
+    const RunsV2: Record<string, RunData> = {}
+    runs.forEach(({ run_id, demultiplexing, copy_raw_prm }) => {
+      const projectData = projects[run_id] ? projects[run_id] : []
+      const running = { finished: 0, started: 0, waiting: 0 }
+      const copying = { finished: 0, started: 0, waiting: 0 }
+      projectData.forEach(project => {
+        const status = project.getStatus()
+        if (status === statusCode.finished) {
+          running.finished += 1
+        } else if (status === statusCode.started || status === statusCode.error) {
+          running.started += 1
+        } else {
+          running.waiting += 1
+        }
+        const resultsCopyStatus = project.resultCopyStatus
+        if (resultsCopyStatus === statusCode.finished) {
+          copying.finished += 1
+        } else if (resultsCopyStatus === statusCode.started || resultsCopyStatus === statusCode.error) {
+          copying.started += 1
+        } else {
+          copying.waiting += 1
+        }
+      })
 
-      const resultCopyStatus = countProjectStartedCopying(projects)
-
-      return new Run(run_id, demultiplexing, copy_raw_prm, length, processErrors(projects, demultiplexing, copy_raw_prm), resultCopyStatus.total, resultCopyStatus.finished)
+      const finished = {
+        total: projectData.length, finished: copying.finished
+      }
+      RunsV2[run_id] = new RunData(projectData, constructSteps(parseStatus(demultiplexing), parseStatus(copy_raw_prm), running, copying, finished))
     })
-    commit('setRunObjects', Runs)
+    commit('setRunV2s', RunsV2)
     resolve()
   })
 }
 
-async function getJobAggregates ({ commit, state }: {commit:any, state: State}) {
+async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (mutation: string, params: object) => void; state: State}): Promise<void> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${state.jobTable}?aggs=x==status;y==project;distinct==project_job`)
-      .then((result: {aggs: {matrix: number[][], xLabels: string[], yLabels: string[]}}) => {
-        const projectCounters: Record<string, Record<string, number>> = {}
-        result.aggs.yLabels.forEach((project: string, index:number) => {
-          const statusType: Record<string, number> = {}
+    api.get(`/api/v2/${jobTable}?aggs=x==status;y==project;distinct==project_job`)
+      .then((result: {aggs: {matrix: number[][]; xLabels: string[]; yLabels: string[]}}) => {
+        const projectCounters: Record<string, JobCounts> = {}
+        result.aggs.yLabels.forEach((project: string, index: number) => {
+          const statusType: JobCounter = new JobCounter({ waiting: 0, started: 0, finished: 0, error: 0 })
           result.aggs.xLabels.forEach((status, xLabelIndex) => {
-            statusType[status] = result.aggs.matrix[xLabelIndex][index]
+            statusType[parseStatus(status)] = result.aggs.matrix[xLabelIndex][index]
           })
           projectCounters[project] = statusType
         })
         commit('setJobAggregates', projectCounters)
         resolve()
-      }).catch((error: any) => {
+      }).catch(() => {
+        reject(new Error(`Failed retrieving job aggragates from ${jobTable}`))
+      })
+  })
+}
+
+async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date> {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${jobTable}?attrs=project_job,${type}&sort=${type}:${type === dateSearch.started ? 'asc' : 'desc'}&num=1&q=project=='${projectID}';${type}!=''`).then((result: {items: {started_date: string; finished_date: string}[]}) => {
+      if (result.items.length === 0) {
+        resolve(undefined)
+      }
+      const date = result.items[0][type]
+      resolve(date ? new Date(date) : undefined)
+    }).catch((error: Error) => {
+      reject(error)
+    })
+  })
+}
+
+async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: {state: State; dispatch: (action: string, params: object) => Promise<Date>; commit: (mutation: string, params: object) => void}): Promise<void> {
+  Object.keys(jobAggregates).forEach((projectID) => {
+    const jobs = jobAggregates[projectID]
+    if (jobs.getStatus() === statusCode.finished) {
+      Promise.all([dispatch('getDate', { projectID: projectID, type: dateSearch.started }), dispatch('getDate', { projectID: projectID, type: dateSearch.finished })]).then(
+        (result) => { commit('updateProjectDates', { projectID: projectID, startedDate: result[0], finishedDate: result[1] }) }
+      )
+    } else if (jobs.getStatus() === statusCode.started || jobs.getStatus() === statusCode.error) {
+      dispatch('getDate', { projectID: projectID, type: dateSearch.started }).then(
+        (result: Date) => { commit('updateProjectDates', { projectID: projectID, startedDate: result, finishedDate: undefined }) }
+      )
+    }
+  })
+}
+
+/**
+ * Loads Extra project details when needed
+ * @param param0 - state data
+ * @param param0.projectsTable - project table location
+ * @param param0.sampleTable - Sample stable location
+ * @param projectID - Project to get the info for
+ * @returns project comment and samples
+ */
+async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}, projectID: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const comment = api.get(`/api/v2/${projectsTable}/${projectID}?attrs=comment`)
+    const samples = api.get(`/api/v2/${sampleTable}?attrs=lane,sequencer,Gender,archiveLocation&q=project=='${projectID}'`)
+
+    Promise.all([comment, samples]).then(
+      (results: [{comment?: string}, {items: SampleResponse[]}]) => {
+        const comment = results[0].comment ? results[0].comment : ''
+        const sampleInfo = results[1].items.map((sample) => {
+          return new Sample(sample)
+        })
+        commit('addNewProjectInfo', { project: projectID, comment: comment, samples: sampleInfo })
+        resolve()
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+}
+
+async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${clusterTable}`).then((result: {items: {cluster_name: string; latest_ping_timestamp: string}[]}) => {
+      commit('updateClusterPings', result.items)
+      resolve()
+    }).catch((error: Error) => {
+      reject(error)
+    })
+  })
+}
+
+async function getDurationStatistics ({ state: { timingTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${timingTable}?attrs=unique_id,total_min,copyProjectDataToPrmTiming,pipelineDuration,copyRawDataToPrmDuration,finishedTime&q=total_min=gt=0&num=10000&sort=finishedTime:asc`)
+      .then((result: {items: RawDurationStatistics[]}) => {
+        const pipelineTypeIDRegex = /-[a-zA-Z]+_[vV]\d+/g
+        const isolatedPipelineTypeRegEx = /[a-z]+/i
+        const durationStatistics: Record<string, DurationStatisticsStorage> = {}
+        const TimeSeries: Record<string, Record<string, number>> = {}
+
+        result.items.forEach(({ unique_id, copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming, finishedTime }) => {
+          const parsedIDArray = unique_id.match(pipelineTypeIDRegex)
+          const firstParsedID = parsedIDArray ? parsedIDArray[0] : undefined
+          const pipelineTypeMatchArray = firstParsedID ? firstParsedID.match(isolatedPipelineTypeRegEx) : undefined
+          const pipelineType = pipelineTypeMatchArray ? pipelineTypeMatchArray[0] : 'Other'
+
+          const date = formatDate(new Date(finishedTime))
+          if (!TimeSeries[date]) {
+            TimeSeries[date] = {}
+          }
+          if (!TimeSeries[date][pipelineType]) {
+            TimeSeries[date][pipelineType] = 0
+            TimeSeries[date][pipelineType + 'Times'] = 0
+          }
+          TimeSeries[date][pipelineType] += pipelineDuration
+          TimeSeries[date][pipelineType + 'Times'] += 1
+          if (!durationStatistics[pipelineType]) {
+            durationStatistics[pipelineType] = new DurationStatisticsStorage()
+          }
+          durationStatistics[pipelineType].addStatistic(copyRawDataToPrmDuration, pipelineDuration, copyProjectDataToPrmTiming)
+        })
+        commit('setDurationStatistics', durationStatistics)
+        commit('setTimingStatistics', TimeSeries)
+        resolve()
+      }).catch((error: Error) => {
         reject(error)
       })
   })
@@ -572,7 +670,6 @@ export default {
   constructRunObjects,
   convertProjects,
   convertRawData,
-  getJobData,
   getLastYearSampleSequencedNumbers,
   getMachineData,
   getPipelineData,
@@ -586,5 +683,10 @@ export default {
   getTrackerData,
   handleCommentSubmit,
   updateProjectComment,
-  getJobAggregates
+  getJobAggregates,
+  getDate,
+  getProjectDates,
+  getClusterPings,
+  getDurationStatistics,
+  getExtraProjectInfo
 }
