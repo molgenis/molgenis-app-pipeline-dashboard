@@ -61,8 +61,4 @@ export function calculateSeconds (milliseconds: number): number {
   return Math.sqrt(Math.pow(Math.round(((milliseconds / 1000) % 3600) % 60), 2))
 }
 
-export function getDateLabel (days: number): string {
-  const now = new Date()
-  const d = new Date(now.getTime() - dayMs * days)
-  return `${d.getDate()}/${d.getMonth() + 1}`
-}
+

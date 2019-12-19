@@ -1,4 +1,4 @@
-import { getSD, calculateMean, calculateMeanWithoutOutliers } from '../../../src//helpers/statistics'
+import { getSD, calculateMean, calculateMeanWithoutOutliers, max } from '../../../src//helpers/statistics'
 
 describe('getSD', () => {
   test('Calculates standard deviation', () => {
@@ -51,5 +51,12 @@ describe('calculateMeanWithoutOutliers', () => {
     const shouldEqual = calculateMean(numbers.slice(0, -1))
 
     expect(calculateMeanWithoutOutliers(numbers)).toEqual(shouldEqual)
+  })
+})
+
+describe('get maximum', () => {
+  test('campares numbers correctly', () => {
+    expect(max(3, 8)).toBe(8)
+    expect(max(32, 8)).toBe(32)
   })
 })

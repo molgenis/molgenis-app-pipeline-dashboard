@@ -1,4 +1,4 @@
-import { formatDate, dayMs, dateIsLastYear, createDateRange } from '../../../src/helpers/dates'
+import { formatDate, dayMs, dateIsLastYear, createDateRange, getDateLabel } from '../../../src/helpers/dates'
 
 describe('formatDate', () => {
   test('formats the given date with a single digit month and double digit day', () => {
@@ -22,6 +22,20 @@ describe('formatDate', () => {
 
     const ExpectedDateFormatString = '2019-11-02'
     expect(formatDate(date)).toEqual(ExpectedDateFormatString)
+  })
+})
+
+describe('getDateLabel', () => {
+  test('gets the correct format date label', () => {
+    const labels = getDateLabel(8).split('/')
+    expect(parseInt(labels[0]) > 0 && parseInt(labels[0]) <= 31).toBe(true)
+    expect(parseInt(labels[1]) > 0 && parseInt(labels[1]) <= 12).toBe(true)
+  })
+
+  test('returns the correct day', () => {
+    let day = new Date()
+    day.setDate(day.getDate() - 48)
+    expect(parseInt(getDateLabel(48).split('/')[0])).toBe(day.getDate())
   })
 })
 

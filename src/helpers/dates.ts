@@ -25,6 +25,12 @@ export function formatDate (date: Date): string {
   return year + '-' + month + '-' + day
 }
 
+export function getDateLabel (days: number): string {
+  const now = Date.now()
+  const d = new Date(now - dayMs * days)
+  return `${d.getDate()}/${d.getMonth() + 1}`
+}
+
 /**
  * Creates a range of dates formatted to api standard using [[formatDate]]
  *

@@ -14,10 +14,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { dateIsLastYear } from '@/helpers/dates'
+import { dateIsLastYear, getDateLabel } from '@/helpers/dates'
 import { sumArray } from '@/helpers/statistics'
 import { mapActions, mapState } from 'vuex'
-import { getDateLabel } from '@/helpers/time'
 import { ChartOptions, Serie } from '../../types/graphTypes'
 
 interface Week {
