@@ -133,7 +133,7 @@ export class JobCounter implements JobCounts {
     if (this.error > 0) {
       return statusCode.error
     }
-    if (this.finished > 0) {
+    if (this.finished > 0 || this.started > 0) {
       return this.started > 0 || this.waiting > 0 ? statusCode.started : statusCode.finished
     }
     return statusCode.waiting

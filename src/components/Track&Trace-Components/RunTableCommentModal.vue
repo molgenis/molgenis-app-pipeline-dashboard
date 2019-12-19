@@ -6,7 +6,7 @@
       size="xl"
       :title="run"
       hide-footer
-      :static="true"
+      :static="false"
     >
     <b-row>
       <b-col cols="6">
@@ -15,7 +15,7 @@
           <b-form-group>
             <b-form-textarea
               id="textinput"
-              v-model="placeHolderComment"
+              v-model="localComment"
               placeholder="Comment..."
               rows="30"
               max-rows="30"
@@ -25,7 +25,7 @@
 
           </b-form-group>
           <div class="d-flex justify-content-between w-100">
-            <b-button class="mt-2 mr-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, newComment: placeHolderComment, oldComment: comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
+            <b-button class="mt-2 mr-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, oldComment: placeHolderComment, newComment: loadedProjectInfo[run].comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
             <b-button class="mt-2 ml-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
           </div>
         </form>
@@ -49,6 +49,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState, mapActions, mapMutations } from 'vuex'
+import { Sample } from '../../types/dataTypes'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -58,7 +59,7 @@ declare module 'vue/types/vue' {
     resetErrorMessage: string;
     errorMessage: string;
     fields: { key: string; label: string }[];
-    updateCommentOnLocalProject(params: { projectName: string; comment: string }): Promise<void>;
+    loadedProjectInfo: Record<string, {comment: string, samples: Sample[]}>
     commentUpdated(): void;
     commentNotUpdated(reason: string): void;
     showModal(): void;
@@ -103,12 +104,21 @@ export default Vue.extend({
   computed: {
     ...mapState([
       'projectsTable',
+      'loadedProjectInfo',
       'CommentUpdatedStatus',
       'CommentNetworkError'
     ]),
     validation (): boolean {
       const comment = this.placeHolderComment
       return comment.length <= 65535
+    },
+    localComment: {
+      get: function (): string {
+        return this.loadedProjectInfo[this.run] ? this.loadedProjectInfo[this.run].comment : ''
+      },
+      set: function (value: string) {
+        this.loadedProjectInfo[this.run] = this.loadedProjectInfo[this.run] ? {comment: value, samples: this.loadedProjectInfo[this.run].samples} : {comment: value, samples: [] as Sample[]}
+      }
     }
   },
   methods: {
@@ -123,13 +133,12 @@ export default Vue.extend({
     commentUpdated (): void {
       this.rejected = false
       this.errorMessage = this.resetErrorMessage
-      this.updateCommentOnLocalProject({ projectName: this.run, comment: this.placeHolderComment })
       this.closeModal()
     },
-    commentNotUpdated (reason: string): void {
+    commentNotUpdated (reason: Error): void {
       this.rejected = true
-      this.errorMessage = reason
-      this.$bvToast.toast(reason, {
+      this.errorMessage = reason.message
+      this.$bvToast.toast(reason.message, {
         title: 'Error updating comment',
         variant: 'danger',
         toaster: 'b-toaster-bottom-right',

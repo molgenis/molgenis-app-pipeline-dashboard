@@ -105,7 +105,7 @@ export default Vue.extend({
     threshold: {
       type: Number,
       required: false,
-      default: 15
+      default: 4
     }
   },
   components: {

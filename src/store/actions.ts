@@ -29,18 +29,24 @@ import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/t
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: object) => Promise<object> }): Promise<void> {
+function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: object) => Promise<RunDataObject[]> }): Promise<void> {
   return new Promise((resolve, reject) => {
-    Promise.all([dispatch('getRunData'), dispatch('getProjectData'), dispatch('getJobAggregates'), dispatch('getClusterPings')])
+    dispatch('getRunData').then((result: RunDataObject[]) => {
+      const runs = result.map((run) => {
+        return `'${run.run_id}'`
+      })
+      Promise.all([dispatch('getProjectData', {runIDs: runs}), dispatch('getJobAggregates'), dispatch('getClusterPings')])
       .then((results) => {
-        dispatch('convertRawData', { runs: results[0], projects: results[1] }).then(() => {
+        dispatch('convertRawData', { runs: result, projects: results[0] }).then(() => {
           resolve()
         })
-      })
-      .catch(() => {
-        reject(new Error('Could not retrieve Track&Trace data from MOLGENIS!'))
-      })
+    }).catch(() => {
+      reject(new Error('Could not retrieve Track&Trace data from MOLGENIS!')) 
+    })
+  }).catch(() => {
+    reject(new Error('Could not retrieve Track&Trace data from MOLGENIS!'))
   })
+})
 }
 
 /**
@@ -59,7 +65,10 @@ function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: obj
  */
 async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutation: string) => void; state: State}): Promise<RunDataObject[]> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${overviewTable}?num=10000`)
+    let date = new Date()
+    date.setMonth(date.getMonth() - 1)
+    const dateQuery = formatDate(date)
+    api.get(`/api/v2/${overviewTable}?num=10000&q=date=gt=${dateQuery}`)
       .then(function (response: {items: RunDataObject[]}) {
         commit('runsLoaded')
         resolve(response.items)
@@ -79,9 +88,9 @@ async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutat
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getProjectData ({ commit, state: { projectsTable } }: {commit: (mutation: string) => void; state: State}): Promise<ProjectDataObject[]> {
+async function getProjectData ({ commit, state: { projectsTable } }: {commit: (mutation: string) => void; state: State}, params: {runIDs: string[]}): Promise<ProjectDataObject[]> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${projectsTable}?num=10000`)
+    api.get(`/api/v2/${projectsTable}?num=10000&q=run_id=in=(${params.runIDs.join(',')})`)
       .then(function (response: {items: ProjectDataObject[]}) {
         commit('projectsLoaded')
         resolve(response.items)
@@ -399,12 +408,14 @@ async function handleCommentSubmit ({ dispatch }: { dispatch: (action: string, p
  * @param __namedParameters1.newComment - comment content user wants to change
  * @category TrackAndTrace
  */
-async function checkForCommentUpdates ({ dispatch, state: { projectsTable } }: { dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
+async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTable, loadedProjectInfo } }: { commit: (mutation: string, params: object) => void, dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v1/${projectsTable}/${project}/comment`)
       .then((result: { href: string; comment: string }) => {
         if (!result.comment || result.comment === oldComment) {
-          dispatch('updateProjectComment', { project: project, comment: newComment })
+          dispatch('updateProjectComment', { project: project, comment: newComment }).then(() => {
+            commit('addNewProjectInfo', {comment: newComment, project: project, samples: loadedProjectInfo[project] ? loadedProjectInfo[project].samples : [] as Sample[]})
+          })
           resolve('dispatched comment to database')
         } else {
           reject(new Error('Could not update comment, updated by other user'))

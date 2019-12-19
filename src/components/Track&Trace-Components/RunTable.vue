@@ -46,7 +46,7 @@
 import Vue from 'vue'
 import RunTableProject from '@/components/Track&Trace-Components/RunTableProject.vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
-import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
+import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
 import { Sample } from '@/types/dataTypes.ts'
 import { ProjectData } from '@/types/Run'
 import { mapState, mapActions } from 'vuex'
@@ -142,8 +142,7 @@ export default Vue.extend({
     return {
       warning: false,
       selectedProject: '',
-      comment: '',
-      samples: [] as Sample[]
+      modalLoading: true
     }
   },
   components: {
@@ -171,17 +170,11 @@ export default Vue.extend({
      * @returns {void}
      */
     openModal (project: string): void {
-      this.selectedProject = project
-      if (this.loadedProjectInfo[project]) {
-        const info = this.loadedProjectInfo[project]
-        this.comment = info.comment
-        this.samples = info.samples
-        this.$bvModal.show('comment-modal')
-      } else {
-        this.getExtraProjectInfo(project).then(() => {
-          const info = this.loadedProjectInfo[project]
-          this.comment = info.comment
-          this.samples = info.samples
+      this.selectedProject = ''
+      this.modalLoading = true
+      this.getExtraProjectInfo(project).then(() => {
+          this.modalLoading = false
+          this.selectedProject = project
           this.$bvModal.show('comment-modal')
         }).catch(() => {
           this.$bvToast.toast('Loading of extra project infromation failed', {
@@ -189,8 +182,7 @@ export default Vue.extend({
             variant: 'danger',
             toaster: 'b-toaster-bottom-right'
           })
-        })
-      }
+      })
     },
 
     /**
@@ -223,6 +215,15 @@ export default Vue.extend({
     ]),
     parsedRunID (): string {
       return this.runID.replace(/_/g, ' ').replace(/-/g, ', ')
+    },
+    comment(): string {
+      
+      const loadedInfo = this.loadedProjectInfo[this.selectedProject]
+      return loadedInfo ? loadedInfo.comment : ''
+    },
+    samples(): Sample[] {
+      const loadedInfo = this.loadedProjectInfo[this.selectedProject]
+      return loadedInfo ? loadedInfo.samples : [] as Sample[]
     }
   },
   watch: {

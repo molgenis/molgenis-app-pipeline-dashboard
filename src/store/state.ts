@@ -41,7 +41,7 @@ export type State = {
   durations: Record<string, DurationStatisticsStorage>;
   loadedProjectInfo: Record<string, {comment: string; samples: Sample[]}>;
   timeSeries: Record<string, Record<string, number>>;
-  hidden: string[]
+  hidden: string[];
 }
 
 const state: State = {
@@ -50,7 +50,7 @@ const state: State = {
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
-  clusterTable: 'aaaac3xt5gchiascvqjaabqaae',
+  clusterTable: 'aaaac3wwfsa676qwhzjo7ayaae',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   MainInfoStatus: false,
   statistics: [],
