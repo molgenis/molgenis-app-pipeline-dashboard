@@ -1,5 +1,5 @@
 <template>
-  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="overflow-vertical p-0 h-100 w-100">
+  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="d-flex flex-column p-0 h-100 w-100">
     <div class="d-flex justify-content-around mt-1 mb-1">
               <b-button
                 v-b-tooltip.hover
@@ -30,19 +30,18 @@
                 </b-button>
 
               </div>
-    <b-table-simple small fixed hover class="minH">
+    <b-table-simple fixed sticky-header small hover class="minH flex-grow-1">
       <b-thead>
         <b-tr>
-          <b-td class="text-center" colspan="2">
-              <span><b>Run</b></span>
-
-          </b-td>
+          <b-th class="text-center" colspan="2">
+              Run
+          </b-th>
           <b-th :colspan="5" class="text-center">Step</b-th>
           <b-th v-if="editMode" class="text-center">Status</b-th>
 
         </b-tr>
       </b-thead>
-      <b-tbody>
+      <b-tbody class="overflow-vertical">
           <run-status-table-row
             v-for="run in visibleRuns"
             :selected="selectedRunID === run.run"
@@ -233,6 +232,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    sortedRunEntries(): RunStatusData[] {
+      return this.totalRuns.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) }).sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) })
+    },
     mouseOn: {
       get: function (): string {
         return this.mouse
@@ -240,17 +242,6 @@ export default Vue.extend({
       set: function (run: string): void {
         this.mouse = run
       }
-    },
-
-    localHidden: {
-      get: function (): string[] {
-        return this.hidden
-      },
-      set: function (updatedHidden: string[]): void {
-        const totalRuns = this.totalRuns as RunStatusData[]
-        this.hidden = [...updatedHidden, ...Array.from(totalRuns.filter((runStatusData) => { return runStatusData.step === 4 && !updatedHidden.includes(runStatusData.run) }), x => x.run)]
-      }
-
     },
 
     /**
@@ -266,7 +257,7 @@ export default Vue.extend({
     },
 
     hiddenObjects (): RunStatusData[] {
-      const totalRuns = this.totalRuns as RunStatusData[]
+      const totalRuns = this.sortedRunEntries as RunStatusData[]
       return totalRuns.filter((run) => { return this.hidden.includes(run.run) })
     }
   },
@@ -292,9 +283,9 @@ export default Vue.extend({
     hidden: {
       immediate: true,
       handler (): void {
-        const totalRuns = this.totalRuns as RunStatusData[]
+        const totalRuns = this.sortedRunEntries as RunStatusData[]
         const notHidden = getFilteredArray(totalRuns, this.hiddenObjects) as RunStatusData[]
-        this.visibleRuns = notHidden.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? -1 : b.step === 4 ? 1 : a.containsError ? 1 : b.containsError ? -1 : (b.step + 1) - (a.step + 1) })
+        this.visibleRuns = notHidden
         this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns) as RunStatusData[]
       }
     },
@@ -318,7 +309,7 @@ export default Vue.extend({
 }
 
 .minH {
-  min-height: 100%;
+  max-height: 100%;
   font-size: 1vw;
 }
 

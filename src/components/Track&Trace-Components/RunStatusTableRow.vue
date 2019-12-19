@@ -19,7 +19,7 @@
         <div class="d-flex align-items-end justify-content-center h-100">
           <font-awesome-icon class="icons" :icon="isInQueue ? ['fas', 'hourglass-start'] : finished ? ['fas', 'check-circle'] : error ? ['fas', 'exclamation-circle']: hasWarning ? ['fas', 'exclamation-triangle'] : ['fas', 'sync-alt']" :class="isInQueue ? 'secondary-dark' : finished ? 'success' : error ? 'danger': hasWarning ? 'warning' : 'primary'" size="lg" :spin="!finished && !error && !isInQueue && !hasWarning"></font-awesome-icon>
           </div>
-          </b-td>
+        </b-td>
       <b-td colspan="5" v-show="!mouseOn && !selected"  class="text-center align-middle">
         <progress-bar
         @progress-finish="emitFinish(run)"
@@ -37,7 +37,8 @@
 import Vue from 'vue'
 import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import { mapState } from 'vuex'
-import { RunData, Project } from '../../types/Run'
+import { RunData, Project } from '@/types/Run'
+import { statusCode } from '@/types/dataTypes'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -48,10 +49,10 @@ declare module 'vue/types/vue' {
     hidden: string[];
     variant: string;
     finished: boolean;
-    LocalHidden: string[];
+    localHidden: string[];
     isChecked: boolean;
-    runsV2: Record<string, RunData>
-    projectDates: Record<string, {startedDate: Date, finishedDate?: Date}>
+    runsV2: Record<string, RunData>;
+    projectDates: Record<string, {startedDate: Date; finishedDate?: Date}>;
   }
 }
 
@@ -59,6 +60,12 @@ export default Vue.extend({
   name: 'run-status-table-row',
   components: {
     ProgressBar
+  },
+  data () {
+    return {
+      finished: false,
+      threshold: 4
+    }
   },
   props: {
     run: {
@@ -84,9 +91,8 @@ export default Vue.extend({
     },
 
     hidden: {
-      type: Array,
-      required: false,
-      default: (): string[] => {return [] as string[]}
+      type: Array as () => string[],
+      required: true
     },
 
     selected: {
@@ -95,12 +101,6 @@ export default Vue.extend({
       default: false
     },
 
-  },
-  data () {
-    return {
-      finished: false,
-      threshold: 4
-    }
   },
   methods: {
     /**
@@ -149,24 +149,25 @@ export default Vue.extend({
       }
       return 'light'
     },
-    LocalHidden: {
-      get: function (): string[] {
+    localHidden: {
+      get(): string[] {
         return this.hidden
       },
-      set: function(value: string): void{
+      set(value: string): void{
         this.$emit('update-hidden', value)
       }
     },
 
+
     isChecked: {
       get: function(): boolean | string {
-        return this.LocalHidden.includes(this.run) ? false : this.run
+        return this.localHidden.includes(this.run) ? false : this.run
       },
       set: function (value: string): void {
         if (value) {
-          this.LocalHidden = this.LocalHidden.filter((x: string) => x !== value)
+          this.localHidden = this.localHidden.filter((x: string) => x !== value)
         } else {
-          this.LocalHidden = [this.run, ...this.LocalHidden]
+          this.localHidden = [this.run, ...this.localHidden]
         }
       }
     },
@@ -174,13 +175,13 @@ export default Vue.extend({
       return this.step === -1
     },
     hasWarning (): boolean {
-      const projects: string[] = this.runV2[this.run].projects.map((project: Project) => {return project.projectID})
+      const projects: string[] = this.runV2[this.run].projects.map((project: Project) => {return {project: project.projectID, copyStatus: project.getStatus()}})
       let warning = false
       projects.forEach((project) => {
-        const dates: {startedDate: Date, finishedDate?: Date} = this.projectDates[project]
+        const dates: {startedDate: Date; finishedDate?: Date} = this.projectDates[project.project]
         
         if (dates && !warning) {
-          if (!dates.finishedDate) {
+          if (!dates.finishedDate && project.copyStatus !== statusCode.finished) {
             if ((Date.now() - dates.startedDate.getTime()) / 3600 > this.threshold) {
               warning = true
               console.log(project, 'has warning')
