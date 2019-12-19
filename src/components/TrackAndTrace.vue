@@ -10,7 +10,7 @@
           @select-run="setShowRun"
           @toggle-cycle="toggleCycle"
           :cycle-paused="paused"
-          class="w-100">
+          class="w-100 h-100">
           </run-status-table>
         </b-container>
       </b-col>

@@ -53,7 +53,7 @@ export default Vue.extend({
       if (this.started) {
         return this.timer
       }
-      if (this.waiting && this.countdown) {
+      if (this.countdown) {
         return '--:--:--'
       }
       return 'Not Started'
@@ -94,17 +94,7 @@ export default Vue.extend({
          */
     hours (): string {
       return formatTime(calculateHours(this.time), timeUnit.hours)
-    },
-
-    /**
-         * Checks if project is on hold
-         *
-         * @returns {Boolean}
-         */
-    waiting (): boolean {
-      return (!this.started)
     }
-
   }
 })
 </script>
