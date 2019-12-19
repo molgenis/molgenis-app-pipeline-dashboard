@@ -1,4 +1,4 @@
-import { RunTime, AverageData, Comment, statusCode, parseStatus } from '../../../src/types/dataTypes'
+import { RunTime, AverageData, Comment, statusCode, parseStatus, Gender, SampleResponse, Sample, parseGender } from '../../../src/types/dataTypes'
 
 describe('parseStatus', () => {
   
@@ -78,5 +78,29 @@ describe('Comment constructor', () => {
     }
 
     expect(constructedComment).toEqual(fakeComment)
+  })
+})
+
+describe('parseGender', () => {
+  expect(parseGender('Female')).toBe(Gender.Female)
+  expect(parseGender('Male')).toBe(Gender.Male)
+  expect(parseGender(undefined)).toBe(Gender.Unknown)
+})
+
+describe('Sample constructor', () => {
+  test('Sample is constructed correctly', () => {
+    const sequencer = 'testSequencer'
+    const gender = 'Female'
+    const lane = 3
+    const archive = 'prm02'
+
+    const response: SampleResponse = {sequencer: sequencer, lane: lane, Gender: gender, archiveLocation: archive}
+
+    const sample = new Sample(response)
+
+    expect(sample.sequencer).toBe(sequencer)
+    expect(sample.gender).toBe(Gender.Female)
+    expect(sample.lane).toBe(lane)
+    expect(sample.archive).toBe(archive)
   })
 })
