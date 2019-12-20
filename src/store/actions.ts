@@ -538,6 +538,19 @@ async function constructRunObjects ({ commit }: { commit: (mutation: string, par
   })
 }
 
+/**
+ * Gets all job status numbers from api
+ * 
+ * commits a Record<string, {started: number, waiting: number, Error: number, finished: number}> with the job status counts
+ * 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.commit - mutations
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.jobTable - job table api location
+ * 
+ * @throws {Error} when data couldn't be fetched
+ * @returns {Promise<void>}
+ */
 async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (mutation: string, params: object) => void; state: State}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${jobTable}?aggs=x==status;y==project;distinct==project_job`)
@@ -558,6 +571,19 @@ async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (muta
   })
 }
 
+/**
+ * Gets a started or finished date for a project
+ * 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.jobTable - job table api location
+ * @param __namedParameters0 - function params
+ * @param __namedParameters0.projectID - project id to get dates for
+ * @param __namedParameters0.type - date type to get: started or finished date
+ * 
+ * @throws {Error} when data couldn't be fetched
+ * @returns {Promise<Date>}
+ */
 async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${jobTable}?attrs=project_job,${type}&sort=${type}:${type === dateSearch.started ? 'asc' : 'desc'}&num=1&q=project=='${projectID}';${type}!=''`).then((result: {items: {started_date: string; finished_date: string}[]}) => {
@@ -572,6 +598,18 @@ async function getDate ({ state: { jobTable } }: {state: State}, { projectID, ty
   })
 }
 
+/**
+ * Gets the started and if its finished the finished date of a project and commits them to state
+ * 
+ * See
+ * * [[getDate]]
+ * 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.jobAggregates - job status counts
+ * @param __namedParameters.dispatch - actions
+ * @param __namedParameters.commit - mutations
+ */
 async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: {state: State; dispatch: (action: string, params: object) => Promise<Date>; commit: (mutation: string, params: object) => void}): Promise<void> {
   Object.keys(jobAggregates).forEach((projectID) => {
     const jobs = jobAggregates[projectID]
@@ -615,6 +653,15 @@ async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, com
   })
 }
 
+/**
+ * Gets the most recent pings of the clusters to display in ServerStatus
+ * 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.clusterTable - api cluster table location
+ * 
+ * @returns {Promise<void>} 
+ */
 async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${clusterTable}`).then((result: {items: {cluster_name: string; latest_ping_timestamp: string}[]}) => {
@@ -626,6 +673,16 @@ async function getClusterPings ({ state: { clusterTable }, commit }: {state: Sta
   })
 }
 
+/**
+ * Gets the duration statistics from the timing table and builds the series
+ * 
+ * @param __namedParameters - vuex instance
+ * @param __namedParameters.state - application state
+ * @param __namedParameters.state.timingTable - timing table api location
+ * @param __namedParameters.commit - mutations
+ * 
+ * @returns {Promise<void>} 
+ */
 async function getDurationStatistics ({ state: { timingTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${timingTable}?attrs=unique_id,total_min,copyProjectDataToPrmTiming,pipelineDuration,copyRawDataToPrmDuration,finishedTime&q=total_min=gt=0&num=10000&sort=finishedTime:asc`)

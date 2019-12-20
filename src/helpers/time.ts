@@ -1,5 +1,3 @@
-import { dayMs } from './dates'
-
 /**
  * sets the maximum numbers for a time unit
  *

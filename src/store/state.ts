@@ -41,7 +41,6 @@ export type State = {
   durations: Record<string, DurationStatisticsStorage>;
   loadedProjectInfo: Record<string, {comment: string; samples: Sample[]}>;
   timeSeries: Record<string, Record<string, number>>;
-  hidden: string[];
 }
 
 const state: State = {
@@ -78,8 +77,7 @@ const state: State = {
   clusterPings: {},
   durations: {},
   loadedProjectInfo: {},
-  timeSeries: {},
-  hidden: [] as string[]
+  timeSeries: {}
 }
 
 export default state
