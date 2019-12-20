@@ -102,6 +102,12 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * retruns the correct fontawesome icon for each stepStatus type
+     * @param status - stepStatus type
+     * 
+     * @returns {['fontawesome-package', 'icon-id']}
+     */
     returnIcon (status: stepStatus): string[2] {
       switch (status) {
         case stepStatus.waiting:
@@ -116,9 +122,17 @@ export default Vue.extend({
           return this.iconTypes.done
       }
     },
+    /**
+     * returns the correct color for each stepStatus type
+     * @param status - stepStatus type
+     */
     returnColor (status: stepStatus): string {
       return status === stepStatus.waiting ? 'secondary' : this.error ? 'danger' : this.currentStep === 4 ? 'success' : this.warning ? 'warning' : 'primary'
     },
+    /**
+     * returns the correct stepStatus type
+     * @param step - current step
+     */
     checkStepStatus (step: number): stepStatus {
       if (this.currentStep < step) {
         return stepStatus.waiting
@@ -128,6 +142,12 @@ export default Vue.extend({
       }
       return stepStatus.finished
     },
+    /**
+     * returns the correct border colors and background variants
+     * @param status - stepStatus Type
+     * 
+     * @returns {['border-color-class', 'background-color-class']}
+     */
     getLineColor (status: stepStatus): string[] {
       if (status === stepStatus.waiting) {
         return []
@@ -137,40 +157,81 @@ export default Vue.extend({
     }
   },
   computed: {
+    /**
+     * returns the current demultiplexing status
+     * 
+     * @returns {stepStatus}
+     */
     demultiplexingStatus (): stepStatus {
       return this.checkStepStatus(0)
     },
+    /**
+     * returns the correct demultiplexing icon
+     * running, finished, waiting
+     */
     demultiplexingIcon (): string[2] {
       return this.returnIcon(this.demultiplexingStatus)
     },
+    /**
+     * returns the correct demultiplexing color
+     * running: primary, Error: danger, Warning: warning, waiting: secondary, Finished: success
+     */
     demultiplexingColor (): string {
       return this.returnColor(this.demultiplexingStatus)
     },
-
+    /**
+     * determines the color of the line between step one and step two
+     */
     stepOneToTwoColor (): string[] {
       return this.getLineColor(this.rawDataStatus)
     },
-
+    /**
+     * returns the current raw data copy status
+     * 
+     * @returns {stepStatus}
+     */
     rawDataStatus (): stepStatus {
       return this.checkStepStatus(1)
     },
+    /**
+     * returns the correct raw data copy icon
+     * running, finished, waiting
+     */
     rawDataIcon (): string[2] {
       return this.returnIcon(this.rawDataStatus)
     },
+    /**
+     * returns the correct raw data copy color
+     * running: primary, Error: danger, Warning: warning, waiting: secondary, Finished: success
+     */
     rawDataColor (): string {
       return this.returnColor(this.rawDataStatus)
     },
-
+    /**
+     * determines the color of the line between step tow and step three
+     */
     stepTwoToThreeColor (): string[] {
       return this.getLineColor(this.pipelinesStatus)
     },
-
+    /**
+     * returns the current pipline Running status
+     * 
+     * @returns {stepStatus}
+     */
     pipelinesStatus (): stepStatus {
       return this.checkStepStatus(2)
     },
+    /**
+     * returns the correct pipeline running icon
+     * running, finished, waiting
+     */
     pipelinesIcon (): string[2] {
       return this.returnIcon(this.pipelinesStatus)
     },
+    /**
+     * returns the correct pipeline running color
+     * running: primary, Error: danger, Warning: warning, waiting: secondary, Finished: success
+     */
     pipelinesColor (): string {
       return this.returnColor(this.pipelinesStatus)
     },
@@ -178,13 +239,25 @@ export default Vue.extend({
     stepThreeToFourColor (): string[] {
       return this.getLineColor(this.resultsDataStatus)
     },
-
+    /**
+     * returns the current results data copy status
+     * 
+     * @returns {stepStatus}
+     */
     resultsDataStatus (): stepStatus {
       return this.checkStepStatus(3)
     },
+    /**
+     * returns the correct results data copy icon
+     * running, finished, waiting
+     */
     resultsDataIcon (): string[2] {
       return this.returnIcon(this.resultsDataStatus)
     },
+    /**
+     * returns the correct results data copy color
+     * running: primary, Error: danger, Warning: warning, waiting: secondary, Finished: success
+     */
     resultsDataColor (): string {
       return this.returnColor(this.resultsDataStatus)
     },
@@ -192,17 +265,31 @@ export default Vue.extend({
     stepFourToFiveColor (): string[] {
       return this.getLineColor(this.finishedStatus)
     },
-
+    /**
+     * returns the run finished status
+     * 
+     * @returns {stepStatus}
+     */
     finishedStatus (): stepStatus {
       return this.currentStep === 4 ? stepStatus.finished : stepStatus.waiting
     },
+    /**
+     * returns the correct finished icon
+     * finished, waiting
+     */
     finishedIcon (): string[2] {
       return this.returnIcon(this.finishedStatus)
     },
+    /**
+     * returns the correct finished color
+     * waiting: secondary, Finished: success
+     */
     finishedColor (): string {
       return this.returnColor(this.finishedStatus)
     },
-
+    /**
+     * Returns the assigned step message, and can be extended with an custom message
+     */
     message (): string {
       if (this.customMessage) {
         return this.customMessage
@@ -222,6 +309,9 @@ export default Vue.extend({
           return ''
       }
     },
+    /**
+     * returns the border color of the displayed message
+     */
     messageBorder (): string {
       if (this.currentStep === 4) {
         return 'border-success'
@@ -237,6 +327,9 @@ export default Vue.extend({
       }
       return 'border-secondary'
     },
+    /**
+     * Retruns the label for the message
+     */
     statusLabel (): string {
       if (this.currentStep === 4) {
         return 'Complete:'
