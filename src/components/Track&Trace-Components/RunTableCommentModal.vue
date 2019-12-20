@@ -108,14 +108,23 @@ export default Vue.extend({
       'CommentUpdatedStatus',
       'CommentNetworkError'
     ]),
+    /**
+     * Check if comment has a valid lenght
+     */
     validation (): boolean {
       const comment = this.placeHolderComment
       return comment.length <= 65535
     },
     localComment: {
+      /**
+       * gets the comment beloning to project
+       */
       get: function (): string {
         return this.loadedProjectInfo[this.run] ? this.loadedProjectInfo[this.run].comment : ''
       },
+      /**
+       * sets the loaded project info corretly when comment changes
+       */
       set: function (value: string) {
         this.loadedProjectInfo[this.run] = this.loadedProjectInfo[this.run] ? {comment: value, samples: this.loadedProjectInfo[this.run].samples} : {comment: value, samples: [] as Sample[]}
       }
@@ -130,11 +139,17 @@ export default Vue.extend({
     ...mapMutations([
       'updateCommentOnLocalProject'
     ]),
+    /**
+     * When comment submit succeeded this resets the error states and closes modal
+     */
     commentUpdated (): void {
       this.rejected = false
       this.errorMessage = this.resetErrorMessage
       this.closeModal()
     },
+    /**
+     * when comment update failed an error toast is shown
+     */
     commentNotUpdated (reason: Error): void {
       this.rejected = true
       this.errorMessage = reason.message
