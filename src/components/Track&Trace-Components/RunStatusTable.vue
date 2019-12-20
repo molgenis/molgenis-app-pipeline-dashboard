@@ -242,7 +242,9 @@ export default Vue.extend({
      *  Error > (running in order, how many steps are complete, many steps to less steps) > Finished
      */
     sortedRunEntries(): RunStatusData[] {
-      return this.totalRuns.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) }).sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) })
+      const runs = this.totalRuns
+      runs.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) }).sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) })
+      return runs
     },
     mouseOn: {
       /**

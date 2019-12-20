@@ -21,7 +21,7 @@ import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/t
  * See:
  * * [[getRunData]]
  * * [[getProjectData]]
- * * [[getJobData]]
+ * * [[getJobAggregates]]
  * * [[convertRawData]]
  * @event
  * @param __namedParameters - vuex instance
@@ -65,7 +65,7 @@ function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: obj
  */
 async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutation: string) => void; state: State}): Promise<RunDataObject[]> {
   return new Promise((resolve, reject) => {
-    let date = new Date()
+    const date = new Date()
     date.setMonth(date.getMonth() - 1)
     const dateQuery = formatDate(date)
     api.get(`/api/v2/${overviewTable}?num=10000&q=date=gt=${dateQuery}`)
@@ -408,7 +408,7 @@ async function handleCommentSubmit ({ dispatch }: { dispatch: (action: string, p
  * @param __namedParameters1.newComment - comment content user wants to change
  * @category TrackAndTrace
  */
-async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTable, loadedProjectInfo } }: { commit: (mutation: string, params: object) => void, dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
+async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTable, loadedProjectInfo } }: { commit: (mutation: string, params: object) => void; dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v1/${projectsTable}/${project}/comment`)
       .then((result: { href: string; comment: string }) => {
@@ -549,6 +549,7 @@ async function constructRunObjects ({ commit }: { commit: (mutation: string, par
  * @param __namedParameters.state.jobTable - job table api location
  * 
  * @throws {Error} when data couldn't be fetched
+ * @category TrackAndTrace
  * @returns {Promise<void>}
  */
 async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (mutation: string, params: object) => void; state: State}): Promise<void> {
@@ -582,6 +583,7 @@ async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (muta
  * @param __namedParameters0.type - date type to get: started or finished date
  * 
  * @throws {Error} when data couldn't be fetched
+ * @category TrackAndTrace
  * @returns {Promise<Date>}
  */
 async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date> {
@@ -609,6 +611,7 @@ async function getDate ({ state: { jobTable } }: {state: State}, { projectID, ty
  * @param __namedParameters.state.jobAggregates - job status counts
  * @param __namedParameters.dispatch - actions
  * @param __namedParameters.commit - mutations
+ * @category TrackAndTrace
  */
 async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: {state: State; dispatch: (action: string, params: object) => Promise<Date>; commit: (mutation: string, params: object) => void}): Promise<void> {
   Object.keys(jobAggregates).forEach((projectID) => {
@@ -631,6 +634,7 @@ async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: 
  * @param param0.projectsTable - project table location
  * @param param0.sampleTable - Sample stable location
  * @param projectID - Project to get the info for
+ * @category TrackAndTrace
  * @returns project comment and samples
  */
 async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}, projectID: string): Promise<void> {
@@ -660,6 +664,7 @@ async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, com
  * @param __namedParameters.state - application state
  * @param __namedParameters.state.clusterTable - api cluster table location
  * 
+ * @category TrackAndTrace
  * @returns {Promise<void>} 
  */
 async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
@@ -681,6 +686,7 @@ async function getClusterPings ({ state: { clusterTable }, commit }: {state: Sta
  * @param __namedParameters.state.timingTable - timing table api location
  * @param __namedParameters.commit - mutations
  * 
+ * @category Statistics
  * @returns {Promise<void>} 
  */
 async function getDurationStatistics ({ state: { timingTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {

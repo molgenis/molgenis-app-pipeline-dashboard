@@ -51,12 +51,6 @@ declare module 'vue/types/vue' {
   }
 }
 
-enum chartTypes {
-  timing = 'timing',
-  runtimes = 'runtimes',
-  overall = 'overall'
-}
-
 export default Vue.extend({
   name: 'timing-chart',
   components: {

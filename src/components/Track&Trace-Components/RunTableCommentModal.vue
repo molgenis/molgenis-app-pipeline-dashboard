@@ -59,7 +59,7 @@ declare module 'vue/types/vue' {
     resetErrorMessage: string;
     errorMessage: string;
     fields: { key: string; label: string }[];
-    loadedProjectInfo: Record<string, {comment: string, samples: Sample[]}>
+    loadedProjectInfo: Record<string, {comment: string; samples: Sample[]}>;
     commentUpdated(): void;
     commentNotUpdated(reason: string): void;
     showModal(): void;
@@ -125,7 +125,7 @@ export default Vue.extend({
       /**
        * sets the loaded project info corretly when comment changes
        */
-      set: function (value: string) {
+      set: function (value: string): void {
         this.loadedProjectInfo[this.run] = this.loadedProjectInfo[this.run] ? {comment: value, samples: this.loadedProjectInfo[this.run].samples} : {comment: value, samples: [] as Sample[]}
       }
     }

@@ -99,7 +99,7 @@ export default Vue.extend({
       type: Boolean,
       required: false,
       default: false
-    },
+    }
 
   },
   methods: {
@@ -158,14 +158,14 @@ export default Vue.extend({
       /**
        * returns the hidden status of the object
        */
-      get(): string[] {
+      get: function (): string[] {
         return this.hidden
       },
       /**
        * pushes row to hidden values
        * @emits update-hidden
        */
-      set(value: string): void{
+      set: function(value: string): void{
         this.$emit('update-hidden', value)
       }
     },

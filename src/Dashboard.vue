@@ -88,8 +88,6 @@ export default Vue.extend({
     },
     /**
      * Calls data fetch action
-     *
-     * @returns {Promise<void>}
      */
     getData (): void {
       this.getTrackerData()
@@ -104,7 +102,7 @@ export default Vue.extend({
             })
           }
         })
-        .catch((reason) => {
+        .catch(() => {
           if (!this.errorToastActive) {
             this.errorToastActive = true
             this.$bvToast.toast('Failed connecting to MOLGENIS database...', {

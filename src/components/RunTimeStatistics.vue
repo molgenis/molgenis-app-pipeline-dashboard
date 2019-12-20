@@ -35,9 +35,8 @@ declare module 'vue/types/vue' {
     statisticsOptions: {value: string; text: string}[];
     hover: boolean;
     pipelineTypes: string[];
-    statistics: Serie[];
     machineRuntimes: Record<string, IdentifiedSerie[]>;
-    prepkitStatistics: Serie[]
+    prepkitStatistics: Serie[];
     getTimingData(range: number): void;
   }
 }
