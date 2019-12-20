@@ -266,6 +266,9 @@ export default Vue.extend({
     }
   },
   watch: {
+    /**
+     * when loading status changes, select the first run
+     */
     loadingStatus (): void {
       this.setSelectedRunIndex(0)
     }

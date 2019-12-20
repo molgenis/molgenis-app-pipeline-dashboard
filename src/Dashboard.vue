@@ -72,9 +72,15 @@ export default Vue.extend({
       'getTrackerData',
       'getClusterPings'
     ]),
+    /**
+     * toggles the pause status
+     */
     togglePaused (): void {
       this.paused = !this.paused
     },
+    /**
+     * when called resumes cycling
+     */
     resumeAutoMode (): void {
       if (this.paused) {
         this.paused = false
@@ -119,6 +125,9 @@ export default Vue.extend({
       'jobsLoaded',
       'rawDataConverted'
     ]),
+    /**
+     * Check if all neccecary data for track and trace is loaded
+     */
     trackingDataLoaded (): boolean {
       return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every(state => state)
     }
@@ -127,7 +136,6 @@ export default Vue.extend({
     this.getData()
     setInterval(this.getData, 10000)
     setInterval(this.getClusterPings, 30000)
-    setInterval(this.resumeAutoMode, 120000)
   }
 })
 </script>
