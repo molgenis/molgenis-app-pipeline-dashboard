@@ -143,6 +143,11 @@ export default Vue.extend({
       'runV2',
       'projectDates'
     ]),
+    /**
+     * Returns variant class for row
+     * 
+     * @returns {danger, warning, success, primary, light}
+     */
     variant (): string {
       if (this.selected) {
         return this.error ? 'danger' : this.hasWarning ? 'warning': this.step === 4 ? 'success' : 'primary'
@@ -150,9 +155,16 @@ export default Vue.extend({
       return 'light'
     },
     localHidden: {
+      /**
+       * returns the hidden status of the object
+       */
       get(): string[] {
         return this.hidden
       },
+      /**
+       * pushes row to hidden values
+       * @emits update-hidden
+       */
       set(value: string): void{
         this.$emit('update-hidden', value)
       }
@@ -160,9 +172,16 @@ export default Vue.extend({
 
 
     isChecked: {
+      /**
+       * returns the checkbox status
+       */
       get: function(): boolean | string {
         return this.localHidden.includes(this.run) ? false : this.run
       },
+      /**
+       * updates the hidden values to include current row
+       * @param value - this run id
+       */
       set: function (value: string): void {
         if (value) {
           this.localHidden = this.localHidden.filter((x: string) => x !== value)
@@ -171,9 +190,16 @@ export default Vue.extend({
         }
       }
     },
+    /**
+     * calculates if run is in queue
+     */
     isInQueue (): boolean {
       return this.step === -1
     },
+    /**
+     * calculates if run has a warning
+     * Goes through every project in the run to check for errors within the jobs
+     */
     hasWarning (): boolean {
       const projects: string[] = this.runV2[this.run].projects.map((project: Project) => {return {project: project.projectID, copyStatus: project.getStatus()}})
       let warning = false
@@ -184,7 +210,6 @@ export default Vue.extend({
           if (!dates.finishedDate && project.copyStatus !== statusCode.finished) {
             if ((Date.now() - dates.startedDate.getTime()) / 3600 > this.threshold) {
               warning = true
-              console.log(project, 'has warning')
             }
           }
         }
