@@ -41,6 +41,12 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * Returns the last seen message
+     * $ minutes ago
+     * $ hours ago
+     * $ days ago
+     */
     calculateMessage (minutes: number): string {
       if (minutes < 60) {
         return `${minutes} minutes ago`
@@ -51,6 +57,9 @@ export default Vue.extend({
       }
       return `${Math.round(minutes / 60 / 24)} Days ago`
     },
+    /**
+     * sets the updated time to now
+     */
     setNow (): void {
       this.now = Date.now()
     }
@@ -59,17 +68,24 @@ export default Vue.extend({
     ...mapState([
       'clusterPings'
     ]),
+    /**
+     * sorts clusters based on last ping
+     */
     sortedClusters (): ClusterContainer[] {
       const clusters = this.clusters
       clusters.sort((a, b) => { return a.lastPingMinutes <= b.lastPingMinutes ? -1 : 1 })
       return clusters
     },
+    /**
+     * parses clusters to be displayed in bootstrap table lite
+     */
     tableParsedClusters (): {cluster: string; status: { ping: number; error: boolean }}[] {
       return this.sortedClusters.map((cluster) => {
         return { cluster: cluster.ID, status: { ping: cluster.lastPingMinutes, error: cluster.error } }
       })
     },
     /**
+     * formats cluster data
      * @returns {{ID: string, lastPingMinutes: number, error: boolean}[]}
      */
     clusters (): ClusterContainer[] {
