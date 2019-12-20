@@ -1,7 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
-import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { CombinedVueInstance } from 'vue/types/vue'
+//@ts-ignore
+import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
 
 /**
  * steps

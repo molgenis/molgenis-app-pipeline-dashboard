@@ -1,4 +1,5 @@
-import { RunTime, AverageData, Comment, statusCode, parseStatus, Gender, SampleResponse, Sample, parseGender } from '../../../src/types/dataTypes'
+//@ts-ignore
+import { RunTime, AverageData, Comment, statusCode, parseStatus, Gender, SampleResponse, Sample, parseGender } from '@/types/dataTypes'
 
 describe('parseStatus', () => {
   

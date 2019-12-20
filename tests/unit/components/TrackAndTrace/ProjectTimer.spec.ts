@@ -1,4 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
+//@ts-ignore
 import ProjectTimer from '@/components/Track&Trace-Components/ProjectTimer.vue'
 
 describe('ProjectTimer.vue', () => {

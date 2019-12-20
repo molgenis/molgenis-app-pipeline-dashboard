@@ -34,7 +34,7 @@ beforeEach(() => {
     CommentUpdatedStatus: false,
     CommentNetworkError: false,
     jobAggregates: {},
-    runV2: [],
+    runV2: {},
     projectDates: {},
     clusterPings: {},
     durations: {},
