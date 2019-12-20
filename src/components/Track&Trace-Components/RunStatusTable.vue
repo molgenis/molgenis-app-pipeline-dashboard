@@ -181,10 +181,15 @@ export default Vue.extend({
     }
   },
   methods: {
+    /**
+     * toggles the hidden runs
+     */
     toggleHidden (): void {
       this.hiddenToggled = !this.hiddenToggled
     },
-
+    /**
+     * toggles the edit mode. when true user can hide / unhide runs within the table
+     */
     toggleEditMode (): void {
       this.editMode = !this.editMode
     },
@@ -232,13 +237,23 @@ export default Vue.extend({
     }
   },
   computed: {
+    /**
+     * sorts the totalRuns prop in the following order:
+     *  Error > (running in order, how many steps are complete, many steps to less steps) > Finished
+     */
     sortedRunEntries(): RunStatusData[] {
       return this.totalRuns.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) }).sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) })
     },
     mouseOn: {
+      /**
+       * returns the mouse location
+       */
       get: function (): string {
         return this.mouse
       },
+      /**
+       * stets the mouse location
+       */
       set: function (run: string): void {
         this.mouse = run
       }
@@ -256,6 +271,9 @@ export default Vue.extend({
       return []
     },
 
+    /**
+     * contains the runs that were hidden
+     */
     hiddenObjects (): RunStatusData[] {
       const totalRuns = this.sortedRunEntries as RunStatusData[]
       return totalRuns.filter((run) => { return this.hidden.includes(run.run) })
@@ -289,7 +307,9 @@ export default Vue.extend({
         this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns) as RunStatusData[]
       }
     },
-
+    /**
+     * when total runs changes, and hidden has a lenght of 0, reset hidden
+     */
     totalRuns: function (): void {
       if (this.hidden.length === 0) {
         this.hidden = []
