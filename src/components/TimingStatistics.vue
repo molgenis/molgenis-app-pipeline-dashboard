@@ -1,23 +1,23 @@
 <template>
 
-  <b-container class="h-100 border border-primary" fluid>
-    <b-row>
-          <b-col>
-            <b-nav tabs align="center">
+  <b-container class="h-100 w-100 border border-primary p-0" fluid>
+    <b-row class="w-100" no-gutters>
+          
+            <b-nav tabs align="center" class="w-100">
                 <b-nav-item :active="selected === 'runtimes'" @click="selected = 'runtimes'">Median runtimes</b-nav-item>
                 <b-nav-item :active="selected === 'timing'" @click="selected = 'timing'">Timeline</b-nav-item>
                 <b-nav-item :active="selected === 'overall'" @click="selected = 'overall'">Recent Statistics</b-nav-item>
             </b-nav>
-          </b-col>
+          
         </b-row>
-    <b-row class="h-100" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
-      <b-col v-show="selected === 'runtimes'" class="h-100 pb-1 chart">
+    <b-row class="h-90" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
+      <b-col v-show="selected === 'runtimes'" class="h-100 pb-1 chart border-top">
         <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
       </b-col>
-      <b-col v-show="selected === 'timing'" class="border pb-1 chart">
+      <b-col v-show="selected === 'timing'" class="h-100 pb-1 chart">
         <apexchart type="line" ref="areaTimingChart" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
       </b-col>
-      <b-col v-show="selected === 'overall'" class="border h-100 pb-1 chart">
+      <b-col v-show="selected === 'overall'" class=" h-100 pb-1 chart">
         <run-time-statistics></run-time-statistics>
       </b-col>
     </b-row>
@@ -64,9 +64,9 @@ export default Vue.extend({
   },
   data () {
     return {
-      selected: chartTypes.timing,
+      selected: 'timing',
       selectedTypeIndex: 0,
-      chartArray: ['runtimes', 'timing'],
+      chartArray: ['runtimes', 'timing', 'overall'],
       stepDisplay: false
     }
   },
@@ -81,16 +81,23 @@ export default Vue.extend({
     ...mapActions([
       'getDurationStatistics'
     ]),
+    /**
+     * gets duration data, if it fails tries again in 5 seconds
+     */
     getData(): void {
       this.getDurationStatistics()
         .catch((error) => {
-          console.warn(error, 'Retrieing')
+          console.warn(error, 'Retrying')
           setTimeout(this.getData, 5000)
         })
     },
+    /**
+     * changes chart when cycle demands it
+     */
     changeChart (): void {
       if (!this.paused) {
-        this.selected = this.selected === chartTypes.timing ? chartTypes.runtimes : chartTypes.timing
+        const currentIndex = this.chartArray.indexOf(this.selected)
+        this.selected = currentIndex === this.chartArray.length - 1 ? this.chartArray[0] : this.chartArray[currentIndex + 1]
       }
     }
 
@@ -100,11 +107,17 @@ export default Vue.extend({
       'durations',
       'timeSeries'
     ]),
+    /**
+     * returns the prepkit types
+     */
     types (): string[] {
       return this.seriesRuntimes.map((type) => {
         return type.name
       })
     },
+    /**
+     * Builds the series for the median duration times bar chart
+     */
     axis (): {series: {name: string; data: number[]}[]; xcategories: Array<string | null>} {
       const series = ['rawDataDuration', 'pipelineDuration', 'resultCopyDuration'].map((serieName) => {
         return {
@@ -122,9 +135,15 @@ export default Vue.extend({
       })
       return { series: series, xcategories: categories }
     },
+    /**
+     * returns the sereis for the bar chart
+     */
     seriesBar (): {name: string; data: number[]}[] {
       return this.axis.series
     },
+    /**
+     * returns the xaxis for the bar chart
+     */
     xaxis (): {type: string; categories: string[]; title: {text: string}} {
       return {
         type: 'string',
@@ -134,10 +153,14 @@ export default Vue.extend({
         }
       }
     },
+    /**
+     * returns the bar chart ChartOptions
+     */
     chartOptionsBar (): ChartOptions {
       return {
         chart: {
           width: '100%',
+          height: '100%',
           stacked: true,
           toolbar: {
             show: false
@@ -158,8 +181,7 @@ export default Vue.extend({
         xaxis: this.xaxis,
 
         legend: {
-          position: 'right',
-          offsetY: 40
+          position: 'bottom'
         },
         yaxis: {
           title: {
@@ -169,15 +191,16 @@ export default Vue.extend({
             }
           }
         },
-        fill: {
-          opacity: 1
-        }
       }
     },
+    /**
+     * returns the chart options for the timing chart
+     */
     chartOptionsTiming (): ChartOptions {
       return {
         chart: {
           width: '100%',
+          height: '100%',
           toolbar: {
             show: false
           }
@@ -213,11 +236,11 @@ export default Vue.extend({
           },
           min: 0
         },
-        fill: {
-          opacity: 1
-        }
       }
     },
+    /**
+     * returns the xaxis for the runtime chart
+     */
     xaxisRuntimes (): {type: string; categories: string[]; title: {text: string}} {
       return {
         type: 'date',
@@ -227,6 +250,9 @@ export default Vue.extend({
         }
       }
     },
+    /**
+     * returns the series for the runtimes chart
+     */
     seriesRuntimes (): {name: string; data: {y: number | null; x: string}[]}[] {
       return Object.keys(this.durations).map((pipelineType) => {
         const data = this.timeSeries as Record<string,Record<string, number>>
@@ -254,9 +280,6 @@ export default Vue.extend({
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index.scss';
 
-.chart {
-  font-size: 0.5vw;
-}
 .cycleDisplay {
   z-index: 2;
   position: absolute;
@@ -267,5 +290,13 @@ export default Vue.extend({
 }
 .secondary {
     color: $secondary
+}
+
+.h-10 {
+  height: 5%
+}
+
+.h-90 {
+  height: 85%
 }
 </style>
