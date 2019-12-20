@@ -1,15 +1,16 @@
 <template>
+<b-container class="h-100" fluid>
   <b-row no-gutters class="h-100 w-100">
     <b-col class="h-100 w-100">
       <b-container class="h-100 w-100 p-0" fluid>
         <apexchart type="bar" :options="chartOptions" :series="graphSeries"></apexchart>
-
       </b-container>
-      <div class="TotalCounts d-flex w-100 justify-content-center">
-        <p class="border border-primary rounded-pill p-1 pr-2 pl-2">{{sumOfSamples}} {{sumOfSamples === 1 ? "Sample" : "Samples"}}</p>
-      </div>
     </b-col>
   </b-row>
+  <b-row class="d-flex w-100 justify-content-center">
+      <p class="border TotalCounts border-primary rounded-pill p-1 pr-2 pl-2">{{sumOfSamples}} {{sumOfSamples === 1 ? "Sample" : "Samples"}}</p>
+  </b-row>
+</b-container>
 </template>
 
 <script lang="ts">
@@ -263,6 +264,10 @@ export default Vue.extend({
         }
       }
     },
+    /**
+     * Returns date labels for each day of the month. This gives the graph more context into where the data came from
+     * @returns {Record<string<Day>, string<dayOfMonth/Month>} - for examlpe 30th of november = 30/11
+     */
     dateMap (): Record<string, string> {
       return {
         '30': getDateLabel(1),
@@ -402,6 +407,9 @@ export default Vue.extend({
     }
   },
   watch: {
+    /**
+     * When sample numbers changes, reset the data then fill with correct values
+     */
     sequencedSampleNumbers (): void {
       this.resetData()
       for (let index = 0; index < this.sequencedSampleNumbers.labels.length; index++) {
@@ -418,7 +426,6 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .TotalCounts {
-  position: absolute;
-  z-index: 2;
+  font-size: 1vw;
 }
 </style>
