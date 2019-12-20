@@ -29,6 +29,9 @@ export default Vue.extend({
     ...mapActions([
       'getSequencerStatistics'
     ]),
+    /**
+     * calls statistics fetch, when it fails sets a timer to try again
+     */
     updateStatistics (): void {
       this.getSequencerStatistics()
         .catch(() => {
@@ -72,7 +75,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="scss" scoped>
-
-</style>
