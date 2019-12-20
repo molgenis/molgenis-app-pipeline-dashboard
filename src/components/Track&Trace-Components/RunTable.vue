@@ -213,14 +213,23 @@ export default Vue.extend({
       'projectDates',
       'loadedProjectInfo'
     ]),
+    /**
+     * Removes undersoces and dashes to display as title
+     */
     parsedRunID (): string {
       return this.runID.replace(/_/g, ' ').replace(/-/g, ', ')
     },
+    /**
+     * returns the loaded comment
+     */
     comment(): string {
       
       const loadedInfo = this.loadedProjectInfo[this.selectedProject]
       return loadedInfo ? loadedInfo.comment : ''
     },
+    /**
+     * returns the loaded samples
+     */
     samples(): Sample[] {
       const loadedInfo = this.loadedProjectInfo[this.selectedProject]
       return loadedInfo ? loadedInfo.samples : [] as Sample[]
