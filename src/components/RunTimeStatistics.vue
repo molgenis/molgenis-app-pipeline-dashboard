@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import { ChartOptions, Serie, IdentifiedSerie } from '@/types/graphTypes'
 
 declare module 'vue/types/vue' {
@@ -37,8 +37,8 @@ declare module 'vue/types/vue' {
     pipelineTypes: string[];
     statistics: Serie[];
     machineRuntimes: Record<string, IdentifiedSerie[]>;
+    prepkitStatistics: Serie[]
     getTimingData(range: number): void;
-
   }
 }
 
@@ -62,6 +62,14 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapState({
+      prepkitStatistics: 'statistics',
+      machineRuntimes: 'machineRuntimes',
+      pipelineTypes: 'pipelineTypes'
+    }),
+    /**
+     * gets the configured sub options
+     */
     subOptions (): Array<{value: string; text: string}> {
       const options: Array<{value: string; text: string}> = []
       this.pipelineTypes.forEach((pipelineType: string) => {
@@ -87,6 +95,7 @@ export default Vue.extend({
       return {
         chart: {
           width: '100%',
+          height: '100%',
           id: 'run-time-graph',
           toolbar: {
             show: false,
@@ -138,15 +147,9 @@ export default Vue.extend({
         },
       }
     },
-    prepkitStatistics (): Serie[] {
-      return this.$store.state.statistics
-    },
-    machineRuntimes (): Record<string, IdentifiedSerie[]> {
-      return this.$store.state.machineRuntimes
-    },
-    pipelineTypes (): string[] {
-      return this.$store.state.pipelineTypes
-    },
+    /**
+     * Returns the currently selected series
+     */
     computedSeries (): Serie[] | null{
       switch (this.selectedStatistic) {
         case 'prepKit':
@@ -197,5 +200,9 @@ export default Vue.extend({
 
 .leftPlus {
   left: 80px;
+}
+
+.graphOptions b {
+  font-size: 0.8vw;
 }
 </style>
