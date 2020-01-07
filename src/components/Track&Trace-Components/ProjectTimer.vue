@@ -11,7 +11,6 @@ declare module 'vue/types/vue' {
     startTime: number;
     finishTime: number;
     started: boolean;
-    countdown: boolean;
     time: number;
     timer: string;
     hours: string;
@@ -37,13 +36,8 @@ export default Vue.extend({
       type: Boolean,
       required: false,
       default: true
-    },
-
-    countdown: {
-      type: Boolean,
-      required: false,
-      default: false
     }
+    
   },
   computed: {
     display (): string {
@@ -53,45 +47,42 @@ export default Vue.extend({
       if (this.started) {
         return this.timer
       }
-      if (this.countdown) {
-        return '--:--:--'
-      }
       return 'Not Started'
     },
     timer (): string {
       return `${this.hours}:${this.minutes}:${this.seconds}`
     },
     /**
-         * calculates timediffrence
-         *
-         * @returns {Number} - milliseconds
-         */
+     * calculates timediffrence
+     *
+     * @returns {Number} - milliseconds
+     */
     time (): number {
       return this.finishTime - this.startTime
     },
 
     /**
-         * Calculates the seconds counter
-         *
-         * @returns {String}
-         */
+     * Calculates the seconds counter
+     *
+     * @returns {String}
+     */
     seconds (): string {
       return formatTime(calculateSeconds(this.time), timeUnit.seconds)
     },
 
     /**
-         * Calculates the minutes counter
-         * @returns {String}
-         */
+     * Calculates the minutes counter
+     * @returns {String}
+     */
     minutes (): string {
       return formatTime(calculateMinutes(this.time), timeUnit.minutes)
     },
 
     /**
-         * Calculates hour counter
-         *
-         * @returns {String}
-         */
+     * Calculates hour counter
+     *
+     * @returns {String}
+     */
     hours (): string {
       return formatTime(calculateHours(this.time), timeUnit.hours)
     }

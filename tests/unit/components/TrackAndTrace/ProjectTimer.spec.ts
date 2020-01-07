@@ -78,24 +78,6 @@ describe('ProjectTimer.vue', () => {
     expect(wrapper.vm.hours).toBe('123')
   })
 
-  test('returns project timer stasus correctly', () => {
-    wrapper.setProps({
-      startTime: 0,
-      finishTime: 0,
-      started: false
-    })
-
-    expect(wrapper.vm.waiting).toBe(true)
-
-    wrapper.setProps({
-      startTime: 0,
-      finishTime: 303,
-      started: true
-    })
-
-    expect(wrapper.vm.waiting).toBe(false)
-  })
-
   test("when not started renders 'Not Started'", () => {
     wrapper.setProps({
       startTime: 0,
@@ -104,6 +86,30 @@ describe('ProjectTimer.vue', () => {
     })
 
     expect(wrapper.text()).toContain('Not Started')
+  })
+
+  test("when start or finished time is missing in database renders uncalculated time", () => {
+    wrapper.setProps({
+      startTime: 0,
+      finishTime: undefined
+    })
+
+    expect(wrapper.text()).toContain('--:--:--')
+
+    wrapper.setProps({
+      startTime: undefined,
+      finishTime: undefined
+    })
+
+    expect(wrapper.text()).toContain('--:--:--')
+
+
+    wrapper.setProps({
+      startTime: undefined,
+      finishTime: 0
+    })
+
+    expect(wrapper.text()).toContain('--:--:--')
   })
 
   test('when not waiting, renders correct format', () => {
