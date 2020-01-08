@@ -156,7 +156,16 @@ export interface SampleResponse {
 }
 
 export function parseGender (gender: string | undefined): Gender {
-  return gender ? Gender.Unknown : gender === 'Male' ? Gender.Male : Gender.Female
+  if (!gender){
+    return Gender.Unknown
+  }
+  if (/^male/i.test(gender)){
+    return Gender.Male
+  }
+  if (/^female/i.test(gender)) {
+    return Gender.Female
+  }
+  return Gender.Unknown
 }
 
 export class Sample {
