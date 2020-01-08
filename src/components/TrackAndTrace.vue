@@ -36,8 +36,9 @@ import Vue from 'vue'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import RunTable from '@/components/Track&Trace-Components/RunTable.vue'
 import RunStatusTable from '@/components/Track&Trace-Components/RunStatusTable.vue'
-import { Step, statusCode, RunStatusData } from '@/types/dataTypes'
+import {statusCode, RunStatusData } from '@/types/dataTypes'
 import { RunData, Project } from '@/types/Run'
+import { Step } from '@/types/step'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -157,7 +158,7 @@ export default Vue.extend({
      * @returns {Boolean}
      */
     selectedRunDemultiplexingStatus (): boolean {
-      const selectedRunDemultiplexingStatus = this.selectedRunObject.steps.find(step => step.stepID === 'demultiplexing')
+      const selectedRunDemultiplexingStatus = this.selectedRunObject.steps.find((step: Step) => {return step.stepID === "demultiplexing"})
 
       return selectedRunDemultiplexingStatus ? (selectedRunDemultiplexingStatus.getStatus() === statusCode.started || selectedRunDemultiplexingStatus.getStatus() === statusCode.finished) : false
     },
@@ -186,16 +187,16 @@ export default Vue.extend({
      * @returns {Step[]}
      */
     runStepStatusArray (): RunStatusData[] {
-      const stepArray: RunStatusData[] = []
-      for (const [key, value] of Object.entries(this.runV2)) {
+      const stepArray = Object.keys(this.runV2).map((key: string) => {
+        const value: RunData = this.runV2[key]
         const currentStepObject: RunStatusData = {
           run: key,
           step: value.getCurrentStep(),
           containsError: value.getErrorCount() > 0,
           len: value.getSize()
         }
-        stepArray.push(currentStepObject)
-      }
+        return currentStepObject
+      })
       return stepArray
     }
 

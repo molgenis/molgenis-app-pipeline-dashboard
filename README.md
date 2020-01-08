@@ -44,6 +44,7 @@ yarn test:unit
 ```
 yarn typedoc src
 ```
+results can be found at docs/documentation/index.html
 
 ### Data context
 ![Database model](docs/DatabaseModel.png)

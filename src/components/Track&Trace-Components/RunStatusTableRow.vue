@@ -46,12 +46,12 @@ declare module 'vue/types/vue' {
     mouseOn: string;
     step: number;
     error: boolean;
-    hidden: string[];
+    hidden: Array<string>;
     variant: string;
     finished: boolean;
     localHidden: string[];
     isChecked: boolean;
-    runsV2: Record<string, RunData>;
+    runV2: Record<string, RunData>;
     projectDates: Record<string, {startedDate: Date; finishedDate?: Date}>;
   }
 }
@@ -91,7 +91,7 @@ export default Vue.extend({
     },
 
     hidden: {
-      type: Array as () => string[],
+      type: Array,
       required: true
     },
 
@@ -158,7 +158,8 @@ export default Vue.extend({
       /**
        * returns the hidden status of the object
        */
-      get: function (): string[] {
+      get: function(): string[] {
+        //@ts-ignore
         return this.hidden
       },
       /**
@@ -166,16 +167,17 @@ export default Vue.extend({
        * @emits update-hidden
        */
       set: function(value: string): void{
+        //@ts-ignore
         this.$emit('update-hidden', value)
       }
     },
-
-
+    
     isChecked: {
       /**
        * returns the checkbox status
        */
       get: function(): boolean | string {
+        //@ts-ignore
         return this.localHidden.includes(this.run) ? false : this.run
       },
       /**
@@ -184,8 +186,10 @@ export default Vue.extend({
        */
       set: function (value: string): void {
         if (value) {
+          //@ts-ignore
           this.localHidden = this.localHidden.filter((x: string) => x !== value)
         } else {
+          //@ts-ignore
           this.localHidden = [this.run, ...this.localHidden]
         }
       }
@@ -201,9 +205,12 @@ export default Vue.extend({
      * Goes through every project in the run to check for errors within the jobs
      */
     hasWarning (): boolean {
-      const projects: string[] = this.runV2[this.run].projects.map((project: Project) => {return {project: project.projectID, copyStatus: project.getStatus()}})
+      //@ts-ignore
+      const currentRun: RunData = this.runV2[this.run]
+      const projects: {project: string, copyStatus: statusCode}[] = currentRun.projects.map((project: Project) => {return {project: project.projectID, copyStatus: project.getStatus()}})
       let warning = false
       projects.forEach((project) => {
+        //@ts-ignore
         const dates: {startedDate: Date; finishedDate?: Date} = this.projectDates[project.project]
         
         if (dates && !warning) {

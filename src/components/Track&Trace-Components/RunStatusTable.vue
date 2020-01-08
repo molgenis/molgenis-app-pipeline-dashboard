@@ -290,7 +290,7 @@ export default Vue.extend({
      * @returns {void}
      */
     selectedRun: function (): void {
-      if (Array.from(this.hiddenRuns, x => x.run).includes(this.selectedRun.run_id)) {
+      if (Array.from(this.hiddenRuns, (x: RunStatusData) => {return x.run}).includes(this.selectedRun.run_id)) {
         this.$emit('cycle-next')
       }
     },

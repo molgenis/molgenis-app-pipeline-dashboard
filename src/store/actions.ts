@@ -22,14 +22,14 @@ import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/t
  * * [[getRunData]]
  * * [[getProjectData]]
  * * [[getJobAggregates]]
- * * [[convertRawData]]
+ * * [[convertRawData]] 
  * @event
  * @param __namedParameters - vuex instance
  * @param __namedParameters.dispatch - call to mutations
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: object) => Promise<RunDataObject[]> }): Promise<void> {
+export function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: object) => Promise<RunDataObject[]> }): Promise<void> {
   return new Promise((resolve, reject) => {
     dispatch('getRunData').then((result: RunDataObject[]) => {
       const runs = result.map((run) => {
@@ -63,7 +63,7 @@ function getTrackerData ({ dispatch }: { dispatch: (action: string, params?: obj
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutation: string) => void; state: State}): Promise<RunDataObject[]> {
+export async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutation: string) => void; state: State}): Promise<RunDataObject[]> {
   return new Promise((resolve, reject) => {
     const date = new Date()
     date.setMonth(date.getMonth() - 1)
@@ -88,7 +88,7 @@ async function getRunData ({ commit, state: { overviewTable } }: {commit: (mutat
  * @category TrackAndTrace
  * @return {Promise<void>}
  */
-async function getProjectData ({ commit, state: { projectsTable } }: {commit: (mutation: string) => void; state: State}, params: {runIDs: string[]}): Promise<ProjectDataObject[]> {
+export async function getProjectData ({ commit, state: { projectsTable } }: {commit: (mutation: string) => void; state: State}, params: {runIDs: string[]}): Promise<ProjectDataObject[]> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${projectsTable}?num=10000&q=run_id=in=(${params.runIDs.join(',')})`)
       .then(function (response: {items: ProjectDataObject[]}) {
@@ -106,7 +106,7 @@ async function getProjectData ({ commit, state: { projectsTable } }: {commit: (m
  * @param seriesArray - array of series
  * @param length - current array lenght
  */
-function findMax (seriesArray: IdentifiedSerie[], length: number): number {
+export function findMax (seriesArray: IdentifiedSerie[], length: number): number {
   if (length === 1) {
     return seriesArray[0].getLenght()
   }
@@ -117,7 +117,7 @@ function findMax (seriesArray: IdentifiedSerie[], length: number): number {
  * fills a new series to keep proportions right in the graph
  * @param groupedData series with unique ids
  */
-function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedSerie[] {
+export function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedSerie[] {
   const maximum = findMax(groupedData, groupedData.length)
   const newSeries = groupedData.map((series) => {
     const nullFilledArray = new Array(maximum - series.getLenght()).fill({ projectID: null, number: null })
@@ -141,7 +141,7 @@ function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedSerie[] 
  * @category Runtime
  * @return Promise: resolve when sucessful, reject when not
  */
-async function getMachineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: (mutation: string, params: object) => void; state: State}, { machines, range }: { machines: string[]; range: number }): Promise<void> {
+export async function getMachineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: (mutation: string, params: object) => void; state: State}, { machines, range }: { machines: string[]; range: number }): Promise<void> {
   return new Promise((resolve, reject) => {
     const machineSeriesGrouped: Record<string, IdentifiedSerie[]> = {}
     machines.forEach(async (machine: string) => {
@@ -187,7 +187,7 @@ async function getMachineData ({ commit, state: { pipelineTypes, timingTable } }
  * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
-async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: (mutation: string, params: object) => void; state: State }, range: number): Promise<void> {
+export async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } }: { commit: (mutation: string, params: object) => void; state: State }, range: number): Promise<void> {
   const pipelineSeries: Serie[] = []
 
   pipelineTypes.map(async (pipelineType: string) => {
@@ -214,7 +214,7 @@ async function getPipelineData ({ commit, state: { pipelineTypes, timingTable } 
  * @param __namedParameters.state.sampleTable - sample table identifier for api
  * @category Statistics
  */
-async function getSequencerStatistics ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
+export async function getSequencerStatistics ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${sampleTable}?aggs=x==sequencer;distinct==externalSampleID`)
       .then(function (response: { aggs: { matrix: Array<number[]>; xLabels: string[] } }) {
@@ -244,7 +244,7 @@ async function getSequencerStatistics ({ commit, state: { sampleTable } }: { com
  * @category Runtime
  * @return Promise: resolve on sucess, reject on error
  */
-async function getTimingData ({ dispatch, state: { timingTable } }: { dispatch: (action: string, params: object | number) => void; state: State }, range: number): Promise<void> {
+export async function getTimingData ({ dispatch, state: { timingTable } }: { dispatch: (action: string, params: object | number) => void; state: State }, range: number): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${timingTable}?aggs=x==machine;distinct==unique_id`)
       .then(async function (response: { aggs: { matrix: Array<number[]>; xLabels: string[] } }) {
@@ -270,7 +270,7 @@ async function getTimingData ({ dispatch, state: { timingTable } }: { dispatch: 
  * @category Statistics
  * @return Promise with number when resolved
  */
-async function getSamplesInDateRange ({ state: { sampleTable } }: { state: State }, range: [string, string]): Promise<number> {
+export async function getSamplesInDateRange ({ state: { sampleTable } }: { state: State }, range: [string, string]): Promise<number> {
   const query = `sequencingStartDate=rng=(${range[0]}, ${range[1]})`
   return api.get(`/api/v2/${sampleTable}?q=${query}&num=1`)
     .then(function (response: {total: number}) {
@@ -299,7 +299,7 @@ async function getSamplesInDateRange ({ state: { sampleTable } }: { state: State
  * @category Statistics
  * @return Promise
  */
-async function getSampleNumbers ({ dispatch, commit, state: { sampleTable } }: { dispatch: (action: string, params: object) => Promise<number>; commit: (mutation: string, params: number) => void; state: State }): Promise<void> {
+export async function getSampleNumbers ({ dispatch, commit, state: { sampleTable } }: { dispatch: (action: string, params: object) => Promise<number>; commit: (mutation: string, params: number) => void; state: State }): Promise<void> {
   api.get(`/api/v2/${sampleTable}?num=1`)
     .then(function (response: {total: number}) {
       commit('setTotalSamples', response.total)
@@ -325,7 +325,7 @@ async function getSampleNumbers ({ dispatch, commit, state: { sampleTable } }: {
  * @requires formatDate from helpers/dates
  * @category Statistics
  */
-async function getLastYearSampleSequencedNumbers ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
+export async function getLastYearSampleSequencedNumbers ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
   return new Promise((resolve, reject) => {
     const Now = new Date()
     const lastYear = formatDate(new Date(Now.getTime() - (375 * dayMs)))
@@ -352,7 +352,7 @@ async function getLastYearSampleSequencedNumbers ({ commit, state: { sampleTable
  * @category TrackAndTrace
  * @return Promise with comment data
  */
-async function getProjectComment ({ state: { projectsTable } }: { state: State }, project: string): Promise<string> {
+export async function getProjectComment ({ state: { projectsTable } }: { state: State }, project: string): Promise<string> {
   return api.get(`/api/v1/${projectsTable}/${project}/comment`)
 }
 /**
@@ -365,7 +365,7 @@ async function getProjectComment ({ state: { projectsTable } }: { state: State }
  * @param __namedParameters1.comment - new comment content
  * @category TrackAndTrace
  */
-async function updateProjectComment ({ state: { projectsTable } }: { state: State }, { project, comment }: { project: string; comment: string }): Promise<void> {
+export async function updateProjectComment ({ state: { projectsTable } }: { state: State }, { project, comment }: { project: string; comment: string }): Promise<void> {
   return api.put(`/api/v1/${projectsTable}/${project}/comment`, { body: JSON.stringify(comment) })
 }
 /**
@@ -382,7 +382,7 @@ async function updateProjectComment ({ state: { projectsTable } }: { state: Stat
  * @category TrackAndTrace
  * @return Promise with message
  */
-async function handleCommentSubmit ({ dispatch }: { dispatch: (action: string, params: object) => Promise<string> }, { project, oldComment, newComment, validation }: {project: string; oldComment: string; newComment: string; validation: boolean }): Promise<string> {
+export async function handleCommentSubmit ({ dispatch }: { dispatch: (action: string, params: object) => Promise<string> }, { project, oldComment, newComment, validation }: {project: string; oldComment: string; newComment: string; validation: boolean }): Promise<string> {
   return new Promise((resolve, reject) => {
     if (validation) {
       dispatch('checkForCommentUpdates', { project: project, oldComment: oldComment, newComment: newComment }).then((resolveMessage: string) => { resolve(resolveMessage) }, (reason: string) => { reject(reason) })
@@ -408,7 +408,7 @@ async function handleCommentSubmit ({ dispatch }: { dispatch: (action: string, p
  * @param __namedParameters1.newComment - comment content user wants to change
  * @category TrackAndTrace
  */
-async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTable, loadedProjectInfo } }: { commit: (mutation: string, params: object) => void; dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
+export async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTable, loadedProjectInfo } }: { commit: (mutation: string, params: object) => void; dispatch: (action: string, params: object) => Promise<object>; state: State }, { project, oldComment, newComment }: { project: string; oldComment: string; newComment: string }): Promise<string> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v1/${projectsTable}/${project}/comment`)
       .then((result: { href: string; comment: string }) => {
@@ -441,7 +441,7 @@ async function checkForCommentUpdates ({ commit, dispatch, state: { projectsTabl
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function convertRawData ({ dispatch }: { dispatch: (action: string, params: object) => Promise<Record<string, ProjectData[]>> }, { runs, projects }: {runs: RunDataObject[]; projects: ProjectDataObject[]}): Promise<void> {
+export async function convertRawData ({ dispatch }: { dispatch: (action: string, params: object) => Promise<Record<string, ProjectData[]>> }, { runs, projects }: {runs: RunDataObject[]; projects: ProjectDataObject[]}): Promise<void> {
   return new Promise((resolve) => {
     dispatch('convertProjects', projects).then((result: Record<string, ProjectData[]>) => {
       Promise.all([dispatch('constructRunObjects', { runs: runs, projects: result }), dispatch('getProjectDates', result)]).then(() => {
@@ -469,7 +469,7 @@ async function convertRawData ({ dispatch }: { dispatch: (action: string, params
  * @category TrackAndTrace
  * @return Promise, always resolves
  */
-async function convertProjects ({ state: { jobAggregates } }: {state: State}, projects: ProjectDataObject[]): Promise<Record<string, ProjectData[]>> {
+export async function convertProjects ({ state: { jobAggregates } }: {state: State}, projects: ProjectDataObject[]): Promise<Record<string, ProjectData[]>> {
   return new Promise((resolve) => {
     const mappedProjects: Record<string, ProjectData[]> = {}
     projects.forEach((project: ProjectDataObject) => {
@@ -502,7 +502,7 @@ async function convertProjects ({ state: { jobAggregates } }: {state: State}, pr
  * @category TrackAndTrace
  * @return Promise: always resolves
  */
-async function constructRunObjects ({ commit }: { commit: (mutation: string, params: object) => void}, { runs, projects }: {runs: RunDataObject[]; projects: Record<string, ProjectData[]>}): Promise<void> {
+export async function constructRunObjects ({ commit }: { commit: (mutation: string, params: object) => void}, { runs, projects }: {runs: RunDataObject[]; projects: Record<string, ProjectData[]>}): Promise<void> {
   return new Promise((resolve) => {
     const RunsV2: Record<string, RunData> = {}
     runs.forEach(({ run_id, demultiplexing, copy_raw_prm }) => {
@@ -552,7 +552,7 @@ async function constructRunObjects ({ commit }: { commit: (mutation: string, par
  * @category TrackAndTrace
  * @returns {Promise<void>}
  */
-async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (mutation: string, params: object) => void; state: State}): Promise<void> {
+export async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (mutation: string, params: object) => void; state: State}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${jobTable}?aggs=x==status;y==project;distinct==project_job`)
       .then((result: {aggs: {matrix: number[][]; xLabels: string[]; yLabels: string[]}}) => {
@@ -586,7 +586,7 @@ async function getJobAggregates ({ commit, state: { jobTable } }: {commit: (muta
  * @category TrackAndTrace
  * @returns {Promise<Date>}
  */
-async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date> {
+export async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${jobTable}?attrs=project_job,${type}&sort=${type}:${type === dateSearch.started ? 'asc' : 'desc'}&num=1&q=project=='${projectID}';${type}!=''`).then((result: {items: {started_date: string; finished_date: string}[]}) => {
       if (result.items.length === 0) {
@@ -613,7 +613,7 @@ async function getDate ({ state: { jobTable } }: {state: State}, { projectID, ty
  * @param __namedParameters.commit - mutations
  * @category TrackAndTrace
  */
-async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: {state: State; dispatch: (action: string, params: object) => Promise<Date>; commit: (mutation: string, params: object) => void}): Promise<void> {
+export async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: {state: State; dispatch: (action: string, params: object) => Promise<Date>; commit: (mutation: string, params: object) => void}): Promise<void> {
   Object.keys(jobAggregates).forEach((projectID) => {
     const jobs = jobAggregates[projectID]
     if (jobs.getStatus() === statusCode.finished) {
@@ -637,7 +637,7 @@ async function getProjectDates ({ state: { jobAggregates }, dispatch, commit }: 
  * @category TrackAndTrace
  * @returns project comment and samples
  */
-async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}, projectID: string): Promise<void> {
+export async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}, projectID: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const comment = api.get(`/api/v2/${projectsTable}/${projectID}?attrs=comment`)
     const samples = api.get(`/api/v2/${sampleTable}?attrs=lane,sequencer,Gender,archiveLocation&q=project=='${projectID}'`)
@@ -667,7 +667,7 @@ async function getExtraProjectInfo ({ state: { projectsTable, sampleTable }, com
  * @category TrackAndTrace
  * @returns {Promise<void>} 
  */
-async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
+export async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${clusterTable}`).then((result: {items: {cluster_name: string; latest_ping_timestamp: string}[]}) => {
       commit('updateClusterPings', result.items)
@@ -689,7 +689,7 @@ async function getClusterPings ({ state: { clusterTable }, commit }: {state: Sta
  * @category Statistics
  * @returns {Promise<void>} 
  */
-async function getDurationStatistics ({ state: { timingTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
+export async function getDurationStatistics ({ state: { timingTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${timingTable}?attrs=unique_id,total_min,copyProjectDataToPrmTiming,pipelineDuration,copyRawDataToPrmDuration,finishedTime&q=total_min=gt=0&num=10000&sort=finishedTime:asc`)
       .then((result: {items: RawDurationStatistics[]}) => {

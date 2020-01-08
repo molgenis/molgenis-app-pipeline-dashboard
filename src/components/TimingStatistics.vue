@@ -80,7 +80,7 @@ export default Vue.extend({
      */
     getData(): void {
       this.getDurationStatistics()
-        .catch((error) => {
+        .catch((error: string) => {
           console.warn(error, 'Retrying')
           setTimeout(this.getData, 5000)
         })
@@ -105,7 +105,7 @@ export default Vue.extend({
      * returns the prepkit types
      */
     types (): string[] {
-      return this.seriesRuntimes.map((type) => {
+      return this.seriesRuntimes.map((type: {name: string; data: {y: number | null; x: string}[]}) => {
         return type.name
       })
     },

@@ -73,14 +73,14 @@ export default Vue.extend({
      */
     sortedClusters (): ClusterContainer[] {
       const clusters = this.clusters
-      clusters.sort((a, b) => { return a.lastPingMinutes <= b.lastPingMinutes ? -1 : 1 })
+      clusters.sort((a: ClusterContainer, b: ClusterContainer) => { return a.lastPingMinutes <= b.lastPingMinutes ? -1 : 1 })
       return clusters
     },
     /**
      * parses clusters to be displayed in bootstrap table lite
      */
     tableParsedClusters (): {cluster: string; status: { ping: number; error: boolean }}[] {
-      return this.sortedClusters.map((cluster) => {
+      return this.sortedClusters.map((cluster: ClusterContainer) => {
         return { cluster: cluster.ID, status: { ping: cluster.lastPingMinutes, error: cluster.error } }
       })
     },

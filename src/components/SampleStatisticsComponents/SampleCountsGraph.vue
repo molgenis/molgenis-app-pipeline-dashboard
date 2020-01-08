@@ -200,7 +200,7 @@ export default Vue.extend({
      * @returns {Array<Number>}
      */
     sampleCountsInOrder (): number[] {
-      const values = Object.values(this.selectedData)
+      const values: number[] = Object.values(this.selectedData)
       if (this.type === 'YEAR' || this.type === 'WEEK') {
         return [...values.slice(this.timeIndex), ...values.slice(0, this.timeIndex)]
       }

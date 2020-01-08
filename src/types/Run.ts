@@ -111,12 +111,6 @@ export interface Project {
   getStatus(): statusCode;
   findStartDateTime(): number;
   findLastDateTime(): number;
-  /**
-   *
-   * @param dateGetter Data retrieval function
-   */
-  getDates(dateGetter: DateGetter): Promise<{startedDate: Date | null; finishedDate: Date | null}>; // needs a function that calls to api
-
 }
 
 export interface RunTimeDates {startedDate: Date; finishedDate: Date}
@@ -160,21 +154,6 @@ export class ProjectData implements Project {
   comment = false
   private startedDate = 0
   private finishedDate = 0
-  async getDates (dateGetter: DateGetter): Promise<RunTimeDates> {
-    return new Promise((resolve, reject) => {
-      if (this.jobs.getStatus() === statusCode.started || this.jobs.getStatus() === statusCode.finished) {
-        dateGetter(this.projectID)
-          .then((result) => {
-            this.finishedDate = result.finishedDate.getTime()
-            this.startedDate = result.startedDate.getTime()
-          }).catch((error) => {
-            reject(error)
-          })
-      } else {
-        resolve()
-      }
-    })
-  }
   constructor (projectID: string, resultCopyStatus: statusCode, jobs: JobCounts, comment: boolean) {
     this.resultCopyStatus = resultCopyStatus
     this.projectID = projectID

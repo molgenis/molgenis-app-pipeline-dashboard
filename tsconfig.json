@@ -11,7 +11,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "noImplicitAny": true,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "types": [
