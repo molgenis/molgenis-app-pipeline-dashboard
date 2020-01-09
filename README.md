@@ -46,8 +46,5 @@ yarn typedoc src
 ```
 results can be found at docs/documentation/index.html
 
-### Data context
-![Database model](docs/DatabaseModel.png)
-
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
