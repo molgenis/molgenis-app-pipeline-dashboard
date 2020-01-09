@@ -1,7 +1,7 @@
 /**
  * combined data object interface that defines API response
  */
-export interface RawDataObject extends RunDataObject, ProjectDataObject, Job{
+export interface RawDataObject extends RunDataObject, ProjectDataObject {
 
 }
 
@@ -47,16 +47,6 @@ export interface RunDataObject {
   projects: string[];
 }
 
-/**
- * Standardized pipeline type enum
- */
-export enum pipelineType {
-  onco = 'ONCO',
-  pcs = 'PCS',
-  exoom = 'Exoom',
-  svp = 'SVP',
-  other = 'OTHER'
-}
 
 export enum dateSearch {
   started = 'started_date',
@@ -73,26 +63,6 @@ export interface ProjectDataObject{
   pipeline: string;
   copy_results_prm?: string;
   comment?: string;
-}
-
-/**
- * Stores Job information
- */
-export interface Job {
-  project: string;
-  status: string;
-  startedDate?: string;
-  finishedDate?: string;
-}
-
-/**
- * Stores a step status
- */
-export interface Step {
-  run: string;
-  step: number;
-  containsError: boolean;
-  len: number;
 }
 
 /**
