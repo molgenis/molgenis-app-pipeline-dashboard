@@ -103,6 +103,10 @@ export default Vue.extend({
             }
           }
         },
+        legend: {
+          show: true,
+          showForSingleSeries: true
+        },
         noData: {
           text: 'Loading...',
           align: 'center',
