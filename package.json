@@ -1,7 +1,7 @@
 {
-  "name": "@molgenis-ui/molgenis-app-pipeline-dashboard",
+  "name": "@molgenis-experimental/molgenis-app-pipeline-dashboard",
   "version": "1.0.0",
-  "private": true,
+  "license": "LGPL-3.0",
   "main": "dist/index.html",
   "files": [
     "dist"
@@ -52,6 +52,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "jest-fetch-mock": "^2.1.2",
     "node-fetch": "^2.6.0",
+    "semantic-release": "^15.14.0",
     "ts-jest": "^23.0.0",
     "typedoc": "^0.15.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
