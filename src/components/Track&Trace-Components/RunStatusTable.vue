@@ -108,7 +108,7 @@ import { RunData } from '@/types/Run'
 declare module 'vue/types/vue' {
   interface Vue {
     checkbox: boolean;
-    mouse: string;
+    mouseLocation: string;
     hiddenToggled: boolean;
     show: number;
     hidden: string[];
@@ -142,7 +142,7 @@ export default Vue.extend({
   data () {
     return {
       checkbox: false,
-      mouse: '',
+      mouseLocation: '',
       hiddenToggled: false,
       show: 7,
       hidden: [] as string[],
@@ -251,13 +251,13 @@ export default Vue.extend({
        * returns the mouse location
        */
       get: function (): string {
-        return this.mouse
+        return this.mouseLocation
       },
       /**
        * stets the mouse location
        */
       set: function (run: string): void {
-        this.mouse = run
+        this.mouseLocation = run
       }
     },
 
