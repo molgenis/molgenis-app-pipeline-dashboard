@@ -74,9 +74,6 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
-
 .success {
     color: $success;
 }

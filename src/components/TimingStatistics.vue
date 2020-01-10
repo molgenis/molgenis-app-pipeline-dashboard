@@ -10,18 +10,19 @@
             </b-nav>
           
         </b-row>
-    <b-row class="h-90" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
-      <b-col v-show="selected === 'runtimes'" class="h-100 pb-1 chart border-top">
-        <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
-      </b-col>
-      <b-col v-show="selected === 'timing'" class="h-100 pb-1 chart">
-        <apexchart type="line" ref="areaTimingChart" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
-      </b-col>
-      <b-col v-show="selected === 'overall'" class=" h-100 pb-1 chart">
-        <run-time-statistics></run-time-statistics>
-      </b-col>
-    </b-row>
-
+        <keep-alive>
+          <b-row class="h-85" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
+            <b-col v-show="selected === 'runtimes'" class="h-100 pb-1 chart border-top">
+              <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
+            </b-col>
+            <b-col v-show="selected === 'timing'" class="h-100 pb-1 chart">
+              <apexchart type="scatter" ref="areaTimingChart" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
+            </b-col>
+            <b-col v-show="selected === 'overall'" class=" h-100 pb-1 chart">
+              <run-time-statistics></run-time-statistics>
+            </b-col>
+          </b-row>
+        </keep-alive>
   </b-container>
 
 </template>
@@ -199,6 +200,7 @@ export default Vue.extend({
             show: false
           }
         },
+        colors: ['#2E93fA', '#66DA26', '#546E7A', '#4A0B69', '#FF9800', '#CA1B74'],
         stroke: {
           curve: 'straight',
           dashArray: [2, 4, 6, 8, 10, 12, 14]
@@ -271,8 +273,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
 
 .cycleDisplay {
   z-index: 2;
@@ -286,11 +286,7 @@ export default Vue.extend({
     color: $secondary
 }
 
-.h-10 {
-  height: 5%
-}
-
-.h-90 {
+.h-85 {
   height: 85%
 }
 </style>

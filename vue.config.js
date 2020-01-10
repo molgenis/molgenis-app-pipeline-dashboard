@@ -2,6 +2,16 @@ const packageJson = require('./package.json')
 const pkgName = packageJson.name
 
 module.exports = {
+  css: {
+    loaderOptions: {
+      sass: {
+        prependData: `
+        @import 'bootstrap/scss/bootstrap';
+        @import 'bootstrap-vue/src/index.scss';
+        `
+      }
+    }
+  },
   outputDir: 'dist',
   publicPath: process.env.NODE_ENV === 'production' ? pkgName + '/dist/' : '/',
   devServer: {
@@ -21,4 +31,5 @@ module.exports = {
   configureWebpack: {
     devtool: 'source-map'
   }
+  
 }

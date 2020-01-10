@@ -1,5 +1,5 @@
 <template>
-  <span>{{display}}</span>
+  <span>{{timeString}}</span>
 </template>
 
 <script lang="ts">
@@ -40,7 +40,7 @@ export default Vue.extend({
     
   },
   computed: {
-    display (): string {
+    timeString (): string {
       if (isNaN(this.time)) {
         return '--:--:--'
       }

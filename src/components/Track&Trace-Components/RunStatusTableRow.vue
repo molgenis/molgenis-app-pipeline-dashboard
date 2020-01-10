@@ -207,7 +207,7 @@ export default Vue.extend({
     hasWarning (): boolean {
       //@ts-ignore
       const currentRun: RunData = this.runV2[this.run]
-      const projects: {project: string, copyStatus: statusCode}[] = currentRun.projects.map((project: Project) => {return {project: project.projectID, copyStatus: project.getStatus()}})
+      const projects: {project: string; copyStatus: statusCode}[] = currentRun.projects.map((project: Project) => {return {project: project.projectID, copyStatus: project.getStatus()}})
       let warning = false
       projects.forEach((project) => {
         //@ts-ignore
@@ -228,9 +228,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
-
 .icons {
   height: 1vw;
   width: 1vw;

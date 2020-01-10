@@ -249,8 +249,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
 .mpx {
   margin-top: 0.1px;
   margin-bottom: 0.1px;

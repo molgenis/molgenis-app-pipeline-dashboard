@@ -32,9 +32,6 @@ export default {
 
 <style lang="scss" scoped>
 
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
-
 font-awesome-icon {
     margin: 0;
 }

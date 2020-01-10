@@ -110,8 +110,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
 
 b {
   margin-right: 4px;

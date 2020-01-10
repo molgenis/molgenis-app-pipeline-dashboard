@@ -22,6 +22,11 @@
 <script lang="ts">
 import Vue from 'vue'
 
+/**
+ * font awesome icons need a shorthand
+ * string[0] = font type
+ * sring[1] = icon id
+ */
 interface IconTypes {
   done: string[2];
   waiting: string[2];
@@ -353,8 +358,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
 
 .success {
     color: $success;

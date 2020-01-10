@@ -245,9 +245,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
-
 .icons {
   height: 1vw;
   width: 1vw;

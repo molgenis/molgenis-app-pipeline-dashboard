@@ -285,8 +285,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity .3s;
