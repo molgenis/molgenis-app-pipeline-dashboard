@@ -47,12 +47,12 @@ interface Year {
 declare module 'vue/types/vue' {
   interface Vue {
     type: string;
-    month: Record<string, number>;
+    periodOf30Days: Record<string, number>;
     year: Year;
     week: Record<string, number>;
     initialWeek: Week;
     initialYear: Year;
-    initialMonth: Record<string, number>;
+    initial30DayPeriod: Record<string, number>;
     selectedData: Year | Record<string, number>;
     timeIndex: number;
     dateMap: Record<string, string>;
@@ -101,7 +101,7 @@ export default Vue.extend({
       november: 0,
       december: 0
     }
-    const initialMonth: Record<string, number> = {
+    const initial30DayPeriod: Record<string, number> = {
       '30': 0,
       '29': 0,
       '28': 0,
@@ -135,11 +135,11 @@ export default Vue.extend({
     }
     return {
       week: initialWeek,
-      month: initialMonth,
+      periodOf30Days: initial30DayPeriod,
       year: initialYear,
       initialWeek: initialWeek,
       initialYear: initialYear,
-      initialMonth: initialMonth
+      initial30DayPeriod: initial30DayPeriod
     }
   },
   computed: {
@@ -177,7 +177,7 @@ export default Vue.extend({
         case 'YEAR':
           return this.year
         default:
-          return this.month
+          return this.periodOf30Days
       }
     },
     /**
@@ -265,8 +265,11 @@ export default Vue.extend({
       }
     },
     /**
-     * Returns date labels for each day of the month. This gives the graph more context into where the data came from
-     * @returns {Record<string<Day>, string<dayOfMonth/Month>} - for examlpe 30th of november = 30/11
+     * Returns date labels for each day of the in the 30 day period data. This gives the graph more context into where the data came from
+     * 
+     * @returns {Record<string<Day>, string<dayOfMonth/Month>}
+     * 
+     * for example when november 30th was 15 days ago, the label for '15' will be 30/11
      */
     dateMap (): Record<string, string> {
       return {
