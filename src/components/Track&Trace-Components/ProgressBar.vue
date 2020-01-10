@@ -44,7 +44,10 @@ export default Vue.extend({
       required: false,
       default: false
     },
-
+    /**
+     * Bootstrap variant string
+     * primary, secondary, warning, danger, light, info
+     */
     variant: {
       type: String,
       required: false,
