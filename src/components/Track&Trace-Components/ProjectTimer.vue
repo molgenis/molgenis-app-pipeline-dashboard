@@ -1,5 +1,5 @@
 <template>
-  <span>{{timeString}}</span>
+  <span>{{representedTimeString}}</span>
 </template>
 
 <script lang="ts">
@@ -12,10 +12,10 @@ declare module 'vue/types/vue' {
     finishTime: number;
     started: boolean;
     time: number;
-    timer: string;
-    hours: string;
-    minutes: string;
-    seconds: string;
+    representedTimeString: string;
+    formattedHours: string;
+    formattedMinutes: string;
+    formattedSeconds: string;
   }
 }
 
@@ -40,17 +40,17 @@ export default Vue.extend({
     
   },
   computed: {
-    timeString (): string {
+    representedTimeString (): string {
       if (isNaN(this.time)) {
         return '--:--:--'
       }
       if (this.started) {
-        return this.timer
+        return this.timeString
       }
       return 'Not Started'
     },
-    timer (): string {
-      return `${this.hours}:${this.minutes}:${this.seconds}`
+    timeString (): string {
+      return `${this.formattedHours}:${this.formattedMinutes}:${this.formattedSeconds}`
     },
     /**
      * calculates timediffrence
@@ -66,7 +66,7 @@ export default Vue.extend({
      *
      * @returns {String}
      */
-    seconds (): string {
+    formattedSeconds (): string {
       return formatTime(calculateSeconds(this.time), timeUnit.seconds)
     },
 
@@ -74,7 +74,7 @@ export default Vue.extend({
      * Calculates the minutes counter
      * @returns {String}
      */
-    minutes (): string {
+    formattedMinutes (): string {
       return formatTime(calculateMinutes(this.time), timeUnit.minutes)
     },
 
@@ -83,7 +83,7 @@ export default Vue.extend({
      *
      * @returns {String}
      */
-    hours (): string {
+    formattedHours (): string {
       return formatTime(calculateHours(this.time), timeUnit.hours)
     }
   }
