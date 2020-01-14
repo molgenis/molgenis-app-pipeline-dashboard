@@ -205,7 +205,10 @@ export default Vue.extend({
      * @returns {void}
      */
     updateLocalcomment (project: string, comment: string): void {
-      this.loadedProjectInfo[project] ? this.loadedProjectInfo[project].comment = comment : this.loadedProjectInfo[project] = {samples: [], comment: comment}
+      if (!this.loadedProjectInfo[project]) {
+        this.loadedProjectInfo[project].samples = []
+      }
+      this.loadedProjectInfo[project].comment = comment
     }
   },
   computed: {
