@@ -360,7 +360,17 @@ export async function getLastYearSampleSequencedNumbers ({ commit, state: { samp
  * @return Promise with comment data
  */
 export async function getProjectComment ({ state: { projectsTable } }: { state: State }, project: string): Promise<string> {
-  return api.get(`/api/v1/${projectsTable}/${project}/comment`)
+  return new Promise((resolve, reject) => {
+    api.get(`/api/v2/${projectsTable}/${project}?attrs=comment`).then((result: {comment?: string}) => {
+      if (!result.comment) {
+        resolve('')
+      } else {
+      resolve(result.comment)
+      }
+    }).catch(() => {
+      reject('getting project comment failed')
+    })
+  })
 }
 /**
  * pushes a new comment to database for the given project
