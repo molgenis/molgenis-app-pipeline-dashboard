@@ -1,3 +1,41 @@
+# [1.1.0](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.0.0...v1.1.0) (2020-01-14)
+
+
+### Bug Fixes
+
+* **bug:** fixed parsegender not parsing gender correctly ([16d61fd](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/16d61fd75e17ae77c0508dc810aba5e625d9f7a3))
+* **build:** fixed typescript errors that prevented project build ([f799b8b](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/f799b8bb339f9683c97699479d912e77f40cdaf3))
+* **comment fix:** fixed comments not working with new data oriantation ([8d693bd](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/8d693bddc2e14ee0fa1117c5febe2b50f24ed5ef))
+* **fix empty projects:** when no runs are retrieved, projectData won't be called ([a62bbf1](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/a62bbf10510d5f9544600d321518d340beebb55e))
+* **grid and flex:** grid and flex changes to fit more elements ([8d887f9](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/8d887f9d51b8d0da8f225ea628dcc40ea5741be4))
+* **legend:** legend is now also visible when only one series is displayed ([c5174e5](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/c5174e557672948c0b78151d6cf3f47c4121bd33))
+* **timer runnning after finish:** fixed timer running when no finished date was uploaded ([6841a96](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/6841a9679c710a0a4892ce9feb7a512b3e27e6cd))
+* **timing statistics:** fixed overlapping border, added documetnation to methods and properties ([1434c0c](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/1434c0ca35f1fe8ec2bb9b98c159f441b9d5b2a3))
+* **total sample counts:** fixed total sample counts size and location ([8f72f4f](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/8f72f4f5bdaec291e0c26855426037cb8b4ab2ae))
+* **user comments:** fixed user comments ([789abf1](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/789abf1401afc102eeda976ce7fa27ea22675b2b))
+* **warnings:** fixed warnings not being shown in RunStatusTable.vue ([0af58a8](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/0af58a86461e934984c5e9b83a84604a2c65edcc))
+
+
+### Features
+
+* **cluster status:** added small display that shows if the clusters are online or offline ([e718b55](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/e718b55387fb270bee70e5a17ec0f7956f00e42a))
+* **data object:** implemented new data objects ([7bc8040](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/7bc804018960645f4778bb1d3dab4aa1a9fbd4c7))
+* **fitting:** made fonts and sizes more responsive ([34e9178](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/34e917811407ccba1d53c8f7673bf16c9fa83e33))
+* **interactive mode:** made interactive mode centrally controlled ([f0e8d18](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/f0e8d1873a17dfc4efcc86e046a88262b8b0d610))
+* **navigation tabs:** added navigation tabs to runtime statistics charts ([f9f5407](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/f9f54070953bb7f420b855f07e7920a437c753d5))
+* **runtimes:** added a timed series, based on dates for pipelines ([635fc18](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/635fc1856993775b327eca67c6d941e13d325269))
+* **runtimes area:** added area graph for pipeline runtimes ([914428e](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/914428e00586eb8aa3e7b8b8e88d53dae5896b40))
+* **runtimestatistics:** added a new graph to dashboard ([f06de51](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/f06de51a40a60d16dbe90edd576d035d15de46e5))
+* **server status:** added server status column ([e582726](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/e58272673534775cbf39fd9973b770c74463f4db))
+* **server status:** fitted server status using bootstrap vue table-lite ([eafa7ee](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/eafa7eeec113c5df1721c5c0d3b12bc7584c88a3))
+* **statemapping:** added statemapping to component ([2dc94a5](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/2dc94a51dc6f4a259e4048578ec7369565594305))
+* **storage objects:** added new standardised storage objects ([549cf56](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/549cf5623e01d70f790b840b8e26597eaecbb064))
+
+
+### Performance Improvements
+
+* **state:** removed duplicate saving steps, made State smaller ([a9b14b6](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/a9b14b69db7a37eb44c482f66be4c7bcec9b6182))
+
 # 1.0.0 (2020-01-09)
 
 
