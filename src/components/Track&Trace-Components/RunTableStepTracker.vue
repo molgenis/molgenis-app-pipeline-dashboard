@@ -227,14 +227,14 @@ export default Vue.extend({
       return this.checkStepStatus(2)
     },
     /**
-     * returns the correct pipeline running icon
+     * returns the correct projects running icon
      * running, finished, waiting
      */
     projectsIcon (): string[2] {
       return this.returnIcon(this.statusOfProjects)
     },
     /**
-     * returns the correct pipeline running color
+     * returns the correct projects running color
      * running: primary, Error: danger, Warning: warning, waiting: secondary, Finished: success
      */
     projectsColor (): string {
