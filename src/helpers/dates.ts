@@ -1,3 +1,9 @@
+
+/**
+ * Milliseconds in a day
+ */
+export const dayMs = 24 * 60 * 60 * 1000
+
 /**
  * Formats a Date object to yyyy-mm-dd
  *
@@ -17,6 +23,16 @@ export function formatDate (date: Date): string {
     day = '0' + day
   }
   return year + '-' + month + '-' + day
+}
+/**
+ * Gets a label for the date, given amount of days in the past
+ * @param days number of days back
+ * @returns {'dayOfMonth/Month'}
+ */
+export function getDateLabel (days: number): string {
+  const now = Date.now()
+  const d = new Date(now - dayMs * days)
+  return `${d.getDate()}/${d.getMonth() + 1}`
 }
 
 /**
@@ -44,7 +60,3 @@ export function dateIsLastYear (date: Date, now: Date): boolean {
   return date >= lastYear
 }
 
-/**
- * Milliseconds in a day
- */
-export const dayMs = 24 * 60 * 60 * 1000

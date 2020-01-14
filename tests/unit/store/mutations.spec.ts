@@ -1,20 +1,17 @@
-import mutations from '@/store/mutations'
-import { Run, RunDataObject, projectDataObject, Job, ProjectObject } from '@/types/dataTypes'
-import { State } from '@/store/state'
-import { Serie, IdentifiedSerie } from '@/types/graphTypes'
+import mutations from '../../../src/store/mutations'
+import { State } from '../../../src/store/state'
+import { Serie, IdentifiedSerie } from '../../../src/types/graphTypes'
 
 let state: State
 
 beforeEach(() => {
   state = {
-    runs: [],
-    projects: [],
-    jobs: [],
     overviewTable: 'status_overview',
     projectsTable: 'status_projects',
     jobTable: 'status_jobs',
     timingTable: 'status_timing',
     sampleTable: 'status_samples',
+    clusterTable: 'aaaac3wwfsa676qwhzjo7ayaae',
     pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
     MainInfoStatus: false,
     statistics: [],
@@ -32,112 +29,20 @@ beforeEach(() => {
     runsLoaded: false,
     projectsLoaded: false,
     jobsLoaded: false,
+    rawDataConverted: false,
     checkedCommentStatus: false,
     CommentUpdatedStatus: false,
     CommentNetworkError: false,
-    rawDataConverted: false,
-    projectObjects: {},
-    runObjects: [],
     jobAggregates: {},
-    completeRunDataObjectArray: [],
-    annotatedJobs: {}
-
+    runV2: {},
+    projectDates: {},
+    clusterPings: {},
+    durations: {},
+    loadedProjectInfo: {},
+    timeSeries: {}
   }
 })
 
-describe('setRuns', () => {
-  const runs: RunDataObject[] = [
-    {
-      run_id: 'test',
-      group: '',
-      demultiplexing: 'finished',
-      copy_raw_prm: 'finished',
-      projects: []
-    }
-  ]
-  test('setRuns adds runs to localRuns', () => {
-    mutations.setRuns(state, runs)
-
-    expect(state.runs).toEqual([
-      {
-        run_id: 'test',
-        group: '',
-        demultiplexing: 'finished',
-        copy_raw_prm: 'finished',
-        projects: []
-      }
-    ])
-    expect(state.runsLoaded).toBe(true)
-  })
-
-  test("setRuns doesn't change loadingState when loaded", () => {
-    mutations.setRuns(state, runs)
-
-    expect(state.runsLoaded).toBe(true)
-    mutations.setRuns(state, runs)
-    expect(state.runsLoaded).toBe(true)
-  })
-})
-
-describe('setProjects', () => {
-  const projects: projectDataObject[] = [
-    {
-      project: 'test',
-      url: '',
-      run_id: 'testRun1',
-      pipeline: 'dna'
-    }
-  ]
-  test('setProjects adds projects to localProjects', () => {
-    mutations.setProjects(state, projects)
-
-    expect(state.projects).toEqual([
-      {
-        project: 'test',
-        url: '',
-        run_id: 'testRun1',
-        pipeline: 'dna'
-      }
-    ])
-    expect(state.projectsLoaded).toBe(true)
-  })
-
-  test("setProjects doesn't change loadingState when loaded", () => {
-    mutations.setProjects(state, projects)
-
-    expect(state.projectsLoaded).toBe(true)
-    mutations.setProjects(state, projects)
-    expect(state.projectsLoaded).toBe(true)
-  })
-})
-
-describe('setJobs', () => {
-  const jobs: Job[] = [
-    {
-      project: 'test1',
-      status: 'Waiting'
-    }
-  ]
-  test('setJobs adds jobs to localJobs', () => {
-    mutations.setJobs(state, jobs)
-
-    expect(state.jobs).toEqual([
-      {
-        project: 'test1',
-        status: 'Waiting',
-      }
-    ])
-    expect(state.jobsLoaded).toBe(true)
-  })
-
-  test("setJobs doesn't change loadingState when loaded", () => {
-    mutations.setJobs(state, jobs)
-
-    expect(state.jobsLoaded).toBe(true)
-    mutations.setJobs(state, jobs)
-    expect(state.jobsLoaded).toBe(true)
-  })
-})
 
 describe('Setters wihtout logic', () => {
   test('setPipelineData', () => {
@@ -215,7 +120,7 @@ describe('Setters wihtout logic', () => {
   })
 
   test('setSequencedSampleNumbers', () => {
-    const data: {labels: string[], counts: number[]} = {
+    const data: {labels: string[]; counts: number[]} = {
       labels: ['test1', 'test2'],
       counts: [44, 932]
     }
@@ -223,18 +128,5 @@ describe('Setters wihtout logic', () => {
     mutations.setSequencedSampleNumbers(state, data)
 
     expect(state.sequencedSampleNumbers).toEqual(data)
-  })
-})
-
-describe('updateCommentOnLocalProject', () => {
-  test('finds the correct project, and updates comment', () => {
-    const projectArray: projectDataObject[] = [{ project: 'test-project1', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: '' }, { project: 'test-project2', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'did not change' }]
-
-    mutations.setProjects(state, projectArray)
-
-    mutations.updateCommentOnLocalProject(state, { projectName: 'test-project1', comment: 'updated' })
-
-    expect(state.projects).toContainEqual({ project: 'test-project1', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'updated' })
-    expect(state.projects).toContainEqual({ project: 'test-project2', pipeline: 'dna', url: 'test', run_id: 'newtestrun1', copy_results_prm: 'finished', comment: 'did not change' })
   })
 })

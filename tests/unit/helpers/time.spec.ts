@@ -1,4 +1,4 @@
-import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit } from '@/helpers/time'
+import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit } from '../../../src/helpers/time'
 
 describe('formatTime', () => {
   test('formats a single digit number to double digit', () => {

@@ -56,5 +56,7 @@ export function calculateMinutes (milliseconds: number): number {
  * @returns {Number} - seconds
  */
 export function calculateSeconds (milliseconds: number): number {
-  return Math.sqrt(Math.pow(Math.round(((milliseconds / 1000) % 3600) % 60), 2))
+  return Math.abs(Math.round(((milliseconds / 1000) % 3600) % 60))
 }
+
+

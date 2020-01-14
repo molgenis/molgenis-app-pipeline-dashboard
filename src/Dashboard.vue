@@ -9,21 +9,25 @@
     </b-progress>
     </div>
   </div>
-  <b-container :key="'dashboard'" v-show="trackingDataLoaded" id="dashboard" class="h-100" fluid>
+  <b-container :key="'dashboard'" v-else id="dashboard" class="h-100" fluid>
     <b-row  no-gutters class="h-50">
       <b-col class="h-100">
         <track-and-trace
           :loadingStatus="trackingDataLoaded"
-          class="h-100 mt-1"/>
+          :paused="paused"
+          class="h-100 mt-1"
+          @toggle-interactive-mode="togglePaused"/>
       </b-col>
     </b-row>
     <b-row no-gutters class="h-50">
-      <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
-        <run-time-statistics
-        />
+      <b-col cols="12" lg="5" class="h-100 d-none p-2 d-lg-block">
+        <timing-statistics :paused="paused"></timing-statistics>
       </b-col>
-      <b-col cols="12" lg="6" class="h-100 d-none d-lg-block">
-        <sample-statistics></sample-statistics>
+      <b-col cols="12" lg="5" class="h-100 d-none d-lg-block">
+        <sample-statistics :paused="paused"></sample-statistics>
+      </b-col>
+      <b-col cols="2">
+        <server-status></server-status>
       </b-col>
     </b-row>
   </b-container>
@@ -31,19 +35,86 @@
 
 </template>
 
-<script>
-import { mapState } from 'vuex'
+<script lang="ts">
+import Vue from 'vue'
+import { mapState, mapActions } from 'vuex'
 import TrackAndTrace from '@/components/TrackAndTrace.vue'
-import RunTimeStatistics from '@/components/RunTimeStatistics.vue'
 import SampleStatistics from '@/components/SampleStatistics.vue'
-import { responseJSON, RunTimeStatistic } from '@/types/dataTypes'
+import TimingStatistics from '@/components/TimingStatistics.vue'
+import ServerStatus from '@/components/ServerStatus.vue'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    runsLoaded: boolean;
+    projectsLoaded: boolean;
+    jobsLoaded: boolean;
+    rawDataConverted: boolean;
+    getTrackerData(): Promise<void>;
+    getClusterPings(): Promise<void>;
+  }
+}
+export default Vue.extend({
   name: 'app',
+  data () {
+    return {
+      errorToastActive: false,
+      paused: false
+    }
+  },
   components: {
     TrackAndTrace,
-    RunTimeStatistics,
-    SampleStatistics
+    SampleStatistics,
+    TimingStatistics,
+    ServerStatus
+  },
+  methods: {
+    ...mapActions([
+      'getTrackerData',
+      'getClusterPings'
+    ]),
+    /**
+     * toggles the pause status
+     */
+    togglePaused (): void {
+      this.paused = !this.paused
+    },
+    /**
+     * when called resumes cycling
+     */
+    resumeAutoMode (): void {
+      if (this.paused) {
+        this.paused = false
+      }
+    },
+    /**
+     * Calls data fetch action
+     */
+    getData (): void {
+      this.getTrackerData()
+        .then(() => {
+          if (this.errorToastActive) {
+            this.$bvToast.hide('errorToast')
+            this.errorToastActive = false
+            this.$bvToast.toast('Connection to MOLGENIS restored', {
+              title: 'Updated',
+              variant: 'success',
+              toaster: 'b-toaster-bottom-right'
+            })
+          }
+        })
+        .catch(() => {
+          if (!this.errorToastActive) {
+            this.errorToastActive = true
+            this.$bvToast.toast('Failed connecting to MOLGENIS database...', {
+              id: 'errorToast',
+              title: 'Error',
+              variant: 'danger',
+              toaster: 'b-toaster-bottom-right',
+              noAutoHide: true
+            })
+          }
+        })
+    }
   },
   computed: {
     ...mapState([
@@ -52,11 +123,19 @@ export default {
       'jobsLoaded',
       'rawDataConverted'
     ]),
-    trackingDataLoaded () {
+    /**
+     * Check if all neccecary data for track and trace is loaded
+     */
+    trackingDataLoaded (): boolean {
       return [this.runsLoaded, this.projectsLoaded, this.jobsLoaded, this.rawDataConverted].every(state => state)
     }
+  },
+  mounted (): void {
+    this.getData()
+    setInterval(this.getData, 10000)
+    setInterval(this.getClusterPings, 30000)
   }
-}
+})
 </script>
 
 <style lang="scss">

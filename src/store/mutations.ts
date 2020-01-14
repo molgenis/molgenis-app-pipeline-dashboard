@@ -3,52 +3,16 @@
  */
 
 import { State } from '@/store/state'
-import { RunDataObject, projectDataObject, Job, ProjectObject, Run, parseStatus } from '@/types/dataTypes'
-import { Serie, IdentifiedSerie } from '@/types/graphTypes'
+import { Serie, IdentifiedSerie, DurationStatisticsStorage } from '@/types/graphTypes'
+import { JobCounts, RunData } from '@/types/Run'
+import { Sample } from '@/types/dataTypes'
 
-/**
- * commits raw run table data to store
- * @param state - application context
- * @param runs - Raw run data
- */
-function setRuns (state: State, runs: RunDataObject[]) {
-  state.runs = runs
-  if (!state.runsLoaded) {
-    state.runsLoaded = true
-  }
-}
-/**
- * commits raw project table data to store
- * @param state - application context
- * @param projects - raw project data
- */
-function setProjects (state: State, projects: projectDataObject[]) {
-  state.projects = projects
-  if (!state.projectsLoaded) {
-    state.projectsLoaded = true
-  }
-
-  projects.forEach((project) => {
-    state.annotatedJobs[project.project] = []
-  })
-}
-/**
- * commits raw job table data to store
- * @param state - application context
- * @param jobs - raw job data
- */
-function setJobs (state: State, jobs: {project: string, status: string, startedDate?: string, finishedDate?: string}[]) {
-  state.jobs = jobs
-  if (!state.jobsLoaded) {
-    state.jobsLoaded = true
-  }
-}
 /**
  * sets the pipeline runtime data for visualization
  * @param state - application context
  * @param statistics - pipeline series data
  */
-function setPipelineData (state: State, statistics: Serie[]) {
+function setPipelineData (state: State, statistics: Serie[]): void{
   state.statistics = statistics
 }
 /**
@@ -56,7 +20,7 @@ function setPipelineData (state: State, statistics: Serie[]) {
  * @param state - application context
  * @param series - runtimes for each machine
  */
-function setMachineRuntimes (state: State, series: Record<string, IdentifiedSerie[]>) {
+function setMachineRuntimes (state: State, series: Record<string, IdentifiedSerie[]>): void{
   state.machineRuntimes = series
 }
 /**
@@ -64,7 +28,7 @@ function setMachineRuntimes (state: State, series: Record<string, IdentifiedSeri
  * @param state - application context
  * @param sampleCounts - sample counts per machine
  */
-function setMachineSampleCounts (state: State, sampleCounts: Record<string, number[]>) {
+function setMachineSampleCounts (state: State, sampleCounts: Record<string, number[]>): void{
   state.machineSampleCounts = sampleCounts
 }
 /**
@@ -72,7 +36,7 @@ function setMachineSampleCounts (state: State, sampleCounts: Record<string, numb
  * @param state - application context
  * @param series - sequencer series data
  */
-function setSequencerStatisticsSeries (state: State, series: number[]) {
+function setSequencerStatisticsSeries (state: State, series: number[]): void{
   state.sequencerStatisticsSeries = series
 }
 /**
@@ -80,7 +44,7 @@ function setSequencerStatisticsSeries (state: State, series: number[]) {
  * @param state - application context
  * @param labels - labels paired to sequencer series data
  */
-function setSequencerStatisticsLabels (state: State, labels: string[]) {
+function setSequencerStatisticsLabels (state: State, labels: string[]): void{
   state.sequencerStatisticsLabels = labels
 }
 /**
@@ -88,7 +52,7 @@ function setSequencerStatisticsLabels (state: State, labels: string[]) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setTotalCounts (state: State, counts: number) {
+function setTotalCounts (state: State, counts: number): void{
   state.totalSampleCounts = counts
 }
 /**
@@ -96,7 +60,7 @@ function setTotalCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setYearlySampleCounts (state: State, counts: number) {
+function setYearlySampleCounts (state: State, counts: number): void{
   state.yearlySampleCounts = counts
 }
 /**
@@ -104,7 +68,7 @@ function setYearlySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setMonthlySampleCounts (state: State, counts: number) {
+function setMonthlySampleCounts (state: State, counts: number): void{
   state.monthlySampleCounts = counts
 }
 /**
@@ -112,7 +76,7 @@ function setMonthlySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setWeeklySampleCounts (state: State, counts: number) {
+function setWeeklySampleCounts (state: State, counts: number): void{
   state.weeklySampleCounts = counts
 }
 /**
@@ -120,7 +84,7 @@ function setWeeklySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param counts - sample counts
  */
-function setDailySampleCounts (state: State, counts: number) {
+function setDailySampleCounts (state: State, counts: number): void{
   state.dailySampleCounts = counts
 }
 /**
@@ -128,85 +92,110 @@ function setDailySampleCounts (state: State, counts: number) {
  * @param state - application context
  * @param data - sequenced samples
  */
-function setSequencedSampleNumbers (state: State, data: {labels: string[], counts: number[]}) {
+function setSequencedSampleNumbers (state: State, data: {labels: string[]; counts: number[]}): void{
   state.sequencedSampleNumbers = {
     labels: data.labels,
     counts: data.counts
   }
 }
 /**
- * updates localy stored project comment
- *
- * Finds the stored project and updates its comment acordingly
- * @param state - application state
- * @param param1 - project id and the new comment
- * @param param1.projectName - Project ID
- * @param param1.comment - new comment content
+ * Sets the job status counts
+ * @param state - application context
+ * @param aggregates - job aggregates
  */
-function updateCommentOnLocalProject (state: State, { projectName, comment }: {projectName: string, comment: string}) {
-  const index = state.projects.findIndex(project => project.project === projectName)
-  state.projects[index].comment = comment
+function setJobAggregates (state: State, aggregates: Record<string, JobCounts>): void{
+  if (!state.jobsLoaded) {
+    state.jobsLoaded = true
+  }
+  state.jobAggregates = aggregates
 }
-
 /**
- * sets the constructed Run objects
- * @param state - application state
- * @param Runs - Converted run objects
+ * Sets the reworked Run objects
+ * @param state - application context
+ * @param runs - Run objects with a identifier
  */
-function setRunObjects (state: State, Runs: Run[]) {
-  state.runObjects = Runs.sort((run1: Run, run2: Run): number => {
-    const run1Error = run1.containsError
-    const run2Error = run2.containsError
-
-    if (run1Error) {
-      return run2Error ? 0 : -1
-    }
-    if (run2Error) {
-      return 1
-    }
-    const run2Step = run2.getCurrentStep()
-    const run1Step = run1.getCurrentStep()
-
-    if (run1Step > run2Step) {
-      return 1
-    }
-    if (run1Step === run2Step) {
-      return 0
-    }
-    return -1
-  })
-
+function setRunV2s (state: State, runs: Record<string, RunData>): void{
   if (!state.rawDataConverted) {
     state.rawDataConverted = true
   }
+  state.runV2 = runs
 }
 /**
- * sets the converted project objects
- * @param state - application state
- * @param projects - converted project objects
+ * update the dates for the given project
+ * @param state - application context
+ * @param entry - function params
+ * @param entry.projectID - project to change dates for
+ * @param entry.startedDate - new started date
+ * @param entry.finishedDate - new finished date if the project is finished
  */
-function setProjectObjects (state: State, projects: Record<string, ProjectObject[]>) {
-  state.projectObjects = projects
+function updateProjectDates (state: State, entry: {projectID: string; startedDate: Date; finishedDate?: Date}): void{
+  state.projectDates[entry.projectID] = { startedDate: entry.startedDate, finishedDate: entry.finishedDate }
 }
-
-function clearRawData (state: State) {
-  state.runs = []
-  state.projects = []
+/**
+ * set the runs loading status to finished(true)
+ * @param state - application context
+ */
+function runsLoaded (state: State): void{
+  state.runsLoaded = true
 }
-
-function setJobAggregates (state: State, aggregates: Record<string, Record<string, number>>) {
-  state.jobAggregates = aggregates
+/**
+ * set the projects loading status to finished(true)
+ * @param state - application context
+ */
+function projectsLoaded (state: State): void{
+  state.projectsLoaded = true
 }
-
-function annotateJobs (state: State, jobs: any[]) {
-  jobs.forEach((job) => {
-    state.annotatedJobs[job.project].push({ status: job.status, startedDate: job.startedDate, finishedDate: job.finishedDate })
+/**
+ * sets the jobs loading status to finished(true)
+ * @param state - application context
+ */
+function jobsLoaded (state: State): void{
+  state.jobsLoaded = true
+}
+/**
+ * update the pings for the clusters
+ * @param state - application context
+ * @param clusters - updated cluster data
+ * @param clusters.cluster_name - cluster name
+ * @param clusters.latest_ping_timestamp - most recent ping as a JS date
+ */
+function updateClusterPings (state: State, clusters: {cluster_name: string; latest_ping_timestamp: string}[]): void{
+  clusters.forEach((cluster) => {
+    state.clusterPings[cluster.cluster_name] = new Date(cluster.latest_ping_timestamp)
   })
 }
+/**
+ * sets the pipeline duration statistics 
+ * @param state - application context
+ * @param durationStatistics - new duration statistics 
+ */
+function setDurationStatistics (state: State, durationStatistics: Record<string, DurationStatisticsStorage>): void{
+  state.durations = durationStatistics
+}
+/**
+ * adds newly loaded project information
+ * 
+ * * comment: user added comments
+ * * samples: samples from sampleTable
+ * 
+ * @param state - application context
+ * @param param1 - function parameters
+ * @param param1.project - project to update
+ * @param param1.comment - comment to update
+ * @param param1.samples - new samples to update
+ */
+function addNewProjectInfo (state: State, { project, comment, samples }: {project: string; comment: string; samples: Sample[]}): void{
+  state.loadedProjectInfo[project] = { comment: comment, samples: samples }
+}
+/**
+ * Sets the timing statistics
+ * @param state - application context
+ * @param TimeSeries - new time series
+ */
+function setTimingStatistics (state: State, TimeSeries: Record<string, Record<string, number>>): void {
+  state.timeSeries = TimeSeries
+}
 export default {
-  setRuns,
-  setProjects,
-  setJobs,
   setPipelineData,
   setMachineRuntimes,
   setMachineSampleCounts,
@@ -218,10 +207,14 @@ export default {
   setMonthlySampleCounts,
   setYearlySampleCounts,
   setWeeklySampleCounts,
-  setRunObjects,
-  setProjectObjects,
-  updateCommentOnLocalProject,
-  clearRawData,
   setJobAggregates,
-  annotateJobs
+  setRunV2s,
+  updateProjectDates,
+  runsLoaded,
+  projectsLoaded,
+  jobsLoaded,
+  updateClusterPings,
+  setDurationStatistics,
+  addNewProjectInfo,
+  setTimingStatistics
 }

@@ -1,6 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils'
 import BootstrapVue from 'bootstrap-vue'
 import vuex from 'vuex'
+//@ts-ignore
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 
 const localVue = createLocalVue()

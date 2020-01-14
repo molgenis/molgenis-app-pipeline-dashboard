@@ -1,44 +1,43 @@
 <template>
-    <b-container class="mb-3 h-100">
-        <b-row>
-          <b-col class="text-center align-middle run_id p-1 m-2 font-weight-bold text-truncate">
-            <h4>{{parsedRunID}}</h4>
-          </b-col>
-        </b-row>
-          <step-tracker
-            :warning="warning"
-            :currentStep="currentStep"
-            :error="containsError"
-            :started="demultiplexing"
-            class="mb-4">
-          </step-tracker>
-          <template v-for="project in projects">
+    <b-container class="mb-3 h-100 d-flex flex-column m-0 p-0 justify-content-around" fluid>
+          <div class="d-flex justify-content-center align-items-center">
+            <h4 class="m-0 p-0">{{parsedRunID}}</h4>
+          </div>
+          <div class="flex-schrink-1 pr-2 pl-2">
+            <step-tracker
+              :warning="warning"
+              :currentStep="currentStep"
+              :error="containsError"
+              :started="demultiplexing"
+              class="mb-4">
+            </step-tracker>
+          </div>
+          <b-container class=" d-flex flex-column d-flex-shrink-1 p-1 overflow-vertical" fluid>
+          <div v-for="project in projects" :key="project.projectID" class="pt-0 pb-0 mt-0 mb-0 flex-shrink-1 mpx">
               <run-table-project
                 @project-warning="setRunWarning"
                 @open-modal="openModal"
-
                 :currentWarningStatus="warning"
                 :running="currentStep === 2"
-                :threshold="getThreshold(project)"
-                :key="project.project"
+                :key="project.projectID"
                 :resultCopy="project.resultCopyStatus"
-                :project="project.project"
+                :project="project.projectID"
                 :jobs="project.jobs" :header="false"
-                :startedDate="project.findStartDateTime()"
-                :finishedDate="project.findLastDateTime()"
+                :projectDates="projectDates[project.projectID]"
                 :runID="runID"
                 :projectCount="projectCount"
                 :time="time"
-                :comment="project.Comment"
+                :comment="project.comment"
 
-                class="project-row">
+                class="project-row p-0 mb-0">
               </run-table-project>
-          </template>
+          </div>
+          </b-container>
 
           <comment-modal
             :run="selectedProject"
             :comment="comment"
-            @comment-updated="updateLocalcomment">
+            :samples="samples">
           </comment-modal>
     </b-container>
 </template>
@@ -47,20 +46,25 @@
 import Vue from 'vue'
 import RunTableProject from '@/components/Track&Trace-Components/RunTableProject.vue'
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
-import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
-import StepTracker from '@/components/Track&Trace-Components/RunTableStepTrackerRework.vue'
-import { ProjectObject, pipelineType } from '@/types/dataTypes.ts'
+import StepTracker from '@/components/Track&Trace-Components/RunTableStepTracker.vue'
+import { Sample } from '@/types/dataTypes.ts'
+import { ProjectData } from '@/types/Run'
+import { mapState, mapActions } from 'vuex'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    warning: boolean
-    selectedProject: string
-    comment: string
-    projects: ProjectObject[]
-    thresholdOnco: number
-    thresholdExoom: number
-    thresholdPcs: number
-    thresholdSvp: number
+    warning: boolean;
+    selectedProject: string;
+    comment: string;
+    projects: ProjectData[];
+    thresholdOnco: number;
+    thresholdExoom: number;
+    thresholdPcs: number;
+    thresholdSvp: number;
+    samples: Sample[];
+    loadedProjectInfo: Record<string, {comment: string; samples: Sample[]}>;
+    getExtraProjectInfo(projectID: string): Promise<void>;
+
   }
 
 }
@@ -138,7 +142,7 @@ export default Vue.extend({
     return {
       warning: false,
       selectedProject: '',
-      comment: ''
+      modalLoading: true
     }
   },
   components: {
@@ -147,6 +151,9 @@ export default Vue.extend({
     CommentModal
   },
   methods: {
+    ...mapActions([
+      'getExtraProjectInfo'
+    ]),
     /**
      * sets Warning status for run
      * @param {Boolean} warning - warning status to set
@@ -162,10 +169,20 @@ export default Vue.extend({
      *
      * @returns {void}
      */
-    openModal (project: string, comment: string): void {
-      this.selectedProject = project
-      this.comment = comment
-      this.$bvModal.show('comment-modal')
+    openModal (project: string): void {
+      this.selectedProject = ''
+      this.modalLoading = true
+      this.getExtraProjectInfo(project).then(() => {
+          this.modalLoading = false
+          this.selectedProject = project
+          this.$bvModal.show('comment-modal')
+        }).catch(() => {
+          this.$bvToast.toast('Loading of extra project information failed', {
+            title: 'Request failed',
+            variant: 'danger',
+            toaster: 'b-toaster-bottom-right'
+          })
+      })
     },
 
     /**
@@ -188,38 +205,37 @@ export default Vue.extend({
      * @returns {void}
      */
     updateLocalcomment (project: string, comment: string): void {
-      for (let i = 0; i < this.projects.length; i++) {
-        if (this.projects[i].project === project) {
-          this.projects[i].Comment = comment
-          break
-        }
+      if (!this.loadedProjectInfo[project]) {
+        this.loadedProjectInfo[project].samples = []
       }
-    },
-
-    /**
-     * Gets the correct threshold for each pipeline type
-     * @param {ProjectObject} project - project
-     *
-     * @returns {Number} threshold number
-     */
-    getThreshold (project: ProjectObject): number {
-      switch (project.getProjectType()) {
-        case pipelineType.onco:
-          return this.thresholdOnco
-        case pipelineType.exoom:
-          return this.thresholdExoom
-        case pipelineType.pcs:
-          return this.thresholdPcs
-        case pipelineType.svp:
-          return this.thresholdSvp
-        default:
-          return 15
-      }
+      this.loadedProjectInfo[project].comment = comment
     }
   },
   computed: {
+    ...mapState([
+      'projectDates',
+      'loadedProjectInfo'
+    ]),
+    /**
+     * Removes undersoces and dashes to display as title
+     */
     parsedRunID (): string {
       return this.runID.replace(/_/g, ' ').replace(/-/g, ', ')
+    },
+    /**
+     * returns the loaded comment
+     */
+    comment(): string {
+      
+      const loadedInfo = this.loadedProjectInfo[this.selectedProject]
+      return loadedInfo ? loadedInfo.comment : ''
+    },
+    /**
+     * returns the loaded samples
+     */
+    samples(): Sample[] {
+      const loadedInfo = this.loadedProjectInfo[this.selectedProject]
+      return loadedInfo ? loadedInfo.samples : [] as Sample[]
     }
   },
   watch: {
@@ -236,15 +252,27 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-vue/src/index.scss';
-
+.mpx {
+  margin-top: 0.1px;
+  margin-bottom: 0.1px;
+}
+.margin-lesspixel-left-right {
+  margin-left: 0.5px;
+  margin-right: 0.5px;
+}
 .project-row:hover {
   background-color: $light;
+}
+.overflow-vertical {
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .minH {
   min-height: 100%
 }
 
+h4 {
+  font-size: 2vw;
+}
 </style>

@@ -2,54 +2,54 @@
  * @module store
  */
 
-import { projectDataObject, RunDataObject, ProjectObject, Job, Run } from '@/types/dataTypes'
-import { Serie, IdentifiedSerie } from '@/types/graphTypes'
+import { Sample } from '@/types/dataTypes'
+import { Serie, IdentifiedSerie, DurationStatisticsStorage } from '@/types/graphTypes'
+import { JobCounts, RunData } from '@/types/Run'
+
 export type State = {
-  runs: RunDataObject[]
-  projects: projectDataObject[]
-  jobs: Job[]
-  overviewTable: string
-  projectsTable: string
-  jobTable: string
-  timingTable: string
-  sampleTable: string
-  pipelineTypes: string[]
-  statistics: Serie[]
-  statisticsEmpty: boolean
-  machineRuntimes: Record<string, IdentifiedSerie[]>
-  machineSampleCounts: Record<string, number[]>
-  sequencerStatisticsSeries: number[]
-  sequencerStatisticsLabels: string[]
-  totalSampleCounts: number
-  yearlySampleCounts: number
-  monthlySampleCounts: number
-  weeklySampleCounts: number
-  dailySampleCounts: number
-  sequencedSampleNumbers: {counts: number[], labels: string[]}
-  MainInfoStatus: boolean
-  runsLoaded: boolean
-  projectsLoaded: boolean
-  jobsLoaded: boolean
-  checkedCommentStatus: boolean
-  CommentUpdatedStatus: boolean
-  CommentNetworkError: boolean
-  projectObjects: Record<string, ProjectObject[]>
-  runObjects: Run[]
-  rawDataConverted: boolean
-  jobAggregates: Record<string, Record<string, number>>
-  completeRunDataObjectArray: Object[]
-  annotatedJobs: Record<string, Object[]>
+  overviewTable: string;
+  projectsTable: string;
+  jobTable: string;
+  timingTable: string;
+  sampleTable: string;
+  clusterTable: string;
+  pipelineTypes: string[];
+  statistics: Serie[];
+  statisticsEmpty: boolean;
+  machineRuntimes: Record<string, IdentifiedSerie[]>;
+  machineSampleCounts: Record<string, number[]>;
+  sequencerStatisticsSeries: number[];
+  sequencerStatisticsLabels: string[];
+  totalSampleCounts: number;
+  yearlySampleCounts: number;
+  monthlySampleCounts: number;
+  weeklySampleCounts: number;
+  dailySampleCounts: number;
+  sequencedSampleNumbers: {counts: number[]; labels: string[]};
+  MainInfoStatus: boolean;
+  runsLoaded: boolean;
+  projectsLoaded: boolean;
+  jobsLoaded: boolean;
+  checkedCommentStatus: boolean;
+  CommentUpdatedStatus: boolean;
+  CommentNetworkError: boolean;
+  rawDataConverted: boolean;
+  jobAggregates: Record<string, JobCounts>;
+  runV2: Record<string, RunData>;
+  projectDates: Record<string, {startedDate: Date; finishedDate?: Date}>;
+  clusterPings: Record<string, Date>;
+  durations: Record<string, DurationStatisticsStorage>;
+  loadedProjectInfo: Record<string, {comment: string; samples: Sample[]}>;
+  timeSeries: Record<string, Record<string, number>>;
 }
 
 const state: State = {
-  runs: [],
-  projects: [],
-  jobs: [],
   overviewTable: 'status_overview',
   projectsTable: 'status_projects',
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
+  clusterTable: 'aaaac3wwfsa676qwhzjo7ayaae',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   MainInfoStatus: false,
   statistics: [],
@@ -71,11 +71,13 @@ const state: State = {
   checkedCommentStatus: false,
   CommentUpdatedStatus: false,
   CommentNetworkError: false,
-  projectObjects: {},
-  runObjects: [],
   jobAggregates: {},
-  completeRunDataObjectArray: [],
-  annotatedJobs: {}
+  runV2: {},
+  projectDates: {},
+  clusterPings: {},
+  durations: {},
+  loadedProjectInfo: {},
+  timeSeries: {}
 }
 
 export default state

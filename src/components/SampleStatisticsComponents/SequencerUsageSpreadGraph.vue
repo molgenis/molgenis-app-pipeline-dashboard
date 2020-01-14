@@ -2,21 +2,37 @@
   <b-row no-gutters class="h-100">
     <b-col class="h-100">
       <b-container class=" p-0 h-100" fluid>
-        <apexchart type="donut" :options="chartOptions" :series="sequencerStatisticsSeries"></apexchart>
+        <apexchart type="pie" :options="chartOptions" :series="sequencerStatisticsSeries"></apexchart>
       </b-container>
     </b-col>
   </b-row>
 </template>
 
-<script >
+<script lang="ts">
+import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
-export default {
+import { ChartOptions } from '../../types/graphTypes'
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    sequencerStatisticsSeries: number[];
+    sequencerStatisticsLabels: string[];
+    chartOptions: ChartOptions;
+    getSequencerStatistics(): Promise<void>;
+    updateStatistics(): void;
+  }
+}
+
+export default Vue.extend({
   name: 'sequencer-spread-graph',
   methods: {
     ...mapActions([
       'getSequencerStatistics'
     ]),
-    updateStatistics () {
+    /**
+     * calls statistics fetch, when it fails sets a timer to try again
+     */
+    updateStatistics (): void {
       this.getSequencerStatistics()
         .catch(() => {
           setTimeout(this.updateStatistics, 10000)
@@ -32,10 +48,10 @@ export default {
      * Sets the chart options & labels
      * reference: https://apexcharts.com/docs/options/
      */
-    chartOptions () {
+    chartOptions (): ChartOptions {
       return {
         chart: {
-          type: 'donut',
+          type: 'pie',
           height: '100%',
           width: '100%',
           toolbar: {
@@ -54,12 +70,8 @@ export default {
       }
     }
   },
-  mounted () {
+  mounted (): void {
     this.updateStatistics()
   }
-}
+})
 </script>
-
-<style lang="scss" scoped>
-
-</style>

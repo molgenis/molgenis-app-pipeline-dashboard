@@ -1,13 +1,25 @@
 <template>
-    <span
-    v-if="started" class="align-middle">{{hours}}:{{minutes}}:{{seconds}}</span>
-    <span v-else-if="waiting && countdown" class="align-middle">--:--:--</span>
-    <span v-else class="align-middle">Not Started</span>
+  <span>{{representedTimeString}}</span>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { formatTime, calculateHours, calculateMinutes, calculateSeconds, timeUnit } from '@/helpers/time'
-export default {
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    startTime: number;
+    finishTime: number;
+    started: boolean;
+    time: number;
+    representedTimeString: string;
+    formattedHours: string;
+    formattedMinutes: string;
+    formattedSeconds: string;
+  }
+}
+
+export default Vue.extend({
   name: 'project-timer',
   props: {
     startTime: {
@@ -24,63 +36,63 @@ export default {
       type: Boolean,
       required: false,
       default: true
-    },
-
-    countdown: {
-      type: Boolean,
-      required: false,
-      default: false
     }
+    
   },
   computed: {
+    representedTimeString (): string {
+      if (isNaN(this.time)) {
+        return '--:--:--'
+      }
+      if (this.started) {
+        return this.timeString
+      }
+      return 'Not Started'
+    },
+    timeString (): string {
+      return `${this.formattedHours}:${this.formattedMinutes}:${this.formattedSeconds}`
+    },
     /**
-         * calculates timediffrence
-         *
-         * @returns {Number} - milliseconds
-         */
-    time () {
+     * calculates timediffrence
+     *
+     * @returns {Number} - milliseconds
+     */
+    time (): number {
       return this.finishTime - this.startTime
     },
 
     /**
-         * Calculates the seconds counter
-         *
-         * @returns {String}
-         */
-    seconds () {
+     * Calculates the seconds counter
+     *
+     * @returns {String}
+     */
+    formattedSeconds (): string {
       return formatTime(calculateSeconds(this.time), timeUnit.seconds)
     },
 
     /**
-         * Calculates the minutes counter
-         * @returns {String}
-         */
-    minutes () {
+     * Calculates the minutes counter
+     * @returns {String}
+     */
+    formattedMinutes (): string {
       return formatTime(calculateMinutes(this.time), timeUnit.minutes)
     },
 
     /**
-         * Calculates hour counter
-         *
-         * @returns {String}
-         */
-    hours () {
+     * Calculates hour counter
+     *
+     * @returns {String}
+     */
+    formattedHours (): string {
       return formatTime(calculateHours(this.time), timeUnit.hours)
-    },
-
-    /**
-         * Checks if project is on hold
-         *
-         * @returns {Boolean}
-         */
-    waiting () {
-      return (!this.started)
     }
-
   }
-}
+})
 </script>
 
 <style scoped>
+span {
+  font-size: 1vw;
+}
 
 </style>

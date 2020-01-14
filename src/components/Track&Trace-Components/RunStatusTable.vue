@@ -1,22 +1,12 @@
 <template>
-  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="overflow-vertical p-0 h-100 w-100">
-    <b-table-simple small fixed hover class="minH">
-      <b-thead>
-        <b-tr>
-          <b-td class="text-center" colspan="2">
-            <div class="d-flex justify-content-around">
+  <b-container :style="{ cursor: mouseOn !== '' ? 'pointer' : 'default'}" fluid @mouseleave="mouseOn = ''" class="d-flex flex-column p-0 h-100 w-100">
+    <div class="d-flex justify-content-around mt-1 mb-1">
               <b-button
                 v-b-tooltip.hover
                 :title="`${cyclePaused ? 'Unpauses' : 'Pauses'} cycling`"
-                @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"><font-awesome-icon
-                v-if="cyclePaused"
-                icon="play-circle"
-                ></font-awesome-icon>
-                <font-awesome-icon
-                v-else
-                icon="pause-circle"
-                ></font-awesome-icon>
-                </b-button>
+                @click="emitPause" squared size="sm" :variant="cyclePaused ? 'outline-secondary': 'outline-info'"
+                class="button">
+                {{cyclePaused ? 'Interactive' : 'Auto'}}</b-button>
                 <b-button
                 squared
                 size="sm"
@@ -24,32 +14,37 @@
                 :title="`${editMode ? 'Deactivates' : 'Activates'} edit`"
                 :variant="editMode ? 'info':'outline-info'"
                 @click="toggleEditMode"
+                class="button"
                 >
-                  <font-awesome-icon icon="pen-square"></font-awesome-icon>
+                  Hide/Unhide
                 </b-button>
                 <b-button
                 v-b-tooltip.hover
                 title="Show help"
                 squared
                 size="sm"
-                variant="outline-info">
-                <font-awesome-icon icon="info-circle" @click="$bvModal.show('help-modal')"></font-awesome-icon>
+                variant="outline-info"
+                @click="$bvModal.show('help-modal')"
+                class="button">
+                Help
                 </b-button>
 
               </div>
-
-              <span><b>Run</b></span>
-
-          </b-td>
+    <b-table-simple fixed sticky-header small hover class="minH flex-grow-1">
+      <b-thead>
+        <b-tr>
+          <b-th class="text-center" colspan="2">
+              Run
+          </b-th>
           <b-th :colspan="5" class="text-center">Step</b-th>
           <b-th v-if="editMode" class="text-center">Status</b-th>
 
         </b-tr>
       </b-thead>
-      <b-tbody>
+      <b-tbody class="overflow-vertical">
           <run-status-table-row
             v-for="run in visibleRuns"
-            :variant="selectedRun.run_id === run.run ? 'primary' : 'light'"
+            :selected="selectedRunID === run.run"
             :key="run.run"
             :run="run.run"
             :mouseOn="editMode"
@@ -104,23 +99,50 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import ProgressBar from '@/components/Track&Trace-Components/ProgressBar.vue'
 import RunStatusTableRow from '@/components/Track&Trace-Components/RunStatusTableRow.vue'
 import helpModalContent from '@/components/Track&Trace-Components/HelpModalContent.vue'
-import { Run, RunStatusData } from '@/types/dataTypes'
+import { RunStatusData } from '@/types/dataTypes'
 import { getFilteredArray } from '@/helpers/utils'
+import { RunData } from '@/types/Run'
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    checkbox: boolean;
+    mouseLocation: string;
+    hiddenToggled: boolean;
+    show: number;
+    hidden: string[];
+    visibleRuns: RunStatusData[];
+    hiddenRuns: RunStatusData[];
+    hiddenRunsByLength: RunStatusData[];
+    editMode: boolean;
+    totalRuns: RunStatusData[];
+    selectedRun: RunData;
+    selectedRunID: string;
+    cyclePaused: boolean;
+    statusVariant: string;
+    mouseOn: string;
+    localHidden: string[];
+    showHiddenRuns: RunStatusData[];
+    hiddenObjects: RunStatusData[];
+    toggleHidden(): void;
+    toggleEditMode(): void;
+    emitPaused(): void;
+    emitFinish(run: string): void;
+    updateHidden(hidden: string[]): void;
+  }
+}
 
 export default Vue.extend({
   name: 'run-status-table',
   components: {
     RunStatusTableRow,
     helpModalContent
-
   },
   data () {
     return {
       checkbox: false,
-      mouse: '',
+      mouseLocation: '',
       hiddenToggled: false,
       show: 7,
       hidden: [] as string[],
@@ -139,7 +161,12 @@ export default Vue.extend({
     selectedRun: {
       type: Object,
       required: false,
-      default: () => { return {} as Run }
+      default: (): RunData => { return {} as RunData }
+    },
+    selectedRunID: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     cyclePaused: {
@@ -154,11 +181,16 @@ export default Vue.extend({
     }
   },
   methods: {
-    toggleHidden () {
+    /**
+     * toggles the hidden runs
+     */
+    toggleHidden (): void {
       this.hiddenToggled = !this.hiddenToggled
     },
-
-    toggleEditMode () {
+    /**
+     * toggles the edit mode. when true user can hide / unhide runs within the table
+     */
+    toggleEditMode (): void {
       this.editMode = !this.editMode
     },
 
@@ -205,24 +237,28 @@ export default Vue.extend({
     }
   },
   computed: {
-    mouseOn: {
-      get: function (): string {
-        return this.mouse
-      },
-      set: function (run: string): void {
-        this.mouse = run
-      }
+    /**
+     * sorts the totalRuns prop in the following order:
+     *  Error > (running in order, how many steps are complete, many steps to less steps) > Finished
+     */
+    sortedRunEntries(): RunStatusData[] {
+      const runs = this.totalRuns
+      runs.sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) }).sort((a: RunStatusData, b: RunStatusData) => { return a.step === 4 ? 1 : b.step === 4 ? -1 : a.containsError ? -1 : b.containsError ? 1 : (b.step + 1) - (a.step + 1) })
+      return runs
     },
-
-    localHidden: {
-      get: function (): string[] {
-        return this.hidden
+    mouseOn: {
+      /**
+       * returns the mouse location
+       */
+      get: function (): string {
+        return this.mouseLocation
       },
-      set: function (updatedHidden: string[]) {
-        const totalRuns = this.totalRuns as RunStatusData[]
-        this.hidden = [...updatedHidden, ...Array.from(totalRuns.filter((runStatusData) => {return runStatusData.step === 4 && !updatedHidden.includes(runStatusData.run) }), x => x.run)]
+      /**
+       * stets the mouse location
+       */
+      set: function (run: string): void {
+        this.mouseLocation = run
       }
-
     },
 
     /**
@@ -237,8 +273,11 @@ export default Vue.extend({
       return []
     },
 
+    /**
+     * contains the runs that were hidden
+     */
     hiddenObjects (): RunStatusData[] {
-      const totalRuns = this.totalRuns as RunStatusData[]
+      const totalRuns = this.sortedRunEntries as RunStatusData[]
       return totalRuns.filter((run) => { return this.hidden.includes(run.run) })
     }
   },
@@ -250,8 +289,8 @@ export default Vue.extend({
      * @emits 'cycle-next'
      * @returns {void}
      */
-    selectedRun: function () {
-      if (Array.from(this.hiddenRuns, x => x.run).includes(this.selectedRun.run_id)) {
+    selectedRun: function (): void {
+      if (Array.from(this.hiddenRuns, (x: RunStatusData) => {return x.run}).includes(this.selectedRun.run_id)) {
         this.$emit('cycle-next')
       }
     },
@@ -263,15 +302,17 @@ export default Vue.extend({
      */
     hidden: {
       immediate: true,
-      handler () {
-        const totalRuns = this.totalRuns as RunStatusData[]
-        let notHidden: RunStatusData[] = getFilteredArray(totalRuns, this.hiddenObjects)
-          this.visibleRuns = notHidden
-        this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns)
+      handler (): void {
+        const totalRuns = this.sortedRunEntries as RunStatusData[]
+        const notHidden = getFilteredArray(totalRuns, this.hiddenObjects) as RunStatusData[]
+        this.visibleRuns = notHidden
+        this.hiddenRuns = getFilteredArray(this.totalRuns, this.visibleRuns) as RunStatusData[]
       }
     },
-
-    totalRuns: function () {
+    /**
+     * when total runs changes, and hidden has a lenght of 0, reset hidden
+     */
+    totalRuns: function (): void {
       if (this.hidden.length === 0) {
         this.hidden = []
       }
@@ -290,10 +331,14 @@ export default Vue.extend({
 }
 
 .minH {
-  min-height: 100%
+  max-height: 100%;
+  font-size: 1vw;
 }
 
 .overflow-vertical {
   overflow-y: scroll
+}
+.button {
+  font-size: 1vw;
 }
 </style>

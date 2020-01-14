@@ -10,7 +10,6 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
@@ -19,6 +18,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.10.2",
     "@fortawesome/vue-fontawesome": "^0.1.7",
     "@molgenis/molgenis-api-client": "^3.1.3",
+    "@typescript-eslint/parser": "^2.12.0",
     "apexcharts": "^3.8.6",
     "axios": "^0.19.0",
     "bootstrap": "^4.3.1",
@@ -33,9 +33,11 @@
     "vuex": "^3.1.1"
   },
   "devDependencies": {
+    "@molgenis/molgenis-vue-test-utils": "^1.2.0",
     "@semantic-release/changelog": "^3.0.6",
     "@semantic-release/git": "^7.0.18",
     "@types/jest": "^23.1.4",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-e2e-nightwatch": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
@@ -50,14 +52,18 @@
     "cz-conventional-changelog": "3.0.2",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "inject-loader": "^4.0.1",
     "jest-fetch-mock": "^2.1.2",
     "node-fetch": "^2.6.0",
+    "testdouble": "^3.12.5",
     "semantic-release": "^15.14.0",
     "ts-jest": "^23.0.0",
+    "ts-loader": "^6.2.1",
     "typedoc": "^0.15.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
     "typedoc-webpack-plugin": "^1.1.4",
-    "typescript": "^3.4.3",
+    "typescript": "^3.7.3",
+    "vue-eslint-parser": "^7.0.0",
     "vue-template-compiler": "^2.6.10"
   },
   "eslintConfig": {
@@ -150,5 +156,12 @@
       "@semantic-release/git",
       "@semantic-release/github"
     ]
-  }
+  },
+  "roots": [
+    "test"
+  ],
+  "moduleDirectories": [
+    "test",
+    "node_modules"
+  ]
 }

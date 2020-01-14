@@ -3,18 +3,29 @@
     <b-col>
       Samples processed:
       <span class="badge badge-info ml-1 mr-1">Total: {{ total }}</span>
-      <span class="badge badge-info ml-1 mr-1">Year: {{ year }}</span>
-      <span class="badge badge-info ml-1 mr-1">Week: {{ week }}</span>
-      <span class="badge badge-info ml-1 mr-1">Today: {{ day }}</span>
+      <span class="badge badge-info ml-1 mr-1">Year: {{ yearly }}</span>
+      <span class="badge badge-info ml-1 mr-1">Week: {{ weekly }}</span>
+      <span class="badge badge-info ml-1 mr-1">Today: {{ daily }}</span>
     </b-col>
   </b-row>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { mapActions, mapState } from 'vuex'
-import { createDateRange } from '@/helpers/dates'
 
-export default {
+declare module 'vue/types/vue' {
+  interface Vue {
+    total: number;
+    yearly: number;
+    weekly: number;
+    daily: number;
+    monthly: number;
+    getSampleNumbers(): void;
+  }
+}
+
+export default Vue.extend({
   name: 'sample-count',
   computed: {
     ...mapActions([
@@ -22,16 +33,16 @@ export default {
     ]),
     ...mapState({
       total: 'totalSampleCount',
-      year: 'yearlySampleCount',
-      week: 'weeklySampleCount',
-      day: 'dailySampleCount',
-      month: 'monthlySampleCount'
+      yearly: 'yearlySampleCount',
+      weekly: 'weeklySampleCount',
+      daily: 'dailySampleCount',
+      monthly: 'monthlySampleCount'
     })
   },
-  mounted () {
+  mounted (): void {
     this.getSampleNumbers()
     setInterval(this.getSampleNumbers, 100000)
   }
 
-}
+})
 </script>

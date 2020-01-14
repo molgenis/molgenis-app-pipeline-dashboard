@@ -1,5 +1,5 @@
 <template>
-  <b-container class="h-100 p-2" fluid @mouseover="hover = true" @mouseleave="hover = false">
+  <b-container class="h-100" fluid @mouseover="hover = true" @mouseleave="hover = false">
     <b-row no-gutters class="h-100">
       <b-col class="h-100">
         <transition-group name="fade">
@@ -13,7 +13,7 @@
             </div>
           </template>
         </transition-group>
-        <b-container class="border border-primary p-0 h-100" fluid >
+        <b-container class="h-100" fluid >
           <apexchart type="line" :options="chartOptions" :series="computedSeries"></apexchart>
         </b-container>
       </b-col>
@@ -23,20 +23,21 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState, mapActions } from 'vuex'
-import { GraphAnnotation, Annotation, xAnnotation, yAnnotation, AnnotationLabel, LabelStyle, ChartOptions, Serie, Outlier, IdentifiedSerie } from '@/types/graphTypes'
-import { RunTime, RunTimeStatistic, AverageData, pipelineType } from '@/types/dataTypes'
-import { getSD, calculateMean } from '@/helpers/statistics'
-import { cropTitle } from '@/helpers/utils'
-import { State } from '../store/state'
+import { mapActions, mapState } from 'vuex'
+import { ChartOptions, Serie, IdentifiedSerie } from '@/types/graphTypes'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    pipelineTypes: string[]
-    statistics: Serie[]
-    machineRuntimes: Record<string, IdentifiedSerie[]>
-    getTimingData(range: number): void
-
+    selectedRange: number;
+    selectedStatistic: string;
+    selectedSubStatistic: string;
+    rangeOptions: {value: number; text: string}[];
+    statisticsOptions: {value: string; text: string}[];
+    hover: boolean;
+    pipelineTypes: string[];
+    machineRuntimes: Record<string, IdentifiedSerie[]>;
+    prepkitStatistics: Serie[];
+    getTimingData(range: number): void;
   }
 }
 
@@ -60,8 +61,16 @@ export default Vue.extend({
     }
   },
   computed: {
-    subOptions (): Array<{value: string, text: string}> {
-      let options: Array<{value: string, text: string}> = []
+    ...mapState({
+      prepkitStatistics: 'statistics',
+      machineRuntimes: 'machineRuntimes',
+      pipelineTypes: 'pipelineTypes'
+    }),
+    /**
+     * gets the configured sub options
+     */
+    subOptions (): Array<{value: string; text: string}> {
+      const options: Array<{value: string; text: string}> = []
       this.pipelineTypes.forEach((pipelineType: string) => {
         options.push({ value: pipelineType, text: pipelineType })
       })
@@ -84,6 +93,7 @@ export default Vue.extend({
 
       return {
         chart: {
+          width: '100%',
           height: '100%',
           id: 'run-time-graph',
           toolbar: {
@@ -92,6 +102,10 @@ export default Vue.extend({
               download: false
             }
           }
+        },
+        legend: {
+          show: true,
+          showForSingleSeries: true
         },
         noData: {
           text: 'Loading...',
@@ -129,23 +143,20 @@ export default Vue.extend({
         tooltip: {
           y: {
 
-            formatter: function (value: number, { series, seriesIndex, dataPointIndex, w }: {series: Serie, seriesIndex: number, dataPointIndex: number, w: object}, machineRuntimes: Record<string, IdentifiedSerie[]> = runTimes) {
+            formatter: function (value: number, { seriesIndex, dataPointIndex }: { seriesIndex: number; dataPointIndex: number}, machineRuntimes: Record<string, IdentifiedSerie[]> = runTimes): string {
               return `${value} (hr), ${machineRuntimes[pipelineType][seriesIndex].projectIDs[dataPointIndex]}`
             }
           }
         },
-        annotations: {} as GraphAnnotation
       }
     },
-    ...mapState([
-      'statistics',
-      'pipelineTypes',
-      'machineRuntimes'
-    ]),
+    /**
+     * Returns the currently selected series
+     */
     computedSeries (): Serie[] | null{
       switch (this.selectedStatistic) {
         case 'prepKit':
-          return this.statistics
+          return this.prepkitStatistics
         case 'cluster':
           return this.machineRuntimes[this.selectedSubStatistic]
         default:
@@ -158,11 +169,11 @@ export default Vue.extend({
       'getTimingData'
     ])
   },
-  mounted () {
+  mounted (): void {
     this.getTimingData(this.selectedRange)
   },
   watch: {
-    selectedRange () {
+    selectedRange (): void {
       this.getTimingData(this.selectedRange)
     }
   }
@@ -192,5 +203,9 @@ export default Vue.extend({
 
 .leftPlus {
   left: 80px;
+}
+
+.graphOptions b {
+  font-size: 0.8vw;
 }
 </style>
