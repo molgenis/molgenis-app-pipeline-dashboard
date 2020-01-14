@@ -1,4 +1,9 @@
 /**
+ * See https://apexcharts.com/docs/optionsfor more detailes about graph options
+ * 
+ */
+
+/**
  * Annotation object that defines where x and y annotations are located
  */
 export interface GraphAnnotation {
@@ -8,6 +13,7 @@ export interface GraphAnnotation {
 
 /**
  * Stores annotation options
+ * https://apexcharts.com/docs/options/annotations/
  */
 export interface Annotation {
   borderColor: string;
@@ -16,6 +22,8 @@ export interface Annotation {
 
 /**
  * Stores xAnnotation options
+ * x and x2 define the cordinates for a region to be drawn in the graph
+ * https://apexcharts.com/docs/options/annotations/
  */
 export interface XaxisAnnotation extends Annotation {
   x: number;
@@ -26,6 +34,7 @@ export interface XaxisAnnotation extends Annotation {
 
 /**
  * Stores yAnnotation options
+ * https://apexcharts.com/docs/options/annotations/
  */
 export interface YaxisAnnotation extends Annotation {
   y: number;
