@@ -20,7 +20,7 @@ declare module 'vue/types/vue' {
     step: number;
     totalSteps: number;
     noWarning: boolean;
-    varaint: string;
+    variant: string;
     animated: boolean;
     checkProgress(): void;
   }
