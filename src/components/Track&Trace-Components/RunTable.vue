@@ -177,7 +177,7 @@ export default Vue.extend({
           this.selectedProject = project
           this.$bvModal.show('comment-modal')
         }).catch(() => {
-          this.$bvToast.toast('Loading of extra project infromation failed', {
+          this.$bvToast.toast('Loading of extra project information failed', {
             title: 'Request failed',
             variant: 'danger',
             toaster: 'b-toaster-bottom-right'
