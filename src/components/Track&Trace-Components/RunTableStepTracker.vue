@@ -4,13 +4,13 @@
     <div class="step" id="demultiplexing">
         <font-awesome-icon class="step-icon" :icon="demultiplexingIcon" :class="demultiplexingColor" size="2x" :spin="demultiplexingStatus === 'running'"></font-awesome-icon>
     </div>
-    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepOneToTwoColor"></div>
+    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepOneToTwoColor"></div>
     <div class="step" id="raw"><font-awesome-icon class="step-icon" :icon="rawDataIcon" :class="rawDataColor" size="2x" :spin="rawDataStatus === 'running'"></font-awesome-icon></div>
-    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepTwoToThreeColor"></div>
+    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepTwoToThreeColor"></div>
     <div class="step" id="running"><font-awesome-icon class="step-icon" :icon="pipelinesIcon" :class="pipelinesColor" size="2x" :spin="pipelinesStatus === 'running'"></font-awesome-icon></div>
-    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepThreeToFourColor"></div>
+    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepThreeToFourColor"></div>
     <div class="step" id="results"><font-awesome-icon class="step-icon" :icon="resultsDataIcon" :class="resultsDataColor" size="2x" :spin="resultsDataStatus === 'running'"></font-awesome-icon></div>
-    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 devider" :class="stepFourToFiveColor"></div>
+    <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepFourToFiveColor"></div>
     <div class="step" id="finished"><font-awesome-icon class="step-icon" :icon="finishedIcon" :class="finishedColor" size="2x"></font-awesome-icon></div>
   </div>
   <div class="d-flex pt-2  justify-content-center w-100">
@@ -219,7 +219,7 @@ export default Vue.extend({
       return this.getLineColor(this.pipelinesStatus)
     },
     /**
-     * returns the current pipline Running status
+     * returns the status of the currently running pipelines
      * 
      * @returns {stepStatus}
      */
@@ -381,7 +381,7 @@ export default Vue.extend({
   left: -10;
 }
 
-.devider {
+.divider {
   border-width: 0.2vw !important;
   background-color: $gray-300
 }
