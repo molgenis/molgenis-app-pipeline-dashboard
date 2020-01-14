@@ -12,6 +12,14 @@ import { max } from '@/helpers/statistics'
 
 import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/types/Run'
 
+export function loadConfig(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    api.get('/api/v2/dashboard_config').then((result: {items: object}) => {
+      
+    })
+  })
+}
+
 /**
  *
  * Calls all actions that recieves and converts Track and trace data
@@ -90,14 +98,20 @@ export async function getRunData ({ commit, state: { overviewTable } }: {commit:
  */
 export async function getProjectData ({ commit, state: { projectsTable } }: {commit: (mutation: string) => void; state: State}, params: {runIDs: string[]}): Promise<ProjectDataObject[]> {
   return new Promise((resolve, reject) => {
-    api.get(`/api/v2/${projectsTable}?num=10000&q=run_id=in=(${params.runIDs.join(',')})`)
-      .then(function (response: {items: ProjectDataObject[]}) {
-        commit('projectsLoaded')
-        resolve(response.items)
-      })
-      .catch(() => {
-        reject(new Error(`Failed to retrieve projects from ${projectsTable}`))
-      })
+    if (params.runIDs.length <= 0) {
+      commit('projectsLoaded')
+      resolve([])
+    } 
+    else {
+      api.get(`/api/v2/${projectsTable}?num=10000&q=run_id=in=(${params.runIDs.join(',')})`)
+        .then(function (response: {items: ProjectDataObject[]}) {
+          commit('projectsLoaded')
+          resolve(response.items)
+        })
+        .catch(() => {
+          reject(new Error(`Failed to retrieve projects from ${projectsTable}`))
+        })
+      }
   })
 }
 
@@ -686,7 +700,7 @@ export async function getClusterPings ({ state: { clusterTable }, commit }: {sta
  * @param __namedParameters.state.timingTable - timing table api location
  * @param __namedParameters.commit - mutations
  * 
- * @category Statistics
+ * @category Runtime
  * @returns {Promise<void>} 
  */
 export async function getDurationStatistics ({ state: { timingTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
