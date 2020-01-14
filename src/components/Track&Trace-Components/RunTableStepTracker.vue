@@ -7,7 +7,7 @@
     <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepOneToTwoColor"></div>
     <div class="step" id="raw"><font-awesome-icon class="step-icon" :icon="rawDataIcon" :class="rawDataColor" size="2x" :spin="rawDataStatus === 'running'"></font-awesome-icon></div>
     <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepTwoToThreeColor"></div>
-    <div class="step" id="running"><font-awesome-icon class="step-icon" :icon="pipelinesIcon" :class="pipelinesColor" size="2x" :spin="pipelinesStatus === 'running'"></font-awesome-icon></div>
+    <div class="step" id="running"><font-awesome-icon class="step-icon" :icon="projectsIcon" :class="projectsColor" size="2x" :spin="statusOfProjects === 'running'"></font-awesome-icon></div>
     <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepThreeToFourColor"></div>
     <div class="step" id="results"><font-awesome-icon class="step-icon" :icon="resultsDataIcon" :class="resultsDataColor" size="2x" :spin="resultsDataStatus === 'running'"></font-awesome-icon></div>
     <div class="status-line border rounded-pill flex-grow-1 align-self-center mr-2 ml-2 divider" :class="stepFourToFiveColor"></div>
@@ -216,29 +216,29 @@ export default Vue.extend({
      * determines the color of the line between step tow and step three
      */
     stepTwoToThreeColor (): string[] {
-      return this.getLineColor(this.pipelinesStatus)
+      return this.getLineColor(this.statusOfProjects)
     },
     /**
-     * returns the status of the currently running pipelines
+     * returns the status of the projects active in the run
      * 
      * @returns {stepStatus}
      */
-    pipelinesStatus (): stepStatus {
+    statusOfProjects (): stepStatus {
       return this.checkStepStatus(2)
     },
     /**
      * returns the correct pipeline running icon
      * running, finished, waiting
      */
-    pipelinesIcon (): string[2] {
-      return this.returnIcon(this.pipelinesStatus)
+    projectsIcon (): string[2] {
+      return this.returnIcon(this.statusOfProjects)
     },
     /**
      * returns the correct pipeline running color
      * running: primary, Error: danger, Warning: warning, waiting: secondary, Finished: success
      */
-    pipelinesColor (): string {
-      return this.returnColor(this.pipelinesStatus)
+    projectsColor (): string {
+      return this.returnColor(this.statusOfProjects)
     },
 
     stepThreeToFourColor (): string[] {
