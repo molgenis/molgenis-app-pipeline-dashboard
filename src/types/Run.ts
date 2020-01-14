@@ -20,7 +20,7 @@ export function constructSteps (demultiplexing: statusCode, raw: statusCode, run
   const stepTwo = new DefaultStep('Copying Raw files to PRM', raw)
   const stepThree = new CounterStep('running pipelines', running.finished + running.started + running.waiting)
   const stepFour = new CounterStep('copying result files', copying.waiting + copying.started + copying.finished)
-  const stepFive = new DualStateStep('Finished worlflow', finished.total)
+  const stepFive = new DualStateStep('Finished workflow', finished.total)
 
   if (finished.total === finished.finished) {
     stepOne.setFinished()
