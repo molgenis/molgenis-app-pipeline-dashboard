@@ -12,14 +12,6 @@ import { max } from '@/helpers/statistics'
 
 import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/types/Run'
 
-export function loadConfig(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    api.get('/api/v2/dashboard_config').then((result: {items: object}) => {
-      
-    })
-  })
-}
-
 /**
  *
  * Calls all actions that recieves and converts Track and trace data
@@ -121,10 +113,11 @@ export async function getProjectData ({ commit, state: { projectsTable } }: {com
  * @param length - current array lenght
  */
 export function findMax (seriesArray: IdentifiedSerie[], length: number): number {
-  if (length === 1) {
-    return seriesArray[0].getLenght()
-  }
-  return max(findMax(seriesArray, length - 1), seriesArray[length - 1].getLenght())
+  const maximum = seriesArray.reduce((max: number, serie: IdentifiedSerie) => {
+    const length = serie.getLength()
+    return max < length ? length : max
+  }, 0)
+  return maximum
 }
 
 /**
@@ -134,8 +127,8 @@ export function findMax (seriesArray: IdentifiedSerie[], length: number): number
 export function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedSerie[] {
   const maximum = findMax(groupedData, groupedData.length)
   const newSeries = groupedData.map((series) => {
-    const nullFilledArray = new Array(maximum - series.getLenght()).fill({ projectID: null, number: null })
-    return series.getLenght() < maximum ? new IdentifiedSerie(name, [...nullFilledArray, ...series.combinedData]) : series
+    const nullFilledArray = new Array(maximum - series.getLength()).fill({ projectID: null, number: null })
+    return series.getLength() < maximum ? new IdentifiedSerie(name, [...nullFilledArray, ...series.combinedData]) : series
   })
   return newSeries
 }

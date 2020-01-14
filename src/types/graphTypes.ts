@@ -336,7 +336,7 @@ export class IdentifiedSerie extends Serie {
   /**
    * gets number of entries of serie
    */
-  getLenght (): number {
+  getLength (): number {
     return this.data.length
   }
 }
