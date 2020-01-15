@@ -312,11 +312,16 @@ export async function getSampleNumbers ({ dispatch, commit, state: { sampleTable
       commit('setTotalSamples', response.total)
     })
   const now = new Date()
+  const dateLastYear = new Date(new Date().setFullYear(now.getFullYear() - 1))
+  const dateLastMonth = new Date(new Date().setMonth(now.getMonth() - 1))
+  const dateLastWeek = new Date(new Date().setDate(now.getDate() - 7))
+  const date24Hours = new Date(new Date().setHours(now.getHours() - 24))
+  
 
-  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (356 * dayMs)), now)).then(function (response: number) { commit('setYearlySampleCounts', response) }) // yearly
-  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (31 * dayMs)), now)).then(function (response: number) { commit('setMonthlySampleCounts', response) }) // monthly
-  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (7 * dayMs)), now)).then(function (response: number) { commit('setWeeklySampleCounts', response) }) // weekly
-  dispatch('getSamplesInDateRange', createDateRange(new Date(now.getTime() - (dayMs)), now)).then(function (response: number) { commit('setDailySampleCounts', response) }) // daily
+  dispatch('getSamplesInDateRange', createDateRange(dateLastYear, now)).then(function (response: number) { commit('setYearlySampleCounts', response) }) // yearly
+  dispatch('getSamplesInDateRange', createDateRange(dateLastMonth, now)).then(function (response: number) { commit('setMonthlySampleCounts', response) }) // monthly
+  dispatch('getSamplesInDateRange', createDateRange(dateLastWeek, now)).then(function (response: number) { commit('setWeeklySampleCounts', response) }) // weekly
+  dispatch('getSamplesInDateRange', createDateRange(date24Hours, now)).then(function (response: number) { commit('setDailySampleCounts', response) }) // daily
 }
 
 /**
