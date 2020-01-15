@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.0...v1.1.1) (2020-01-15)
+
+
+### Bug Fixes
+
+* **fix date calculations:** date calculations now done using JS Date, instead of milliseconds ([c1d3f89](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/c1d3f89ed45f8c50d8033c908c6a83ac84640dd3))
+
 # [1.1.0](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.0.0...v1.1.0) (2020-01-14)
 
 
