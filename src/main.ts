@@ -1,3 +1,4 @@
+import '@babel/polyfill'
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import VueApexCharts from 'vue-apexcharts'

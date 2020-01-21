@@ -17,6 +17,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.8.3",
     "@fortawesome/fontawesome-svg-core": "^1.2.22",
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.10.2",
@@ -53,14 +54,15 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
+    "chai": "^4.2.0",
     "cz-conventional-changelog": "3.0.2",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "inject-loader": "^4.0.1",
     "jest-fetch-mock": "^2.1.2",
     "node-fetch": "^2.6.0",
-    "testdouble": "^3.12.5",
     "semantic-release": "^15.14.0",
+    "testdouble": "^3.12.5",
     "ts-jest": "^23.0.0",
     "ts-loader": "^6.2.1",
     "typedoc": "^0.15.2",
@@ -116,7 +118,8 @@
     "transform": {
       "^.+\\.vue$": "vue-jest",
       ".+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
-      "^.+\\.tsx?$": "ts-jest"
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.esm?.js$": "babel-jest"
     },
     "transformIgnorePatterns": [
       "/node_modules/"
@@ -139,7 +142,8 @@
       "ts-jest": {
         "babelConfig": true
       }
-    }
+    },
+    "setupFiles": ["<rootDir>/tests/setup.ts"]
   },
   "config": {
     "commitizen": {
