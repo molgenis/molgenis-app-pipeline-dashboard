@@ -1,6 +1,7 @@
 import mutations from '../../../src/store/mutations'
 import { State } from '../../../src/store/state'
 import { Serie, IdentifiedSerie } from '../../../src/types/graphTypes'
+import { JobCounter, RunData } from '../../../src/types/Run';
 
 let state: State
 
@@ -129,4 +130,56 @@ describe('Setters wihtout logic', () => {
 
     expect(state.sequencedSampleNumbers).toEqual(data)
   })
+
+  test('setJobAggregates', () => {
+    const jobs = {
+      "project": new JobCounter({waiting: 0, started: 2, finished: 2, error: 0})
+    }
+    mutations.setJobAggregates(state, jobs)
+    expect(state.jobsLoaded).toBe(true)
+    expect(state.jobAggregates).toBe(jobs)
+  })
+
+  test('setRunsV2', () => {
+    const runs = {
+      "runID": new RunData([], [])
+    }
+    mutations.setRunV2s(state, runs)
+    expect(state.rawDataConverted).toBe(true)
+    expect(state.runV2).toBe(runs)
+  })
+
+  test('updateProjectDates', () => {
+    mutations.updateProjectDates(state, {projectID: 'testProject', startedDate: new Date()})
+
+    expect(state.projectDates["testProject"]).toBeTruthy()
+  })
+
+  test('runsLoaded', () => {
+    mutations.runsLoaded(state)
+    expect(state.runsLoaded).toBe(true)
+  })
+
+  test('projectsLoaded', () => {
+    mutations.projectsLoaded(state)
+    expect(state.projectsLoaded).toBe(true)
+  })
+
+  test('jobsLoaded', () => {
+    mutations.jobsLoaded(state)
+    expect(state.jobsLoaded).toBe(true)
+  })
+
+  test('update clusters', () => {
+    const clusters = [
+      {
+        cluster_name: 'test',
+        latest_ping_timestamp: 'Tue Jan 21 2020 23:16:35 GMT+0100 (Central European Standard Time)'
+      }
+    ]
+    mutations.updateClusterPings(state, clusters)
+
+    expect(Object.keys(state.clusterPings)).toContain('test')
+  })
+
 })
