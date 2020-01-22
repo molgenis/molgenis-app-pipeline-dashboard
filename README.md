@@ -8,7 +8,7 @@ Dashboard for following the status of running pipelines. Each run has to go thro
 proxy MOLGENIS pipeline dashboard or @molgenis-experimental in MOLGENIS instance from unpkg
 https://unpkg.com/@molgenis-experimental/molgenis-app-pipeline-dashboard/dist/index.html
 
-Menumanager -> add menu item -> type select redirect
+Menu manager -> add menu item -> plugin select redirect
 
 `query parameter: url=my.domain.nl/@molgenis-experimental/molgenis-app-pipeline-dashboard/dist/index.html`
 
@@ -46,6 +46,19 @@ proxy: process.env.NODE_ENV === 'production' ? undefined : {
         changeOrigin: true
       }
     }
+```
+
+configure table locations in src/store/state.ts:
+```javascript
+state = {
+  overviewTable: 'status_overview', //status_overview
+  projectsTable: 'status_projects', //status_projects
+  jobTable: 'status_jobs', //status_jobs
+  timingTable: 'status_timing', //status_timing
+  sampleTable: 'status_samples', //status_samples
+  clusterTable: 'status_clusters', // status_clusters
+  ...
+}
 ```
 ### Compiles and hot-reloads for development
 ```
