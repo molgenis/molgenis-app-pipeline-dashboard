@@ -3,7 +3,7 @@
     <font-awesome-icon class="complete icons" v-if="status === 'finished'" icon="check-circle" ></font-awesome-icon>
     <font-awesome-icon class="error icons" v-else-if="status === 'error'" icon="exclamation-circle"></font-awesome-icon>
     <font-awesome-icon class="warning icons" v-else-if="warning" icon="exclamation-triangle" ></font-awesome-icon>
-    <font-awesome-icon class="running icons" v-else-if="status === 'started'" icon="sync-alt" ></font-awesome-icon>
+    <font-awesome-icon class="running icons" v-else-if="status === 'started'" icon="sync-alt" spin></font-awesome-icon>
     <font-awesome-icon class="waiting icons" v-else-if="status === 'waiting'" icon="hourglass-start" ></font-awesome-icon>
   </div>
 </template>
