@@ -2,37 +2,69 @@
 
 # molgenis-app-pipeline-dashboard
 
-Dashboard for following the status of running pipelines. Each run has to go through multiple steps to complete which can take a lot of time. When errors occeur you want to know as quickly as possible where the problem lies.
+Dashboard for following the status of running pipelines. Each run has to go through multiple steps to complete which can take a lot of time. When errors occur you want to know as quickly as possible where the problem lies.
+
+# Setup in MOlGENIS for production:
+proxy MOLGENIS pipeline dashboard or @molgenis-experimental in MOLGENIS instance from unpkg
+https://unpkg.com/@molgenis-experimental/molgenis-app-pipeline-dashboard/dist/index.html
+
+Menu manager -> add menu item -> plugin select redirect
+
+`query parameter: url=my.domain.nl/@molgenis-experimental/molgenis-app-pipeline-dashboard/dist/index.html`
 
 ## Prerequisites
-For testing right now you'll need to setup a [MOLGENIS](https://github.com/molgenis/docker) docker running at localhost:8081 and setup a admin token with the name 'admin-test-token'
+[MOLGENIS](https://github.com/molgenis/docker) docker or a MOLGENIS server is required to run the application
 
 ```
 git clone https://github.com/molgenis/docker.git
 
-cd docker/molgenis/8.1
+cd docker/molgenis/8.2
 
 docker-compose up
 ```
 
-### Setup test token in molgenis
-
-Navgate to localhost:8081 and login as admin with password admin.
-
-Select Navigator > System > Security > Token
-
-then add row with '+' and create a token with user admin, token name 'admin-test-token' and save
-
-Great now you can start testing the dashboard/application
+## data
+Demo data available [Data](docs/demo_data.xlsx) and upload to MOLGENIS docker or other MOLGENIS server using data import
 
 ## Project setup
 ```
 yarn install
 ```
 
+## config for development
+Change the proxy settings in vue.config.js to correspond to your molgenis instance:
+
+```javascript
+//vue.config.js
+proxy: process.env.NODE_ENV === 'production' ? undefined : {
+      '^/api': {
+        target: 'localhost:8081', //molgenis docker default change to actual
+        changeOrigin: true
+      },
+      '^/login': {
+        target: 'localhost:8081', //molgenis docker default change to actual
+        changeOrigin: true
+      }
+    }
+```
+
+configure table locations in src/store/state.ts:
+```javascript
+state = {
+  overviewTable: 'status_overview', //status_overview
+  projectsTable: 'status_projects', //status_projects
+  jobTable: 'status_jobs', //status_jobs
+  timingTable: 'status_timing', //status_timing
+  sampleTable: 'status_samples', //status_samples
+  clusterTable: 'status_clusters', // status_clusters
+  ...
+}
+```
 ### Compiles and hot-reloads for development
 ```
 yarn run serve
+
+then navigate to localhost:8080
 ```
 
 ### Running unit tests
