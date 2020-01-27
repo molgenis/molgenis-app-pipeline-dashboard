@@ -1,7 +1,7 @@
 <template>
     <b-row id="track-and-trace" no-gutters class="h-100">
       <b-col  class="p-2 h-100" lg="4" cols="12" >
-        <b-container fluid class="border border-primary p-0 h-100">
+        <b-container fluid class="border border-primary p-0 w-100 h-100">
           <run-status-table
           @cycle-next="cycleRun"
           :total-runs="runStepStatusArray"
@@ -15,7 +15,7 @@
         </b-container>
       </b-col>
     <b-col class="d-flex flex-column p-2 h-100" style="width: 100%;" cols="12" lg="8" >
-      <b-container id="run-table-container" class="flex-grow-1 border border-primary p-0 w-100 mb-1 h-100" fluid>
+      <b-container id="run-table-container" class="flex-grow-1 border border-primary p-0 w-100 h-100" fluid>
         <run-table
         :runID="selectedRunID"
         :showRun="showRun"
