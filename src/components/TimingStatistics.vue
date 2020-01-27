@@ -12,11 +12,8 @@
         </b-row>
         <keep-alive>
           <b-row class="h-85" no-gutters @mouseenter="stepDisplay = true" @mouseleave="stepDisplay = false">
-            <b-col v-show="selected === 'runtimes'" class="h-100 pb-1 chart border-top">
-              <apexchart type="bar" :options="chartOptionsBar" :series="seriesBar"></apexchart>
-            </b-col>
-            <b-col v-show="selected === 'timing'" class="h-100 pb-1 chart">
-              <apexchart type="scatter" ref="areaTimingChart" :options="chartOptionsTiming" :series="seriesRuntimes"></apexchart>
+            <b-col v-show="selected !== 'overall'" class="h-100 pb-1 chart border-top">
+              <apexchart :options="selected === 'runtimes' ? chartOptionsBar : chartOptionsTiming" :series="selected === 'runtimes' ? seriesBar : seriesRuntimes"></apexchart>
             </b-col>
             <b-col v-show="selected === 'overall'" class=" h-100 pb-1 chart">
               <run-time-statistics></run-time-statistics>
@@ -45,6 +42,7 @@ declare module 'vue/types/vue' {
     selectedTypeIndex: number;
     types: string[];
     paused: boolean;
+    chartColors: string[];
     getDurationStatistics(): Promise<void>;
     getData(): Promise<void>;
     cycleTimingChart(): void;
@@ -59,10 +57,11 @@ export default Vue.extend({
   },
   data () {
     return {
-      selected: 'timing',
+      selected: 'runtimes',
       selectedTypeIndex: 0,
       chartArray: ['runtimes', 'timing', 'overall'],
-      stepDisplay: false
+      stepDisplay: false,
+      chartColors: ['#2E93fA', '#66DA26', '#546E7A', '#4A0B69', '#FF9800', '#CA1B74'],
     }
   },
   props: {
@@ -139,12 +138,13 @@ export default Vue.extend({
     /**
      * returns the xaxis for the bar chart
      */
-    xaxis (): {type: string; categories: string[]; title: {text: string}} {
+    xaxis (): {type: string; categories: string[]; title: {align: string; text: string}} {
       return {
         type: 'string',
         categories: this.axis.xcategories,
         title: {
-          text: 'PrepKit'
+          align: 'left',
+          text: ''
         }
       }
     },
@@ -162,7 +162,13 @@ export default Vue.extend({
           },
           zoom: {
             enabled: false
-          }
+          },
+          type: 'bar'
+        },
+        colors: this.chartColors,
+        stroke: {
+          curve: '',
+          dashArray: []
         },
         title: {
           text: 'Median runtime per workflow step',
@@ -196,11 +202,16 @@ export default Vue.extend({
         chart: {
           width: '100%',
           height: '100%',
+          stacked: false,
           toolbar: {
             show: false
-          }
+          },
+          zoom: {
+            enabled: false
+          },
+          type: 'scatter'
         },
-        colors: ['#2E93fA', '#66DA26', '#546E7A', '#4A0B69', '#FF9800', '#CA1B74'],
+        colors: this.chartColors,
         stroke: {
           curve: 'straight',
           dashArray: [2, 4, 6, 8, 10, 12, 14]
@@ -216,6 +227,10 @@ export default Vue.extend({
         },
         xaxis: {
           type: 'datetime',
+          title: {
+            align: 'left',
+            text: ''
+          },
           labels: {
             style: {
               fontSize: '0.8vw'

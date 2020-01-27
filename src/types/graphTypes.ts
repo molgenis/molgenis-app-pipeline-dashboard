@@ -295,6 +295,7 @@ export interface ChartOptions {
   };
   xaxis?: {
     title?: {
+      align?: string;
       text?: string;
     };
     type?: string;
