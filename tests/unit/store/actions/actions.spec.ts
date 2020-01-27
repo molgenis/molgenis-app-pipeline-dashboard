@@ -219,8 +219,8 @@ describe('store', () => {
       const result = getTrackerData({dispatch})
       result.then(() => {
         expect(dispatch).toBeCalledTimes(5)
-        done()
       })
+      .finally(done)
       
     })
     it('Should throw an error after no response was given for the runs', done => {
@@ -230,7 +230,8 @@ describe('store', () => {
         expect(error).toEqual(new Error('Could not retrieve Track&Trace data from MOLGENIS!'))
         expect(dispatch).toBeCalledTimes(1)
       })
-      done()
+      .finally(done)
+      
     })
     it('Should throw an error after no response was given for the projects, jobAggragetes or clusterPings', done => {
       const dispatch = jest.fn((action: string, params?: object) => {return action != 'getRunData' ? Promise.reject('404') : Promise.resolve([])})
@@ -239,7 +240,8 @@ describe('store', () => {
         expect(error).toEqual(new Error('Could not retrieve Track&Trace data from MOLGENIS!'))
         expect(dispatch).toBeCalledWith('getRunData')
       })
-      done()
+      .finally(done)
+      
     })
     
     })
@@ -250,8 +252,9 @@ describe('store', () => {
         const response = getRunData({commit, state: testState})
         response.then(() => {
           expect(commit).toHaveBeenCalledWith('runsLoaded')
-          done()
+          
         })
+        .finally(done)
       })
 
       it('Should throw an error after no response was given for the runs', done => {
@@ -262,7 +265,7 @@ describe('store', () => {
           expect(error).toEqual(new Error('Could not retrieve Track&Trace data from MOLGENIS!'))
           expect(dispatch).toBeCalledTimes(1)
         })
-        done()
+        .finally(done)
       })
     })
     
@@ -274,7 +277,7 @@ describe('store', () => {
           expect(commit).toBeCalledWith('projectsLoaded')
           expect(response).toEqual([])
         })
-        done()
+        .finally(done)
       })
       it('retrieves correct projects', done => {
         const commit = jest.fn()
@@ -283,7 +286,7 @@ describe('store', () => {
         result.then(() => {
           expect(spy).toBeCalledWith('/api/v2/status_projects?num=10000&q=run_id=in=(test-run,test-run2)')
         })
-        done()
+        .finally(done)
       })
     })
     describe('identifiedSerieData functions/actions', () => {
@@ -311,8 +314,8 @@ describe('store', () => {
           expect(responseNumber).toBe(5)
           const query = `sequencingStartDate=rng=(21-09-2019, 22-09-2019)`
           expect(spy).toHaveBeenCalledWith(`/api/v2/${testState.sampleTable}?q=${query}&num=1`)
-          done()
         })
+        .finally(done)
   
       })
     })
@@ -330,16 +333,15 @@ describe('store', () => {
         
         handleCommentSubmit({dispatch}, submit).then(() => {
           expect(dispatch).toBeCalledWith('checkForCommentUpdates', {project: submit.project, oldComment: submit.oldComment, newComment: submit.newComment})
-          done()
         })
+        .finally(done)
       })
       it('does not continue when not validated', done => {
         submit.validation = false
         handleCommentSubmit({dispatch}, submit).catch((error: Error) => {
           expect(error).toEqual(new Error('Comment is invalid'))
-        }).finally(() => {
-          done()
         })
+        .finally(done)
       })
     })
 
@@ -358,8 +360,8 @@ describe('store', () => {
         state.jobAggregates["testProject"] = Jobs
         convertProjects({state: state}, [rawProject]).then((result) => {
           expect(result).toEqual({"test-run": [convertedProject]})
-          done()
         })
+        .finally(done)
       })
     })
 
@@ -368,29 +370,29 @@ describe('store', () => {
         state.jobTable = 'getDatesTest1'
         getDate({state}, {projectID: 'test-project', type: dateSearch.started}).then((result) => {
           expect(result).toBeInstanceOf(Date)
-          done()
         })
+        .finally(done)
       })
       it('returns undefined date when nothing returns', done => {
         state.jobTable = 'getDatesTest2'
         getDate({state}, {projectID: 'test-project', type: dateSearch.started}).then((result) => {
           expect(result).toBe(undefined)
-          done()
         })
+        .finally(done)
       })
       it('returns undefined date when job has not finished yet', done => {
         state.jobTable = 'getDatesTest3'
         getDate({state}, {projectID: 'test-project', type: dateSearch.finished}).then((result) => {
           expect(result).toBe(undefined)
-          done()
         })
+        .finally(done)
       })
         it('rejects on bad request', done => {
           state.jobTable = 'getDatesTest4'
           getDate({state}, {projectID: 'test-project', type: dateSearch.finished}).catch((error: Error) => {
             expect(error).toEqual(new Error('Bad request'))
-            done()
           })
+          .finally(done)
       })
     })
     describe('getProjectDates', () => {
@@ -413,7 +415,8 @@ describe('store', () => {
           expect(dispatch).toHaveBeenCalledWith('getDate', {projectID: 'project1', type: dateSearch.started})
           expect(dispatch).not.toHaveBeenCalledWith('getDate', {projectID: 'project1', type: dateSearch.finished})
           expect(commit).toHaveBeenCalledWith('updateProjectDates', { projectID: 'project1', startedDate: fakeDate, finishedDate: undefined })
-        }).finally(done)
+        })
+        .finally(done)
       })
     })
 
@@ -428,15 +431,16 @@ describe('store', () => {
             "cluster_name": "testCluster",
             "latest_ping_timestamp": "2019-09-21T19:08:20.531Z"
             }])
-          done()
         })
+        .finally(done)
       })
       it('rejects on error', done => {
         state.clusterTable = 'clusterPings2'
         getClusterPings({state, commit: jest.fn()}).catch((error) => {
           expect(error).toEqual(new Error('Bad request'))
           
-        }).finally(done)
+        })
+        .finally(done)
       })
     })
 
@@ -452,7 +456,8 @@ describe('store', () => {
         result.then(() => {
           expect(commit).toHaveBeenCalled()
           expect(statistics["Exoom"][0].getLength()).toEqual(statistics["Exoom"][1].getLength())
-        }).finally(done)
+        })
+        .finally(done)
         })
       })
 
@@ -464,9 +469,8 @@ describe('store', () => {
           expect(commit).toHaveBeenCalledWith('setSequencerStatisticsSeries', [1,2])
           expect(commit).toHaveBeenCalledWith('setSequencerStatisticsLabels', ["testRow1",
           "testRow2"])
-        }).finally(() => {
-          done()
         })
+        .finally(done)
       })
       it('rejects with an error when failed', done => {
         state.sampleTable = 'sequencer2'
@@ -474,9 +478,7 @@ describe('store', () => {
         getSequencerStatistics({commit, state}).catch((error) => {
           expect(error).toBeInstanceOf(Error)
           
-        }).finally(() => {
-          done()
-        })
+        }).finally(done)
     })
   })
   describe('getDurationStatistics', () => {
@@ -486,9 +488,7 @@ describe('store', () => {
       getDurationStatistics({state, commit}).then(() => {
         expect(commit).toHaveBeenCalledTimes(2)
         
-      }).finally(()=> {
-        done()
-      })
+      }).finally(done)
     })
   })
   describe('constructRunObjects', () => {
@@ -514,9 +514,7 @@ describe('store', () => {
       ] 
       constructRunObjects({commit}, {runs, projects}).then(() => {
         expect(commit).toHaveBeenCalled()
-      }).finally(() => {
-        done()
-      })
+      }).finally(done)
     })
   })
 
@@ -536,9 +534,7 @@ describe('store', () => {
         expect(jobResults["startedProject"].getStatus()).toBe(statusCode.started)
         expect(jobResults["errorProject"].getStatus()).toBe(statusCode.error)
         expect(jobResults["waitingProject"].getStatus()).toBe(statusCode.waiting)
-      }).finally(() => {
-        done()
-      })
+      }).finally(done)
     })
   })
 })
