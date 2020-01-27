@@ -1,6 +1,6 @@
 {
   "name": "@molgenis-experimental/molgenis-app-pipeline-dashboard",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "license": "LGPL-3.0",
   "main": "dist/index.html",
   "publishConfig": {
@@ -143,7 +143,9 @@
         "babelConfig": true
       }
     },
-    "setupFiles": ["<rootDir>/tests/setup.ts"]
+    "setupFiles": [
+      "<rootDir>/tests/setup.ts"
+    ]
   },
   "config": {
     "commitizen": {

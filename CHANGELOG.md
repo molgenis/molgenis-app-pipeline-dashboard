@@ -1,3 +1,12 @@
+## [1.1.2](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.1...v1.1.2) (2020-01-27)
+
+
+### Bug Fixes
+
+* **1 pixel difference:** foxed 1 pixel difference between runTable and RunStatusTable ([f925e68](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/f925e684729edc11129518d361c85b47b880ee02))
+* **fixed graph height goin out of view:** fixed graph going out of view by merging graphs into one ([92846a9](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/92846a9baa3f7231e5f71c395191e8a7479ddbb3))
+* **status icon wrong:** fixed status icon showing warnig when project has not, but the run has ([cf5ad32](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/cf5ad3209359155c18d298961da71cf456dc03a3))
+
 ## [1.1.1](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.0...v1.1.1) (2020-01-15)
 
 
