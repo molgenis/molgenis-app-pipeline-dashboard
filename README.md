@@ -2,7 +2,7 @@
 
 # molgenis-app-pipeline-dashboard
 
-Dashboard for following the status of running pipelines. Each run has to go through multiple steps to complete which can take a lot of time. When errors occeur you want to know as quickly as possible where the problem lies.
+Dashboard for following the status of running pipelines. Each run has to go through multiple steps to complete which can take a lot of time. When errors occur you want to know as quickly as possible where the problem lies.
 
 # Setup in MOlGENIS for production:
 proxy MOLGENIS pipeline dashboard or @molgenis-experimental in MOLGENIS instance from unpkg
