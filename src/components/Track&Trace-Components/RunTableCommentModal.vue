@@ -24,9 +24,9 @@
             ></b-form-textarea>
 
           </b-form-group>
-          <div class="d-flex justify-content-between w-100">
-            <b-button class="mt-2 mr-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, oldComment: placeHolderComment, newComment: loadedProjectInfo[run].comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
-            <b-button class="mt-2 ml-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
+          <div class="d-flex justify-content-between w-100" id="button-group">
+            <b-button id="submit-button" class="mt-2 mr-2" variant="outline-primary" block squared @click="handleCommentSubmit({ project: run, oldComment: placeHolderComment, newComment: loadedProjectInfo[run].comment, validation: validation }).then(commentUpdated, commentNotUpdated)">Submit</b-button>
+            <b-button id="cancel-button" class="mt-2 ml-2" variant="outline-secondary" block squared @click="closeModal">Cancel</b-button>
           </div>
         </form>
       </b-col>

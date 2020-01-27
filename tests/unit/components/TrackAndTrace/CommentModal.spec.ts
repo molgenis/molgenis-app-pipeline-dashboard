@@ -1,6 +1,7 @@
-import { mount, createLocalVue } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
+import { createLocalVue, shallowMount } from '@vue/test-utils'
+import BootstrapVue, { BButton } from 'bootstrap-vue'
 import vuex from 'vuex'
+import testState from '../../store/testState'
 //@ts-ignore
 import CommentModal from '@/components/Track&Trace-Components/RunTableCommentModal.vue'
 
@@ -8,22 +9,31 @@ const localVue = createLocalVue()
 localVue.use(vuex)
 localVue.use(BootstrapVue)
 
-describe.skip('RunTableCommentModal.vue', () => {
+const state = testState
+const actions = {
+  handleCommentSubmit: jest.fn(),
+  getExtraProjectInfo: jest.fn()
+}
+const mutations = {
+  updateCommentOnLocalProject: jest.fn()
+}
+
+const store = new vuex.Store({state, actions, mutations})
+describe('RunTableCommentModal.vue', () => {
   const comment = 'hello, this is a test!'
   const run = 'TestRun1'
-  const API = 'localTest.com/'
+
   // render commentmodal
 
-  const wrapper = mount(
+  const wrapper = shallowMount(
     CommentModal,
     {
       propsData: {
-        Run: run,
-        comment: comment,
-        headers: {},
-        API: API
+        run: run,
+        comment: comment
       },
-      localVue: localVue,
+      store,
+      localVue,
       attachToDocument: true
     }
   )
@@ -40,50 +50,14 @@ describe.skip('RunTableCommentModal.vue', () => {
 
   afterAll(() => { wrapper.destroy() })
 
-  test('Is Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy()
+  test.skip('handle comment submit is called', () => {
+    const input = wrapper.find('#textinput')
+    
+    expect(wrapper.vm.$store.state.loadedProjectInfo[run]).toBe('test comment')
+    wrapper.find('#submit-button').trigger('click')
+    expect(actions.handleCommentSubmit).toHaveBeenCalled()
   })
-
-  test('exists', () => {
-    // Rendered Comment modal
-    expect(wrapper.find('#comment-modal').exists()).toBeTruthy()
-  })
-
-  test('Has correct initial content', () => {
-    // title is same as run
-    expect(wrapper.find('#comment-modal').find('.modal-title').text()).toEqual(run)
-
-    // assert placeholder comment has been saved
-    expect(wrapper.vm.$data.placeHolderComment).toEqual(comment)
-  })
-
-  test('Updates local comment on text change', () => {
-    const newComment = 'Updated Comment!'
-
-    // Comment equals old comment before change
-    expect(wrapper.vm.$data.placeHolderComment).toEqual(comment)
-
-    // Change textarea content
-    wrapper.find('#comment-modal').find('textarea').setValue(newComment)
-
-    // Comment changed locally
-    expect(wrapper.vm.$data.placeHolderComment).toEqual(newComment)
-  })
-
-  /* test('displays error if comment has been changed on remote', () => {
-    //Set remote TODO: add fetch mock
-
-    //Set new comment
-    wrapper.find('#comment-modal').find('textarea').setValue('Comment has changed?')
-
-    // expect an error when submitting
-    wrapper.find('#comment-modal').findAll('button').at(1).trigger('click')
-    expect(fetchMock.called()).toBeTruthy()
-    expect(wrapper.find('#comment-modal').find('#updateError').exists()).toBeTruthy()
-
-  }) */
-
-  test('displays error if comment is too long', () => {
+  test.skip('displays error if comment is too long', () => {
     let longArray = new Array(655640)
     // set text value too long
     wrapper.find('#comment-modal').find('textarea').setValue(longArray.join('@'))

@@ -689,7 +689,7 @@ export async function getExtraProjectInfo ({ state: { projectsTable, sampleTable
  * @category TrackAndTrace
  * @returns {Promise<void>} 
  */
-export async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object) => void}): Promise<void> {
+export async function getClusterPings ({ state: { clusterTable }, commit }: {state: State; commit: (mutation: string, params: object[]) => void}): Promise<void> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${clusterTable}`).then((result: {items: {cluster_name: string; latest_ping_timestamp: string}[]}) => {
       commit('updateClusterPings', result.items)
