@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.2...v1.1.3) (2020-02-17)
+
+
+### Bug Fixes
+
+* **updated config:** restored default status_clusters location ([704dd96](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/704dd96d88330dcb6a28fce70a6e48dd66489070))
+
 ## [1.1.2](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.1...v1.1.2) (2020-01-27)
 
 
