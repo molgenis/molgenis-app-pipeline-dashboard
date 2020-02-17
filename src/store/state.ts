@@ -49,7 +49,7 @@ const state: State = {
   jobTable: 'status_jobs',
   timingTable: 'status_timing',
   sampleTable: 'status_samples',
-  clusterTable: 'aaaac3wwfsa676qwhzjo7ayaae',
+  clusterTable: 'status_clusters',
   pipelineTypes: ['Exoom', 'ONCO', 'SVP', 'PCS'],
   MainInfoStatus: false,
   statistics: [],
