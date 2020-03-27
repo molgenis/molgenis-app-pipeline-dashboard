@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.3...v1.1.4) (2020-03-27)
+
+
+### Bug Fixes
+
+* **warning-calculation-error:** warnings were triggering too early due to a calculation error ([a492048](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/a492048ec4a6b3c32cc33ba2c30e73ecbb84a3b9))
+
 ## [1.1.3](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.2...v1.1.3) (2020-02-17)
 
 
