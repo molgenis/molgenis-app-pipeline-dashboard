@@ -102,10 +102,10 @@ export default Vue.extend({
             })
           }
         })
-        .catch(() => {
+        .catch((error: Error) => {
           if (!this.errorToastActive) {
             this.errorToastActive = true
-            this.$bvToast.toast('Failed connecting to MOLGENIS database...', {
+            this.$bvToast.toast(`${error.message}, are you logged in?`, {
               id: 'errorToast',
               title: 'Error',
               variant: 'danger',

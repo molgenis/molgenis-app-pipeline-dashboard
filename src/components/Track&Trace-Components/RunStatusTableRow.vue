@@ -215,7 +215,7 @@ export default Vue.extend({
         
         if (dates && !warning) {
           if (!dates.finishedDate && project.copyStatus !== statusCode.finished) {
-            if ((Date.now() - dates.startedDate.getTime()) / 3600 > this.threshold) {
+            if ((Date.now() - dates.startedDate.getTime()) / 3600000 > this.threshold) {
               warning = true
             }
           }
