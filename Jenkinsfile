@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'node-dubnium'
+            label 'node-erbium'
         }
     }
     stages {
