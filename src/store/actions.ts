@@ -124,7 +124,7 @@ export function findMax (seriesArray: IdentifiedSerie[]): number {
  * @param groupedData series with unique ids
  */
 export function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedSerie[] {
-  const maximum = findMax(groupedData, groupedData.length)
+  const maximum = findMax(groupedData)
   const newSeries = groupedData.map((series) => {
     const nullFilledArray = new Array(maximum - series.getLength()).fill({ projectID: null, number: null })
     return series.getLength() < maximum ? new IdentifiedSerie('', [...nullFilledArray, ...series.combinedData]) : series
