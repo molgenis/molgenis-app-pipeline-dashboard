@@ -121,14 +121,18 @@ describe('Setters wihtout logic', () => {
   })
 
   test('setSequencedSampleNumbers', () => {
-    const data: {labels: string[]; counts: number[]} = {
-      labels: ['test1', 'test2'],
+    const data: {labels: number[]; counts: number[]} = {
+      labels: [200508, 200509],
+      counts: [44, 932]
+    }
+
+    const expectedData = {
+      labels: ["2020-05-08", "2020-05-09"],
       counts: [44, 932]
     }
 
     mutations.setSequencedSampleNumbers(state, data)
-
-    expect(state.sequencedSampleNumbers).toEqual(data)
+    expect(state.sequencedSampleNumbers).toEqual(expectedData)
   })
 
   test('setJobAggregates', () => {
