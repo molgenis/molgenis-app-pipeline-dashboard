@@ -80,3 +80,4 @@ results can be found at docs/documentation/index.html
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
