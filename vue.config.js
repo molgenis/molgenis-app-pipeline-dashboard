@@ -1,6 +1,8 @@
 const packageJson = require('./package.json')
 const pkgName = packageJson.name
 
+const target = 'https://trace-acc.gcc.rug.nl'
+
 module.exports = {
   css: {
     loaderOptions: {
@@ -19,11 +21,11 @@ module.exports = {
     host: process.env.JENKINS_AGENT_NAME || 'localhost',
     proxy: process.env.NODE_ENV === 'production' ? undefined : {
       '^/api': {
-        target: 'https://molgenis96.gcc.rug.nl',
+        target,
         changeOrigin: true
       },
       '^/login': {
-        target: 'https://molgenis96.gcc.rug.nl',
+        target,
         changeOrigin: true
       }
     }

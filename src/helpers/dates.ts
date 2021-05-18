@@ -60,3 +60,36 @@ export function dateIsLastYear (date: Date, now: Date): boolean {
   return date >= lastYear
 }
 
+/**
+ * Sequencers gives date in format yymmdd
+ * 
+ * @param date 
+ * @returns yymmdd
+ */
+export function createSampleDate(date: Date): string {
+  let day = date.getDate().toString()
+  let month = (date.getMonth() + 1).toString()
+  const year = date.getFullYear()
+
+  if (parseInt(month) < 10) { // if number is single digit
+    month = '0' + month
+  }
+  if (parseInt(day) < 10) { // if number is single digit
+    day = '0' + day
+  }
+  return `${year.toString().substr(2)}${month}${day}`
+}
+
+/**
+ * Convert date from sample entity back to a normal date
+ * 
+ * @param date 
+ * @returns yyyy-mm-dd
+ */
+ export function convertSampleDate(sampleDate: number): string {
+  const convertedSampleDate = sampleDate.toString()
+  const day = convertedSampleDate.substr(4)
+  const month = convertedSampleDate.substr(2,2)
+  const year = `20${convertedSampleDate.substr(0,2)}` 
+  return year + '-' + month + '-' + day
+}

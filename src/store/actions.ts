@@ -7,8 +7,7 @@ import { RunDataObject, ProjectDataObject, parseStatus, statusCode, dateSearch, 
 import { Serie, IdentifiedSerie, RawDurationStatistics, DurationStatisticsStorage } from '@/types/graphTypes'
 
 import api from '@molgenis/molgenis-api-client'
-import { createDateRange, formatDate, dayMs } from '@/helpers/dates'
-import { max } from '@/helpers/statistics'
+import { createDateRange, formatDate, dayMs, createSampleDate } from '@/helpers/dates'
 
 import { RunData, ProjectData, JobCounter, JobCounts, constructSteps } from '@/types/Run'
 
@@ -112,7 +111,7 @@ export async function getProjectData ({ commit, state: { projectsTable } }: {com
  * @param seriesArray - array of series
  * @param length - current array lenght
  */
-export function findMax (seriesArray: IdentifiedSerie[], length: number): number {
+export function findMax (seriesArray: IdentifiedSerie[]): number {
   const maximum = seriesArray.reduce((max: number, serie: IdentifiedSerie) => {
     const length = serie.getLength()
     return max < length ? length : max
@@ -128,7 +127,7 @@ export function fillToEqualLenghts (groupedData: IdentifiedSerie[]): IdentifiedS
   const maximum = findMax(groupedData, groupedData.length)
   const newSeries = groupedData.map((series) => {
     const nullFilledArray = new Array(maximum - series.getLength()).fill({ projectID: null, number: null })
-    return series.getLength() < maximum ? new IdentifiedSerie(name, [...nullFilledArray, ...series.combinedData]) : series
+    return series.getLength() < maximum ? new IdentifiedSerie('', [...nullFilledArray, ...series.combinedData]) : series
   })
   return newSeries
 }
@@ -340,7 +339,7 @@ export async function getSampleNumbers ({ dispatch, commit, state: { sampleTable
 export async function getLastYearSampleSequencedNumbers ({ commit, state: { sampleTable } }: { commit: (mutation: string, params: object) => void; state: State }): Promise<void> {
   return new Promise((resolve, reject) => {
     const Now = new Date()
-    const lastYear = formatDate(new Date(Now.getTime() - (375 * dayMs)))
+    const lastYear = createSampleDate(new Date(Now.getTime() - (375 * dayMs)))
 
     api.get(`/api/v2/${sampleTable}?aggs=x==sequencingStartDate;distinct==externalSampleID&q=sequencingStartDate=ge=${lastYear}`)
       .then(function (result: {aggs: {matrix: number[][]; xLabels: string[]}}) {
@@ -608,7 +607,7 @@ export async function getJobAggregates ({ commit, state: { jobTable } }: {commit
  * @category TrackAndTrace
  * @returns {Promise<Date>}
  */
-export async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date> {
+export async function getDate ({ state: { jobTable } }: {state: State}, { projectID, type }: {projectID: string; type: dateSearch}): Promise<Date | undefined> {
   return new Promise((resolve, reject) => {
     api.get(`/api/v2/${jobTable}?attrs=project_job,${type}&sort=${type}:${type === dateSearch.started ? 'asc' : 'desc'}&num=1&q=project=='${projectID}';${type}!=''`).then((result: {items: {started_date: string; finished_date: string}[]}) => {
       if (result.items.length === 0) {
