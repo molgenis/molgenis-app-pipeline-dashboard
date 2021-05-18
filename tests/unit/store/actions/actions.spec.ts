@@ -301,7 +301,7 @@ describe('store', () => {
         {projectID: 'test2', number: 21},
       ]))
       it('function findMax finds correct maximum lenght', () => {
-        expect(findMax(seriesArray, 0)).toBe(3)
+        expect(findMax(seriesArray)).toBe(3)
       })
       it('function fillToEqualLenghts fills series to equal lenghts', () => {
         const newSeries: IdentifiedSerie[] = fillToEqualLenghts(seriesArray)

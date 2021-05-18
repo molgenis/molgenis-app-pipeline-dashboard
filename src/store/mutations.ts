@@ -6,6 +6,7 @@ import { State } from '@/store/state'
 import { Serie, IdentifiedSerie, DurationStatisticsStorage } from '@/types/graphTypes'
 import { JobCounts, RunData } from '@/types/Run'
 import { Sample } from '@/types/dataTypes'
+import { convertSampleDate } from '@/helpers/dates'
 
 /**
  * sets the pipeline runtime data for visualization
@@ -92,9 +93,9 @@ function setDailySampleCounts (state: State, counts: number): void{
  * @param state - application context
  * @param data - sequenced samples
  */
-function setSequencedSampleNumbers (state: State, data: {labels: string[]; counts: number[]}): void{
+function setSequencedSampleNumbers(state: State, data: { labels: number[]; counts: number[] }): void {
   state.sequencedSampleNumbers = {
-    labels: data.labels,
+    labels: data.labels.map(seqDate => convertSampleDate(seqDate)),
     counts: data.counts
   }
 }
