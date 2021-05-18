@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.4...v1.1.5) (2021-05-18)
+
+
+### Bug Fixes
+
+* trigger release ([9f5ce4d](https://github.com/molgenis/molgenis-app-pipeline-dashboard/commit/9f5ce4d8172b19018303d7cb60af07d07d12616c))
+
 ## [1.1.4](https://github.com/molgenis/molgenis-app-pipeline-dashboard/compare/v1.1.3...v1.1.4) (2020-03-27)
 
 
