@@ -30,7 +30,7 @@
     "bootstrap-vue": "^2.0.0",
     "core-js": "^2.6.5",
     "d3": "^5.12.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "sass-loader": "^8.0.0",
     "vue": "^2.6.10",
     "vue-apexcharts": "^1.5.0",
