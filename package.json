@@ -61,7 +61,7 @@
     "inject-loader": "^4.0.1",
     "jest-fetch-mock": "^2.1.2",
     "node-fetch": "^2.6.0",
-    "semantic-release": "^17.2.3",
+    "semantic-release": "^19.0.3",
     "testdouble": "^3.12.5",
     "ts-jest": "^23.0.0",
     "ts-loader": "^6.2.1",
